@@ -80,6 +80,7 @@ export function useSmartNotifications() {
             title: `${count}+ unread messages`,
             message: `You have ${count} new messages in the team chat.`,
             link: '/app/chat',
+            source_key: `chat_backlog:${new Date().toISOString().slice(0, 10)}`,
           });
         }
       }
@@ -118,6 +119,7 @@ export function useSmartNotifications() {
             title: 'You are #1 on the leaderboard',
             message: 'You took the top spot on the training leaderboard this week.',
             link: '/app/leaderboard',
+            source_key: `top1:${currentWeek}`,
           });
         }
       }
@@ -157,6 +159,7 @@ export function useSmartNotifications() {
             message: `Your event "${event.title}" starts in less than 15 minutes.`,
             link: '/app/calendar',
             event_id: event.id,
+            source_key: `event_soon:${event.id}`,
           });
         }
       }
@@ -194,6 +197,7 @@ export function useSmartNotifications() {
           title: `${hit}-day streak`,
           message: `You've logged in ${hit} days in a row.`,
           link: '/app',
+          source_key: `streak:${hit}`,
         });
       }
     } catch (err) {
@@ -231,6 +235,7 @@ export function useSmartNotifications() {
           title: `${hit} lessons completed`,
           message: `You just finished your ${hit}th lesson.`,
           link: '/app/training',
+          source_key: `lessons:${hit}`,
         });
       }
     } catch (err) {
@@ -276,6 +281,7 @@ export function useSmartNotifications() {
             title: `${name} broke their ${b.streak_count}-day streak`,
             message: `${name} just lost their login streak. A quick check-in could help them get back on track.`,
             link: '/app/team',
+            source_key: `streakbreak:${b.user_id}:${b.streak_count}`,
           });
         }
       }
@@ -302,6 +308,7 @@ export function useSmartNotifications() {
             title: `New rep joined: ${newProfile.full_name}`,
             message: `${newProfile.full_name} (${newProfile.email}) just signed up.`,
             link: '/app/team',
+            source_key: `newrep:${newProfile.user_id}`,
           });
         }
       )

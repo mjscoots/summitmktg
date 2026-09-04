@@ -28,6 +28,23 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // The checklist season closes: after the active season end date, or Sept 30
+    // when no season row sets one, nobody gets another reminder.
+    const { data: season } = await supabase
+      .from("seasons")
+      .select("ends_on")
+      .eq("is_active", true)
+      .maybeSingle();
+    const seasonEnd = season?.ends_on
+      ? new Date(`${season.ends_on}T23:59:59Z`)
+      : new Date(Date.UTC(new Date().getUTCFullYear(), 8, 30, 23, 59, 59));
+    if (new Date() > seasonEnd) {
+      return new Response(
+        JSON.stringify({ message: "Season is over, no reminders sent", reminders_sent: 0 }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
       throw new Error("RESEND_API_KEY not configured");
@@ -124,8 +141,8 @@ Deno.serve(async (req) => {
       if (repReminderDue) {
         const isOverdue = hoursRemaining <= 0;
         const subject = isOverdue
-          ? "⚠️ Summer Checklist Overdue — Complete Now"
-          : `⏰ Summer Checklist Reminder — ${Math.ceil(hoursRemaining)}h remaining`;
+          ? "Summer Checklist overdue, complete it now"
+          : `Summer Checklist reminder, ${Math.ceil(hoursRemaining)}h remaining`;
 
         const body = isOverdue
           ? `<h2>Hi ${profile.full_name},</h2>
@@ -200,7 +217,7 @@ Deno.serve(async (req) => {
     let managerNotificationsSent = 0;
     for (const [, info] of managerReminders) {
       const repList = info.reps.map((r) => `<li>${r}</li>`).join("");
-      const subject = `🚨 ${info.reps.length} rep(s) haven't completed the Summer Checklist`;
+      const subject = `${info.reps.length} rep(s) haven't completed the Summer Checklist`;
       const body = `<h2>Hi ${info.managerName},</h2>
         <p>The following rep(s) on your team have not yet completed the Summer Checklist:</p>
         <ul>${repList}</ul>
@@ -233,29 +250,24 @@ Deno.serve(async (req) => {
       // Rate limit: max 2 req/sec on Resend free tier
       await delay(600);
 
-      // Create in-app notification for the manager/pillar leader (dedup: 1 per 12 hours)
+      // Create in-app notification for the manager (one per half day, source_key holds it)
       try {
         const repNames = info.reps.length <= 3
           ? info.reps.join(", ")
           : `${info.reps.slice(0, 2).join(", ")} +${info.reps.length - 2} more`;
 
-        const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
-        const { count: existingNotif } = await supabase
+        const dayHalf = `${now.toISOString().slice(0, 10)}:${now.getUTCHours() < 12 ? "am" : "pm"}`;
+        const { error: notifErr } = await supabase
           .from("user_notifications")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", info.managerId)
-          .ilike("title", "%Summer Checklist Reminder%")
-          .gt("created_at", twelveHoursAgo);
+          .upsert({
+            user_id: info.managerId,
+            title: "Summer Checklist Reminder",
+            message: `${info.reps.length} rep(s) haven't completed the Summer Checklist: ${repNames}`,
+            link: "/app",
+            source_key: `checklist:${dayHalf}`,
+          }, { onConflict: "user_id,source_key", ignoreDuplicates: true });
 
-        if (!existingNotif || existingNotif === 0) {
-          await supabase
-            .from("user_notifications")
-            .insert({
-              user_id: info.managerId,
-              title: "Summer Checklist Reminder",
-              message: `${info.reps.length} rep(s) haven't completed the Summer Checklist: ${repNames}`,
-              link: "/app",
-            });
+        if (!notifErr) {
           managerNotificationsSent++;
         }
       } catch (e) {

@@ -40,7 +40,7 @@ function daysUntilSummer(): number {
 // ── email builders ──────────────────────────────────────────────────
 function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subject: string; html: string } {
   return {
-    subject: "Summit Training Reminder - Let's Get Back on Track! 🎯",
+    subject: "Summit Training Reminder - Let's Get Back on Track!",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a2e;">
         <h2 style="color: #1a1a2e;">Hi ${firstName(user.full_name)},</h2>
@@ -49,17 +49,17 @@ function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subje
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">Your Current Stats:</h3>
           <ul style="list-style: none; padding: 0;">
-            <li>📊 Training Progress: <strong>${trainingPct}%</strong></li>
+            <li>Training Progress: <strong>${trainingPct}%</strong></li>
             <li>⏰ Last Active: <strong>${daysInactive(user.last_active_at)} days ago</strong></li>
-            <li>☀️ Days Until Summer: <strong>${daysUntilSummer()} days</strong></li>
+            <li>Days Until Summer: <strong>${daysUntilSummer()} days</strong></li>
           </ul>
         </div>
 
         <h3>Quick Wins to Get Back:</h3>
         <ul>
-          <li>✅ Complete one training module (15-20 minutes)</li>
-          <li>✅ Watch a training video</li>
-          <li>✅ Review your pitch scripts</li>
+          <li>Complete one training module (15-20 minutes)</li>
+          <li>Watch a training video</li>
+          <li>Review your pitch scripts</li>
         </ul>
 
         <p><strong>Why Daily Training Matters:</strong><br/>
@@ -86,7 +86,7 @@ function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subje
 
 function buildDay4Email(user: any, trainingPct: number, teamStats: any, appUrl: string): { subject: string; html: string } {
   return {
-    subject: "Missing You on Summit! Your Team Needs You 💪",
+    subject: "Missing You on Summit! Your Team Needs You",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a2e;">
         <h2 style="color: #1a1a2e;">Hey ${firstName(user.full_name)},</h2>
@@ -101,9 +101,9 @@ function buildDay4Email(user: any, trainingPct: number, teamStats: any, appUrl: 
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">What Your Peers Are Doing Right Now:</h3>
           <ul>
-            ${teamStats.topRookie ? `<li>🏆 ${teamStats.topRookie.name} just hit ${teamStats.topRookie.pct}% training completion</li>` : ""}
-            ${teamStats.teamName ? `<li>📈 ${teamStats.teamName} team is training hard this week</li>` : ""}
-            <li>💪 Your peers are putting in the work daily</li>
+            ${teamStats.topRookie ? `<li>${teamStats.topRookie.name} just hit ${teamStats.topRookie.pct}% training completion</li>` : ""}
+            ${teamStats.teamName ? `<li>${teamStats.teamName} team is training hard this week</li>` : ""}
+            <li>Your peers are putting in the work daily</li>
           </ul>
         </div>
         ` : ""}
@@ -156,19 +156,19 @@ function buildPillarEmail(
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">Team Member Details:</h3>
           <ul style="list-style: none; padding: 0;">
-            <li>👤 Name: <strong>${userName}</strong></li>
-            <li>🏷️ Role: <strong>${userRole}</strong></li>
+            <li>Name: <strong>${userName}</strong></li>
+            <li>Role: <strong>${userRole}</strong></li>
             <li>⏰ Last Active: <strong>${formatDate(lastActive)}</strong></li>
-            <li>📊 Training Progress: <strong>${trainingPct}%</strong></li>
-            <li>📅 Days Inactive: <strong>${daysCount}</strong></li>
+            <li>Training Progress: <strong>${trainingPct}%</strong></li>
+            <li>Days Inactive: <strong>${daysCount}</strong></li>
           </ul>
         </div>
 
         <h3>What Happens Next:</h3>
         <ul>
-          <li>✅ ${userName} has been sent a training reminder email</li>
-          <li>📊 They're still able to access all training materials</li>
-          <li>🎯 A follow-up check-in may be needed</li>
+          <li>${userName} has been sent a training reminder email</li>
+          <li>They're still able to access all training materials</li>
+          <li>A follow-up check-in may be needed</li>
         </ul>
 
         <h3>Suggested Action:</h3>
@@ -182,9 +182,9 @@ function buildPillarEmail(
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">Quick Stats – Your ${teamName} team:</h3>
           <ul style="list-style: none; padding: 0;">
-            <li>🟢 ${teamActiveCount} members active daily</li>
-            <li>🔴 ${teamInactiveCount} members inactive 3+ days</li>
-            <li>📈 ${teamAvgTraining}% average team training completion</li>
+            <li>${teamActiveCount} members active daily</li>
+            <li>${teamInactiveCount} members inactive 3+ days</li>
+            <li>${teamAvgTraining}% average team training completion</li>
           </ul>
         </div>
 
@@ -223,7 +223,7 @@ Deno.serve(async (req) => {
     // ── 1. Get all profiles that could be inactive ──
     const { data: allProfiles, error: profErr } = await supabase
       .from("profiles")
-      .select("user_id, full_name, email, last_active_at, team_id, direct_manager, status, pillar_slug, time_this_week_minutes")
+      .select("user_id, full_name, email, last_active_at, team_id, manager_id, direct_manager, status, pillar_slug, time_this_week_minutes")
       .not("status", "eq", "nlc");
 
     if (profErr) throw profErr;
@@ -278,6 +278,29 @@ Deno.serve(async (req) => {
 
     const pillarProfileMap = new Map<string, any>();
     (pillarProfiles || []).forEach((p: any) => pillarProfileMap.set(p.user_id, p));
+
+    // One inactivity row per person per 7 days, and only for the people who own
+    // that person: their manager and their Pillar. Nobody else.
+    const weekBucket = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+    const notifyInactivity = async (user: any, message: string) => {
+      const recipients = new Set<string>();
+      if (user.manager_id && user.manager_id !== user.user_id) recipients.add(user.manager_id);
+      if (user.pillar_leader?.user_id && user.pillar_leader.user_id !== user.user_id) {
+        recipients.add(user.pillar_leader.user_id);
+      }
+      if (!recipients.size) return 0;
+      const rows = [...recipients].map((uid) => ({
+        user_id: uid,
+        title: "Team Inactivity Alert",
+        message,
+        link: "/app/team",
+        source_key: `inactive:${user.user_id}:${weekBucket}`,
+      }));
+      const { error } = await supabase
+        .from("user_notifications")
+        .upsert(rows, { onConflict: "user_id,source_key", ignoreDuplicates: true });
+      return error ? 0 : rows.length;
+    };
 
     // ── 5. Filter inactive users ──
     const inactiveUsers: any[] = [];
@@ -440,27 +463,10 @@ Deno.serve(async (req) => {
           await delay(600);
         }
 
-        // Create in-app notification for pillar (skip if pillar IS the inactive user)
-        if (user.pillar_leader && user.pillar_leader.user_id !== user.user_id) {
-          // Dedup: skip if a similar notification was already created today
-          const todayStr = new Date().toISOString().split("T")[0];
-          const { count: existingNotif } = await supabase
-            .from("user_notifications")
-            .select("id", { count: "exact", head: true })
-            .eq("user_id", user.pillar_leader.user_id)
-            .ilike("message", `%${user.full_name}%inactive%`)
-            .gt("created_at", todayStr);
-
-          if (!existingNotif || existingNotif === 0) {
-            await supabase.from("user_notifications").insert({
-              user_id: user.pillar_leader.user_id,
-              title: "Team Inactivity Alert",
-              message: `${user.full_name} has been inactive for ${dayCount} days`,
-              link: "/app/team",
-            });
-            notificationsCreated++;
-          }
-        }
+        notificationsCreated += await notifyInactivity(
+          user,
+          `${user.full_name} has been inactive for ${dayCount} days`
+        );
 
         // Mark day 3 sent
         await supabase
@@ -532,26 +538,10 @@ Deno.serve(async (req) => {
           await delay(600);
         }
 
-        // Update in-app notification (skip self-notification)
-        if (user.pillar_leader && user.pillar_leader.user_id !== user.user_id) {
-          const todayStr = new Date().toISOString().split("T")[0];
-          const { count: existingNotif } = await supabase
-            .from("user_notifications")
-            .select("id", { count: "exact", head: true })
-            .eq("user_id", user.pillar_leader.user_id)
-            .ilike("message", `%${user.full_name}%inactive%`)
-            .gt("created_at", todayStr);
-
-          if (!existingNotif || existingNotif === 0) {
-            await supabase.from("user_notifications").insert({
-              user_id: user.pillar_leader.user_id,
-              title: "Team Inactivity Alert",
-              message: `${user.full_name} still inactive (${dayCount} days) - follow-up sent`,
-              link: "/app/team",
-            });
-            notificationsCreated++;
-          }
-        }
+        notificationsCreated += await notifyInactivity(
+          user,
+          `${user.full_name} still inactive (${dayCount} days), follow up sent`
+        );
 
         // Mark day 4 sent
         await supabase

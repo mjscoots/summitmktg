@@ -27,16 +27,16 @@ Deno.serve(async (req) => {
 
     // Build shoutout message
     const lines = streaks.map((s: any, i: number) => {
-      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
+      const medal = `${i + 1}.`;
       const name = s.nickname || s.full_name?.split(" ")[0] || "Unknown";
-      return `${medal} **${name}** — ${s.current_streak} day streak 🔥`;
+      return `${medal} **${name}** - ${s.current_streak} day streak`;
     });
 
-    const message = `## 🏔️ Monday Streak Shoutout!\n\nTop 10 streaks heading into this week:\n\n${lines.join("\n")}\n\n*Keep grinding. Consistency wins.*`;
+    const message = `## Monday Streak Shoutout\n\nTop 10 streaks heading into this week:\n\n${lines.join("\n")}\n\n*Keep grinding. Consistency wins.*`;
 
     // Post as announcement
     const { error: annError } = await supabase.from("announcement_posts").insert({
-      title: "🔥 Monday Streak Shoutout — Top 10",
+      title: "Monday Streak Shoutout, Top 10",
       body: message,
       category: "recognition",
       status: "published",
