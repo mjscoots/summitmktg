@@ -88,67 +88,23 @@ export function ChatList({
     [mine]
   );
 
+  const pinned = useMemo(() => rows.filter((r) => r.is_pinned), [rows]);
+  const rest = useMemo(() => rows.filter((r) => !r.is_pinned), [rows]);
+
   return (
     <div className="mx-auto w-full max-w-2xl">
       <ul className="divide-y divide-border/40 overflow-hidden rounded-2xl border border-border/60 bg-card">
-        {rows.map((row) => {
-          const sender = firstName(row.last_sender);
-          const preview = previewText(row);
-          const muted = Boolean(row.is_muted);
-          const loud = row.unread > 0 && !muted;
-          return (
-            <li key={row.slug}>
-              <button
-                type="button"
-                onClick={() => onOpen(row.slug)}
-                className="flex min-h-[68px] w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[hsl(var(--surface-elevated))]"
-              >
-                <ChannelAvatar
-                  name={row.label}
-                  coverPath={row.kind === 'dm' ? null : row.cover_image_path}
-                  avatarUrl={row.kind === 'dm' ? row.avatar_url : null}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-foreground">
-                      {row.label}
-                    </span>
-                    {muted && <BellOff className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />}
-                    <span
-                      className={cn(
-                        'flex-shrink-0 text-[11px] tabular-nums',
-                        loud ? 'font-semibold text-[hsl(var(--ice))]' : 'text-muted-foreground'
-                      )}
-                    >
-                      {stamp(row.last_at)}
-                    </span>
-                  </span>
-                  <span className="mt-0.5 flex items-center gap-2">
-                    <span
-                      className={cn(
-                        'min-w-0 flex-1 truncate text-[13px]',
-                        loud ? 'text-foreground' : 'text-muted-foreground'
-                      )}
-                    >
-                      {row.last_content && sender && row.kind !== 'dm' ? `${sender}: ${preview}` : preview}
-                    </span>
-                    {loud && (
-                      <span
-                        className="flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-full px-1.5 text-[11px] font-bold tabular-nums"
-                        style={{
-                          background: 'hsl(var(--ice))',
-                          color: 'hsl(var(--primary-foreground))',
-                        }}
-                      >
-                        {row.unread > 99 ? '99+' : row.unread}
-                      </span>
-                    )}
-                  </span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
+        {pinned.length > 0 && (
+          <li className="px-3 pt-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Pinned
+          </li>
+        )}
+        {pinned.map((row) => (
+          <ConversationRow key={row.slug} row={row} onOpen={onOpen} onMuteChanged={onMuteChanged} />
+        ))}
+        {rest.map((row) => (
+          <ConversationRow key={row.slug} row={row} onOpen={onOpen} onMuteChanged={onMuteChanged} />
+        ))}
 
 
 
