@@ -3532,3 +3532,45 @@ the old edge is replaced, not added to.
 Typecheck clean. Production build clean. Baselines after all proofs rolled back:
 applications 13, profiles 536, pillar_links 0, placement_log 0,
 downline_edges 395, chat_messages 713. No data writes were kept. Not published.
+
+## Pass 166 - notifications and the recruit gate
+
+Baselines: profiles 536, user_notifications 6358 before and 6358 after (no data writes; both rollback proofs raised an exception and left nothing behind).
+
+### 1. Dead push button
+`src/components/notifications/NotificationBell.tsx` no longer has the Enable push notifications button or the `alert()` path. `requestPushPermission` had no other caller and is removed from `src/hooks/useNotifications.ts`. The one push toggle stays in notification preferences. When push is not granted the bell footer shows one quiet 44px row, tapping to the preferences screen at /app/profile.
+
+New copy, verbatim: `Turn on push in Settings`
+
+### 2. Bell behavior
+`handleOpenChange` only sets open state now; there is no `markAllAsRead` on open, so opening the bell writes nothing. A row is marked read when tapped, and Mark all read stays as the explicit button.
+
+### 3. Noise
+- Inactivity: `check-inactivity` now selects `manager_id` and writes through one `notifyInactivity` helper that targets the person's manager and their Pillar only, with `source_key` `inactive:<user_id>:<7 day bucket>`. Day 3 and day 4 share the same key, so a person produces at most one alert per 7 days per recipient. Upsert with `ignoreDuplicates` against the existing unique index `user_notifications_source_key_uniq`.
+- Top Performers: `weekly-champion-notify` no longer notifies every manager and admin. Recipients are the people on the list plus their `manager_id` and their `downline_edges` parents. `source_key` `topperf:<week_start>` gives one row per person per week.
+- Streaks: `useSmartNotifications` writes `source_key` `streak:<milestone>`, so one row per milestone per person for good.
+- Every other client insert now carries a key: `chat_backlog:<date>`, `top1:<week>`, `event_soon:<event id>`, `lessons:<count>`, `streakbreak:<user>:<count>`, `newrep:<user>`.
+- Summer Checklist: `bootcamp-reminders` stops for a person once the checklist is complete (it already reads only `bootcamp_completed = false`), and stops for everyone after the active season `ends_on`, or Sept 30 when no season row sets one (`seasons` is empty today). The manager row uses `source_key` `checklist:<date>:<am|pm>`.
+- Application still waiting: `notify_stalled_applications` keys on `appstall:<id>:<days/3>` instead of the date, so staff hear once per application per 3 days.
+
+### 4. Titles
+Emoji removed from every notification and email template that builds a title or message: `weekly-champion-notify`, `bootcamp-reminders`, `check-bootcamp-overdue` path subjects, `check-pitch-approvals-overdue`, `check-inactivity`, `send-calendar-notification`, `monday-streak-shoutout`. Remaining emoji in the repo sit in chat post bodies (`daily-accountability-post`), the welcome email greeting and the AI coach prompt context, none of which is a notification title or message; they were left alone under the no copy changes elsewhere rule.
+
+### 5. Events without a location
+On save, an event with no location and no link in the description shows the creator one warning line. Both save paths carry it: `src/pages/app/EventsPage.tsx` and `src/components/calendar/ManagerEventForm.tsx`. The Events list shows a muted line on cards with neither.
+
+New copy, verbatim: `Add a location or a link so people can find it` and `Location to be announced`
+
+### 6. Recruit gate, vertical aware
+Migration adds `recruit_vertical(uuid)` and `day_one_video_ids(text)`. Pest keeps the original `app_settings` key `day_one_video_ids` (6 videos); other industries read `day_one_video_ids_<industry>`, which do not exist yet, so Fiber and Life recruits are not gated and land on the normal home with the Pass 154 Training empty state. Tag a Fiber or Life day one course later and the gate applies with no code change. `is_gated_recruit`, `day_one_done`, `day_one_done_at`, `gated_recruits` and `recruit_gate_state` all resolve the list per person.
+
+Rollback proof (raised and rolled back): `pest_gated=t fiber_gated=f` for the same pending person.
+Dedupe proof (raised and rolled back): `exactly one row kept for the same key`.
+
+### Function grants
+`has_function_privilege('anon', fn, 'execute')` is false for `recruit_vertical(uuid)`, `day_one_video_ids(text)`, `is_gated_recruit(uuid)`, `recruit_gate_state()` and `notify_stalled_applications()`. The public set is unchanged at the 13 functions listed in Pass 165.
+
+### Carry from Pass 165
+The CORS readback now passes on the deployed function: `OPTIONS` on `submit-application` with origin `https://summitmktg.lovable.app` returns `HTTP/2 200` and `access-control-allow-origin: https://summitmktg.lovable.app`, not a wildcard.
+
+Typecheck clean, production build clean. Not published.
