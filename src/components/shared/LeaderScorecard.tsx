@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Copy, Loader2, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PAY_SCALE_LABELS, PayScale, NOT_CONFIRMED, formatCurrency } from '@/lib/commission';
+import { PAY_SCALE_LABELS, PayScale, NOT_CONFIRMED } from '@/lib/commission';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { PayScale, getTier } from '@/lib/commission';
+import { PayScale } from '@/lib/commission';
+import { fetchCompLadder, repRate } from '@/hooks/useCompLadder';
 import { formatLoadedAt } from '@/lib/importMatch';
 
 export interface MoneySummaryRaw {
@@ -56,7 +57,7 @@ export interface MoneySummary {
 }
 
 /** Pest earnings use the existing commission calculation, unchanged. */
-function pestEarnings(pest: MoneySummaryRaw['pest']) {
+function pestEarnings(pest: MoneySummaryRaw['pest'], ladderRate: number | null) {
   const scale = (['rookie', 'veteran', 'marketing'].includes(pest.pay_scale ?? '')
     ? pest.pay_scale
     : 'rookie') as PayScale;
@@ -65,7 +66,8 @@ function pestEarnings(pest: MoneySummaryRaw['pest']) {
   const revenue =
     pest.active_revenue !== null ? Number(pest.active_revenue) : avg !== null ? signs * avg : null;
   if (revenue === null) return { amount: 0, rateMissing: true, revenue: null, signs };
-  const rate = pest.rate_override !== null ? Number(pest.rate_override) : getTier(scale, revenue).rate;
+  const rate = pest.rate_override !== null ? Number(pest.rate_override) : ladderRate;
+  if (rate === null) return { amount: 0, rateMissing: true, revenue, signs };
   return { amount: revenue * rate, rateMissing: false, revenue, signs, rate };
 }
 
@@ -92,9 +94,10 @@ export function useMoneySummary(targetUserId?: string | null) {
     let active = true;
     setLoading(true);
     (async () => {
-      const { data: res } = await (supabase as any).rpc('get_my_money_summary', {
-        _target: targetUserId ?? null,
-      });
+      const [{ data: res }, pestLadder] = await Promise.all([
+        (supabase as any).rpc('get_my_money_summary', { _target: targetUserId ?? null }),
+        fetchCompLadder('Pest'),
+      ]);
       if (!active) return;
       const raw = res as MoneySummaryRaw | null;
       if (!raw) {
@@ -102,7 +105,7 @@ export function useMoneySummary(targetUserId?: string | null) {
         setLoading(false);
         return;
       }
-      const p = pestEarnings(raw.pest);
+      const p = pestEarnings(raw.pest, repRate(pestLadder));
       const f = fiberEarnings(raw.fiber);
       const pestLoaded = formatLoadedAt(raw.sources?.pest_loaded_at);
       const fiberLoaded = formatLoadedAt(raw.sources?.fiber_loaded_at);
