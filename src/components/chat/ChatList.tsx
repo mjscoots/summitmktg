@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { BellOff, Bot, ChevronRight } from 'lucide-react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
-import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 import type { ChatConversation } from '@/hooks/useChatChannels';
 import { cn } from '@/lib/utils';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
@@ -31,7 +30,7 @@ function previewText(row: ChatConversation): string {
   if (body.startsWith('voice:')) return 'Voice note';
   if (/^\[\[WIN\|/i.test(body)) return body.replace(/^\[\[WIN\|[0-9a-f-]+\]\]/i, '').trim();
   if (/^\[\[AWARDS\|/i.test(body)) return 'Weekly awards';
-  return body.replace(/\s+/g, ' ');
+  return body.replace(/^\p{Extended_Pictographic}\s*(?=Poll:)/u, '').replace(/\s+/g, ' ');
 }
 
 function stamp(at: string | null): string {
@@ -91,9 +90,7 @@ export function ChatList({
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <NeedsYouRow className="!px-0" />
-
-      <ul className="mt-2 divide-y divide-border/40 overflow-hidden rounded-2xl border border-border/60 bg-card">
+      <ul className="divide-y divide-border/40 overflow-hidden rounded-2xl border border-border/60 bg-card">
         {rows.map((row) => {
           const sender = firstName(row.last_sender);
           const preview = previewText(row);
