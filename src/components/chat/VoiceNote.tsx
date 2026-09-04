@@ -102,7 +102,7 @@ export function VoiceNoteBubble({ url, seconds, isOwn }: { url: string; seconds:
         <div className="h-1 w-full overflow-hidden rounded-full bg-current/20">
           <div className="h-full rounded-full bg-current/70 transition-[width]" style={{ width: `${pct}%` }} />
         </div>
-        <div className="mt-1 flex items-center gap-1 text-[10px] opacity-60">
+        <div className="mt-1 flex items-center gap-1 text-[11px] opacity-60">
           <Mic className="h-2.5 w-2.5" />
           {formatSeconds(playing || elapsed > 0 ? seconds - elapsed : seconds)}
         </div>

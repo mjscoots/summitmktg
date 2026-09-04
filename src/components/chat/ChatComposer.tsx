@@ -455,7 +455,7 @@ export function ChatComposer({
               {item.preview ? (
                 <img src={item.preview} alt={item.file.name} className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center px-1 text-center text-[10px] text-muted-foreground">
+                <span className="flex h-full w-full items-center justify-center px-1 text-center text-[11px] text-muted-foreground">
                   {item.file.name.slice(0, 18)}
                 </span>
               )}
@@ -481,7 +481,7 @@ export function ChatComposer({
                 <button
                   type="button"
                   onClick={() => void sendTray()}
-                  className="absolute inset-x-0 bottom-0 flex min-h-[22px] items-center justify-center gap-1 bg-destructive/85 text-[10px] font-semibold text-destructive-foreground"
+                  className="absolute inset-x-0 bottom-0 flex min-h-[22px] items-center justify-center gap-1 bg-destructive/85 text-[11px] font-semibold text-destructive-foreground"
                 >
                   <RotateCw className="h-3 w-3" /> Retry
                 </button>
