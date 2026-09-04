@@ -4,15 +4,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Copy, Loader2, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
-import {
-  PAY_SCALE_LABELS,
-  PayScale,
-  formatCurrency,
-  formatRate,
-  formatTierRange,
-  getTiers,
-} from '@/lib/commission';
+import { PAY_SCALE_LABELS, PayScale, NOT_CONFIRMED, formatCurrency } from '@/lib/commission';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
@@ -239,16 +231,7 @@ export function LeaderScorecard({ userId }: { userId: string }) {
           {ladder && (
             <div className={cn(CARD, 'p-4')}>
               <p className="micro-label mb-3">{PAY_SCALE_LABELS[ladder.scale]} pay ladder</p>
-              <PayLadderTrack
-                tiers={getTiers(ladder.scale).map((t) => ({
-                  label: formatTierRange(t),
-                  rateLabel: formatRate(t.rate),
-                  min: t.min,
-                  max: t.max === Infinity ? null : t.max,
-                }))}
-                value={ladder.revenue}
-                formatAmount={formatCurrency}
-              />
+              <p className="text-[13px] text-muted-foreground">{NOT_CONFIRMED}</p>
             </div>
           )}
 
