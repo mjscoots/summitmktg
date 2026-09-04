@@ -118,6 +118,14 @@ const DEFAULT_AVG_VET_PRA = 250000; // Was 275k, more conservative
 const DEFAULT_INCENTIVES_RATE = 0.05;
 
 const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => {
+  const calc = usePublicCalc();
+  const rookieBands = scaleBands(calc, 'rookie');
+  const vetBands = scaleBands(calc, 'veteran');
+  const marketingBands = scaleBands(calc, 'marketing');
+  const published = rookieBands !== null && vetBands !== null && marketingBands !== null;
+  const getRookieCommissionRate = (rev: number) => (rookieBands ? bandRate(rookieBands, rev) ?? 0 : 0);
+  const getVetCommissionRate = (rev: number) => (vetBands ? bandRate(vetBands, rev) ?? 0 : 0);
+  const getMarketingDealRate = (rev: number) => (marketingBands ? bandRate(marketingBands, rev) ?? 0 : 0);
   // Personal Inputs
   const [personalGrossStr, setPersonalGrossStr] = useState("");
   
@@ -225,6 +233,14 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
       });
     }
   }, [personalGrossRevenue, numDirectRookies, numDirectVets, numDirectManagers, avgManagerTeamRevenue, avgRookiePra, avgVetPra, onValuesChange]);
+
+  if (!published) {
+    return (
+      <div className="card-elevated p-6 md:p-8">
+        <p className="text-sm text-muted-foreground">{NOT_PUBLISHED}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="card-elevated p-6 md:p-8">
