@@ -33,6 +33,7 @@ export function ChannelAvatar({
   avatarUrl,
   size = 'md',
   className,
+  online = false,
 }: {
   name: string;
   /** Object path of the room cover, when the room has one. */
@@ -41,12 +42,14 @@ export function ChannelAvatar({
   avatarUrl?: string | null;
   size?: keyof typeof SIZES;
   className?: string;
+  /** Direct messages: the other person is active right now. */
+  online?: boolean;
 }) {
   const { url } = useChatAttachmentUrl(coverPath || null);
   const src = avatarUrl || url;
   const tone = toneFor(name || '');
 
-  return (
+  const inner = (
     <div
       className={cn(
         'relative flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full font-bold',
@@ -64,6 +67,14 @@ export function ChannelAvatar({
       ) : (
         <span>{monogram(name)}</span>
       )}
+    </div>
+  );
+
+  if (!online) return inner;
+
+  return (
+    <div className="relative flex-shrink-0 rounded-full p-[2px]" style={{ background: 'hsl(var(--success) / 0.9)' }}>
+      {inner}
     </div>
   );
 }
