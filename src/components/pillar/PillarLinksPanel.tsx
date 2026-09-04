@@ -117,9 +117,25 @@ export function PillarLinksPanel() {
             {p.token ? (
               <>
                 <p className="mt-2 break-all text-[12px] text-muted-foreground">{linkFor(p.token)}</p>
+                {p.expires_at && (
+                  <p className="mt-1 text-[12px] text-muted-foreground">
+                    {isExpired(p.expires_at)
+                      ? `Expired ${dateLabel(p.expires_at)}. Renew it to let people join again.`
+                      : `Works until ${dateLabel(p.expires_at)}`}
+                  </p>
+                )}
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Button size="sm" className="min-h-11" onClick={() => share(p, p.token as string)}>
                     Copy or share
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="min-h-11"
+                    disabled={busy === p.team_id}
+                    onClick={() => renew(p)}
+                  >
+                    Renew
                   </Button>
                   <Button
                     size="sm"
