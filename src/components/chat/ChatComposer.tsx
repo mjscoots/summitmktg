@@ -317,20 +317,29 @@ export function ChatComposer({
       setTray((prev) => prev.map((t) => (t.id === item.id ? done : t)));
     }
 
+    // Pick order is kept. Photos picked together travel as one grid message,
+    // sent at the place the first of them was picked.
     const photos = uploaded.filter((t) => t.kind === 'image').map((t) => t.path!) as string[];
+    let photosSent = false;
     try {
-      if (photos.length > 1) await onSendFile(buildImagesMessage(photos));
-      else if (photos.length === 1) await onSendFile(`img:${photos[0]}`);
       for (const item of uploaded) {
+        if (item.kind === 'image') {
+          if (photosSent) continue;
+          photosSent = true;
+          if (photos.length > 1) await onSendFile(buildImagesMessage(photos));
+          else await onSendFile(`img:${photos[0]}`);
+          continue;
+        }
         if (item.kind === 'video') await onSendFile(buildVideoMessage(item.path!));
         if (item.kind === 'file') {
           await onSendFile(`file:${JSON.stringify({ url: item.path, name: item.file.name, size: item.file.size })}`);
         }
       }
+      // The caption stays in the box until its own send succeeds.
       const caption = input.trim();
       if (caption) {
-        onInputChange('');
         await onSendFile(caption);
+        onInputChange('');
       }
       tray.forEach((t) => { if (t.preview?.startsWith('blob:')) URL.revokeObjectURL(t.preview); });
       setTray([]);
@@ -340,6 +349,7 @@ export function ChatComposer({
       setSendingTray(false);
     }
   };
+
 
   trayRef.current = tray;
   sendTrayRef.current = sendTray;
