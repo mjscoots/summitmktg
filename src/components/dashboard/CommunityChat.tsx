@@ -264,14 +264,23 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   const atBottomRef = useRef(true);
   const [newBelow, setNewBelow] = useState(0);
+  /** The New messages line, so scrolling past it can retire it. */
+  const dividerRef = useRef<HTMLDivElement | null>(null);
 
   const handleScroll = useCallback(() => {
-    if (!containerRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    const away = scrollHeight - scrollTop - clientHeight > 120;
-    atBottomRef.current = !away;
+    const container = containerRef.current;
+    if (!container) return;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const away = scrollHeight - scrollTop - clientHeight > clientHeight;
+    atBottomRef.current = scrollHeight - scrollTop - clientHeight <= 120;
     setShowScrollDown(away);
-    if (!away) setNewBelow(0);
+    if (atBottomRef.current) setNewBelow(0);
+    // The New messages line goes once the reader has scrolled past it.
+    const marker = dividerRef.current;
+    if (marker) {
+      const top = container.getBoundingClientRect().top;
+      if (marker.getBoundingClientRect().bottom < top) setDividerId(null);
+    }
   }, []);
 
 
@@ -917,24 +926,26 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
         <div ref={messagesEndRef} className="h-3" />
       </div>
 
-      {/* New messages while scrolled up */}
-      {showScrollDown && newBelow > 0 && (
-        <div className="absolute bottom-24 left-1/2 z-10 -translate-x-1/2">
+      {/* One control: back to the newest message, with anything missed on it */}
+      {showScrollDown && (
+        <div className="scroll-bottom-in absolute bottom-24 left-1/2 z-10 -translate-x-1/2">
           <button
             onClick={() => { setNewBelow(0); scrollToBottom(); }}
-            className="min-h-11 rounded-full border border-primary/40 bg-card/90 px-4 text-[12px] font-semibold text-primary shadow-xl backdrop-blur-xl"
+            aria-label={newBelow > 0 ? `${newBelow} new below. Jump to the newest.` : 'Jump to the newest message'}
+            className="press relative flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-card text-muted-foreground shadow-lg transition-colors hover:text-foreground"
           >
-            {newBelow} new {newBelow === 1 ? 'message' : 'messages'}
-          </button>
-        </div>
-      )}
-
-      {/* Scroll to bottom */}
-      {showScrollDown && newBelow === 0 && (
-
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10">
-          <button onClick={() => scrollToBottom()} className="bg-card/80 backdrop-blur-xl border border-border/20 shadow-xl rounded-full p-2 text-muted-foreground/40 hover:text-foreground transition-all hover:shadow-2xl">
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="h-4 w-4" />
+            {newBelow > 0 && (
+              <span
+                className="absolute -top-1 right-0 flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold tabular-nums"
+                style={{
+                  background: 'hsl(var(--workspace-accent))',
+                  color: 'hsl(var(--primary-foreground))',
+                }}
+              >
+                {newBelow > 99 ? '99+' : newBelow}
+              </span>
+            )}
           </button>
         </div>
       )}

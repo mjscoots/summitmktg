@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { useAuth } from '@/hooks/useAuth';
@@ -109,13 +109,23 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
  */
 function WorkspaceScopedMain({ children, fullHeight }: { children: ReactNode; fullHeight?: boolean }) {
   const { activeVertical, epoch } = useWorkspace();
+  const location = useLocation();
   return (
     <main
       key={`${activeVertical}:${epoch}`}
-      className={cn('app-main-pad page-transition flex-1 overflow-x-hidden', fullHeight && 'min-h-0 overflow-hidden')}
+      className={cn(
+        'app-main-pad app-figures flex-1 overflow-x-hidden [&_h1]:tracking-tight [&_h2]:tracking-tight',
+        fullHeight && 'min-h-0 overflow-hidden'
+      )}
       data-app-main
     >
-      <VerticalRouteGuard>{children}</VerticalRouteGuard>
+      {/* Keyed by path so each route change fades and lifts once. */}
+      <div
+        key={location.pathname}
+        className={cn('page-transition', fullHeight && 'h-full min-h-0')}
+      >
+        <VerticalRouteGuard>{children}</VerticalRouteGuard>
+      </div>
     </main>
   );
 }

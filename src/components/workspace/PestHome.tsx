@@ -33,6 +33,7 @@ import { GoalInterviewCard } from '@/components/home/GoalInterviewCard';
 import { FiberStartCard } from '@/components/workspace/FiberStartCard';
 import { HomeGreeting } from '@/components/home/HomeGreeting';
 import { TodayRow } from '@/components/home/TodayRow';
+import { WorkspaceHero } from '@/components/home/WorkspaceHero';
 import { DarkRepRadar } from '@/components/team/DarkRepRadar';
 
 function greeting(): string {
@@ -137,8 +138,22 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         ];
   const subline = sublineParts.filter(Boolean).join(' · ');
 
+  const heroLabel = offSeason
+    ? staff
+      ? 'Signed for 2027'
+      : 'Training this week'
+    : staff
+      ? 'Team today'
+      : 'Today';
+
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-6 sm:space-y-10">
+      <WorkspaceHero
+        firstName={profile?.full_name?.split(' ')[0] || null}
+        workspaceName="Pest"
+        streak={saleStreak}
+        metric={{ label: heroLabel, value: offSeason && staff ? resign.signed : heroValue }}
+      />
       <TodayRow />
       <OnboardingAlert />
 

@@ -24,6 +24,7 @@ import {
 import { UpdatesStrip } from '@/components/home/UpdatesStrip';
 import { HomeGreeting } from '@/components/home/HomeGreeting';
 import { TodayRow } from '@/components/home/TodayRow';
+import { WorkspaceHero } from '@/components/home/WorkspaceHero';
 
 import { UpcomingBlitzes } from '@/components/fiber/UpcomingBlitzes';
 import { MoreReveal } from '@/components/home/MoreReveal';
@@ -58,7 +59,7 @@ interface Lead {
  */
 export function FiberHome({ workspace }: { workspace: Workspace }) {
   const navigate = useNavigate();
-  const { user, role } = useAuth();
+  const { user, profile, role } = useAuth();
   const canShareJoinLink = isManagerOrAbove(role);
   const { contacts, joinLink, faq } = useFiberHub();
   const [loading, setLoading] = useState(true);
@@ -176,8 +177,13 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 pb-8 sm:space-y-10">
       <div className="pt-6">
-        <TodayRow />
+        <WorkspaceHero
+          firstName={profile?.full_name?.split(' ')[0] || null}
+          workspaceName={workspace.name}
+          metric={{ label: 'Today', value: todaySold }}
+        />
       </div>
+      <TodayRow />
       <div className="space-y-8 sm:space-y-10">
         <HomeGreeting />
         <UpdatesStrip isManagerTier={false} />
