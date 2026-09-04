@@ -833,10 +833,18 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           const showTime = shouldShowTime(msg, prev);
           const own = msg.user_id === user?.id && !msg.is_ai;
           const newDivider = dividerId === msg.id ? (
-            <div className="my-2 flex items-center gap-2 px-3">
-              <span className="h-px flex-1 bg-primary/30" />
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-primary">New</span>
-              <span className="h-px flex-1 bg-primary/30" />
+            <div ref={dividerRef} className="my-2 flex items-center gap-2 px-3">
+              <span className="h-px flex-1" style={{ background: 'hsl(var(--workspace-accent) / 0.35)' }} />
+              <span
+                className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide"
+                style={{
+                  background: 'hsl(var(--workspace-accent) / 0.14)',
+                  color: 'hsl(var(--workspace-accent))',
+                }}
+              >
+                New messages
+              </span>
+              <span className="h-px flex-1" style={{ background: 'hsl(var(--workspace-accent) / 0.35)' }} />
             </div>
           ) : null;
 
