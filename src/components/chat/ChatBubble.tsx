@@ -139,6 +139,7 @@ export function ChatBubble({
   readTick = null,
   showIndustryChips = false,
   skipIndustry = null,
+  isMenuOpen = false,
 }: ChatBubbleProps) {
 
 
