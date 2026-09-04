@@ -117,7 +117,7 @@ export function ManagerPrepForm({
 
         <div className="space-y-1.5">
           <Label className="text-sm">
-            Did you complete your mission last week? <span className="text-destructive">*</span>
+            Did you complete your to do last week? <span className="text-destructive">*</span>
           </Label>
           <RadioGroup value={formData.completed_mission} onValueChange={v => update('completed_mission', v)} className="flex gap-4">
             <div className="flex items-center space-x-2">
@@ -133,7 +133,7 @@ export function ManagerPrepForm({
 
         <div className="space-y-1.5">
           <Label className="text-sm">
-            This week's mission: <span className="text-destructive">*</span>
+            This week's to do: <span className="text-destructive">*</span>
           </Label>
           <p className="text-[10px] text-primary font-medium">This will become a daily task in their Today's Priorities</p>
           <Textarea value={formData.weekly_mission} onChange={e => update('weekly_mission', e.target.value)} rows={2} />

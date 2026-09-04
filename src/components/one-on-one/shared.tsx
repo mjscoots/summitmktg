@@ -305,13 +305,13 @@ export function RookieManagerForm({
             Review any activities coming up <span className="text-destructive">*</span>
           </Label>
           <p className="text-xs text-muted-foreground">
-            Check to see if they accomplished their mission from the previous week?
+            Check to see if they finished their to do from the previous week?
           </p>
           <Textarea
             id="upcoming_activities"
             value={formData.upcoming_activities}
             onChange={e => setFormData({ ...formData, upcoming_activities: e.target.value })}
-            placeholder="List upcoming activities and review previous mission"
+            placeholder="List upcoming activities and review the previous to do"
             rows={3}
             required
           />
@@ -339,7 +339,7 @@ export function RookieManagerForm({
 
         <div className="space-y-2">
           <Label htmlFor="weekly_mission">
-            Give a mission to complete for the week? <span className="text-destructive">*</span>
+            Give a to do to complete for the week? <span className="text-destructive">*</span>
           </Label>
           <p className="text-xs text-primary font-medium">
             This will become a daily task in their Today's Priorities
@@ -348,7 +348,7 @@ export function RookieManagerForm({
             id="weekly_mission"
             value={formData.weekly_mission}
             onChange={e => setFormData({ ...formData, weekly_mission: e.target.value })}
-            placeholder="What is the mission for next week?"
+            placeholder="What is the to do for next week?"
             rows={3}
             required
           />
@@ -558,7 +558,7 @@ export function ManagerForm({
 
         <div className="space-y-3">
           <Label>
-            Did you complete your mission last week? <span className="text-destructive">*</span>
+            Did you complete your to do last week? <span className="text-destructive">*</span>
           </Label>
           <p className="text-xs text-muted-foreground">
             Refer to the answers from last week in the Responses tab.
@@ -581,7 +581,7 @@ export function ManagerForm({
 
         <div className="space-y-2">
           <Label htmlFor="weekly_mission_mgr">
-            This week's mission: <span className="text-destructive">*</span>
+            This week's to do: <span className="text-destructive">*</span>
           </Label>
           <p className="text-xs text-primary font-medium">
             This will become a daily task in their Today's Priorities
@@ -986,7 +986,7 @@ export function ResponseDetailModal({ response, onClose }: { response: ResponseD
                 <DetailRow label="Completed Last Week's Challenge" value={response.completed_challenge} />
                 <DetailRow label="Upcoming Activities" value={response.upcoming_activities} />
                 <DetailRow label="Pitch Work Needed" value={response.pitch_work_needed} />
-                <DetailRow label="Weekly Mission" value={response.weekly_mission} />
+                <DetailRow label="Weekly to do" value={response.weekly_mission} />
               </>
             ) : (
               <>
@@ -996,8 +996,8 @@ export function ResponseDetailModal({ response, onClose }: { response: ResponseD
                 <DetailRow label="Rep Relationship" value={response.rep_relationship} />
                 <DetailRow label="Obstacles Encountered" value={response.obstacles_encountered} />
                 <DetailRow label="Last Week's Obstacles Review" value={response.obstacles_review} />
-                <DetailRow label="Completed Last Week's Mission" value={response.completed_mission} />
-                <DetailRow label="This Week's Mission" value={response.weekly_mission} />
+                <DetailRow label="Completed last week's to do" value={response.completed_mission} />
+                <DetailRow label="This week's to do" value={response.weekly_mission} />
                 <DetailRow label="Recruit Goal" value={response.recruit_goal} />
                 <DetailRow label="Gethawx Review" value={response.gethawx_review} />
                 <DetailRow label="Training Progress Check" value={response.training_progress_check} />

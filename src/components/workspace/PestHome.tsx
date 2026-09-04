@@ -100,7 +100,7 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
     : [
         { label: 'Field pack', to: '/app/training#field-pack' },
         { label: 'Ask Summit', to: '/app/ask' },
-        { label: 'Missions', to: '/app/missions', badge: cards.length },
+        { label: 'To do', to: '/app/missions', badge: cards.length },
         { label: 'Board', to: '/app/leaderboard' },
       ];
 

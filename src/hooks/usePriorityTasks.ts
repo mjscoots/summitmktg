@@ -143,7 +143,7 @@ export async function createTasksFromRookieForm(
     tasks.push({
       user_id: rookieUserId,
       task_type: 'weekly_mission' as const,
-      task_title: 'Weekly Mission',
+      task_title: 'Weekly to do',
       task_description: weeklyMission,
       source_form_type: 'rookie_1_on_1' as const,
       source_form_id: formId,
@@ -184,7 +184,7 @@ export async function createTasksFromManagerForm(
     tasks.push({
       user_id: managerUserId,
       task_type: 'manager_mission' as const,
-      task_title: "This Week's Mission",
+      task_title: "This week's to do",
       task_description: weeklyMission,
       source_form_type: 'manager_1_on_1' as const,
       source_form_id: formId,

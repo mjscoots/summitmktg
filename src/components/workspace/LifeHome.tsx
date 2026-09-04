@@ -33,7 +33,7 @@ function ChatCard({ label, onOpen }: { label: string; onOpen: () => void }) {
 
 /**
  * Summit Life home. Appointments and pipeline, calm and clean.
- * No points, streaks, ranks, missions, calculators, or installs.
+ * No points, streaks, ranks, to do items, calculators, or installs.
  */
 export function LifeHome({ workspace }: { workspace: Workspace }) {
   const navigate = useNavigate();

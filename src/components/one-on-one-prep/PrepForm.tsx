@@ -98,7 +98,7 @@ export function PrepForm({
           <Textarea
             value={formData.upcoming_activities}
             onChange={e => update('upcoming_activities', e.target.value)}
-            placeholder="Upcoming activities and previous mission review"
+            placeholder="Upcoming activities and the previous to do"
             rows={2}
           />
         </div>
@@ -123,7 +123,7 @@ export function PrepForm({
 
         <div className="space-y-1.5">
           <Label className="text-sm">
-            Give a mission to complete for the week? <span className="text-destructive">*</span>
+            Give a to do to complete for the week? <span className="text-destructive">*</span>
           </Label>
           <p className="text-[10px] text-primary font-medium">
             This will become a daily task in their Today's Priorities
@@ -131,7 +131,7 @@ export function PrepForm({
           <Textarea
             value={formData.weekly_mission}
             onChange={e => update('weekly_mission', e.target.value)}
-            placeholder="What is the mission for next week?"
+            placeholder="What is the to do for next week?"
             rows={2}
           />
         </div>

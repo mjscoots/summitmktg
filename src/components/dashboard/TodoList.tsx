@@ -289,14 +289,14 @@ export function TodoList() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-foreground tracking-tight">Mission Board</h2>
+                <h2 className="text-base font-bold text-foreground tracking-tight">To do</h2>
                 {activeTotal > 0 && (
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
                     {activeTotal}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">Track priorities and move fast</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Add what you need to get done</p>
             </div>
           </div>
         </div>
