@@ -974,6 +974,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           onEdit={() => { setEditingId(contextMsg.id); setEditText(contextMsg.content); }}
           onDelete={() => setDeleteConfirm({ open: true, msgId: contextMsg.id })}
           onPin={() => handlePin(contextMsg.id)}
+          onToggleReaction={handleToggleReaction}
+
           messageContent={contextMsg.content}
         />
       )}
