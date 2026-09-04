@@ -279,10 +279,12 @@ export function ChatBubble({
       const info = getFileInfo(message.content);
       return info ? <ChatFile info={info} /> : null;
     }
-    if (message.content.startsWith('📊 Poll:')) {
+    if (/^(\p{Extended_Pictographic}\s*)?Poll:/u.test(message.content)) {
+      // Older rows carry an emoji before the prefix; it is stripped at read time.
+      const clean = message.content.replace(/^\p{Extended_Pictographic}\s*/u, '');
       return (
         <div>
-          <p className="leading-relaxed">{renderWithLinks(message.content)}</p>
+          <p className="leading-relaxed">{renderWithLinks(clean)}</p>
           <ChatPoll messageId={message.id} profileMap={profileMap} />
         </div>
       );

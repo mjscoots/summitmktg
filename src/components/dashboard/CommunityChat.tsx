@@ -653,7 +653,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     // row fails, the message is removed again: no Poll line without its poll.
     const { data: msg, error } = await supabase
       .from('chat_messages')
-      .insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: activeChannel })
+      .insert({ user_id: user.id, content: `Poll: ${question}`, channel: activeChannel })
       .select('id')
       .single();
     if (error || !msg) { toast.error('That did not send. Try again.'); return false; }
