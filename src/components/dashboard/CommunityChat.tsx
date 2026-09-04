@@ -615,24 +615,44 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   };
 
   const handleSendGif = async (gifUrl: string) => {
-    if (!user) return;
-    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${GIF_PREFIX}${gifUrl}`, reply_to: replyingTo?.id || null, channel: activeChannel });
+    if (!user) return false;
+    const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `${GIF_PREFIX}${gifUrl}`, reply_to: replyingTo?.id || null, channel: activeChannel });
+    if (error) { toast.error('That did not send. Try again.'); return false; }
     setReplyingTo(null); scrollToBottom();
+    return true;
   };
 
   const handleSendSticker = async (sticker: any) => {
-    if (!user) return;
-    await supabase.from('chat_messages').insert({ user_id: user.id, content: `${STICKER_PREFIX}${sticker.id}`, reply_to: replyingTo?.id || null, channel: activeChannel });
+    if (!user) return false;
+    const { error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `${STICKER_PREFIX}${sticker.id}`, reply_to: replyingTo?.id || null, channel: activeChannel });
+    if (error) { toast.error('That did not send. Try again.'); return false; }
     setReplyingTo(null); scrollToBottom();
+    return true;
   };
 
   const handleCreatePoll = async (question: string, options: string[]) => {
-    if (!user) return;
-    const { data: msg, error } = await supabase.from('chat_messages').insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: activeChannel }).select('id').single();
-    if (error || !msg) { toast.error('Failed to create poll'); return; }
-    await supabase.from('chat_polls').insert({ message_id: msg.id, question, options, created_by: user.id });
+    if (!user) return false;
+    // The poll row points at the message, so the message goes first. If the poll
+    // row fails, the message is removed again: no Poll line without its poll.
+    const { data: msg, error } = await supabase
+      .from('chat_messages')
+      .insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: activeChannel })
+      .select('id')
+      .single();
+    if (error || !msg) { toast.error('That did not send. Try again.'); return false; }
+    const { error: pollError } = await supabase
+      .from('chat_polls')
+      .insert({ message_id: msg.id, question, options, created_by: user.id });
+    if (pollError) {
+      await supabase.from('chat_messages').delete().eq('id', msg.id);
+      setMessages((prev) => prev.filter((m) => m.id !== msg.id));
+      toast.error('That did not send. Try again.');
+      return false;
+    }
     scrollToBottom();
+    return true;
   };
+
 
   const handleContextMenu = (e: React.MouseEvent | React.TouchEvent, msgId: string) => {
     let x: number, y: number;
