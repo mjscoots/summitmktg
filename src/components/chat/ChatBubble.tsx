@@ -256,7 +256,7 @@ export function ChatBubble({
             className="w-full bg-transparent text-inherit text-sm focus:outline-none"
             autoFocus
           />
-          <span className="text-[10px] opacity-40 mt-1 block">esc cancel · enter save</span>
+          <span className="text-[11px] opacity-60 mt-1 block">esc cancel · enter save</span>
         </div>
       );
     }
@@ -360,12 +360,12 @@ export function ChatBubble({
             <span className="flex items-center gap-1 mb-0.5 ml-1 min-w-0">
               <button
                 onClick={() => onProfileClick(message.user_id)}
-                className={cn("text-[11px] font-semibold truncate", getRoleColor(profile.role))}
+                className={cn("text-[12px] font-semibold truncate", getRoleColor(profile.role))}
               >
                 {(profile.full_name || '').trim().split(/\s+/)[0] || profile.full_name}
               </button>
               {profile.team_name && (
-                <span className="shrink-0 rounded-full border border-border/60 bg-muted/30 px-1.5 text-[10px] text-muted-foreground">
+                <span className="shrink-0 rounded-full border border-border/60 bg-muted/30 px-1.5 text-[11px] text-muted-foreground">
                   {profile.team_name}
                 </span>
               )}
@@ -428,11 +428,10 @@ export function ChatBubble({
               ),
             ),
             message.is_pinned && "ring-1 ring-amber-500/20",
-            !hasMediaContent && isLastInGroup && !message.is_ai && (isOwn ? "bubble-tail-own" : "bubble-tail-other"),
           )}>
 
             {message.is_ai && isFirstInGroup && (
-              <span className="text-[10px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
+              <span className="text-[11px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
             )}
             {renderContent()}
             {showWinBurst && (
@@ -443,11 +442,11 @@ export function ChatBubble({
               </span>
             )}
             {!hasMediaContent && !isEditing && (
-              <span className="ml-2 inline-flex select-none items-center gap-1 align-bottom text-[10px] text-muted-foreground/50">
+              <span className={cn("ml-2 inline-flex select-none items-center gap-1 align-bottom text-[11px]", isOwn ? "text-white/70" : "text-muted-foreground/60")}>
                 {message.edited_at && <span>edited</span>}
                 <span>{new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
-                {isOwn && readTick === 'read' && <CheckCheck className="h-3 w-3 text-muted-foreground/60" aria-label="Read" />}
-                {isOwn && readTick === 'sent' && <Check className="h-3 w-3 text-muted-foreground/50" aria-label="Delivered" />}
+                {isOwn && readTick === 'read' && <CheckCheck className="h-3 w-3" aria-label="Read" />}
+                {isOwn && readTick === 'sent' && <Check className="h-3 w-3" aria-label="Delivered" />}
               </span>
             )}
           </div>
@@ -532,7 +531,7 @@ export function ChatBubble({
                   </button>
                 ))}
                 {reactions.reduce((sum, r) => sum + r.count, 0) > 1 && (
-                  <span className="text-[10px] font-medium text-muted-foreground/40 ml-0.5">
+                  <span className="text-[11px] font-medium text-muted-foreground/60 ml-0.5">
                     {reactions.reduce((sum, r) => sum + r.count, 0)}
                   </span>
                 )}
@@ -542,7 +541,7 @@ export function ChatBubble({
 
           {/* Timestamp - media bubbles carry it outside, text bubbles inside */}
           {hasMediaContent && showTimestamp && isLastInGroup && (
-            <div className={cn("text-[10px] text-muted-foreground/30 mt-0.5 px-1", isOwn ? "text-right" : "text-left")}>
+            <div className={cn("text-[11px] text-muted-foreground/60 mt-0.5 px-1", isOwn ? "text-right" : "text-left")}>
               {new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
             </div>
           )}
