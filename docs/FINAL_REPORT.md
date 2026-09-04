@@ -3574,3 +3574,52 @@ Dedupe proof (raised and rolled back): `exactly one row kept for the same key`.
 The CORS readback now passes on the deployed function: `OPTIONS` on `submit-application` with origin `https://summitmktg.lovable.app` returns `HTTP/2 200` and `access-control-allow-origin: https://summitmktg.lovable.app`, not a wildcard.
 
 Typecheck clean, production build clean. Not published.
+
+## Pass 167 - chat room polish, chat list cleanup, More consolidation, Settings, function check
+
+### 1. Compose bar
+`src/components/chat/ChatComposer.tsx`: wrapper is now `border-t border-border/40 bg-card` (no translucency, no backdrop blur). Input row is `flex items-center gap-2 px-3 py-2`. The pill is `min-h-11 bg-muted/40 border border-border/40` with `focus-within:border-primary/40`; the input inside is `h-11`, so pill and the plus, mic and send buttons are all 44px tall and centered on one line. Plus and mic rest as `bg-muted/40 text-muted-foreground`; send is solid workspace accent with a white icon. Reply preview, media tray, recording bar and typing line share the same `px-3` as the input row. The messages spacer stays `h-3`, so the last bubble sits 12px above the composer with the keyboard closed. ChatHeader and the plus sheet were not touched.
+
+### 2. Room colors and layout
+Own bubbles are the solid workspace or chosen accent with white text; other bubbles are `bg-card` with a `border-border/40` hairline and foreground text; AI bubbles keep their tint. Bubble tails removed from CSS and from `ChatBubble.tsx` (`rg "bubble-tail" src` returns nothing); iMessage corner rounding kept. Timestamps and meta are 11px at muted-foreground 60 percent, sender names 12px semibold, and no chat label is under 11px. Day dividers render as a small centered pill. The summit, night, slate, forest, sand and ice wallpapers are now flat or single soft two stop washes with no pattern or texture. Message list padding is `px-3 lg:px-6`; the desktop frame width is unchanged.
+
+### 3. Chat list
+`NeedsYouRow` removed from `src/components/chat/ChatList.tsx` along with the `mt-2` clearance; the list starts at the first conversation row. `src/components/chat/NeedsYouRow.tsx` was kept because `PestHome.tsx`, `LifeHome.tsx` and `FiberHome.tsx` still import it.
+
+### 4. To do
+Nav label, page header and list heading now read To do ("Your own list.", "Add what you need to get done"). Route `/app/missions`, the `mission-board-container` class and the Home preview are unchanged. `rg -in "\bmissions?\b" src` leaves only CSS class names, the route string, radio input ids and code comments; no rep facing copy.
+
+### 5. More screen and Settings
+`src/pages/app/MorePage.tsx` rebuilt: each group is a 52px header row with label, item count and chevron; the first group (Your work) opens by default, the rest start collapsed, and state persists under `more:open:<key>`. Recruits now carries `minTier: 'manager'`. The You and Appearance groups are replaced by a final Settings group (gear icon) with Profile, Appearance, Notifications and Account, rendered from the shared `src/components/settings/SettingsList.tsx`; Appearance expands in place to App look (`/app/appearance`) and Chat look (`/app/chat-look`). New pages: `SettingsPage`, `AppearancePage` (hosts `AppearanceCard`), `NotificationsPage` (hosts `NotificationPreferences`), `AccountPage` (password change plus self delete). All four are `ProtectedRoute` inside `AppLayout` and read back from `App.tsx` at `/app/settings`, `/app/appearance`, `/app/notifications`, `/app/account`. `ProfilePage` no longer imports `NotificationPreferences` or `AppearanceCard`, no longer holds password or delete state, and ends with one More settings row to `/app/settings`. The bottom bar still has six tabs.
+
+Sales tier sees Your work, Learn and tools, Company (Alumni only) and Settings; the Manage group and Pillar and Command center rows do not appear. The owner sees every group. In both cases only the first group is open on a fresh device.
+
+### 6. Poll prefix
+New polls insert `Poll: <question>` with no emoji. `ChatBubble.tsx` and the chat list preview strip an optional leading emoji from the prefix at read time. No data writes.
+
+### 7. Function and route check
+Every `path` in `appNav.ts` resolves to a route in `App.tsx`: 39 of 39 paths matched (`/admin/requests` is produced by the generated `['people','requests','money','content','settings']` route map). No missing imports or renamed RPCs were found; nothing needed rewiring.
+
+Limitation, stated plainly: an authenticated preview session could not be minted this pass. `LOVABLE_BROWSER_AUTH_STATUS` was `signed_out`, `lovable auth-session --json` failed because the project has several auth users, and minting for a named user requires approval that was unavailable here. The per route render and per RPC call check for a signed in sales tier account at 390 and 1280 therefore was not run, and no permission or policy was changed to work around it. It remains open.
+
+### New copy, verbatim
+- To do
+- Your own list.
+- Add what you need to get done
+- More settings
+- Appearance, notifications, account
+- Settings
+- Your profile, look, notifications and account.
+- App look
+- How the app looks on this account.
+- Notifications
+- Choose what reaches you.
+- Account
+- Your password and account controls.
+- Change password
+- Delete account
+- Permanently delete your account and sign up fresh.
+- Poll:
+
+### Verification
+Typecheck clean, production build clean. Shell gzip 197.3 KB against the 197.2 KB baseline, plus 0.1 KB. Baselines: chat_messages 713 unchanged, profiles 536 unchanged. chat_prefs reads 1 and user_notifications reads 6362 against the recorded 0 and 6358; both moved from live preview use, not from this pass, which wrote no data. Not published.
