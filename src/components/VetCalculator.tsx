@@ -1,61 +1,30 @@
 import { useState, useEffect, useRef } from "react";
+import { usePublicCalc, PublicCalc } from "@/hooks/usePublicCalc";
 import { DollarSign, Users, TrendingUp, Calculator, User, Briefcase } from "lucide-react";
 
-// ============= EXACT TIER TABLES =============
+// ============= PUBLISHED PAY BANDS =============
+// No pay table lives in this file. Bands come from the published pay scales.
 
-// Rookie commission table (based on ACTIVE serviced revenue)
-const ROOKIE_COMMISSION_TIERS = [
-  { min: 0, max: 69999, rate: 0.18 },
-  { min: 70000, max: 99999, rate: 0.22 },
-  { min: 100000, max: 149999, rate: 0.25 },
-  { min: 150000, max: 199999, rate: 0.35 },
-  { min: 200000, max: 249999, rate: 0.40 },
-  { min: 250000, max: 299999, rate: 0.45 },
-  { min: 300000, max: 399999, rate: 0.50 },
-  { min: 400000, max: Infinity, rate: 0.55 },
-];
+interface Band {
+  min: number;
+  max: number | null;
+  rate: number;
+}
 
-// Vet commission table (based on ACTIVE revenue)
-const VET_COMMISSION_TIERS = [
-  { min: 0, max: 199999, rate: 0.40 },
-  { min: 200000, max: 249999, rate: 0.50 },
-  { min: 250000, max: 299999, rate: 0.55 },
-  { min: 300000, max: 399999, rate: 0.60 },
-  { min: 400000, max: 499999, rate: 0.65 },
-  { min: 500000, max: Infinity, rate: 0.70 },
-];
-
-// Marketing deal table (based on TEAM ACTIVE revenue; excludes personal)
-// Extended with 78% at $15M and 80% at $20M
-const MARKETING_DEAL_TIERS = [
-  { min: 0, max: 249999, rate: 0.45 },
-  { min: 250000, max: 499999, rate: 0.50 },
-  { min: 500000, max: 1249999, rate: 0.55 },
-  { min: 1250000, max: 2499999, rate: 0.60 },
-  { min: 2500000, max: 3749999, rate: 0.65 },
-  { min: 3750000, max: 4999999, rate: 0.675 },
-  { min: 5000000, max: 7499999, rate: 0.70 },
-  { min: 7500000, max: 9999999, rate: 0.72 },
-  { min: 10000000, max: 12499999, rate: 0.74 },
-  { min: 12500000, max: 14999999, rate: 0.76 },
-  { min: 15000000, max: 19999999, rate: 0.78 },
-  { min: 20000000, max: Infinity, rate: 0.80 },
-];
-
-const getRookieCommissionRate = (activeRevenue: number): number => {
-  const tier = ROOKIE_COMMISSION_TIERS.find(t => activeRevenue >= t.min && activeRevenue <= t.max);
-  return tier ? tier.rate : 0.18;
+const bandRate = (bands: Band[], revenue: number): number | null => {
+  const band = bands.find((b) => revenue >= b.min && (b.max === null || revenue <= b.max));
+  return band ? band.rate : null;
 };
 
-const getVetCommissionRate = (activeRevenue: number): number => {
-  const tier = VET_COMMISSION_TIERS.find(t => activeRevenue >= t.min && activeRevenue <= t.max);
-  return tier ? tier.rate : 0.40;
+/** Bands for a published scale whose key starts with the given prefix. */
+const scaleBands = (calc: PublicCalc | null, prefix: string): Band[] | null => {
+  const scale = calc?.pay_scale ?? null;
+  if (!scale || !scale.key?.startsWith(prefix)) return null;
+  const bands = (scale.bands ?? []) as Band[];
+  return bands.length > 0 ? bands : null;
 };
 
-const getMarketingDealRate = (teamActiveRevenue: number): number => {
-  const tier = MARKETING_DEAL_TIERS.find(t => teamActiveRevenue >= t.min && teamActiveRevenue <= t.max);
-  return tier ? tier.rate : 0.45;
-};
+const NOT_PUBLISHED = 'These pay numbers are not published yet.';
 
 const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat('en-US', {
