@@ -503,10 +503,26 @@ export function ChatComposer({
       />
       <input ref={fileRef} type="file" className="hidden" accept="*/*" onChange={handlePick} />
 
-      {/* Pickers */}
-      {showGifs && <GifPicker onSelect={(url) => { onSendGif(url); closeAll(); }} onClose={closeAll} />}
-      {showStickers && <StickerPicker onSelect={(s) => { onSendSticker(s); closeAll(); }} onClose={closeAll} />}
-      {showPoll && <PollCreator onSubmit={(q, o) => { onCreatePoll(q, o); closeAll(); }} onClose={closeAll} />}
+      {/* Pickers: they stay open when the send fails, so nothing is retyped */}
+      {showGifs && (
+        <GifPicker
+          onSelect={async (url) => { if ((await onSendGif(url)) !== false) closeAll(); }}
+          onClose={closeAll}
+        />
+      )}
+      {showStickers && (
+        <StickerPicker
+          onSelect={async (s) => { if ((await onSendSticker(s)) !== false) closeAll(); }}
+          onClose={closeAll}
+        />
+      )}
+      {showPoll && (
+        <PollCreator
+          onSubmit={async (q, o) => { if ((await onCreatePoll(q, o)) !== false) closeAll(); }}
+          onClose={closeAll}
+        />
+      )}
+
 
       {/* Reply preview */}
       {replyingTo && (
