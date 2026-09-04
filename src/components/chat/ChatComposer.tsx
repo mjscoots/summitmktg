@@ -39,9 +39,11 @@ interface ChatComposerProps {
   onInputChange: (val: string) => void;
   onSend: () => void;
   onSendFile: (content: string) => Promise<void>;
-  onSendGif: (url: string) => void;
-  onSendSticker: (sticker: any) => void;
-  onCreatePoll: (q: string, opts: string[]) => void;
+  /** Return false to keep the picker open so the person can try again. */
+  onSendGif: (url: string) => void | boolean | Promise<boolean | void>;
+  onSendSticker: (sticker: any) => void | boolean | Promise<boolean | void>;
+  onCreatePoll: (q: string, opts: string[]) => void | boolean | Promise<boolean | void>;
+
   isSending: boolean;
   replyingTo: { full_name: string; content: string } | null;
   onCancelReply: () => void;
