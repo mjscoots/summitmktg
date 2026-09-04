@@ -480,7 +480,7 @@ export function ChatBubble({
                 </button>
                 {showQuickPicker && (
                   <div className={cn(
-                    "absolute bottom-full mb-1 z-50 bg-card border border-border/50 rounded-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-150",
+                    "quick-react-in absolute bottom-full mb-1 z-50 bg-card border border-border/50 rounded-full shadow-2xl",
                     isOwn ? "right-0" : "left-0"
                   )}>
                     <div className="flex items-center gap-0.5 p-1">

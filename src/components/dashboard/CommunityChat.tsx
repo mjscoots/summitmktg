@@ -927,6 +927,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
                 readTick={own ? tickFor(msg) : null}
                 justSent={justSentId === msg.id}
                 justArrived={arrivedIds.has(msg.id) && justSentId !== msg.id}
+                isMenuOpen={contextMenu?.msgId === msg.id}
               />
             </div>
           );
