@@ -52,7 +52,12 @@ export function mediaPathsFor(content: string): string[] {
   return [];
 }
 
-/** Grabs the first frame of a local video file as a poster image data URL. */
+/**
+ * Grabs the first frame of a local video file as a poster image data URL.
+ * iPhone Safari refuses to decode a video that is not inline and muted, so both
+ * are set. Returns null when capture is not possible; callers fall back to a
+ * plain play button tile.
+ */
 export function capturePosterFrame(file: File): Promise<string | null> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
@@ -65,6 +70,9 @@ export function capturePosterFrame(file: File): Promise<string | null> {
       resolve(value);
     };
     video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('muted', '');
     video.preload = 'metadata';
     video.onloadeddata = () => {
       try {
@@ -91,6 +99,7 @@ export function capturePosterFrame(file: File): Promise<string | null> {
     video.src = url;
   });
 }
+
 
 /** Downloads a chat attachment from a signed URL. */
 export async function saveAttachment(signedUrl: string, name: string) {
