@@ -3676,3 +3676,39 @@ Scope: look and feel only, plus one notification integrity fix. No new npm depen
 - Baselines unchanged: chat_messages 713, profiles 536, chat_prefs 1, user_notifications 6362 before and 6362 after (the two test rows were inserted and deleted inside the rollback test, and one of the two was skipped by the trigger).
 - Not verified: the 390 and 1280 walkthroughs of the room, chat list, bottom bar, More screen, Home hero and the prefers-reduced-motion toggle need a signed in session. Browser auth status is signed_out and minting a session was not available in this run, so those visual measurements are stated as built, not as observed.
 - Nothing was published.
+
+## Pass 169
+
+Three closes from the Pass 168 report. No permission expansion, no publish.
+
+### 1. Streak notification writer
+- `src/hooks/useStreak.ts`: removed the `user_notifications` insert that wrote a fire emoji title with `source_key` null. The `useSmartNotifications` path with `source_key streak:<n>` is now the only streak writer. The milestone still drives the celebration state and the bot shoutout at 7 days.
+- `record_daily_login` milestone text for the first day is now `Day 1` (plain, no em dash). Everything else in the function is identical.
+- Grants read back before and after: anon false, authenticated true, PUBLIC false (unchanged).
+- `rg "Keep the fire burning" src` returns 0 matches. The only remaining emoji characters in src are the chat quick reaction rows (`MessageContextMenu.tsx`, `ChatBubble.tsx`), not notification inserts.
+
+### 2. Room pinning
+- `chat_prefs.pinned_channel_ids uuid[] not null default '{}'` added; existing own-row RLS covers it.
+- `get_conversations()` now reads the caller's `pinned_channel_ids`, returns `is_pinned` true for rooms and direct messages in that list, returns `channel_id`, and orders pinned rows first in both the room and direct message groups.
+- `set_channel_pin(_channel_id uuid, _pinned boolean)` SECURITY DEFINER, own row only, upserts the `chat_prefs` row when missing. REVOKED from PUBLIC and anon, granted to authenticated. Read back: anon false, authenticated true.
+- `ChatList.tsx`: swipe left now reveals Mute and Pin/Unpin, both 88px wide with a 44px minimum height; the pin glyph and the Pinned group from Pass 168 now light up.
+- Rollback test: one room id written into one person's `pinned_channel_ids`, read back and matched to its room row, then restored to `{}`.
+
+### 3. Direct message presence
+- `get_conversations()` returns `other_is_active` from `profiles.is_active_now` of the other member for kind dm, false for rooms. No new client query.
+- `ChannelAvatar` gained an `online` prop drawing a success-toned ring; `ChatList` passes it for direct messages only.
+
+### New copy, verbatim
+- `Day 1`
+- `Pin`
+- `Unpin`
+- `Pin <room name>` / `Unpin <room name>` (accessible labels)
+
+No em dashes, no emoji.
+
+### Verification
+- Typecheck clean, production build clean.
+- Shell gzip measured from the chunks referenced by `dist/index.html`: 167.5 KB, no growth over the Pass 168 ceiling of 198.5 KB (the client delta is a few lines plus one lucide glyph).
+- Baselines: chat_messages 713, profiles 536, chat_prefs 1, user_notifications 6362 (unchanged; the pin rollback test wrote and restored a single existing chat_prefs row).
+- Linter output after the migration shows only the pre-existing categories carried since earlier passes; no new finding types.
+- Not published.
