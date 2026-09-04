@@ -1930,6 +1930,27 @@ export type Database = {
           },
         ]
       }
+      earnings_goals: {
+        Row: {
+          goal: number | null
+          scenarios: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          goal?: number | null
+          scenarios?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          goal?: number | null
+          scenarios?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_notifications: {
         Row: {
           created_at: string | null
@@ -8477,6 +8498,7 @@ export type Database = {
       match_winback_gold: { Args: { _rows: Json }; Returns: Json }
       mentee_count: { Args: { _manager_id: string }; Returns: number }
       my_active_vertical: { Args: never; Returns: string }
+      my_comp_ladder: { Args: { _vertical?: string }; Returns: Json }
       my_fiber_tier: { Args: { _uid: string }; Returns: Json }
       my_home_numbers: { Args: never; Returns: Json }
       my_invites: { Args: never; Returns: Json }
