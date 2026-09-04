@@ -50,6 +50,10 @@ const MyTeamPage = lazyRoute(() => import("./pages/app/MyTeamPage"));
 
 const ProfilePage = lazyRoute(() => import("./pages/app/ProfilePage"));
 const ChatLookPage = lazyRoute(() => import("./pages/app/ChatLookPage"));
+const SettingsPage = lazyRoute(() => import("./pages/app/SettingsPage"));
+const AppearancePage = lazyRoute(() => import("./pages/app/AppearancePage"));
+const NotificationsPage = lazyRoute(() => import("./pages/app/NotificationsPage"));
+const AccountPage = lazyRoute(() => import("./pages/app/AccountPage"));
 const InterviewsPage = lazyRoute(() => import("./pages/app/InterviewsPage"));
 const Interview1Page = lazyRoute(() => import("./pages/app/Interview1Page"));
 const Interview2Page = lazyRoute(() => import("./pages/app/Interview2Page"));
@@ -271,6 +275,28 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
+              {/* Settings */}
+              <Route path="/app/settings" element={
+                <ProtectedRoute>
+                    <SettingsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/appearance" element={
+                <ProtectedRoute>
+                    <AppearancePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/notifications" element={
+                <ProtectedRoute>
+                    <NotificationsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/app/account" element={
+                <ProtectedRoute>
+                    <AccountPage />
+                </ProtectedRoute>
+              } />
+
               {/* Training */}
                <Route path="/app/training" element={
                  <ProtectedRoute>
@@ -362,7 +388,7 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Full mission board */}
+              {/* Full to do list */}
               <Route path="/app/missions" element={
                 <ProtectedRoute>
                     <MissionsPage />
