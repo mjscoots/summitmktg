@@ -3,11 +3,10 @@ import { Reply, Copy, Pin, PinOff, Pencil, Trash2, SmilePlus, Download } from 'l
 import { getChatAttachmentUrl } from '@/lib/chatAttachments';
 import { mediaPathsFor, saveAttachment } from '@/lib/chatMedia';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 const QUICK_REACTIONS = ['🔥', '💪', '😂', '👏', '❄️', '💯'];
+
 
 interface MessageContextMenuProps {
   messageId: string;
