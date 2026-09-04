@@ -91,41 +91,51 @@ Deno.serve(async (req) => {
       ])
     );
 
-    // Build the notification message
-    const medals = ["🥇", "🥈", "🥉"];
+    // Build the notification message. Plain words, no emoji.
     const lines = rookieTop.map((e, i) => {
       const name = nameMap.get(e.user_id) || "Unknown";
       const pts = e.total_points || 0;
-      return `${medals[i]} ${name} — ${pts.toLocaleString()} pts`;
+      return `${i + 1}. ${name} - ${pts.toLocaleString()} pts`;
     });
 
-    const title = `🏆 Last Week's Top Performers`;
+    const title = "Last Week's Top Performers";
     const message = lines.join("\n");
 
-    // Get all managers and admins to notify
-    const { data: managerRoles } = await supabase
-      .from("user_roles")
-      .select("user_id")
-      .in("role", ["manager", "admin"]);
+    // Only the people on the list and the people who lead them hear about it.
+    // Nobody else on the roster gets this row.
+    const { data: edges } = await supabase
+      .from("downline_edges")
+      .select("parent_user_id, child_user_id")
+      .in("child_user_id", rookieUserIds);
 
-    if (!managerRoles || managerRoles.length === 0) {
-      console.log("[weekly-champion] No managers to notify");
-      return new Response(JSON.stringify({ message: "No managers" }), {
+    const { data: managedBy } = await supabase
+      .from("profiles")
+      .select("user_id, manager_id")
+      .in("user_id", rookieUserIds);
+
+    const recipients = new Set<string>(rookieUserIds);
+    (edges || []).forEach((e) => e.parent_user_id && recipients.add(e.parent_user_id));
+    (managedBy || []).forEach((p) => p.manager_id && recipients.add(p.manager_id));
+
+    if (recipients.size === 0) {
+      console.log("[weekly-champion] Nobody to notify");
+      return new Response(JSON.stringify({ message: "Nobody to notify" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Insert notifications for each manager
-    const notifications = managerRoles.map((m) => ({
-      user_id: m.user_id,
+    // One row per person per week: source_key holds the dedupe.
+    const notifications = [...recipients].map((uid) => ({
+      user_id: uid,
       title,
       message,
       link: "/app/leaderboard",
+      source_key: `topperf:${lastMondayStr}`,
     }));
 
     const { error: insertErr } = await supabase
       .from("user_notifications")
-      .insert(notifications);
+      .upsert(notifications, { onConflict: "user_id,source_key", ignoreDuplicates: true });
 
     if (insertErr) {
       console.error("[weekly-champion] Insert error:", insertErr);
@@ -136,13 +146,13 @@ Deno.serve(async (req) => {
     }
 
     console.log(
-      `[weekly-champion] Notified ${managerRoles.length} managers about ${rookieTop.length} top performers`
+      `[weekly-champion] Notified ${recipients.size} people about ${rookieTop.length} top performers`
     );
 
     return new Response(
       JSON.stringify({
         success: true,
-        notified: managerRoles.length,
+        notified: recipients.size,
         topPerformers: rookieTop.length,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

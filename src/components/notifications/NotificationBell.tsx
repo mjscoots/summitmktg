@@ -15,7 +15,7 @@ export function NotificationBell() {
   const [justCleared, setJustCleared] = useState(false);
   const prevCountRef = useRef(0);
   const navigate = useNavigate();
-  const { notifications, unreadCount, markAsRead, markAllAsRead, requestPushPermission } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   useEffect(() => {
     if (prevCountRef.current > 0 && unreadCount === 0) {
@@ -31,15 +31,13 @@ export function NotificationBell() {
     if (notification.link) { navigate(notification.link); setIsOpen(false); }
   };
 
-  const handleEnableNotifications = async () => {
-    const granted = await requestPushPermission();
-    if (!granted) alert('Notifications blocked. Please enable them in your browser settings.');
-  };
-
+  // Opening the bell no longer marks anything read. A row is read when tapped,
+  // or through the explicit Mark all read button.
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (open && unreadCount > 0) markAllAsRead();
   };
+
+  const pushOff = typeof Notification !== 'undefined' && Notification.permission !== 'granted';
 
   const hasNotifications = notifications.length > 0;
   const hasUnread = unreadCount > 0;
@@ -122,12 +120,14 @@ export function NotificationBell() {
           )}
         </div>
 
-        {typeof Notification !== 'undefined' && Notification.permission !== 'granted' && Notification.permission !== 'denied' && (
-          <div className="p-3 border-t border-border">
-            <Button variant="outline" size="sm" className="w-full text-xs" onClick={handleEnableNotifications}>
-              <Bell className="w-3 h-3 mr-2" />
-              Enable push notifications
-            </Button>
+        {pushOff && (
+          <div className="border-t border-border">
+            <button
+              onClick={() => { setIsOpen(false); navigate('/app/profile'); }}
+              className="flex min-h-[44px] w-full items-center px-4 text-left text-[12px] text-muted-foreground transition-colors hover:bg-muted/30"
+            >
+              Turn on push in Settings
+            </button>
           </div>
         )}
       </PopoverContent>

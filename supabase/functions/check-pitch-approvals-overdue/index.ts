@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
         const hours = Math.floor(hoursElapsed);
         await supabase.from("user_notifications").insert({
           user_id: targetId,
-          title: `⚠️ Overdue: ${rookieProfile.full_name}'s ${lessonTitle} pitch (${hours}h)`,
+          title: `Overdue: ${rookieProfile.full_name}'s ${lessonTitle} pitch (${hours}h)`,
           message: `This pitch has been pending for ${hours}+ hours. Please review promptly.`,
           link: "/app/pitch-approvals",
         });

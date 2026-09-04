@@ -342,6 +342,9 @@ export function ManagerEventForm({ isOpen, onClose, onSave, event, prefillDate }
       }
 
       toast.success(event?.id ? 'Event updated' : 'Event created');
+      if (!locationValue) {
+        toast.warning('Add a location or a link so people can find it');
+      }
       onSave();
       onClose();
       resetForm();

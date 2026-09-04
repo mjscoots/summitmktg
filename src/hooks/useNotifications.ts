@@ -115,22 +115,7 @@ export function useNotifications() {
     }
   };
 
-  const requestPushPermission = async () => {
-    if (!('Notification' in window)) {
-      return false;
-    }
-    
-    if (Notification.permission === 'granted') {
-      return true;
-    }
-    
-    if (Notification.permission !== 'denied') {
-      const permission = await Notification.requestPermission();
-      return permission === 'granted';
-    }
-    
-    return false;
-  };
+  // Push opt in lives in notification preferences, not here.
 
   return {
     notifications,
@@ -138,7 +123,6 @@ export function useNotifications() {
     isLoading,
     markAsRead,
     markAllAsRead,
-    requestPushPermission,
     refetch: fetchNotifications
   };
 }

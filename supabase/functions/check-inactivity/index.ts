@@ -223,7 +223,7 @@ Deno.serve(async (req) => {
     // ── 1. Get all profiles that could be inactive ──
     const { data: allProfiles, error: profErr } = await supabase
       .from("profiles")
-      .select("user_id, full_name, email, last_active_at, team_id, direct_manager, status, pillar_slug, time_this_week_minutes")
+      .select("user_id, full_name, email, last_active_at, team_id, manager_id, direct_manager, status, pillar_slug, time_this_week_minutes")
       .not("status", "eq", "nlc");
 
     if (profErr) throw profErr;
@@ -278,6 +278,29 @@ Deno.serve(async (req) => {
 
     const pillarProfileMap = new Map<string, any>();
     (pillarProfiles || []).forEach((p: any) => pillarProfileMap.set(p.user_id, p));
+
+    // One inactivity row per person per 7 days, and only for the people who own
+    // that person: their manager and their Pillar. Nobody else.
+    const weekBucket = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+    const notifyInactivity = async (user: any, message: string) => {
+      const recipients = new Set<string>();
+      if (user.manager_id && user.manager_id !== user.user_id) recipients.add(user.manager_id);
+      if (user.pillar_leader?.user_id && user.pillar_leader.user_id !== user.user_id) {
+        recipients.add(user.pillar_leader.user_id);
+      }
+      if (!recipients.size) return 0;
+      const rows = [...recipients].map((uid) => ({
+        user_id: uid,
+        title: "Team Inactivity Alert",
+        message,
+        link: "/app/team",
+        source_key: `inactive:${user.user_id}:${weekBucket}`,
+      }));
+      const { error } = await supabase
+        .from("user_notifications")
+        .upsert(rows, { onConflict: "user_id,source_key", ignoreDuplicates: true });
+      return error ? 0 : rows.length;
+    };
 
     // ── 5. Filter inactive users ──
     const inactiveUsers: any[] = [];
@@ -440,27 +463,10 @@ Deno.serve(async (req) => {
           await delay(600);
         }
 
-        // Create in-app notification for pillar (skip if pillar IS the inactive user)
-        if (user.pillar_leader && user.pillar_leader.user_id !== user.user_id) {
-          // Dedup: skip if a similar notification was already created today
-          const todayStr = new Date().toISOString().split("T")[0];
-          const { count: existingNotif } = await supabase
-            .from("user_notifications")
-            .select("id", { count: "exact", head: true })
-            .eq("user_id", user.pillar_leader.user_id)
-            .ilike("message", `%${user.full_name}%inactive%`)
-            .gt("created_at", todayStr);
-
-          if (!existingNotif || existingNotif === 0) {
-            await supabase.from("user_notifications").insert({
-              user_id: user.pillar_leader.user_id,
-              title: "Team Inactivity Alert",
-              message: `${user.full_name} has been inactive for ${dayCount} days`,
-              link: "/app/team",
-            });
-            notificationsCreated++;
-          }
-        }
+        notificationsCreated += await notifyInactivity(
+          user,
+          `${user.full_name} has been inactive for ${dayCount} days`
+        );
 
         // Mark day 3 sent
         await supabase
@@ -532,26 +538,10 @@ Deno.serve(async (req) => {
           await delay(600);
         }
 
-        // Update in-app notification (skip self-notification)
-        if (user.pillar_leader && user.pillar_leader.user_id !== user.user_id) {
-          const todayStr = new Date().toISOString().split("T")[0];
-          const { count: existingNotif } = await supabase
-            .from("user_notifications")
-            .select("id", { count: "exact", head: true })
-            .eq("user_id", user.pillar_leader.user_id)
-            .ilike("message", `%${user.full_name}%inactive%`)
-            .gt("created_at", todayStr);
-
-          if (!existingNotif || existingNotif === 0) {
-            await supabase.from("user_notifications").insert({
-              user_id: user.pillar_leader.user_id,
-              title: "Team Inactivity Alert",
-              message: `${user.full_name} still inactive (${dayCount} days) - follow-up sent`,
-              link: "/app/team",
-            });
-            notificationsCreated++;
-          }
-        }
+        notificationsCreated += await notifyInactivity(
+          user,
+          `${user.full_name} still inactive (${dayCount} days), follow up sent`
+        );
 
         // Mark day 4 sent
         await supabase

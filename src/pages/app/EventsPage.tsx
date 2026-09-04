@@ -193,6 +193,11 @@ const EventCard = memo(function EventCard({
               <MapPin className="h-3.5 w-3.5" /> {ev.location}
             </p>
           )}
+          {!ev.location && !joinUrl && (
+            <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground/70">
+              <MapPin className="h-3.5 w-3.5" /> Location to be announced
+            </p>
+          )}
           {descText && (
             <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
               {descText}
@@ -473,6 +478,10 @@ export default function EventsPage() {
     }
     setSaving(false);
     toast.success(draft.id ? 'Event updated' : 'Event created');
+    // Nobody can find an event with no place and no link.
+    if (!draft.location.trim() && !firstUrl(draft.description)) {
+      toast.warning('Add a location or a link so people can find it');
+    }
     setDraft(null);
     load();
   };

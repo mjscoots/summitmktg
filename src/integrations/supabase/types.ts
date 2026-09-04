@@ -7548,7 +7548,9 @@ export type Database = {
       }
       day_one_done: { Args: { _user_id: string }; Returns: boolean }
       day_one_done_at: { Args: { _user_id: string }; Returns: string }
-      day_one_video_ids: { Args: never; Returns: string[] }
+      day_one_video_ids:
+        | { Args: never; Returns: string[] }
+        | { Args: { _vertical: string }; Returns: string[] }
       decide_resign_intent: {
         Args: { _confirm: boolean; _intent_id: string }
         Returns: Json
@@ -8613,6 +8615,7 @@ export type Database = {
         Returns: undefined
       }
       recruit_gate_state: { Args: never; Returns: Json }
+      recruit_vertical: { Args: { _uid: string }; Returns: string }
       redeem_invite: {
         Args: {
           p_email: string
