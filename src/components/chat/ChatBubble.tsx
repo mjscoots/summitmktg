@@ -409,6 +409,7 @@ export function ChatBubble({
           <div className={cn(
             "chat-text relative leading-relaxed whitespace-pre-wrap break-words select-text",
             justSent && "bubble-in",
+            isMenuOpen && "msg-lift",
             hasMediaContent ? "rounded-2xl" : cn(
               "px-3 py-[7px]",
               isOwn
