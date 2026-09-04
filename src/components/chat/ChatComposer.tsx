@@ -581,14 +581,14 @@ export function ChatComposer({
             onClick={() => (recording ? stopRecording(false) : startRecording())}
             aria-label={recording ? 'Stop and send voice note' : 'Record voice note'}
             className={cn(
-              'mb-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition-all',
+              'flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all',
               recording
                 ? 'bg-destructive text-destructive-foreground animate-pulse'
                 : 'bg-muted/30 text-muted-foreground/40 hover:text-muted-foreground/60'
             )}
             disabled={uploading}
           >
-            {recording ? <Square className="h-3 w-3" /> : <Mic className="h-4 w-4" />}
+            {recording ? <Square className="h-4 w-4" /> : <Mic className="h-5 w-5" />}
           </button>
         )}
 
@@ -598,18 +598,19 @@ export function ChatComposer({
           aria-label="Send"
           disabled={tray.length > 0 ? sendingTray || tray.some((t) => t.status === 'uploading') : !input.trim() || isSending}
           className={cn(
-            "w-8 h-8 flex items-center justify-center rounded-full transition-all flex-shrink-0 mb-0.5",
+            "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all",
             input.trim() || tray.length > 0
               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 active:scale-90"
               : "bg-muted/20 text-muted-foreground/15"
           )}
         >
           {isSending || sendingTray ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
+            <ArrowUp className="w-5 h-5" strokeWidth={2.5} />
           )}
         </button>
+
       </div>
     </div>
   );
