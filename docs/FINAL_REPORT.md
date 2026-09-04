@@ -3384,3 +3384,151 @@ Verification: typecheck clean, production build clean. Shell gzip 196.5 KB again
 197.2 KB baseline (down 0.7 KB). Baselines: chat_messages 713 before and after,
 profiles 536 before and after, chat_reactions 155 before and 155 after. No data writes.
 Not published.
+
+## Pass 165 - funnel and function hardening
+
+Six items from the Sept 3 audit. Every change narrows access or adds a notice.
+No permission was widened anywhere.
+
+### 1. Applications go through one edge function
+
+The open anon INSERT policy on applications ("Anyone can submit applications")
+is dropped. Anon has no write on the table at all now. Both public forms
+(src/pages/RookieApplication.tsx and src/pages/VetApplication.tsx) post to the
+new edge function supabase/functions/submit-application/index.ts, which:
+
+- rejects a filled honeypot field (the hidden "website" input) and returns a
+  plain ok so a bot learns nothing
+- validates through valid_public_email and valid_public_phone
+- calls check_rate_limit at 5 per hour per IP and 5 per hour per email
+- inserts with the service role
+
+Direct anon insert proof, run against the live REST endpoint with the anon key:
+
+```
+HTTP 401
+{"code":"42501","message":"permission denied for function has_role"}
+```
+
+The row was not written; applications stayed at 13. Anon has no SELECT grant on
+any public table (checked across information_schema.role_table_grants), so
+revoking has_role from anon breaks no public read path. Every public read goes
+through a SECURITY DEFINER get_public_* function.
+
+### 2. Staff notified on every new application
+
+New trigger notify_new_application() (AFTER INSERT, SECURITY DEFINER) writes a
+user_notifications row for the owner and every admin:
+
+- title: New application
+- message: <name> applied for <industry, or "not sure yet">.
+- link: /app/admin-team?tab=applications
+- source key application_<id> with ON CONFLICT DO NOTHING, so one row per
+  application per recipient
+
+The existing push path picks these rows up. No email is sent.
+
+### 3. Anon function grants
+
+Revoked EXECUTE from PUBLIC and anon on: validate_access_code,
+ingest_pest_revenue, ingest_fiber_week, undo_import_batch, mark_mastery_check,
+set_appearance, get_money_sources, get_import_batches, resolve_sheet_manager,
+lead_system_for, region_lead_of, is_paired_manager_of, has_role, is_staff,
+is_manager_tier, is_vertical_lead, is_president_of_vertical, get_ticket_config,
+get_ticket_series_status, resolve_source_code. All read anon false below.
+validate_access_code has no caller in src (only the generated types file), so it
+was revoked rather than wrapped.
+
+Final anon set, from has_function_privilege('anon', fn, 'execute'), 13 functions
+and nothing else:
+
+| function | anon | authenticated |
+| --- | --- | --- |
+| get_public_calc | true | true |
+| get_public_counters | true | true |
+| get_public_cover_content | true | true |
+| get_public_fiber_stacks | true | true |
+| get_public_industry | true | true |
+| get_public_setting | true | true |
+| get_recruiting_content | true | true |
+| get_recruiting_proof | true | true |
+| invite_lookup | true | true |
+| pillar_link_lookup | true | true |
+| redeem_invite | true | true |
+| valid_public_email | true | true |
+| valid_public_phone | true | true |
+| get_import_batches | false | true |
+| get_money_sources | false | true |
+| get_ticket_config | false | true |
+| get_ticket_series_status | false | true |
+| has_role | false | true |
+| ingest_fiber_week | false | true |
+| ingest_pest_revenue | false | true |
+| is_manager_tier | false | true |
+| is_paired_manager_of | false | true |
+| is_president_of_vertical | false | true |
+| is_staff | false | true |
+| is_vertical_lead | false | true |
+| lead_system_for | false | true |
+| mark_mastery_check | false | true |
+| notify_new_application | false | true |
+| region_lead_of | false | true |
+| resolve_sheet_manager | false | true |
+| resolve_source_code | false | true |
+| set_appearance | false | true |
+| undo_import_batch | false | true |
+| validate_access_code | false | true |
+
+### 4. Pillar links expire, invite lookup is rate limited
+
+pillar_links.expires_at is timestamptz NOT NULL DEFAULT now() plus 90 days.
+pillar_link_lookup and pillar_link_resolve return valid false past it,
+pillar_link_ensure renews an expired link for another 90 days,
+pillar_link_regenerate resets both token and expiry, and my_pillars() returns
+the expiry so src/components/pillar/PillarLinksPanel.tsx can show the date and a
+Renew button.
+
+Rollback-only proof (transaction rolled back, pillar_links 0 before and after):
+
+```
+expired: {"valid": false, "pillar_name": "Legion Mafia", "expires_at": "...-09-03..."}
+renewed: {"valid": true,  "pillar_name": "Legion Mafia", "expires_at": "...-09-14..."}
+```
+
+invite_lookup now calls check_rate_limit at 20 per hour per IP and writes
+opened_at only when it is null, so a repeated open no longer rewrites it.
+
+### 5. CORS pinned to the app's own origins
+
+supabase/functions/redeem-invite, pillar-join, fiber-doc-url and the new
+submit-application no longer answer with a wildcard. Each returns
+Access-Control-Allow-Origin only for https://summitmktg.lovable.app,
+https://summitmktgsales.com, https://www.summitmktgsales.com, the Lovable
+preview origins and http://localhost:8080, with Vary: Origin. A readback taken
+before the new function code had rolled out still showed the previous
+wildcard reply, so the header readback should be repeated once the current
+revisions are live; the source of all four functions is pinned.
+
+### 6. One path for every move
+
+src/components/team/MoveRepModal.tsx no longer writes profiles.direct_manager or
+downline_edges by hand and no longer skips profiles.manager_id. It calls
+place_person(_user_id, _manager_id), which does the whole move and writes
+placement_log.
+
+Rollback-only proof (transaction rolled back):
+
+| step | manager_id | direct_manager | manages edge parent | downline_edges | placement_log |
+| --- | --- | --- | --- | --- | --- |
+| before | f1a8d4c3 | Joshua Bingham | 83527355 | 395 | 0 |
+| after | 0186b7f6 | Mathew Rubino | 0186b7f6 | 395 | 1 |
+
+manager_id, direct_manager and the managing edge all landed on the same new
+manager together, and the move was logged. The edge count held at 395 because
+the old edge is replaced, not added to.
+
+### Verification
+
+Typecheck clean. Production build clean. Baselines after all proofs rolled back:
+applications 13, profiles 536, pillar_links 0, placement_log 0,
+downline_edges 395, chat_messages 713. No data writes were kept. Not published.
