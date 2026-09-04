@@ -56,11 +56,8 @@ export interface MoneySummary {
   months: { month: string; pest: number; fiber: number }[];
 }
 
-/** Pest earnings use the existing commission calculation, unchanged. */
+/** Pest earnings use the rate a Pillar set, or the rate confirmed for the rep's own tier. */
 function pestEarnings(pest: MoneySummaryRaw['pest'], ladderRate: number | null) {
-  const scale = (['rookie', 'veteran', 'marketing'].includes(pest.pay_scale ?? '')
-    ? pest.pay_scale
-    : 'rookie') as PayScale;
   const signs = pest.signs ?? 0;
   const avg = pest.avg_account_value !== null ? Number(pest.avg_account_value) : null;
   const revenue =
