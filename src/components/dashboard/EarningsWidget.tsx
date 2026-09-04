@@ -10,9 +10,9 @@ import { formatCurrency } from '@/lib/commission';
 /** The rep's saved goal, priced with the rate confirmed for their own tier. */
 export function EarningsWidget() {
   const { user } = useAuth();
-  const { vertical } = useWorkspace();
+  const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
-  const { ladder } = useCompLadder(vertical);
+  const { ladder } = useCompLadder(activeVertical);
   const [goal, setGoal] = useState<number | null>(null);
 
   useEffect(() => {

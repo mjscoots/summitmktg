@@ -21,8 +21,8 @@ interface Scenarios {
 
 export default function EstimateEarningsPage() {
   const { user } = useAuth();
-  const { vertical } = useWorkspace();
-  const { ladder, loading: ladderLoading } = useCompLadder(vertical);
+  const { activeVertical } = useWorkspace();
+  const { ladder, loading: ladderLoading } = useCompLadder(activeVertical);
   const [revenueInput, setRevenueInput] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [teamGoalTotal, setTeamGoalTotal] = useState<number | null>(null);
