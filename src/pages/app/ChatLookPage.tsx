@@ -46,7 +46,9 @@ export default function ChatLookPage() {
         toast.error('That image could not be read');
         return;
       }
-      const path = `${user.id}/wallpaper.jpg`;
+      // A fresh path per upload, so the signed URL changes and the new photo shows.
+      const path = `${user.id}/wallpaper-${Date.now()}.jpg`;
+
       const { error } = await supabase.storage
         .from('chat-wallpapers')
         .upload(path, prepared.blob, { contentType: 'image/jpeg', upsert: true });
