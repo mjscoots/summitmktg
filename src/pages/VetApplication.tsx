@@ -42,6 +42,7 @@ const VetApplication = () => {
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
   const { vertical, setVertical, source } = useApplicationSource();
   const [verticalError, setVerticalError] = useState<string | undefined>();
   const [formData, setFormData] = useState<FormData>({
@@ -312,6 +313,17 @@ const VetApplication = () => {
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4 pb-24 sm:pb-0">
+            {/* Hidden from people, filled only by bots. */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              className="absolute left-[-9999px] h-0 w-0 opacity-0"
+            />
             <section className="public-surface p-5 sm:p-6">
               <IndustryStep value={vertical} onChange={setVertical} error={verticalError} />
             </section>
