@@ -69,7 +69,14 @@ function Lightbox({
   }, [index, paths.length, onIndex, onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+      onClick={onClose}
+      // Swipe to reply lives on the bubble: the lightbox keeps its own gestures.
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
       <button
         aria-label="Close photo"
         onClick={onClose}
@@ -77,6 +84,7 @@ function Lightbox({
       >
         <X className="h-6 w-6" />
       </button>
+
       {url && (
         <img
           src={url}
