@@ -10,9 +10,15 @@ interface Pillar {
   vertical: string | null;
   leader_name: string | null;
   token: string | null;
+  expires_at: string | null;
 }
 
 const linkFor = (token: string) => `${window.location.origin}/p/${token}`;
+
+const dateLabel = (iso: string) =>
+  new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+const isExpired = (iso: string | null) => !!iso && new Date(iso).getTime() <= Date.now();
 
 /**
  * The permanent recruit link for a pillar. One link per pillar, it never
