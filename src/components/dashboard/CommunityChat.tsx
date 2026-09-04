@@ -183,20 +183,37 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   const { typingUsers, handleInputChange: onTyping, stopTyping } = useTypingIndicator(`chat-typing-${activeChannel}`);
 
-  // Read ticks: the newest moment anyone else in this room read it.
+  // Read ticks: the newest moment anyone else in this room read it. A live
+  // subscription on read receipts flips a sent tick to read without a reload.
   const [readThrough, setReadThrough] = useState<number | null>(null);
   useEffect(() => {
     let cancelled = false;
+    let timer: number | null = null;
     const load = async () => {
       const { data } = await (supabase as any).rpc('channel_read_mark', { _channel: activeChannel });
       if (cancelled || !data || data.error) return;
       setReadThrough(data.read_through ? new Date(data.read_through).getTime() : null);
     };
     void load();
+    const debounced = () => {
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => { void load(); }, 500);
+    };
+    const receipts = supabase
+      .channel(`chat-receipts-${activeChannel}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_read_receipts' }, () => { debounced(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_read_state' }, () => { debounced(); })
+      .subscribe();
     const onFocus = () => { void load(); };
     window.addEventListener('focus', onFocus);
-    return () => { cancelled = true; window.removeEventListener('focus', onFocus); };
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+      window.removeEventListener('focus', onFocus);
+      supabase.removeChannel(receipts);
+    };
   }, [activeChannel]);
+
   const tickFor = useCallback((msg: ChatMessage): 'sent' | 'read' =>
     (readThrough !== null && readThrough >= new Date(msg.created_at).getTime() ? 'read' : 'sent'),
   [readThrough]);
