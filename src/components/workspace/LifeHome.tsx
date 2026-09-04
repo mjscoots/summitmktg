@@ -11,6 +11,7 @@ import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
 
 import { Wordmark } from '@/components/brand/Wordmark';
 import { LIFE_CARD, LIFE_STAGES } from '@/lib/lifePipeline';
+import { WorkspaceHero } from '@/components/home/WorkspaceHero';
 
 interface Appt {
   id: string;
@@ -90,11 +91,6 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
     void load();
   }, [load]);
 
-  const today = new Date().toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
 
   if (comingSoon) {
     return (
@@ -150,12 +146,16 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-      <header>
-        <h1 className="text-2xl font-medium tracking-tight text-foreground">
-          {user?.user_metadata?.full_name || workspace.name}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{today}</p>
-      </header>
+      <WorkspaceHero
+        firstName={
+          (user?.user_metadata?.full_name as string | undefined)?.split(' ')[0] || null
+        }
+        workspaceName={workspace.name}
+        metric={{
+          label: 'In your pipeline',
+          value: Object.values(counts).reduce((a, b) => a + b, 0),
+        }}
+      />
 
       <section className={`${LIFE_CARD} p-4`}>
         <div className="flex items-center justify-between gap-3">

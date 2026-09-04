@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronRight, LogOut, MessageSquare, Settings } from 'lucide-react';
+import { ChevronRight, LogOut, MessageSquare, Settings } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -66,27 +67,32 @@ export default function MorePage() {
           const isOpen = Boolean(open[group.title]);
           const isSettings = group.title === 'Settings';
           return (
-            <section key={group.title} className="space-y-2">
-              <button
-                type="button"
-                onClick={() => toggle(group.title)}
-                aria-expanded={isOpen}
-                className="flex min-h-[52px] w-full items-center gap-3 rounded-[var(--radius)] border border-border bg-card px-4 text-left transition-colors hover:bg-secondary"
-              >
+            <Collapsible
+              key={group.title}
+              open={isOpen}
+              onOpenChange={() => toggle(group.title)}
+              className="space-y-2"
+            >
+              <CollapsibleTrigger className="press flex min-h-[52px] w-full items-center gap-3 rounded-[var(--radius)] border border-border bg-card px-4 text-left transition-colors hover:bg-secondary">
                 {isSettings && (
-                  <Settings className="h-[18px] w-[18px] flex-shrink-0 text-muted-foreground" strokeWidth={1.75} />
+                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-muted text-muted-foreground">
+                    <Settings className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                  </span>
                 )}
-                <span className="flex-1 truncate text-[15px] font-semibold text-foreground">{group.title}</span>
+                <span className="flex-1 truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {group.title}
+                </span>
                 <span className="text-[13px] tabular-nums text-muted-foreground">{group.items.length}</span>
-                {isOpen ? (
-                  <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                )}
-              </button>
+                <ChevronRight
+                  className={
+                    'h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ' +
+                    (isOpen ? 'rotate-90' : '')
+                  }
+                />
+              </CollapsibleTrigger>
 
-              {isOpen &&
-                (isSettings ? (
+              <CollapsibleContent className="overflow-hidden data-[state=open]:collapse-open data-[state=closed]:collapse-closed">
+                {isSettings ? (
                   <SettingsList />
                 ) : (
                   <div className="overflow-hidden rounded-[var(--radius)] border border-border bg-card">
@@ -95,21 +101,27 @@ export default function MorePage() {
                         key={item.key}
                         onClick={() => navigate(item.path)}
                         className={
-                          'flex min-h-[52px] w-full items-center gap-3 px-4 text-left transition-colors hover:bg-secondary' +
+                          'press flex min-h-[52px] w-full items-center gap-3 px-4 text-left transition-colors hover:bg-secondary' +
                           (i > 0 ? ' border-t border-border' : '')
                         }
                       >
-                        <item.icon
-                          className="h-[18px] w-[18px] flex-shrink-0 text-muted-foreground"
-                          strokeWidth={1.75}
-                        />
+                        <span
+                          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)]"
+                          style={{
+                            background: 'hsl(var(--workspace-accent) / 0.12)',
+                            color: 'hsl(var(--workspace-accent))',
+                          }}
+                        >
+                          <item.icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                        </span>
                         <span className="flex-1 truncate text-[15px] text-foreground">{item.label}</span>
                         <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                       </button>
                     ))}
                   </div>
-                ))}
-            </section>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
           );
         })}
 

@@ -143,7 +143,7 @@ export default function ChatPage() {
         )}
 
         <div className="phone-bar-clear min-h-0 flex-1 overflow-y-auto px-3 py-3">
-          {!loading && <ChatList conversations={channels} onOpen={openRoom} />}
+          {!loading && <ChatList conversations={channels} onOpen={openRoom} onMuteChanged={refresh} />}
         </div>
       </div>
     </AppLayout>

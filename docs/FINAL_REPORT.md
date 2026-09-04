@@ -3623,3 +3623,56 @@ Limitation, stated plainly: an authenticated preview session could not be minted
 
 ### Verification
 Typecheck clean, production build clean. Shell gzip 197.3 KB against the 197.2 KB baseline, plus 0.1 KB. Baselines: chat_messages 713 unchanged, profiles 536 unchanged. chat_prefs reads 1 and user_notifications reads 6362 against the recorded 0 and 6358; both moved from live preview use, not from this pass, which wrote no data. Not published.
+
+## Pass 168 - premium look, motion and feel
+
+Scope: look and feel only, plus one notification integrity fix. No new npm dependencies. Every animation is disabled under prefers-reduced-motion.
+
+### Chat room
+- `src/index.css`: own bubbles carry a 135deg two stop gradient of the workspace accent with a 10 percent white inner highlight on the top edge; other bubbles keep `bg-card` with `border-border/40` and a 0 1px 2px shadow at 6 percent. `.bubble-in` is a 180ms spring (scale 0.96 to 1, translateY 6px to 0, opacity 0 to 1). `.react-pop` runs 0.6 to 1.1 to 1 over 220ms.
+- Arrival animation only fires for messages that land while the room is open: `CommunityChat` seeds `seenIdsRef` on the first render of a room, so initial load and scrolling back never animate.
+- Long press: `CommunityChat` renders `.msg-menu-backdrop` (backdrop-blur-md, black at 30 percent) behind `MessageContextMenu`, and the pressed bubble takes `.msg-lift` (2 percent lift plus shadow) through the new `isMenuOpen` prop on `ChatBubble`. The quick react row uses `.quick-react-in` (120ms fade up).
+- New messages divider: a thin accent line with a centered accent pill reading `New messages`, placed once at the first unread message when the room opens, and retired as soon as the reader scrolls past it (`dividerRef` checked in `handleScroll`).
+- One floating control instead of two: a 44px circle, card background, hairline border, shadow, with the missed count in an accent pill on it. It appears when the reader is more than one screen above the bottom and clears on tap.
+- Wallpapers keep the six flat gradients from Pass 167 and gain one large radial accent glow at 8 percent in the top left plus an inline SVG grain at 3 percent. No patterns, no shapes. `ChatHeader` and the plus sheet were not touched.
+
+### Composer
+- Send button uses `.send-morph` (160ms crossfade and scale) and every composer button carries `.press` (scale 0.94 while pressed).
+- Typing indicator is now three staggered bouncing dots inside a small other-style bubble.
+
+### Chat list
+- Rows are 72px with 48px avatars, room name 15px semibold, one line preview with the last sender's first name, right aligned 12px time, unread as a solid accent pill with white digits, press state through `.press`.
+- Swipe left reveals a 44px tall mute action wired to the existing `set_channel_mute` RPC, and the list refreshes through `onMuteChanged`. Swipe right hides it.
+- Pinned rooms group at the top under a small caps `Pinned` label and show a pin glyph.
+- Reported, not built: there is no writer for room pinning. `get_conversations()` returns `is_pinned` as false for every room and no pin RPC or pin column exists, so no Pin action was added rather than duplicating state in a second place. The grouping and glyph are ready for a server side pin whenever one is added.
+- Reported, not built: `get_conversations()` does not return presence for the other person in a direct message, so the 48px avatar has no online ring. Adding one would need a new query, which this pass does not do.
+
+### Bottom bar, More and Settings
+- `MobileBottomNav` is a floating pill: card background at 92 percent, backdrop blur, hairline border, fully rounded, inset from the safe area and the sides, 11px labels, six tabs and the same routes, Chat badge kept, composer focus hiding kept. One absolutely positioned accent circle slides between tabs with a 200ms transform.
+- `MorePage` and `SettingsList`: 36px rounded icon tiles at accent 12 percent with accent icons, small caps 11px section headers, Radix Collapsible sections with a 200ms height animation and a rotating chevron. The Settings group uses neutral grey tiles so it reads as its own zone.
+
+### Home hero
+- New `src/components/home/WorkspaceHero.tsx`, used at the top of PestHome, FiberHome and LifeHome: first name, today's date, workspace name, streak with a plain lucide flame when one is already loaded, and the figure that home already shows. Background is two radial accent glows at 20 and 10 percent over card with the same grain. No new queries.
+- Pest: streak from the sale streak already loaded, figure from the accounts figure the page already renders. Fiber: figure from today's installs already loaded, no streak because none is loaded there. Life: figure from the pipeline total already loaded, no streak for the same reason.
+
+### Page feel
+- `AppLayout` keys the outlet wrapper by pathname and fades and slides content 8px up over 160ms, applies `tracking-tight` to page headings and `tabular-nums` to figures app wide.
+
+### Notifications
+- `record_daily_login` was read back and contains no `user_notifications` insert, so nothing was removed from it. The double streak notification came from repeat inserts, not from two writers in that function.
+- New `skip_duplicate_notification()` BEFORE INSERT trigger on `user_notifications` returns NULL when the same `user_id` and non-null `source_key` already exist, so repeats are skipped instead of erroring on the existing unique index. No history deleted.
+- `has_function_privilege` for `skip_duplicate_notification()`: anon false, authenticated false.
+- Rollback test: two identical inserts with source key `pass168:rollback:test2` for one person produced exactly one row, then the test rows were deleted.
+
+### New copy, verbatim
+- `New messages`
+- `Pinned`
+- `Mute`
+- `Unmute`
+
+### Verification
+- Typecheck clean, production build clean.
+- Shell gzip 198.5 KB against the 197.3 KB baseline, plus 1.2 KB, inside the 6 KB budget.
+- Baselines unchanged: chat_messages 713, profiles 536, chat_prefs 1, user_notifications 6362 before and 6362 after (the two test rows were inserted and deleted inside the rollback test, and one of the two was skipped by the trigger).
+- Not verified: the 390 and 1280 walkthroughs of the room, chat list, bottom bar, More screen, Home hero and the prefers-reduced-motion toggle need a signed in session. Browser auth status is signed_out and minting a session was not available in this run, so those visual measurements are stated as built, not as observed.
+- Nothing was published.

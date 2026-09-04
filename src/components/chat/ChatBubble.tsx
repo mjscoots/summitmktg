@@ -107,6 +107,9 @@ interface ChatBubbleProps {
   showIndustryChips?: boolean;
   /** Industry room: skip the chip everyone in the room already shares. */
   skipIndustry?: string | null;
+  /** The context menu is open on this message, so the bubble lifts. */
+  isMenuOpen?: boolean;
+
 
 }
 
@@ -136,6 +139,7 @@ export function ChatBubble({
   readTick = null,
   showIndustryChips = false,
   skipIndustry = null,
+  isMenuOpen = false,
 }: ChatBubbleProps) {
 
 
@@ -409,6 +413,7 @@ export function ChatBubble({
           <div className={cn(
             "chat-text relative leading-relaxed whitespace-pre-wrap break-words select-text",
             justSent && "bubble-in",
+            isMenuOpen && "msg-lift",
             hasMediaContent ? "rounded-2xl" : cn(
               "px-3 py-[7px]",
               isOwn
@@ -475,7 +480,7 @@ export function ChatBubble({
                 </button>
                 {showQuickPicker && (
                   <div className={cn(
-                    "absolute bottom-full mb-1 z-50 bg-card border border-border/50 rounded-full shadow-2xl animate-in fade-in-0 zoom-in-95 duration-150",
+                    "quick-react-in absolute bottom-full mb-1 z-50 bg-card border border-border/50 rounded-full shadow-2xl",
                     isOwn ? "right-0" : "left-0"
                   )}>
                     <div className="flex items-center gap-0.5 p-1">
