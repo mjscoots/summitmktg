@@ -40,7 +40,7 @@ function daysUntilSummer(): number {
 // ── email builders ──────────────────────────────────────────────────
 function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subject: string; html: string } {
   return {
-    subject: "Summit Training Reminder - Let's Get Back on Track! 🎯",
+    subject: "Summit Training Reminder - Let's Get Back on Track!",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a2e;">
         <h2 style="color: #1a1a2e;">Hi ${firstName(user.full_name)},</h2>
@@ -49,17 +49,17 @@ function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subje
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">Your Current Stats:</h3>
           <ul style="list-style: none; padding: 0;">
-            <li>📊 Training Progress: <strong>${trainingPct}%</strong></li>
+            <li>Training Progress: <strong>${trainingPct}%</strong></li>
             <li>⏰ Last Active: <strong>${daysInactive(user.last_active_at)} days ago</strong></li>
-            <li>☀️ Days Until Summer: <strong>${daysUntilSummer()} days</strong></li>
+            <li>Days Until Summer: <strong>${daysUntilSummer()} days</strong></li>
           </ul>
         </div>
 
         <h3>Quick Wins to Get Back:</h3>
         <ul>
-          <li>✅ Complete one training module (15-20 minutes)</li>
-          <li>✅ Watch a training video</li>
-          <li>✅ Review your pitch scripts</li>
+          <li>Complete one training module (15-20 minutes)</li>
+          <li>Watch a training video</li>
+          <li>Review your pitch scripts</li>
         </ul>
 
         <p><strong>Why Daily Training Matters:</strong><br/>
@@ -86,7 +86,7 @@ function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subje
 
 function buildDay4Email(user: any, trainingPct: number, teamStats: any, appUrl: string): { subject: string; html: string } {
   return {
-    subject: "Missing You on Summit! Your Team Needs You 💪",
+    subject: "Missing You on Summit! Your Team Needs You",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a2e;">
         <h2 style="color: #1a1a2e;">Hey ${firstName(user.full_name)},</h2>
@@ -101,9 +101,9 @@ function buildDay4Email(user: any, trainingPct: number, teamStats: any, appUrl: 
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">What Your Peers Are Doing Right Now:</h3>
           <ul>
-            ${teamStats.topRookie ? `<li>🏆 ${teamStats.topRookie.name} just hit ${teamStats.topRookie.pct}% training completion</li>` : ""}
-            ${teamStats.teamName ? `<li>📈 ${teamStats.teamName} team is training hard this week</li>` : ""}
-            <li>💪 Your peers are putting in the work daily</li>
+            ${teamStats.topRookie ? `<li>${teamStats.topRookie.name} just hit ${teamStats.topRookie.pct}% training completion</li>` : ""}
+            ${teamStats.teamName ? `<li>${teamStats.teamName} team is training hard this week</li>` : ""}
+            <li>Your peers are putting in the work daily</li>
           </ul>
         </div>
         ` : ""}
@@ -156,19 +156,19 @@ function buildPillarEmail(
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">Team Member Details:</h3>
           <ul style="list-style: none; padding: 0;">
-            <li>👤 Name: <strong>${userName}</strong></li>
-            <li>🏷️ Role: <strong>${userRole}</strong></li>
+            <li>Name: <strong>${userName}</strong></li>
+            <li>Role: <strong>${userRole}</strong></li>
             <li>⏰ Last Active: <strong>${formatDate(lastActive)}</strong></li>
-            <li>📊 Training Progress: <strong>${trainingPct}%</strong></li>
-            <li>📅 Days Inactive: <strong>${daysCount}</strong></li>
+            <li>Training Progress: <strong>${trainingPct}%</strong></li>
+            <li>Days Inactive: <strong>${daysCount}</strong></li>
           </ul>
         </div>
 
         <h3>What Happens Next:</h3>
         <ul>
-          <li>✅ ${userName} has been sent a training reminder email</li>
-          <li>📊 They're still able to access all training materials</li>
-          <li>🎯 A follow-up check-in may be needed</li>
+          <li>${userName} has been sent a training reminder email</li>
+          <li>They're still able to access all training materials</li>
+          <li>A follow-up check-in may be needed</li>
         </ul>
 
         <h3>Suggested Action:</h3>
@@ -182,9 +182,9 @@ function buildPillarEmail(
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">Quick Stats – Your ${teamName} team:</h3>
           <ul style="list-style: none; padding: 0;">
-            <li>🟢 ${teamActiveCount} members active daily</li>
-            <li>🔴 ${teamInactiveCount} members inactive 3+ days</li>
-            <li>📈 ${teamAvgTraining}% average team training completion</li>
+            <li>${teamActiveCount} members active daily</li>
+            <li>${teamInactiveCount} members inactive 3+ days</li>
+            <li>${teamAvgTraining}% average team training completion</li>
           </ul>
         </div>
 

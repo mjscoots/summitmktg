@@ -145,7 +145,7 @@ Deno.serve(async (req) => {
           await resend.emails.send({
             from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit <onboarding@resend.dev>",
             to: profile.email,
-            subject: `📅 Calendar Event: ${event_title}`,
+            subject: ` Calendar Event: ${event_title}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #1a1a2e;">Calendar Event ${action === "created" ? "Added" : "Updated"}</h2>
