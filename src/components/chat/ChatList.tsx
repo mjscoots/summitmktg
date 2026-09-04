@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, BellOff, Bot, ChevronRight, Pin } from 'lucide-react';
+import { Bell, BellOff, Bot, ChevronRight, Pin, PinOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, isYesterday } from 'date-fns';
@@ -44,8 +44,8 @@ function stamp(at: string | null): string {
 }
 
 /**
- * One conversation row. Swiping left reveals mute, the only per room action
- * with a writer behind it today.
+ * One conversation row. Swiping left reveals mute and pin, both with a
+ * server side writer scoped to the caller's own row.
  */
 function ConversationRow({
   row,
@@ -62,6 +62,7 @@ function ConversationRow({
   const sender = firstName(row.last_sender);
   const preview = previewText(row);
   const muted = Boolean(row.is_muted);
+  const pinnedRow = Boolean(row.is_pinned);
   const loud = row.unread > 0 && !muted;
 
   const toggleMute = async () => {
@@ -77,6 +78,24 @@ function ConversationRow({
     onMuteChanged?.();
   };
 
+  const togglePin = async () => {
+    if (busy || !row.channel_id) return;
+    setBusy(true);
+    const { error } = await (supabase as any).rpc('set_channel_pin', {
+      _channel_id: row.channel_id,
+      _pinned: !pinnedRow,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error('That did not save. Try again.');
+      return;
+    }
+    setRevealed(false);
+    onMuteChanged?.();
+  };
+
+  const actionWidth = row.channel_id ? 176 : 88;
+
   return (
     <li className="relative overflow-hidden">
       <div className="absolute inset-y-0 right-0 flex items-stretch">
@@ -90,6 +109,18 @@ function ConversationRow({
           {muted ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
           {muted ? 'Unmute' : 'Mute'}
         </button>
+        {row.channel_id && (
+          <button
+            type="button"
+            onClick={togglePin}
+            disabled={busy}
+            aria-label={pinnedRow ? `Unpin ${row.label}` : `Pin ${row.label}`}
+            className="flex min-h-11 w-[88px] flex-col items-center justify-center gap-1 bg-[hsl(var(--surface-elevated))] text-[11px] font-semibold text-foreground"
+          >
+            {pinnedRow ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+            {pinnedRow ? 'Unpin' : 'Pin'}
+          </button>
+        )}
       </div>
       <button
         type="button"
@@ -104,16 +135,18 @@ function ConversationRow({
           if (to - from > 48) setRevealed(false);
         }}
         className={cn(
-          'press relative flex min-h-[72px] w-full items-center gap-3 bg-card px-3 py-2.5 text-left transition-transform duration-200 hover:bg-[hsl(var(--surface-elevated))]',
-          revealed && '-translate-x-[88px]'
+          'press relative flex min-h-[72px] w-full items-center gap-3 bg-card px-3 py-2.5 text-left transition-transform duration-200 hover:bg-[hsl(var(--surface-elevated))]'
         )}
+        style={revealed ? { transform: `translateX(-${actionWidth}px)` } : undefined}
       >
         <ChannelAvatar
           name={row.label}
           coverPath={row.kind === 'dm' ? null : row.cover_image_path}
           avatarUrl={row.kind === 'dm' ? row.avatar_url : null}
+          online={row.kind === 'dm' && Boolean(row.other_is_active)}
           size="md"
         />
+
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
             {row.is_pinned && <Pin className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />}
