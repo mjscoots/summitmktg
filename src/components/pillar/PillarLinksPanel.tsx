@@ -66,6 +66,19 @@ export function PillarLinksPanel() {
     void load();
   };
 
+  const renew = async (p: Pillar) => {
+    setBusy(p.team_id);
+    const { data, error } = await (supabase as any).rpc('pillar_link_ensure', { _team_id: p.team_id });
+    setBusy(null);
+    const res = (data as { success?: boolean; error?: string } | null) || null;
+    if (error || !res?.success) {
+      toast.error(res?.error || error?.message || 'That did not go through');
+      return;
+    }
+    toast.success('Link renewed for another 90 days.');
+    void load();
+  };
+
   const share = async (p: Pillar, token: string) => {
     const url = linkFor(token);
     const text = `Join ${p.name} at Summit: ${url}`;
