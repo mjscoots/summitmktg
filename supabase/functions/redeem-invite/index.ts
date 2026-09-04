@@ -1,17 +1,33 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  "https://summitmktg.lovable.app",
+  "https://summitmktgsales.com",
+  "https://www.summitmktgsales.com",
+  "http://localhost:8080",
+];
 
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+// Pass 165 - the app's own origins only, never a wildcard.
+function getCorsHeaders(origin: string | null) {
+  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith(".lovable.app"));
+  return {
+    "Access-Control-Allow-Origin": isAllowed && origin ? origin : allowedOrigins[0],
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Vary": "Origin",
+  };
+}
+
+const jsonWith = (corsHeaders: Record<string, string>) =>
+  (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get("origin"));
+  const json = jsonWith(corsHeaders);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {

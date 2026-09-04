@@ -88,33 +88,15 @@ export function MoveRepModal({ open, onClose, repUserId, repName, currentManager
     if (!selectedManager) return;
     setIsMoving(true);
     try {
-      // 1. Update profiles.direct_manager to new manager's full_name
-      const { error: profileErr } = await supabase
-        .from('profiles')
-        .update({
-          direct_manager: selectedManager.full_name,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', repUserId);
-      if (profileErr) throw profileErr;
-
-      // 2. Delete old manages edge for this rep
-      const { error: deleteErr } = await supabase
-        .from('downline_edges')
-        .delete()
-        .eq('child_user_id', repUserId)
-        .eq('edge_type', 'manages');
-      if (deleteErr) throw deleteErr;
-
-      // 3. Insert new manages edge
-      const { error: insertErr } = await supabase
-        .from('downline_edges')
-        .insert({
-          parent_user_id: selectedManager.user_id,
-          child_user_id: repUserId,
-          edge_type: 'manages',
-        });
-      if (insertErr) throw insertErr;
+      // Every move goes through place_person so manager_id, direct_manager, the
+      // team, the downline edges and placement_log all land together.
+      const { data, error } = await supabase.rpc('place_person', {
+        _user_id: repUserId,
+        _manager_id: selectedManager.user_id,
+      });
+      if (error) throw error;
+      const res = (data as { success?: boolean; error?: string } | null) || null;
+      if (!res?.success) throw new Error(res?.error || 'Failed to move rep');
 
       toast.success(`Moved ${repName} to ${selectedManager.full_name}`);
       onMoved();

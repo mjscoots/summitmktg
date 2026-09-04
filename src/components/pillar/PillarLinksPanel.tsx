@@ -10,9 +10,15 @@ interface Pillar {
   vertical: string | null;
   leader_name: string | null;
   token: string | null;
+  expires_at: string | null;
 }
 
 const linkFor = (token: string) => `${window.location.origin}/p/${token}`;
+
+const dateLabel = (iso: string) =>
+  new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+const isExpired = (iso: string | null) => !!iso && new Date(iso).getTime() <= Date.now();
 
 /**
  * The permanent recruit link for a pillar. One link per pillar, it never
@@ -60,6 +66,19 @@ export function PillarLinksPanel() {
     void load();
   };
 
+  const renew = async (p: Pillar) => {
+    setBusy(p.team_id);
+    const { data, error } = await (supabase as any).rpc('pillar_link_ensure', { _team_id: p.team_id });
+    setBusy(null);
+    const res = (data as { success?: boolean; error?: string } | null) || null;
+    if (error || !res?.success) {
+      toast.error(res?.error || error?.message || 'That did not go through');
+      return;
+    }
+    toast.success('Link renewed for another 90 days.');
+    void load();
+  };
+
   const share = async (p: Pillar, token: string) => {
     const url = linkFor(token);
     const text = `Join ${p.name} at Summit: ${url}`;
@@ -98,9 +117,25 @@ export function PillarLinksPanel() {
             {p.token ? (
               <>
                 <p className="mt-2 break-all text-[12px] text-muted-foreground">{linkFor(p.token)}</p>
+                {p.expires_at && (
+                  <p className="mt-1 text-[12px] text-muted-foreground">
+                    {isExpired(p.expires_at)
+                      ? `Expired ${dateLabel(p.expires_at)}. Renew it to let people join again.`
+                      : `Works until ${dateLabel(p.expires_at)}`}
+                  </p>
+                )}
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Button size="sm" className="min-h-11" onClick={() => share(p, p.token as string)}>
                     Copy or share
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="min-h-11"
+                    disabled={busy === p.team_id}
+                    onClick={() => renew(p)}
+                  >
+                    Renew
                   </Button>
                   <Button
                     size="sm"

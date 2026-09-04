@@ -42,6 +42,7 @@ const VetApplication = () => {
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
   const { vertical, setVertical, source } = useApplicationSource();
   const [verticalError, setVerticalError] = useState<string | undefined>();
   const [formData, setFormData] = useState<FormData>({
@@ -166,23 +167,28 @@ const VetApplication = () => {
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("applications").insert({
-        application_type: "vet",
-        full_name: formData.fullName.trim(),
-        email: formData.email.trim().toLowerCase(),
-        phone: formData.phone.trim(),
-        city_state: formData.cityState.trim(),
-        referral_source: formData.referralName.trim(),
-        previous_company: formData.intendedMarket.trim(), // Previously knocked markets
-        years_experience: parseInt(formData.lastSeasonRevenue.replace(/[^0-9]/g, '')) || null, // Store as revenue number
-        vertical: vertical === "unsure" ? null : vertical,
-        source_type: source.source_type,
-        source_code: source.source_code,
-        referrer_user_id: source.referrer_user_id,
-        partner_id: source.partner_id,
-      } as never);
+      const { data, error } = await supabase.functions.invoke("submit-application", {
+        body: {
+          application_type: "vet",
+          full_name: formData.fullName.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          city_state: formData.cityState.trim(),
+          referral_source: formData.referralName.trim(),
+          previous_company: formData.intendedMarket.trim(),
+          years_experience: formData.lastSeasonRevenue.replace(/[^0-9]/g, ''),
+          vertical: vertical === "unsure" ? null : vertical,
+          source_type: source.source_type,
+          source_code: source.source_code,
+          referrer_user_id: source.referrer_user_id,
+          partner_id: source.partner_id,
+          website: honeypot,
+        },
+      });
 
-      if (error) throw error;
+      if (error || (data as { error?: string } | null)?.error) {
+        throw new Error((data as { error?: string } | null)?.error || "rejected");
+      }
 
       // Send welcome email (fire and forget - don't block submission)
       const firstName = formData.fullName.trim().split(" ")[0];
@@ -307,6 +313,17 @@ const VetApplication = () => {
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4 pb-24 sm:pb-0">
+            {/* Hidden from people, filled only by bots. */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              className="absolute left-[-9999px] h-0 w-0 opacity-0"
+            />
             <section className="public-surface p-5 sm:p-6">
               <IndustryStep value={vertical} onChange={setVertical} error={verticalError} />
             </section>
