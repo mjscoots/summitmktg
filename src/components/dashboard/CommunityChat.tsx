@@ -979,7 +979,10 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
         />
       </div>
 
-      {/* Context menu */}
+      {/* Context menu, iOS style: everything behind it steps back */}
+      {contextMenu && contextMsg && (
+        <div className="msg-menu-backdrop fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
+      )}
       {contextMenu && contextMsg && (
         <MessageContextMenu
           messageId={contextMsg.id}
