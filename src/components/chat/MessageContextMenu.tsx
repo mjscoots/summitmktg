@@ -87,10 +87,10 @@ export function MessageContextMenu({
     onClose();
   };
 
-  // Adjust position to stay in viewport
+  // Adjust position so both the react row and the menu stay in the viewport
   const style: React.CSSProperties = {
     position: 'fixed',
-    left: Math.min(position.x, window.innerWidth - 220),
+    left: Math.max(8, Math.min(position.x, window.innerWidth - 348)),
     top: Math.min(position.y, window.innerHeight - 300),
     zIndex: 100,
   };
@@ -102,22 +102,25 @@ export function MessageContextMenu({
 
       <div ref={menuRef} style={style} className="z-[100] animate-scale-in">
         {/* Quick reactions row */}
-        <div className="flex items-center gap-1 p-1.5 bg-card/95 backdrop-blur-xl border border-border/40 rounded-full shadow-2xl mb-1.5">
+        <div className="mb-1.5 flex items-center gap-0.5 rounded-full border border-border/40 bg-card/95 p-1 shadow-2xl backdrop-blur-xl">
           {QUICK_REACTIONS.map(emoji => (
             <button
               key={emoji}
               onClick={() => handleReact(emoji)}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-muted/80 text-lg transition-all hover:scale-125 active:scale-90"
+              aria-label={`React ${emoji}`}
+              className="flex h-11 w-11 items-center justify-center rounded-full text-lg transition-all hover:bg-muted/80 hover:scale-110 active:scale-90"
             >
               {emoji}
             </button>
           ))}
           <button
             onClick={() => setShowFullEmoji(!showFullEmoji)}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-muted/80 text-muted-foreground transition-all"
+            aria-label="More reactions"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-all hover:bg-muted/80"
           >
             <SmilePlus className="w-4 h-4" />
           </button>
+
         </div>
 
         {/* Action menu */}
