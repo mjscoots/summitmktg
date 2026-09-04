@@ -19,7 +19,7 @@ const getTaskIcon = (taskType: PriorityTask['task_type']) => {
 const getTaskTypeBadge = (taskType: PriorityTask['task_type']) => {
   switch (taskType) {
     case 'pitch_work': return 'Pitch';
-    case 'weekly_mission': return 'Mission';
+    case 'weekly_mission': return 'To do';
     case 'manager_mission': return 'Manager Goal';
     case 'recruit_goal': return 'Recruiting';
     default: return 'Task';

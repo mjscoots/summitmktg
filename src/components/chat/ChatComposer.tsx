@@ -374,18 +374,18 @@ export function ChatComposer({
 
   return (
     <div
-      className="relative flex-shrink-0 bg-background/80 backdrop-blur-2xl"
+      className="relative flex-shrink-0 border-t border-border/40 bg-card"
       style={{ transform: keyboardOffset ? `translateY(-${keyboardOffset}px)` : undefined }}
     >
       {/* Typing indicator */}
       {typingUsers.length > 0 && (
-        <div className="px-4 py-1 flex items-center gap-2">
+        <div className="px-3 py-1 flex items-center gap-2">
           <div className="flex gap-0.5">
             <div className="w-1 h-1 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '0ms' }} />
             <div className="w-1 h-1 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '150ms' }} />
             <div className="w-1 h-1 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
-          <span className="text-[11px] text-muted-foreground/40">
+          <span className="text-[11px] text-muted-foreground/60">
             {typingUsers.length === 1 ? `${typingUsers[0].fullName} is typing` : `${typingUsers.length} people typing`}
           </span>
         </div>
@@ -393,7 +393,7 @@ export function ChatComposer({
 
       {/* Recording status */}
       {recording && (
-        <div className="mx-3 mt-1.5 flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1.5">
+        <div className="mx-3 mt-2 flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1.5">
           <span className="h-2 w-2 flex-shrink-0 animate-pulse rounded-full bg-destructive" />
           <span className="text-[11px] font-semibold text-foreground">
             Recording {recordSeconds}s <span className="font-normal text-muted-foreground">/ {MAX_VOICE_SECONDS}s</span>
@@ -455,7 +455,7 @@ export function ChatComposer({
               {item.preview ? (
                 <img src={item.preview} alt={item.file.name} className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center px-1 text-center text-[10px] text-muted-foreground">
+                <span className="flex h-full w-full items-center justify-center px-1 text-center text-[11px] text-muted-foreground">
                   {item.file.name.slice(0, 18)}
                 </span>
               )}
@@ -481,7 +481,7 @@ export function ChatComposer({
                 <button
                   type="button"
                   onClick={() => void sendTray()}
-                  className="absolute inset-x-0 bottom-0 flex min-h-[22px] items-center justify-center gap-1 bg-destructive/85 text-[10px] font-semibold text-destructive-foreground"
+                  className="absolute inset-x-0 bottom-0 flex min-h-[22px] items-center justify-center gap-1 bg-destructive/85 text-[11px] font-semibold text-destructive-foreground"
                 >
                   <RotateCw className="h-3 w-3" /> Retry
                 </button>
@@ -526,7 +526,7 @@ export function ChatComposer({
 
       {/* Reply preview */}
       {replyingTo && (
-        <div className="flex items-center gap-2 mx-3 mt-1.5 px-3 py-1.5 bg-primary/5 rounded-t-2xl border border-b-0 border-primary/10">
+        <div className="flex items-center gap-2 mx-3 mt-2 px-3 py-1.5 bg-primary/5 rounded-t-2xl border border-b-0 border-primary/10">
           <Reply className="w-3 h-3 text-primary flex-shrink-0" />
           <span className="text-[11px] font-medium text-foreground/50 truncate flex-1">
             {replyingTo.full_name}: {replyingTo.content.slice(0, 60)}
@@ -557,7 +557,7 @@ export function ChatComposer({
       )}
 
       {/* Input row - iMessage style */}
-      <div className={cn("flex items-end gap-1.5 px-2 py-2", replyingTo && "pt-0")}>
+      <div className={cn("flex items-center gap-2 px-3 py-2", replyingTo && "pt-0")}>
         {/* + button */}
         <button
           onClick={() => { setShowAttach(!showAttach); setShowGifs(false); setShowStickers(false); setShowPoll(false); }}
@@ -566,7 +566,7 @@ export function ChatComposer({
             "h-11 w-11 flex items-center justify-center rounded-full transition-all flex-shrink-0",
             showAttach
               ? "bg-primary/20 text-primary rotate-45"
-              : "bg-muted/30 text-muted-foreground/40 hover:text-muted-foreground/60"
+              : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
           )}
         >
           <Plus className="w-5 h-5" strokeWidth={2.5} />
@@ -574,8 +574,8 @@ export function ChatComposer({
 
         {/* Text input pill */}
         <div className={cn(
-          "flex-1 flex items-center bg-muted/20 border border-border/20 rounded-full",
-          "focus-within:border-primary/20 focus-within:bg-muted/30 transition-all",
+          "flex-1 flex min-h-11 items-center bg-muted/40 border border-border/40 rounded-full",
+          "focus-within:border-primary/40 transition-colors",
           replyingTo && "rounded-t-none rounded-b-full"
         )}>
           <input
@@ -588,7 +588,7 @@ export function ChatComposer({
             onFocus={() => setComposerKeyboard({ focused: true, offset: measureKeyboardOffset() })}
             onBlur={() => setComposerKeyboard({ focused: false, offset: 0 })}
             placeholder={placeholder || "Message..."}
-            className="chat-text flex-1 bg-transparent text-foreground px-4 py-2 focus:outline-none placeholder:text-muted-foreground/25"
+            className="chat-text h-11 flex-1 bg-transparent text-foreground px-4 focus:outline-none placeholder:text-muted-foreground/50"
             disabled={isSending}
           />
         </div>
@@ -602,7 +602,7 @@ export function ChatComposer({
               'flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all',
               recording
                 ? 'bg-destructive text-destructive-foreground animate-pulse'
-                : 'bg-muted/30 text-muted-foreground/40 hover:text-muted-foreground/60'
+                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
             )}
             disabled={uploading}
           >
@@ -618,8 +618,8 @@ export function ChatComposer({
           className={cn(
             "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all",
             input.trim() || tray.length > 0
-              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 active:scale-90"
-              : "bg-muted/20 text-muted-foreground/15"
+              ? "bg-primary text-white active:scale-95"
+              : "bg-muted/40 text-muted-foreground/50"
           )}
         >
           {isSending || sendingTray ? (

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { uploadAvatar, deleteAvatarFile } from '@/lib/avatarUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp, ClipboardCheck } from 'lucide-react';
+import { User, FileText, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp, ClipboardCheck } from 'lucide-react';
 import { TierBadge, getTierBorderClass } from '@/components/shared/TierBadge';
 import { BadgeShelf } from '@/components/badges/BadgeStrip';
 import { useEliteTier } from '@/hooks/useEliteTier';
@@ -19,8 +19,6 @@ import { TIMEZONES, DEFAULT_TIMEZONE, detectBrowserTimezone } from '@/lib/timezo
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { ImageCropDialog } from '@/components/shared/ImageCropDialog';
-import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
-import { AppearanceCard } from '@/components/profile/AppearanceCard';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { RepScorecard } from '@/components/shared/RepScorecard';
 
@@ -151,7 +149,7 @@ function CompletenessMeter({
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, role, isLoading: authLoading, refreshProfile, signOut } = useAuth();
+  const { user, profile, role, isLoading: authLoading, refreshProfile } = useAuth();
   
   // Profile state
   const [fullName, setFullName] = useState('');
@@ -168,17 +166,10 @@ export default function ProfilePage() {
   
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
-  // Password change state
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
   // Loading states
   const [isSaving, setIsSaving] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [rawImageSrc, setRawImageSrc] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -189,7 +180,6 @@ export default function ProfilePage() {
   const [managerIntro, setManagerIntro] = useState('');
 
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
-  const canSelfDelete = role === 'rookie' || role === 'manager';
   const { systemPct, tier } = useEliteTier();
 
   useEffect(() => {
@@ -263,37 +253,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
-
-    setIsChangingPassword(true);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-
-      if (error) throw error;
-
-      toast.success('Password changed successfully');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (err) {
-      toast.error('Failed to change password');
-      console.error(err);
-    } finally {
-      setIsChangingPassword(false);
-    }
-  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -366,24 +325,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleDeleteMyAccount = async () => {
-    if (!canSelfDelete) return;
-    if (!window.confirm('Delete your account permanently? This cannot be undone.')) return;
-
-    setIsDeletingAccount(true);
-    try {
-      const { error } = await supabase.functions.invoke('self-delete-account');
-      if (error) throw error;
-      await signOut();
-      toast.success('Account deleted. You can sign up again anytime.');
-      navigate('/login', { replace: true });
-    } catch (err) {
-      console.error(err);
-      toast.error('Could not delete account right now. Please try again.');
-    } finally {
-      setIsDeletingAccount(false);
-    }
-  };
 
   if (authLoading) {
     return (
@@ -744,11 +685,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Appearance */}
-        <div className="mb-6">
-          <AppearanceCard />
-        </div>
-
         {/* Quiet feedback entry, reachable from anywhere the profile is */}
         <div className="mb-6">
           <FeedbackDialog
@@ -761,98 +697,14 @@ export default function ProfilePage() {
           />
         </div>
 
-        {/* Notification Preferences */}
-        <div className="mb-6">
-          <NotificationPreferences />
-        </div>
-
-        {canSelfDelete && (
-          <div className="bg-card rounded-xl border border-destructive/40 p-6 mb-6">
-            <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-              <Trash2 className="w-4 h-4 text-destructive" />
-              Delete Account
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Permanently delete your account and sign up fresh.
-            </p>
-            <Button
-              onClick={handleDeleteMyAccount}
-              disabled={isDeletingAccount}
-              variant="destructive"
-            >
-              {isDeletingAccount ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete My Account'
-              )}
-            </Button>
-          </div>
-        )}
-
-        {/* Change Password */}
-        <div className="bg-card rounded-xl border border-border/50 p-6">
-          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Lock className="w-4 h-4 text-primary" />
-            Change Password
-          </h3>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Current Password
-              </label>
-              <Input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="••••••••"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                New Password
-              </label>
-              <Input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="••••••••"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Confirm New Password
-              </label>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-              />
-            </div>
-
-            <Button
-              onClick={handleChangePassword}
-              disabled={isChangingPassword || !newPassword || !confirmPassword}
-              variant="outline"
-              className="btn-secondary"
-            >
-              {isChangingPassword ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Changing...
-                </>
-              ) : (
-                "Change Password"
-              )}
-            </Button>
-          </div>
-        </div>
+        {/* Everything else lives in Settings */}
+        <button
+          onClick={() => navigate('/app/settings')}
+          className="flex min-h-[52px] w-full items-center justify-between rounded-xl border border-border bg-card px-4 text-left text-[15px] text-foreground transition-colors hover:bg-secondary"
+        >
+          More settings
+          <span className="text-[13px] text-muted-foreground">Appearance, notifications, account</span>
+        </button>
       </main>
 
       <ImageCropDialog

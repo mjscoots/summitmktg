@@ -19,6 +19,8 @@ import {
   Sparkles,
   Wrench,
   Palette,
+  Bell,
+  Lock,
 
   type LucideIcon,
 } from 'lucide-react';
@@ -109,12 +111,20 @@ const ALL: Record<string, NavDest> = {
   admin: { key: 'admin', label: 'Pillar', path: '/admin/requests', icon: Shield, minTier: 'admin' },
   profile: { key: 'profile', label: 'Profile', path: '/app/profile', icon: User },
   chatLook: { key: 'chatLook', label: 'Chat look', path: '/app/chat-look', icon: Palette },
+  appearance: { key: 'appearance', label: 'Appearance', path: '/app/appearance', icon: Palette },
+  notificationSettings: {
+    key: 'notificationSettings',
+    label: 'Notifications',
+    path: '/app/notifications',
+    icon: Bell,
+  },
+  account: { key: 'account', label: 'Account', path: '/app/account', icon: Lock },
   scripts: { key: 'scripts', label: 'Scripts', path: '/app/scripts', icon: BookOpen },
   resources: { key: 'resources', label: 'Resources', path: '/app/links', icon: Link2 },
   ask: { key: 'ask', label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
   doors: { key: 'doors', label: 'Doors mode', path: '/app/doors', icon: Home },
-  missions: { key: 'missions', label: 'Missions', path: '/app/missions', icon: ClipboardList },
-  recruits: { key: 'recruits', label: 'Recruits', path: '/app/recruits', icon: Users },
+  missions: { key: 'missions', label: 'To do', path: '/app/missions', icon: ClipboardList },
+  recruits: { key: 'recruits', label: 'Recruits', path: '/app/recruits', icon: Users, minTier: 'manager' },
   industries: { key: 'industries', label: 'Industries', path: '/app/industries', icon: Wrench },
   estimate: { key: 'estimate', label: 'Estimate earnings', path: '/app/estimate-earnings', icon: DollarSign },
   alumni: { key: 'alumni', label: 'Alumni', path: '/app/alumni', icon: Users },
@@ -190,8 +200,10 @@ export function moreGroups(
       ].map((k) => ALL[k]),
     },
     { title: 'Company', items: ['admin', 'command', 'alumni'].map((k) => ALL[k]) },
-    { title: 'You', items: ['profile'].map((k) => ALL[k]) },
-    { title: 'Appearance', items: ['chatLook'].map((k) => ALL[k]) },
+    {
+      title: 'Settings',
+      items: ['profile', 'appearance', 'notificationSettings', 'account'].map((k) => ALL[k]),
+    },
   ];
 
   return groups

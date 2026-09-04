@@ -91,7 +91,7 @@ function DateSeparator({ date }: { date: Date }) {
   else if (isYesterday(date)) label = 'Yesterday';
   return (
     <div className="sticky top-0 z-[2] flex items-center justify-center my-4">
-      <span className="text-[10px] font-medium text-muted-foreground/30 bg-card/50 backdrop-blur-sm px-3 py-0.5 rounded-full">{label}</span>
+      <span className="rounded-full border border-border/40 bg-card px-3 py-0.5 text-[11px] font-medium text-muted-foreground/60">{label}</span>
     </div>
   );
 }
@@ -109,7 +109,7 @@ function HqMessage({ content }: { content: string }) {
   return (
     <div className="my-3 flex justify-center px-4">
       <div className="max-w-[85%] rounded-2xl border border-primary/20 bg-primary/[0.06] px-4 py-3">
-        <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-primary/70">Summit HQ</span>
+        <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-primary/70">Summit HQ</span>
         <span className="block text-[13px] leading-relaxed text-foreground/80">{content}</span>
       </div>
     </div>
@@ -653,7 +653,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     // row fails, the message is removed again: no Poll line without its poll.
     const { data: msg, error } = await supabase
       .from('chat_messages')
-      .insert({ user_id: user.id, content: `📊 Poll: ${question}`, channel: activeChannel })
+      .insert({ user_id: user.id, content: `Poll: ${question}`, channel: activeChannel })
       .select('id')
       .single();
     if (error || !msg) { toast.error('That did not send. Try again.'); return false; }
@@ -788,7 +788,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
 
       {/* Messages thread */}
-      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative z-[1]">
+      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto overscroll-contain min-h-0 relative z-[1] px-3 lg:px-6">
         {loading && (
           <SummitLoader label="Loading messages..." className="py-20" />
         )}
@@ -826,7 +826,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           const newDivider = dividerId === msg.id ? (
             <div className="my-2 flex items-center gap-2 px-3">
               <span className="h-px flex-1 bg-primary/30" />
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-primary">New</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-primary">New</span>
               <span className="h-px flex-1 bg-primary/30" />
             </div>
           ) : null;
@@ -878,7 +878,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
               {showDate && <DateSeparator date={new Date(msg.created_at)} />}
               {showTime && !showDate && isFirstInGroup && (
                 <div className="flex justify-center my-2">
-                  <span className="text-[10px] text-muted-foreground/25">
+                  <span className="text-[11px] text-muted-foreground/60">
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                   </span>
                 </div>

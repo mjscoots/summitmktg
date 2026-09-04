@@ -1030,15 +1030,15 @@ body {
 @layer components {
   /* Own message: a flat tint of the chosen bubble colour with a hairline */
   .bubble-own {
-    background: hsl(var(--chat-bubble, var(--workspace-accent)) / 0.18);
-    border: 1px solid hsl(var(--chat-bubble, var(--workspace-accent)) / 0.45);
-    color: hsl(var(--foreground));
+    background: hsl(var(--chat-bubble, var(--workspace-accent)));
+    border: 1px solid hsl(var(--chat-bubble, var(--workspace-accent)));
+    color: #ffffff;
   }
 
   /* Everyone else: a translucent surface that stays readable on a wallpaper */
   .bubble-other {
-    background: hsl(var(--muted) / 0.55);
-    border: 1px solid hsl(var(--border) / 0.6);
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border) / 0.4);
     color: hsl(var(--foreground));
   }
 
@@ -1083,27 +1083,6 @@ body {
     animation: bubble-pop 180ms var(--motion-ease) both;
   }
 
-  /* Pass 120 - WhatsApp style bubble tails on the last message of a group. */
-  .bubble-tail-own::after,
-  .bubble-tail-other::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 10px;
-    height: 12px;
-  }
-  .bubble-tail-own::after {
-    right: -6px;
-    background: hsl(var(--chat-bubble, var(--workspace-accent)) / 0.18);
-    border-right: 1px solid hsl(var(--chat-bubble, var(--workspace-accent)) / 0.45);
-    border-bottom: 1px solid hsl(var(--chat-bubble, var(--workspace-accent)) / 0.45);
-    clip-path: polygon(0 0, 100% 100%, 0 100%);
-  }
-  .bubble-tail-other::after {
-    left: -6px;
-    background: hsl(var(--muted) / 0.55);
-    clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  }
   @keyframes bubble-pop {
     from { opacity: 0; transform: scale(0.96); }
     to { opacity: 1; transform: scale(1); }
@@ -1510,59 +1489,44 @@ html[data-appearance='light'] .public-cta::before {
     z-index: 1;
   }
 
-  /* Summit: the look the app already had, so nothing is drawn. */
+  /* Flat or very soft two stop washes. No pattern, no texture. */
   .chat-wall-summit::before {
     background: none;
   }
 
-  /* Night: deep navy with a faint peak line, drawn as an inline SVG. */
   .chat-wall-night {
-    background-color: hsl(222 52% 7%);
+    background-color: hsl(222 30% 8%);
   }
   .chat-wall-night::before {
-    opacity: 0.7;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Cpath d='M0 52 L30 18 L52 40 L74 10 L120 52' fill='none' stroke='%23ffffff' stroke-opacity='0.05' stroke-width='1.2'/%3E%3C/svg%3E");
-    background-size: 120px 60px;
+    background: linear-gradient(180deg, hsl(222 30% 11%), hsl(222 30% 7%));
   }
 
   .chat-wall-slate {
-    background-color: hsl(215 16% 19%);
+    background-color: hsl(215 12% 16%);
   }
   .chat-wall-slate::before {
-    background-image:
-      linear-gradient(hsl(0 0% 100% / 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(0 0% 100% / 0.03) 1px, transparent 1px);
-    background-size: 28px 28px;
+    background: linear-gradient(180deg, hsl(215 12% 19%), hsl(215 12% 14%));
   }
 
   .chat-wall-forest {
-    background-color: hsl(158 32% 14%);
+    background-color: hsl(158 14% 13%);
   }
   .chat-wall-forest::before {
-    background-image: radial-gradient(hsl(150 60% 70% / 0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background: linear-gradient(180deg, hsl(158 14% 16%), hsl(158 14% 11%));
   }
 
   .chat-wall-sand {
-    background-color: hsl(34 30% 19%);
+    background-color: hsl(34 12% 16%);
   }
   .chat-wall-sand::before {
-    background-image: repeating-linear-gradient(
-      45deg,
-      hsl(38 60% 80% / 0.04) 0 2px,
-      transparent 2px 12px
-    );
+    background: linear-gradient(180deg, hsl(34 12% 19%), hsl(34 12% 14%));
   }
 
   .chat-wall-ice {
-    background-color: hsl(200 38% 17%);
+    background-color: hsl(200 14% 16%);
   }
   .chat-wall-ice::before {
-    background-image: repeating-linear-gradient(
-      -45deg,
-      hsl(195 80% 85% / 0.045) 0 1px,
-      transparent 1px 14px
-    );
+    background: linear-gradient(180deg, hsl(200 14% 19%), hsl(200 14% 14%));
   }
 
   /* Your photo: a private object, signed at read time. */
