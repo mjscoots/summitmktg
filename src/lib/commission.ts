@@ -1,8 +1,9 @@
 /**
- * Commission pay scales - single source of truth.
- * These are the same brackets used by the public earnings calculators
- * (EarningsCalculator, VetCalculator) and the rep-facing My Money page.
- * Rates are a percentage of ACTIVE serviced revenue.
+ * Commission helpers.
+ *
+ * There are no pay tables in this file. Every rate a person sees comes from
+ * confirmed rank_stacks rows read through my_comp_ladder() (see
+ * src/hooks/useCompLadder.ts) or from a rate a Pillar set by hand.
  */
 
 export type PayScale = 'rookie' | 'veteran' | 'marketing';
@@ -11,42 +12,8 @@ export interface Tier {
   min: number;
   max: number;
   rate: number;
+  label?: string;
 }
-
-export const ROOKIE_TIERS: Tier[] = [
-  { min: 0, max: 69999, rate: 0.18 },
-  { min: 70000, max: 99999, rate: 0.22 },
-  { min: 100000, max: 149999, rate: 0.25 },
-  { min: 150000, max: 199999, rate: 0.35 },
-  { min: 200000, max: 249999, rate: 0.40 },
-  { min: 250000, max: 299999, rate: 0.45 },
-  { min: 300000, max: 399999, rate: 0.50 },
-  { min: 400000, max: Infinity, rate: 0.55 },
-];
-
-export const VETERAN_TIERS: Tier[] = [
-  { min: 0, max: 199999, rate: 0.40 },
-  { min: 200000, max: 249999, rate: 0.50 },
-  { min: 250000, max: 299999, rate: 0.55 },
-  { min: 300000, max: 399999, rate: 0.60 },
-  { min: 400000, max: 499999, rate: 0.65 },
-  { min: 500000, max: Infinity, rate: 0.70 },
-];
-
-export const MARKETING_TIERS: Tier[] = [
-  { min: 0, max: 249999, rate: 0.45 },
-  { min: 250000, max: 499999, rate: 0.50 },
-  { min: 500000, max: 1249999, rate: 0.55 },
-  { min: 1250000, max: 2499999, rate: 0.60 },
-  { min: 2500000, max: 3749999, rate: 0.65 },
-  { min: 3750000, max: 4999999, rate: 0.675 },
-  { min: 5000000, max: 7499999, rate: 0.70 },
-  { min: 7500000, max: 9999999, rate: 0.72 },
-  { min: 10000000, max: 12499999, rate: 0.74 },
-  { min: 12500000, max: 14999999, rate: 0.76 },
-  { min: 15000000, max: 19999999, rate: 0.78 },
-  { min: 20000000, max: Infinity, rate: 0.80 },
-];
 
 export const PAY_SCALE_LABELS: Record<PayScale, string> = {
   rookie: 'Rookie',
@@ -54,26 +21,25 @@ export const PAY_SCALE_LABELS: Record<PayScale, string> = {
   marketing: 'Marketing deal',
 };
 
-export function getTiers(scale: PayScale): Tier[] {
-  if (scale === 'veteran') return VETERAN_TIERS;
-  if (scale === 'marketing') return MARKETING_TIERS;
-  return ROOKIE_TIERS;
+/** Shown wherever a rate is missing. */
+export const NOT_CONFIRMED = 'Your pay scale is not confirmed yet. Ask your Pillar.';
+
+/** The bracket a revenue figure lands in, for a ladder read from the database. */
+export function tierFor(tiers: Tier[], revenue: number): Tier | null {
+  return tiers.find((t) => revenue >= t.min && revenue <= t.max) ?? null;
 }
 
-export function getTier(scale: PayScale, revenue: number): Tier {
-  const tiers = getTiers(scale);
-  return tiers.find(t => revenue >= t.min && revenue <= t.max) ?? tiers[0];
-}
-
-export function getRate(scale: PayScale, revenue: number): number {
-  return getTier(scale, revenue).rate;
-}
-
-export function getNextTier(scale: PayScale, revenue: number): Tier | null {
-  const tiers = getTiers(scale);
-  const current = getTier(scale, revenue);
+/** The bracket above the current one, for a ladder read from the database. */
+export function nextTierFor(tiers: Tier[], revenue: number): Tier | null {
+  const current = tierFor(tiers, revenue);
+  if (!current) return null;
   const index = tiers.indexOf(current);
   return index >= 0 && index < tiers.length - 1 ? tiers[index + 1] : null;
+}
+
+/** The rate for a revenue figure, or null when the ladder is empty. */
+export function rateFor(tiers: Tier[], revenue: number): number | null {
+  return tierFor(tiers, revenue)?.rate ?? null;
 }
 
 export function formatCurrency(value: number): string {
@@ -91,6 +57,7 @@ export function formatRate(rate: number): string {
 }
 
 export function formatTierRange(tier: Tier): string {
-  if (tier.max === Infinity) return `${formatCurrency(tier.min)}+`;
-  return `${formatCurrency(tier.min)} – ${formatCurrency(tier.max)}`;
+  if (tier.label) return tier.label;
+  if (!Number.isFinite(tier.max)) return `${formatCurrency(tier.min)}+`;
+  return `${formatCurrency(tier.min)} to ${formatCurrency(tier.max)}`;
 }

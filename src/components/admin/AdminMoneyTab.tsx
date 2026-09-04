@@ -6,7 +6,7 @@ import { Search, Save, Loader2, DollarSign, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LoadingList } from '@/components/shared/LoadingList';
-import { PayScale, PAY_SCALE_LABELS, formatCurrency, formatRate, getRate, getTier, formatTierRange } from '@/lib/commission';
+import { PayScale, PAY_SCALE_LABELS, NOT_CONFIRMED, formatCurrency, formatRate } from '@/lib/commission';
 import { cn } from '@/lib/utils';
 import { PipelinePanel } from '@/components/admin/PipelinePanel';
 import { RevenueEntryPanel } from '@/components/admin/RevenueEntryPanel';
@@ -266,7 +266,7 @@ export function AdminMoneyTab() {
             const scale = (['rookie', 'veteran', 'marketing'].includes(c?.pay_scale) ? c.pay_scale : 'rookie') as PayScale;
             const revenue =
               c?.active_revenue ?? (c?.avg_account_value ? (c.signs ?? 0) * c.avg_account_value : null);
-            const rate = c?.rate_override ?? (revenue !== null ? getRate(scale, revenue) : null);
+            const rate = c?.rate_override ?? null;
             const isOpen = selected === rep.user_id;
 
             return (
@@ -353,12 +353,14 @@ export function AdminMoneyTab() {
                       {(() => {
                         const rev = num(draft.active_revenue) ?? (num(draft.avg_account_value) !== null ? (num(draft.signs) ?? 0) * num(draft.avg_account_value)! : null);
                         if (rev === null) return null;
-                        const tier = getTier(draft.pay_scale, rev);
                         const pct = num(draft.rate_override);
-                        const effRate = pct !== null ? pct / 100 : tier.rate;
+                        if (pct === null) {
+                          return <p className="text-xs text-muted-foreground mt-2">{NOT_CONFIRMED}</p>;
+                        }
+                        const effRate = pct / 100;
                         return (
                           <p className="text-xs text-muted-foreground mt-2">
-                            {formatCurrency(rev)} revenue → bracket {formatTierRange(tier)} → {formatRate(effRate)} ={' '}
+                            {formatCurrency(rev)} revenue at {formatRate(effRate)} ={' '}
                             <span className="text-foreground font-semibold">{formatCurrency(rev * effRate)}</span>
                           </p>
                         );

@@ -3,7 +3,7 @@ import { Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { getRate, PAY_SCALE_LABELS, PayScale } from '@/lib/commission';
+import { PAY_SCALE_LABELS, PayScale } from '@/lib/commission';
 import { BackupsPanel } from './BackupsPanel';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
@@ -82,7 +82,8 @@ export function AdminExportTab() {
           const avg = Number(c.avg_account_value ?? 0);
           const periodRevenue = signs * avg;
           const revenueForTier = Number(c.active_revenue ?? 0) || periodRevenue;
-          const rate = c.rate_override != null ? Number(c.rate_override) : getRate(scale, revenueForTier);
+          // Only a rate a Pillar confirmed by hand is exported. No table in the bundle.
+          const rate = c.rate_override != null ? Number(c.rate_override) : null;
           return {
             rep_name: p.full_name,
             rep_email: p.email,
@@ -93,8 +94,8 @@ export function AdminExportTab() {
             avg_account_value_usd: avg || '',
             period_revenue_usd: Math.round(periodRevenue),
             revenue_used_for_tier_usd: Math.round(revenueForTier),
-            commission_rate_pct: (rate * 100).toFixed(1),
-            gross_estimate_usd: Math.round(periodRevenue * rate),
+            commission_rate_pct: rate !== null ? (rate * 100).toFixed(1) : '',
+            gross_estimate_usd: rate !== null ? Math.round(periodRevenue * rate) : '',
             notes: c.notes || '',
           };
         }).filter((r: any) => r.signs_in_period > 0 || r.revenue_used_for_tier_usd > 0);

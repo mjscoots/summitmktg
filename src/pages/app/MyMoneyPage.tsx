@@ -10,13 +10,11 @@ import { LoadingList } from '@/components/shared/LoadingList';
 import {
   PayScale,
   PAY_SCALE_LABELS,
+  NOT_CONFIRMED,
   formatCurrency,
   formatRate,
-  formatTierRange,
-  getNextTier,
-  getTier,
-  getTiers,
 } from '@/lib/commission';
+import { useCompLadder, repRate } from '@/hooks/useCompLadder';
 import { cn } from '@/lib/utils';
 import { isManagerOrAbove } from '@/lib/roles';
 import { MyFiberWeeks } from '@/components/money/MyFiberWeeks';
@@ -24,7 +22,6 @@ import { MyRevenueMonths } from '@/components/money/MyRevenueMonths';
 import { MySpreadSection } from '@/components/money/MySpreadSection';
 import { SentRepOverrideNote } from '@/components/money/SentRepOverrideNote';
 import { VerticalMoneyCards } from '@/components/money/VerticalMoneyCards';
-import { PayLadderTrack } from '@/components/shared/PayLadderTrack';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { FiberStackView } from '@/components/money/FiberStackView';
 import { DashboardFunnelTracker } from '@/components/dashboard/DashboardFunnelTracker';
@@ -59,6 +56,8 @@ export default function MyMoneyPage() {
     []
   );
   const isManagerRole = isManagerOrAbove(role);
+  const { ladder } = useCompLadder('Pest');
+  const ladderRate = repRate(ladder);
   const [tab, setTab] = useState<'all' | 'Pest' | 'Fiber' | 'Life'>('all');
   const isStaff = role === 'admin' || role === 'owner';
 
@@ -104,15 +103,10 @@ export default function MyMoneyPage() {
     const avg = commission.avg_account_value ?? null;
     const revenue =
       commission.active_revenue ?? (avg !== null ? signs * avg : null);
-    const tier = revenue !== null ? getTier(scale, revenue) : null;
-    const rate = commission.rate_override ?? tier?.rate ?? null;
+    const rate = commission.rate_override ?? ladderRate;
     const earnings = revenue !== null && rate !== null ? revenue * rate : null;
-    const next = revenue !== null ? getNextTier(scale, revenue) : null;
-    const revenueToNext = next && revenue !== null ? Math.max(next.min - revenue, 0) : null;
-    const signsToNext =
-      revenueToNext !== null && avg && avg > 0 ? Math.ceil(revenueToNext / avg) : null;
-    return { scale, signs, avg, revenue, tier, rate, earnings, next, revenueToNext, signsToNext };
-  }, [commission]);
+    return { scale, signs, avg, revenue, rate, earnings };
+  }, [commission, ladderRate]);
 
   const TABS = [
     { key: 'all', label: 'All' },
@@ -281,28 +275,25 @@ export default function MyMoneyPage() {
                         ? `Active revenue = ${money.signs} signs × ${formatCurrency(money.avg)} average account value.`
                         : 'Active revenue is set from your serviced accounts.'}
                       {commission?.rate_override !== null && commission?.rate_override !== undefined
-                        ? ' Your rate was set manually by a pillar.'
-                        : money.tier
-                        ? ` Your rate comes from the ${PAY_SCALE_LABELS[money.scale]} pay scale bracket ${formatTierRange(money.tier)}.`
-                        : ''}
+                        ? ' Your rate was set by hand by a Pillar.'
+                        : money.rate !== null
+                        ? ' Your rate comes from the pay rows confirmed for your tier.'
+                        : ` ${NOT_CONFIRMED}`}
                     </p>
                   </div>
 
-                  {/* Pay ladder track */}
+                  {/* Pay ladder */}
                   <div>
                     <p className="micro-label mb-3">
                       {PAY_SCALE_LABELS[money.scale]} pay ladder
                     </p>
-                    <PayLadderTrack
-                      tiers={getTiers(money.scale).map((t) => ({
-                        label: formatTierRange(t),
-                        rateLabel: formatRate(t.rate),
-                        min: t.min,
-                        max: t.max === Infinity ? null : t.max,
-                      }))}
-                      value={money.revenue ?? 0}
-                      formatAmount={formatCurrency}
-                    />
+                    {money.rate !== null ? (
+                      <p className="text-[13px] text-foreground">
+                        Your confirmed rate is {formatRate(money.rate)}.
+                      </p>
+                    ) : (
+                      <p className="text-[13px] text-muted-foreground">{NOT_CONFIRMED}</p>
+                    )}
                   </div>
 
                 </div>
@@ -418,31 +409,18 @@ export default function MyMoneyPage() {
                 <p className="text-sm text-muted-foreground">
                   This shows up once your commission numbers are set.
                 </p>
-              ) : !money.next ? (
-                <p className="text-sm text-foreground">
-                  You're on the top bracket of the {PAY_SCALE_LABELS[money.scale]} pay scale at{' '}
-                  {money.tier ? formatRate(money.tier.rate) : '-'}. There's no higher tier.
-                </p>
+              ) : money.rate === null ? (
+                <p className="text-sm text-muted-foreground">{NOT_CONFIRMED}</p>
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-foreground">
-                    You need {formatCurrency(money.revenueToNext ?? 0)} more active revenue
-                    {money.signsToNext !== null
-                      ? ` - about ${money.signsToNext} more ${money.signsToNext === 1 ? 'sign' : 'signs'} at your ${formatCurrency(money.avg!)} average account value.`
-                      : '.'}
+                    Your tier is {ladder?.tier_label ?? 'not set'} and your confirmed rate is{' '}
+                    {formatRate(money.rate)}. The next tier is set by your Pillar.
                   </p>
-                  {money.signsToNext === null && (
-                    <p className="text-xs text-muted-foreground flex items-start gap-1.5">
-                      <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                      Sign count can't be calculated until your average account value is set.
-                    </p>
-                  )}
-                  {commission?.rate_override !== null && commission?.rate_override !== undefined && (
-                    <p className="text-xs text-muted-foreground">
-                      Your rate is currently set manually, so hitting the next bracket may not change your pay.
-                      Check with your manager.
-                    </p>
-                  )}
+                  <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                    <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                    Only rows confirmed for your tier are shown here.
+                  </p>
                 </div>
               )}
             </section>

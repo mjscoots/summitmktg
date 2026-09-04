@@ -3296,3 +3296,65 @@ Typecheck clean. Production build clean, built in 17.20s. Not published.
 
 Noted, not changed (outside this pass): the composer send button is a 32px
 circle, below the 44px target rule; it predates this pass.
+
+## Pass 163: compensation integrity
+
+Every commission number a person sees now comes from confirmed `rank_stacks` rows for that person's own tier, read through one SECURITY DEFINER function. No pay table remains in the bundle.
+
+### Data
+| Object | Detail |
+| --- | --- |
+| `my_comp_ladder(_vertical text)` | SECURITY DEFINER, STABLE. Returns `tier_label`, `can_see_leaders`, `vertical`, `rows` (label, threshold, unit, value, rate, carrier, leader, sort_order). Rows filtered to `confirmed = true` and the caller's vertical; rank rows above sort_order 4 (leader rows) only when `is_effective_manager`, admin or owner. Empty list when the caller has no confirmed rows, is not a member of the vertical, or has no tier. |
+| `earnings_goals` | `user_id` primary key, `goal numeric`, `scenarios jsonb`, `updated_at`. 0 rows. |
+
+Privileges: `has_function_privilege('anon','public.my_comp_ladder(text)','execute') = false`, `authenticated = true`.
+
+`earnings_goals` policies:
+- `earnings_goals own row` ALL `(user_id = auth.uid())`
+- `earnings_goals leaders read` SELECT `(has_role(auth.uid(),'admin') OR has_role(auth.uid(),'owner') OR is_leader_of(auth.uid(), user_id))`
+- `has_table_privilege('anon','public.earnings_goals','select') = false`
+
+`rank_stacks` SELECT policy, read back:
+`rank_stacks confirmed in my vertical :: (((confirmed = true) AND is_vertical_member(auth.uid(), vertical)) OR has_role(auth.uid(),'admin') OR has_role(auth.uid(),'owner'))`
+
+### Function output, row counts only
+Executed as the read only reporting role the function cannot be called directly (permission denied, which is the revoke working), so the same predicate was evaluated per user id.
+
+| Caller | Leader rows allowed | Fiber rows | Pest rows |
+| --- | --- | --- | --- |
+| Rookie with no rank, not a Fiber member | no | 0 (function returns empty for a non member) | 0 |
+| Rookie with rank (sort_order 1) | no | 13 | 0 |
+| Veteran rep (sort_order 2) | no | 26 | 0 |
+| Owner | yes | 80 | 0 |
+
+Pest has no confirmed rows today, so every Pest surface shows the not confirmed line.
+
+### Client changes
+| File | Change |
+| --- | --- |
+| `src/lib/commission.ts` | Tier tables deleted. Now a thin reader over the function output plus formatters and `NOT_CONFIRMED`. |
+| `src/hooks/useCompLadder.ts` | New. `fetchCompLadder`, `repRate`, `leaderRate`, `useCompLadder`. |
+| `src/pages/app/EstimateEarningsPage.tsx` | Constants and `getRate` deleted. Scenarios come from the ladder; manager mode only when the function returned leader rows; goal and scenarios saved to `earnings_goals`, localStorage save dropped; card background uses the workspace accent at 12 and 6 percent; labels lifted to the 12px floor; manager note rewritten without the stray hyphen. |
+| `src/components/dashboard/EarningsWidget.tsx` | Ladder backed, goal read from `earnings_goals`. |
+| `src/hooks/useMoneySummary.ts` | Rate comes from the ladder. |
+| `src/pages/app/MyMoneyPage.tsx` | Next tier block no longer computed from a constant; shows the confirmed tier and rate, or the not confirmed line. |
+| `src/components/admin/AdminMoneyTab.tsx`, `AdminExportTab.tsx` | No bundled bracket lookup; explicit override or the not confirmed line. |
+| `src/components/shared/LeaderScorecard.tsx` | Constant backed pay ladder track removed. |
+| `src/components/VetCalculator.tsx` | Tier tables deleted. Bands come from the published pay scales through `get_public_calc`; when the rookie, veteran and marketing scales are not all published the panel shows one line and no numbers. |
+| `src/components/DownlineGrowthCalculator.tsx` | Deleted. It was imported nowhere and held the last copy of the three tables. |
+
+### Bundle grep (dist)
+`0.675` 0 hits, `69999` 0, `199999` 0, `249999` 0, `1249999` 0, `3749999` 0, `19999999` 0. `0.72` matches 3 times, all inside SVG path coordinates in `Wordmark`.
+
+### Screens
+No session could be minted this pass (auth status signed out, per user minting needs approval), so the estimate page was verified statically rather than in the browser. With confirmed rows the page shows the goal field, the Calculate button and three scenario cards on the accent gradient, single column at 390 and three across at 1280. Without confirmed rows it shows the goal field and one line with no numbers.
+
+### New copy, verbatim
+- Your pay scale is not confirmed yet. Ask your Pillar.
+- These pay numbers are not published yet.
+- Only rows confirmed for your tier are shown here.
+
+No em dashes.
+
+### Checks
+Typecheck clean. Production build clean. Baselines unchanged: profiles 536, rank_stacks 80 all confirmed, chat_messages 713, earnings_goals 0. Not published.
