@@ -409,31 +409,18 @@ export default function MyMoneyPage() {
                 <p className="text-sm text-muted-foreground">
                   This shows up once your commission numbers are set.
                 </p>
-              ) : !money.next ? (
-                <p className="text-sm text-foreground">
-                  You're on the top bracket of the {PAY_SCALE_LABELS[money.scale]} pay scale at{' '}
-                  {money.tier ? formatRate(money.tier.rate) : '-'}. There's no higher tier.
-                </p>
+              ) : money.rate === null ? (
+                <p className="text-sm text-muted-foreground">{NOT_CONFIRMED}</p>
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-foreground">
-                    You need {formatCurrency(money.revenueToNext ?? 0)} more active revenue
-                    {money.signsToNext !== null
-                      ? ` - about ${money.signsToNext} more ${money.signsToNext === 1 ? 'sign' : 'signs'} at your ${formatCurrency(money.avg!)} average account value.`
-                      : '.'}
+                    Your tier is {ladder?.tier_label ?? 'not set'} and your confirmed rate is{' '}
+                    {formatRate(money.rate)}. The next tier is set by your Pillar.
                   </p>
-                  {money.signsToNext === null && (
-                    <p className="text-xs text-muted-foreground flex items-start gap-1.5">
-                      <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                      Sign count can't be calculated until your average account value is set.
-                    </p>
-                  )}
-                  {commission?.rate_override !== null && commission?.rate_override !== undefined && (
-                    <p className="text-xs text-muted-foreground">
-                      Your rate is currently set manually, so hitting the next bracket may not change your pay.
-                      Check with your manager.
-                    </p>
-                  )}
+                  <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                    <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                    Only rows confirmed for your tier are shown here.
+                  </p>
                 </div>
               )}
             </section>
