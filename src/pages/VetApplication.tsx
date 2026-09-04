@@ -166,23 +166,28 @@ const VetApplication = () => {
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("applications").insert({
-        application_type: "vet",
-        full_name: formData.fullName.trim(),
-        email: formData.email.trim().toLowerCase(),
-        phone: formData.phone.trim(),
-        city_state: formData.cityState.trim(),
-        referral_source: formData.referralName.trim(),
-        previous_company: formData.intendedMarket.trim(), // Previously knocked markets
-        years_experience: parseInt(formData.lastSeasonRevenue.replace(/[^0-9]/g, '')) || null, // Store as revenue number
-        vertical: vertical === "unsure" ? null : vertical,
-        source_type: source.source_type,
-        source_code: source.source_code,
-        referrer_user_id: source.referrer_user_id,
-        partner_id: source.partner_id,
-      } as never);
+      const { data, error } = await supabase.functions.invoke("submit-application", {
+        body: {
+          application_type: "vet",
+          full_name: formData.fullName.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          city_state: formData.cityState.trim(),
+          referral_source: formData.referralName.trim(),
+          previous_company: formData.intendedMarket.trim(),
+          years_experience: formData.lastSeasonRevenue.replace(/[^0-9]/g, ''),
+          vertical: vertical === "unsure" ? null : vertical,
+          source_type: source.source_type,
+          source_code: source.source_code,
+          referrer_user_id: source.referrer_user_id,
+          partner_id: source.partner_id,
+          website: honeypot,
+        },
+      });
 
-      if (error) throw error;
+      if (error || (data as { error?: string } | null)?.error) {
+        throw new Error((data as { error?: string } | null)?.error || "rejected");
+      }
 
       // Send welcome email (fire and forget - don't block submission)
       const firstName = formData.fullName.trim().split(" ")[0];

@@ -152,21 +152,26 @@ const RookieApplication = () => {
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("applications").insert({
-        application_type: "rookie",
-        full_name: formData.fullName.trim(),
-        email: formData.email.trim().toLowerCase(),
-        phone: formData.phone.trim(),
-        city_state: formData.cityState.trim(),
-        referral_source: formData.referralName.trim(),
-        vertical: vertical === "unsure" ? null : vertical,
-        source_type: source.source_type,
-        source_code: source.source_code,
-        referrer_user_id: source.referrer_user_id,
-        partner_id: source.partner_id,
-      } as never);
+      const { data, error } = await supabase.functions.invoke("submit-application", {
+        body: {
+          application_type: "rookie",
+          full_name: formData.fullName.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          city_state: formData.cityState.trim(),
+          referral_source: formData.referralName.trim(),
+          vertical: vertical === "unsure" ? null : vertical,
+          source_type: source.source_type,
+          source_code: source.source_code,
+          referrer_user_id: source.referrer_user_id,
+          partner_id: source.partner_id,
+          website: honeypot,
+        },
+      });
 
-      if (error) throw error;
+      if (error || (data as { error?: string } | null)?.error) {
+        throw new Error((data as { error?: string } | null)?.error || "rejected");
+      }
 
       // Send welcome email (fire and forget - don't block submission)
       const firstName = formData.fullName.trim().split(" ")[0];
