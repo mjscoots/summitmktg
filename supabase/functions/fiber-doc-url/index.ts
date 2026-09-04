@@ -1,15 +1,33 @@
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 /**
  * Pass 154 - mints a short lived signed URL for a private Fiber document.
  * The bucket is private and has no storage policies, so the only way to the
  * file is through here, and only for a manager, Pillar or the Owner.
+ * Pass 165 pins the allowed origins to the app's own domains.
  */
 const BUCKET = 'fiber-docs';
 const ALLOWED = new Set(['Summit_Fiber_Pay_Scale_v5.xlsx']);
 
+const allowedOrigins = [
+  'https://summitmktg.lovable.app',
+  'https://summitmktgsales.com',
+  'https://www.summitmktgsales.com',
+  'http://localhost:8080',
+];
+
+function getCorsHeaders(origin: string | null) {
+  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith('.lovable.app'));
+  return {
+    'Access-Control-Allow-Origin': isAllowed && origin ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Headers':
+      'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+    Vary: 'Origin',
+  };
+}
+
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req.headers.get('origin'));
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   const json = (body: unknown, status: number) =>
