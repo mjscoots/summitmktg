@@ -107,6 +107,9 @@ interface ChatBubbleProps {
   showIndustryChips?: boolean;
   /** Industry room: skip the chip everyone in the room already shares. */
   skipIndustry?: string | null;
+  /** The context menu is open on this message, so the bubble lifts. */
+  isMenuOpen?: boolean;
+
 
 }
 
