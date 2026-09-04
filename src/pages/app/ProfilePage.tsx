@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { uploadAvatar, deleteAvatarFile } from '@/lib/avatarUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { User, FileText, Lock, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp, ClipboardCheck } from 'lucide-react';
+import { User, FileText, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp, ClipboardCheck } from 'lucide-react';
 import { TierBadge, getTierBorderClass } from '@/components/shared/TierBadge';
 import { BadgeShelf } from '@/components/badges/BadgeStrip';
 import { useEliteTier } from '@/hooks/useEliteTier';
@@ -149,7 +149,7 @@ function CompletenessMeter({
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, profile, role, isLoading: authLoading, refreshProfile, signOut } = useAuth();
+  const { user, profile, role, isLoading: authLoading, refreshProfile } = useAuth();
   
   // Profile state
   const [fullName, setFullName] = useState('');
