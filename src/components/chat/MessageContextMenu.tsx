@@ -21,6 +21,8 @@ interface MessageContextMenuProps {
   onEdit: () => void;
   onDelete: () => void;
   onPin: () => void;
+  /** Same optimistic path the bubble uses, so a reaction shows at once. */
+  onToggleReaction: (msgId: string, emoji: string) => void;
   messageContent: string;
 }
 
@@ -36,11 +38,10 @@ export function MessageContextMenu({
   onEdit,
   onDelete,
   onPin,
+  onToggleReaction,
   messageContent,
 }: MessageContextMenuProps) {
-  const { user } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
-  const reactingRef = useRef(false);
   const [showFullEmoji, setShowFullEmoji] = useState(false);
 
   useEffect(() => {
@@ -59,29 +60,11 @@ export function MessageContextMenu({
   if (!position) return null;
 
 
-  const handleReact = async (emoji: string) => {
-    if (!user || reactingRef.current) return;
-    reactingRef.current = true;
+  const handleReact = (emoji: string) => {
+    onToggleReaction(messageId, emoji);
     onClose();
-    try {
-      const { data: existing } = await supabase
-        .from('chat_reactions')
-        .select('id')
-        .eq('message_id', messageId)
-        .eq('user_id', user.id)
-        .eq('emoji', emoji)
-        .maybeSingle();
-      if (existing) {
-        await supabase.from('chat_reactions').delete().eq('id', existing.id);
-      } else {
-        await supabase.from('chat_reactions').insert({ message_id: messageId, user_id: user.id, emoji });
-      }
-    } catch {
-      // silent
-    } finally {
-      reactingRef.current = false;
-    }
   };
+
 
   const savePaths = mediaPathsFor(messageContent);
 
