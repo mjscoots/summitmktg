@@ -95,11 +95,6 @@ export default function TicketPage() {
 
   return (
     <div className="min-h-[100dvh] w-full flex flex-col items-center px-5 py-10" style={{ background: '#050505' }}>
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[45vh]"
-        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.16), transparent 70%)' }}
-      />
-
       <div className="relative w-full max-w-md">
         {/* Ticket mark */}
         <div className="flex justify-center mb-8">
@@ -118,13 +113,7 @@ export default function TicketPage() {
               style={{ color: '#F5F5F5' }}
             >
               You’ve been{' '}
-              <span
-                style={{
-                  background: `linear-gradient(180deg, #F5E6A8, ${GOLD})`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
+              <span style={{ color: GOLD }}>
                 scouted.
               </span>
             </h1>
@@ -184,10 +173,7 @@ export default function TicketPage() {
                 type="submit"
                 disabled={saving}
                 className="w-full rounded-xl py-4 text-[15px] font-bold tracking-tight text-black transition-transform active:scale-[0.98] disabled:opacity-60"
-                style={{
-                  background: `linear-gradient(180deg, #F0DC8C, ${GOLD})`,
-                  boxShadow: '0 10px 30px -10px rgba(212,175,55,0.6)',
-                }}
+                style={{ background: GOLD }}
               >
                 {saving ? (
                   <span className="inline-flex items-center gap-2">

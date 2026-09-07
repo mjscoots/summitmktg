@@ -2,9 +2,9 @@ import { ShieldCheck, MapPin, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useStatusBadges } from '@/hooks/useStatusBadges';
 
-const CASE = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
+const CASE = 'rounded bg-card';
 const PLATE =
-  'rounded-xl border border-primary/30 bg-gradient-to-b from-primary/15 to-transparent px-3 py-2 shadow-[inset_0_1px_0_hsl(var(--primary)/0.3)]';
+  'rounded bg-primary/10 px-3 py-2';
 
 function Engraved({ children }: { children: React.ReactNode }) {
   return (

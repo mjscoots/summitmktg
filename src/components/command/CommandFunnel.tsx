@@ -62,7 +62,7 @@ function StageBar({ n, base }: { n: number; base: number }) {
         style={{
           width: `${w}%`,
           height: "100%",
-          background: `linear-gradient(90deg, ${COLORS.goldDeep}, ${COLORS.gold})`,
+          background: COLORS.gold,
         }}
       />
     </div>

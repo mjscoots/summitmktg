@@ -506,7 +506,7 @@ export function ChatBubble({
                     className={cn(
                       "relative text-xs hover:scale-110 transition-transform",
                       poppedEmoji === r.emoji && "react-pop",
-                      r.mine && "drop-shadow-[0_0_3px_hsl(var(--primary)/0.5)]"
+                     
                     )}
                   >
                     {r.emoji}

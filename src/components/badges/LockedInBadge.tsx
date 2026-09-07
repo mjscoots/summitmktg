@@ -23,7 +23,7 @@ export function LockedInBadge({
       title="Locked in for 2027"
       aria-label="Locked in for 2027"
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 rounded-full border border-primary/40 bg-gradient-to-b from-primary/25 to-primary/5 px-1.5 py-[1px] text-primary shadow-[inset_0_1px_0_hsl(var(--primary)/0.35)]',
+        'inline-flex shrink-0 items-center gap-1 rounded-full bg-primary/15 px-1.5 py-[1px] text-primary',
         className
       )}
     >
