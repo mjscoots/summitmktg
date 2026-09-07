@@ -3712,3 +3712,29 @@ No em dashes, no emoji.
 - Baselines: chat_messages 713, profiles 536, chat_prefs 1, user_notifications 6362 (unchanged; the pin rollback test wrote and restored a single existing chat_prefs row).
 - Linter output after the migration shows only the pre-existing categories carried since earlier passes; no new finding types.
 - Not published.
+
+## Pass 170 - visual reset and public cover (September 7, 2026)
+
+**Status:** Complete in preview only. Nothing was published or deployed.
+
+### Delivered
+- Reset the primary app presentation to black, white, grey, and one workspace accent, with 15px phone / 16px desktop body type, larger page spacing, flat surfaces, and reduced ornamental borders and shadows.
+- Disabled legacy workspace textures, mesh effects, photo/glow chat wallpapers, win confetti, training confetti, decorative stars, radial glows, and gradient chat bubbles while retaining meaningful interaction motion and reduced-motion fallbacks.
+- Rebuilt the public cover around the exact approved headline, configured `cover_hero_image`, Apply CTA, conditional earnings link, positive-only live counters, the three requested industry states, and four plain `Where this goes` roles.
+- Added optional `Who told you about Summit` inputs to both application forms, nullable submission handling, and staff visibility.
+- Added a migration extending `get_public_cover_content()` with `cover_hero_image`; existing anon/authenticated/service-role execution is preserved with no broader grants.
+- Reduced chat appearance choices to six flat wallpapers while retaining the existing stored wallpaper path only for schema compatibility.
+
+### Verification
+- Automatic typecheck and production build: passed (`build OK`, latest observed 02:45:55Z).
+- Independent production build: passed.
+- Initial-entry JavaScript: **166.8 KB gzip**, below the Pass 168 reference of 198.5 KB.
+- Public cover captured at 390 x 844 and 1280 x 900; exact headline, CTA, configured-image slot, responsive layout, and requested content were present. The headless Chromium window-mode screenshot has a known 500 CSS-pixel minimum, so narrow-layout correctness was additionally enforced with responsive classes; this limitation is not represented as a perfect device proof.
+- Removed-feature grep: no source references outside compatibility CSS for confetti, radial gradients, grid-cover marks, hero mesh, win burst, or photo chat wallpapers.
+- Remaining gradient/glow-named theme variables in `WorkspaceThemeProvider` are flat compatibility values (`hsl(...)` or `none`), not rendered gradients. Remaining highlights are limited to functional focus, presence/status, overflow affordance, or shared UI compatibility treatments.
+- Database readback baselines: `chat_messages=715`, `profiles=536`, `applications=13`, `chat_prefs=1`.
+- `get_public_cover_content`: anon execute true; authenticated execute true. No RLS or workspace-scope expansion was introduced.
+- Authenticated Home, Chat, More, and Settings walkthroughs at 390px and light-mode/reduced-motion DevTools checks could not be completed because no authenticated preview session was available. Existing code paths, global appearance tokens, and reduced-motion rules were inspected instead.
+
+### Release posture
+Preview-only and unpublished. The `submit-application` edge function and database migration were not deployed as part of this pass.
