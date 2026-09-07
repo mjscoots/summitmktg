@@ -89,30 +89,6 @@ const Index = () => {
         </section>
       </main>
 
-      <footer className="py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 sm:flex-row sm:justify-between sm:px-6">
-          <div className="flex items-center gap-3">
-            <Wordmark variant="mark" height={28} className="text-text-secondary" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">Summit Marketing</p>
-              <p className="text-xs text-text-muted">Summit Trinity · © 2026</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <Link to="/parents" className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm text-text-secondary transition-colors hover:text-foreground">
-              For parents
-            </Link>
-            <a
-              href="https://www.instagram.com/summitmktgsales/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm text-text-secondary transition-colors hover:text-foreground"
-            >
-              Instagram
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

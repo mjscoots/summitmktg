@@ -45,21 +45,13 @@ export function EarningsWidget() {
   return (
     <button
       onClick={() => navigate('/app/estimate-earnings')}
-      className="w-full mb-5 glass-card rounded-2xl p-5 text-left glass-card-hover group overflow-hidden relative"
+      className="relative mb-5 w-full overflow-hidden rounded bg-card p-5 text-left transition-colors hover:bg-secondary"
     >
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          background:
-            'radial-gradient(circle at 50% 0%, hsl(var(--primary) / 0.4) 0%, transparent 70%)',
-        }}
-      />
-
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-4">
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ background: 'var(--gradient-primary)' }}
+            style={{ background: 'hsl(var(--primary))' }}
           >
             <DollarSign className="w-3.5 h-3.5 text-white" />
           </div>
