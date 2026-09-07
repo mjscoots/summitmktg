@@ -41,7 +41,7 @@ export default function ChatLookPage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {WALLPAPERS.filter((w) => w.key !== 'photo').map((w) => (
+            {WALLPAPERS.map((w) => (
               <button
                 key={w.key}
                 onClick={() => void pickWallpaper(w.key)}

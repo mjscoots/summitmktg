@@ -54,7 +54,7 @@ export function RoomLookRow({ slug, onLeave }: { slug: string; onLeave?: () => v
         >
           Use my default
         </button>
-        {WALLPAPERS.filter((w) => w.key !== 'photo' || prefs.wallpaper_path).map((w) => (
+        {WALLPAPERS.map((w) => (
           <button
             key={w.key}
             type="button"
