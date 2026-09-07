@@ -1,7 +1,7 @@
 /**
  * Determine message highlight class based on reaction count.
- *  3+ reactions → subtle highlight border
- *  8+ reactions → glowing border
+ *  3+ reactions → subtle highlight
+ *  8+ reactions → accent highlight
  * 15+ reactions → top insight
  */
 export function getMessageHighlight(reactionCount: number): {
@@ -11,21 +11,21 @@ export function getMessageHighlight(reactionCount: number): {
 } {
   if (reactionCount >= 15) {
     return {
-      className: 'ring-1 ring-amber-500/40 bg-primary/[0.03] rounded-lg',
+      className: 'bg-primary/[0.06] rounded-lg',
       badge: '⭐ Top Insight',
       isHot: true,
     };
   }
   if (reactionCount >= 8) {
     return {
-      className: 'ring-1 ring-primary/30 bg-primary/[0.02] rounded-lg shadow-[0_0_8px_-2px_hsl(var(--primary)/0.15)]',
+      className: 'bg-primary/[0.04] rounded-lg',
       badge: null,
       isHot: true,
     };
   }
   if (reactionCount >= 3) {
     return {
-      className: 'ring-1 ring-border/60 rounded-lg',
+      className: 'bg-card rounded-lg',
       badge: null,
       isHot: false,
     };

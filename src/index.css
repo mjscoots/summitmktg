@@ -373,18 +373,12 @@ html, body, #root {
   /* ━━━ CARD - one border, one shadow ━━━ */
   .glass-card {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    border: 0;
     border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    box-shadow: none;
   }
-
-  .glass-card-hover {
-    transition: border-color var(--motion-fast) var(--motion-ease);
-  }
-
-  .glass-card-hover:hover {
-    border-color: hsl(var(--border-strong));
-  }
+  .glass-card-hover { transition: background-color var(--motion-fast) var(--motion-ease); }
+  .glass-card-hover:hover { background: hsl(var(--secondary)); }
 
   /* Retained for compatibility - solid accent text, no gradient */
   .gradient-text,
@@ -401,7 +395,7 @@ html, body, #root {
     border-color: hsl(var(--border-strong));
   }
 
-  /* Retained as no-ops: decorative glow layers were removed. */
+  /* Retained as no-ops: decorative depth layers were removed. */
   .training-tile-glow { position: relative; }
   .rookie-glow,
   .manager-glow,
@@ -422,8 +416,7 @@ html, body, #root {
   }
 
   .animate-progress-pulse,
-  .animate-confetti-fall,
-  .task-complete-flash {
+    .task-complete-flash {
     animation: none;
   }
 
@@ -778,7 +771,7 @@ button, a, [role="button"] {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 72 - the ice system keeps a small set of gradient and glow
+   PASS 72 - the ice system keeps a small set of color treatments
    tokens, so gradients are no longer flattened. Only ambient,
    non user-caused animation stays off.
    ───────────────────────────────────────────────────────────── */
@@ -1028,17 +1021,15 @@ body {
    PASS 75 - chat bubbles, ranks, mission tiles
    ───────────────────────────────────────────────────────────── */
 @layer components {
-  /* Own message: a flat tint of the chosen bubble colour with a hairline */
+  /* Flat bubbles: workspace accent for self, neutral surface for others. */
   .bubble-own {
     background: hsl(var(--chat-bubble, var(--workspace-accent)));
-    border: 1px solid hsl(var(--chat-bubble, var(--workspace-accent)));
-    color: #ffffff;
+    border: 0;
+    color: hsl(var(--primary-foreground));
   }
-
-  /* Everyone else: a translucent surface that stays readable on a wallpaper */
   .bubble-other {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border) / 0.4);
+    border: 0;
     color: hsl(var(--foreground));
   }
 
@@ -1097,29 +1088,8 @@ body {
 
 /* ━━━ Pass 77 - public front door. Neutral near-black with a dotted grid only. ━━━ */
 @layer components {
-  .public-dots {
-    position: relative;
-  }
-  .public-dots::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-    background-size: 22px 22px;
-    -webkit-mask-image: radial-gradient(ellipse at 50% 35%, #000 0%, transparent 78%);
-    mask-image: radial-gradient(ellipse at 50% 35%, #000 0%, transparent 78%);
-  }
-  .public-card {
-    border: 1px solid hsl(var(--border));
-    border-radius: 12px;
-    background: transparent;
-  }
-  .public-surface {
-    border: 1px solid hsl(var(--border));
-    border-radius: 12px;
-    background: hsl(var(--surface));
-  }
+  .public-card { border: 0; border-radius: var(--radius); background: hsl(var(--card)); }
+  .public-surface { border: 0; border-radius: var(--radius); background: hsl(var(--surface)); }
   .public-input {
     min-height: 48px;
     width: 100%;
@@ -1155,30 +1125,21 @@ body {
 }
 
 @layer components {
-  /* A celebration surface: accent into the warm tone, one soft glow. */
+  /* A celebration surface with a restrained accent tint. */
   .celebrate-card {
-    border: 1px solid hsl(var(--workspace-accent) / 0.45);
-    background:
-      radial-gradient(120% 100% at 0% 0%, hsl(var(--workspace-accent) / 0.18) 0%, transparent 60%),
-      radial-gradient(120% 100% at 100% 100%, hsl(var(--celebrate-warm) / 0.16) 0%, transparent 60%),
-      hsl(var(--surface-elevated));
-    box-shadow: 0 0 32px -14px hsl(var(--workspace-accent) / 0.55);
+    border: 0;
+    background: hsl(var(--surface-elevated));
+    box-shadow: none;
   }
 
   /* A full-screen celebration wash. */
   .celebrate-wash {
-    background:
-      radial-gradient(circle at 50% 38%, hsl(var(--celebrate-warm) / 0.28) 0%, transparent 55%),
-      radial-gradient(circle at 50% 70%, hsl(var(--workspace-accent) / 0.22) 0%, transparent 60%),
-      hsl(var(--background) / 0.96);
+    background: hsl(var(--background) / 0.96);
   }
 
   /* Numbers and names that are being celebrated. */
   .celebrate-text {
-    background: linear-gradient(92deg, hsl(var(--workspace-accent)), hsl(var(--celebrate-warm)));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: hsl(var(--workspace-accent));
   }
 
   /* Small warm badge: a blitz at capacity, a lead signed. */
@@ -1259,91 +1220,8 @@ body {
     --primary-glow: 197 100% 68%;
   }
 
-  .public-cover,
-  .public-auth,
-  .public-cta {
-    background:
-      radial-gradient(ellipse at 72% 30%, hsl(var(--primary-glow) / 0.22) 0%, transparent 38%),
-      radial-gradient(ellipse at 18% 92%, hsl(var(--primary-glow) / 0.12) 0%, transparent 34%),
-      linear-gradient(145deg, hsl(var(--surface-sunken)) 0%, hsl(var(--background)) 43%, hsl(var(--surface-elevated)) 100%);
-  }
-
-  .public-cover::before,
-  .public-auth::before,
-  .public-cta::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(hsl(var(--foreground) / 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--foreground) / 0.025) 1px, transparent 1px);
-    background-size: 48px 48px;
-    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 88%);
-    mask-image: linear-gradient(to bottom, #000, transparent 88%);
-  }
-
-  .public-cover::after,
-  .public-auth::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.22;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
-    mix-blend-mode: soft-light;
-  }
-
-  .public-auth {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-  }
-
-  .public-cover-mark {
-    position: absolute;
-    z-index: -1;
-    right: -9rem;
-    top: 50%;
-    width: min(68vw, 760px);
-    height: min(68vw, 760px);
-    color: hsl(var(--primary-glow) / 0.09);
-    transform: translateY(-48%) rotate(2deg);
-    filter: drop-shadow(0 0 90px hsl(var(--primary-glow) / 0.14));
-    animation: public-mark-drift 14s ease-in-out infinite alternate;
-  }
-
-  .public-process {
-    border-left: 1px solid transparent;
-  }
-
-  .public-band {
-    background: hsl(var(--surface-sunken));
-    border-block: 1px solid hsl(var(--border) / 0.7);
-  }
-
-  .public-cta {
-    isolation: isolate;
-  }
-
-  .public-proof-strip {
-    @apply mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary;
-  }
-
-  .public-proof-strip strong {
-    color: hsl(var(--primary-glow));
-    font-variant-numeric: tabular-nums;
-  }
-
-  .public-primary-cta {
-    background: hsl(var(--primary-glow));
-    color: hsl(var(--primary-foreground));
-    box-shadow: 0 10px 32px -14px hsl(var(--primary-glow) / 0.7);
-  }
-
-  .public-primary-cta:hover {
-    background: hsl(var(--primary-glow) / 0.9);
-  }
+  .public-cover, .public-auth, .public-cta { background: hsl(var(--background)); }
+  .public-auth { position: relative; isolation: isolate; overflow: hidden; }
 
   .production-ticker {
     position: fixed;
@@ -1382,34 +1260,6 @@ body {
     background: hsl(var(--primary-glow));
   }
 
-  @media (min-width: 1280px) {
-    .public-cover-title {
-      max-width: 780px;
-      font-size: 6.75rem;
-      line-height: 0.92;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .public-process + .public-process {
-      border-left-color: hsl(var(--border));
-    }
-  }
-
-  @media (max-width: 639px) {
-    .public-cover-mark {
-      right: -13rem;
-      top: 30%;
-      width: 34rem;
-      height: 34rem;
-      color: hsl(var(--primary-glow) / 0.08);
-    }
-  }
-}
-
-@keyframes public-mark-drift {
-  from { transform: translateY(-49%) rotate(1deg); }
-  to { transform: translateY(-46%) rotate(3deg); }
 }
 
 @keyframes production-ticker-cycle {
@@ -1419,7 +1269,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .public-cover-mark { animation: none !important; }
   .production-ticker-card { animation: none !important; }
 }
 
@@ -1433,23 +1282,6 @@ html[data-appearance='light'] .public-auth {
   --primary: 199 92% 34%;
   --primary-foreground: 0 0% 100%;
   --primary-glow: 199 92% 38%;
-}
-
-html[data-appearance='light'] .public-dots::before {
-  background-image: radial-gradient(rgba(11, 13, 18, 0.06) 1px, transparent 1px);
-}
-
-html[data-appearance='light'] .public-cover::after,
-html[data-appearance='light'] .public-auth::after {
-  opacity: 0.1;
-}
-
-html[data-appearance='light'] .public-cover::before,
-html[data-appearance='light'] .public-auth::before,
-html[data-appearance='light'] .public-cta::before {
-  background-image:
-    linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
 }
 
 /*
@@ -1473,75 +1305,15 @@ html[data-appearance='light'] .public-cta::before {
    Every rule here is cosmetic and per person.
    ───────────────────────────────────────────────────────────── */
 /* Plain CSS, not a Tailwind layer: wallpaper classes are composed at runtime. */
-  .chat-wall {
-    position: relative;
-    background-color: hsl(var(--background));
-  }
-  .chat-wall::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .chat-wall > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Flat or very soft two stop washes. No pattern, no texture. */
-  .chat-wall-summit::before {
-    background: none;
-  }
-
-  .chat-wall-night {
-    background-color: hsl(222 30% 8%);
-  }
-  .chat-wall-night::before {
-    background: linear-gradient(180deg, hsl(222 30% 11%), hsl(222 30% 7%));
-  }
-
-  .chat-wall-slate {
-    background-color: hsl(215 12% 16%);
-  }
-  .chat-wall-slate::before {
-    background: linear-gradient(180deg, hsl(215 12% 19%), hsl(215 12% 14%));
-  }
-
-  .chat-wall-forest {
-    background-color: hsl(158 14% 13%);
-  }
-  .chat-wall-forest::before {
-    background: linear-gradient(180deg, hsl(158 14% 16%), hsl(158 14% 11%));
-  }
-
-  .chat-wall-sand {
-    background-color: hsl(34 12% 16%);
-  }
-  .chat-wall-sand::before {
-    background: linear-gradient(180deg, hsl(34 12% 19%), hsl(34 12% 14%));
-  }
-
-  .chat-wall-ice {
-    background-color: hsl(200 14% 16%);
-  }
-  .chat-wall-ice::before {
-    background: linear-gradient(180deg, hsl(200 14% 19%), hsl(200 14% 14%));
-  }
-
-  /* Your photo: a private object, signed at read time. */
-  .chat-wall-photo::before {
-    background-image: var(--chat-photo, none);
-    background-size: cover;
-    background-position: center;
-    opacity: 0.55;
-  }
-
-  /* Bubble text and composer text follow the chosen size. */
-  .chat-text {
-    font-size: var(--chat-text, 14px);
-  }
-
+  .chat-surface { position: relative; background: hsl(var(--background)); }
+  .chat-surface-summit { background: hsl(var(--background)); }
+  .chat-surface-night { background: hsl(var(--surface-sunken)); }
+  .chat-surface-slate { background: hsl(var(--surface)); }
+  .chat-surface-forest { background: hsl(var(--surface-elevated)); }
+  .chat-surface-sand { background: hsl(var(--surface)); }
+  .chat-surface-ice { background: hsl(var(--surface-elevated)); }
+  .chat-surface-photo { background: hsl(var(--surface)); }
+  .chat-text { font-size: var(--chat-text, 15px); }
 
 @layer utilities {
   /* A message that just arrived slides up 8px and fades in over 160ms. */
@@ -1563,44 +1335,6 @@ html[data-appearance='light'] .public-cta::before {
     100% { transform: scale(1); }
   }
 
-  /* Three particles in the bubble colour, gone in 420ms. */
-  .react-particle {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 4px;
-    height: 4px;
-    border-radius: 9999px;
-    background: hsl(var(--chat-bubble, var(--workspace-accent)));
-    animation: react-particle 420ms ease-out both;
-  }
-  @keyframes react-particle {
-    from { opacity: 0.9; transform: translate(-50%, -50%); }
-    to { opacity: 0; transform: translate(var(--px, 0), var(--py, -14px)); }
-  }
-
-  /* A win post gets one short burst inside the bubble bounds. */
-  .win-burst {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    border-radius: inherit;
-  }
-  .win-burst span {
-    position: absolute;
-    top: 50%;
-    width: 5px;
-    height: 5px;
-    border-radius: 1px;
-    background: hsl(var(--chat-bubble, var(--workspace-accent)));
-    animation: win-burst 900ms ease-out both;
-  }
-  @keyframes win-burst {
-    from { opacity: 1; transform: translateY(0) rotate(0deg); }
-    to { opacity: 0; transform: translateY(-26px) rotate(160deg); }
-  }
-
   /* Swipe to reply: the bubble follows the thumb, then springs back. */
   .swipe-reply {
     transition: transform 160ms var(--motion-ease);
@@ -1609,14 +1343,8 @@ html[data-appearance='light'] .public-cta::before {
 
 @media (prefers-reduced-motion: reduce) {
   .msg-in,
-  .react-pop,
-  .react-particle,
-  .win-burst span {
+  .react-pop {
     animation: none !important;
-  }
-  .react-particle,
-  .win-burst {
-    display: none !important;
   }
   .swipe-reply {
     transition: none !important;
@@ -1629,22 +1357,6 @@ html[data-appearance='light'] .public-cta::before {
    Every animation collapses to an instant state change under
    prefers-reduced-motion, in the block at the end of this file.
    ───────────────────────────────────────────────────────────── */
-
-/* Own bubble: one soft diagonal two stop wash of the chosen bubble colour,
-   with a hairline highlight on the top edge. */
-.bubble-own {
-  background-image: linear-gradient(
-    135deg,
-    hsl(var(--chat-bubble, var(--workspace-accent))),
-    hsl(var(--chat-bubble, var(--workspace-accent)) / 0.92)
-  );
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Everyone else keeps the card surface and gains a barely there shadow. */
-.bubble-other {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-}
 
 /* A message that landed while the room was open springs in once. */
 .bubble-in {
@@ -1723,24 +1435,6 @@ html[data-appearance='light'] .public-cta::before {
   animation: quick-react-in 160ms var(--motion-ease) both;
 }
 
-/* One large soft glow of the workspace accent, plus a faint grain, over every
-   wallpaper. No patterns and no shapes. */
-.chat-wall::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image:
-    radial-gradient(
-      70% 55% at 0% 0%,
-      hsl(var(--workspace-accent) / 0.08),
-      transparent 70%
-    ),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  background-size: 100% 100%, 120px 120px;
-}
-
 /* Collapsible sections on More and Settings. */
 .collapse-open {
   animation: collapse-down 200ms var(--motion-ease);
@@ -1760,28 +1454,6 @@ html[data-appearance='light'] .public-cta::before {
 /* The sliding indicator behind the active phone tab. */
 .tab-indicator {
   transition: transform 200ms var(--motion-ease), width 200ms var(--motion-ease);
-}
-
-/* A soft mesh of the workspace accent for the Home hero, with the same grain. */
-.hero-mesh {
-  position: relative;
-  overflow: hidden;
-  background-color: hsl(var(--card));
-}
-.hero-mesh::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(60% 60% at 12% 0%, hsl(var(--workspace-accent) / 0.2), transparent 70%),
-    radial-gradient(55% 55% at 100% 100%, hsl(var(--workspace-accent) / 0.1), transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  background-size: 100% 100%, 100% 100%, 120px 120px;
-}
-.hero-mesh > * {
-  position: relative;
-  z-index: 1;
 }
 
 /* A restrained press state for anything that does not define its own. */
@@ -1816,4 +1488,20 @@ html[data-appearance='light'] .public-cta::before {
   }
   .msg-lift { transform: none !important; }
   .press:active { transform: none !important; }
+}
+
+
+/* Pass 170: restrained mono system. Space and surface replace card outlines. */
+@layer base {
+  @media (min-width: 768px) { body { font-size: 16px; } }
+  button, a, [role='button'] { transition-duration: 100ms; }
+  button:active, a:active, [role='button']:active { transform: scale(0.98); }
+}
+@layer components {
+  .card-elevated, .public-card, .public-surface { border: 0; box-shadow: none; }
+  .bg-card.border, .bg-card[class*='border-'] { border-color: transparent !important; }
+  .btn-secondary { border: 0; border-radius: 0; padding-inline: 0; }
+  .btn-secondary:hover { background: transparent; text-decoration: underline; }
+  .app-page { padding: 20px; }
+  @media (min-width: 768px) { .app-page { padding: 32px; } }
 }

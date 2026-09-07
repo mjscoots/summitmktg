@@ -82,7 +82,7 @@ export function ContinueWatchingCard() {
       onClick={() => navigate(`/app/training/videos/${lastWatched.video_id}`)}
       className={cn(
         "w-full mb-4 bg-card rounded-xl border border-border overflow-hidden",
-        "hover:border-primary/40 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.2)]",
+        "hover:border-primary/40",
         "transition-all duration-300 group text-left"
       )}
     >

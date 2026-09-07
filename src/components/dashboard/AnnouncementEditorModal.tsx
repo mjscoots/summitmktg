@@ -243,7 +243,7 @@ export function AnnouncementEditorModal({ open, onOpenChange, post, onSaved }: P
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-xs">Cancel</Button>
-            <Button onClick={handleSave} disabled={saving} className="text-xs font-bold" style={{ background: 'linear-gradient(135deg, hsl(25 95% 53%), hsl(30 90% 45%))' }}>
+            <Button onClick={handleSave} disabled={saving} className="text-xs font-bold">
               {saving ? 'Saving...' : post ? 'Update' : 'Create'}
             </Button>
           </div>

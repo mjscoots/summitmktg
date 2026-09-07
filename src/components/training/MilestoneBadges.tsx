@@ -10,7 +10,7 @@ interface Badge {
   threshold: number;
   icon: React.ReactNode;
   colorClass: string;
-  glowClass: string;
+  surfaceClass: string;
 }
 
 const BADGES: Badge[] = [
@@ -20,7 +20,7 @@ const BADGES: Badge[] = [
     threshold: 25,
     icon: <Shield className="w-5 h-5" />,
     colorClass: 'text-amber-600',
-    glowClass: 'bg-amber-600/20 border-amber-600/40',
+    surfaceClass: 'bg-amber-600/20',
   },
   {
     type: 'silver',
@@ -28,7 +28,7 @@ const BADGES: Badge[] = [
     threshold: 50,
     icon: <Award className="w-5 h-5" />,
     colorClass: 'text-slate-300',
-    glowClass: 'bg-slate-300/20 border-slate-300/40',
+    surfaceClass: 'bg-slate-300/20',
   },
   {
     type: 'gold',
@@ -36,7 +36,7 @@ const BADGES: Badge[] = [
     threshold: 75,
     icon: <Star className="w-5 h-5" />,
     colorClass: 'text-primary',
-    glowClass: 'bg-primary/20 border-yellow-400/40',
+    surfaceClass: 'bg-primary/20',
   },
   {
     type: 'summit',
@@ -44,7 +44,7 @@ const BADGES: Badge[] = [
     threshold: 100,
     icon: <Mountain className="w-5 h-5" />,
     colorClass: 'text-primary',
-    glowClass: 'bg-primary/20 border-primary/40',
+    surfaceClass: 'bg-primary/20',
   },
 ];
 
@@ -103,10 +103,10 @@ export function MilestoneBadges({ percentage }: MilestoneBadgesProps) {
           <div
             key={badge.type}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-300",
+              "flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-100",
               isEarned
-                ? `${badge.glowClass} ${badge.colorClass}`
-                : "bg-muted/30 border-border/30 text-muted-foreground/40 grayscale"
+                ? `${badge.surfaceClass} ${badge.colorClass}`
+                : "bg-muted/30 text-muted-foreground/40 grayscale"
             )}
           >
             <div className={cn(

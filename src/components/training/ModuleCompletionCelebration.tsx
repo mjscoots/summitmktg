@@ -17,19 +17,8 @@ export function ModuleCompletionCelebration({
   isRookieCourse,
 }: ModuleCompletionCelebrationProps) {
   const [showContent, setShowContent] = useState(false);
-  const [stars, setStars] = useState<{ id: number; x: number; y: number; delay: number; size: number }[]>([]);
 
   useEffect(() => {
-    // Generate random stars
-    const newStars = Array.from({ length: 50 }).map((_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      delay: Math.random() * 2,
-      size: Math.random() * 3 + 1,
-    }));
-    setStars(newStars);
-
     // Trigger content animation
     const timer = setTimeout(() => {
       setShowContent(true);
@@ -39,36 +28,7 @@ export function ModuleCompletionCelebration({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center overflow-hidden">
-      {/* Starry background */}
-      <div className="absolute inset-0 overflow-hidden">
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            className="absolute rounded-full animate-pulse"
-            style={{
-              left: `${star.x}%`,
-              top: `${star.y}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              backgroundColor: isRookieCourse 
-                ? `rgba(34, 197, 94, ${0.3 + Math.random() * 0.5})` 
-                : `rgba(59, 130, 246, ${0.3 + Math.random() * 0.5})`,
-              animationDelay: `${star.delay}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Radial glow */}
-      <div className={cn(
-        "absolute inset-0 opacity-30",
-        isRookieCourse
-          ? "bg-[radial-gradient(ellipse_at_center,rgba(34,197,94,0.3)_0%,transparent_70%)]"
-          : "bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.3)_0%,transparent_70%)]"
-      )} />
-
+    <div className="fixed inset-0 z-50 bg-background flex items-center justify-center overflow-hidden">
       {/* Content */}
       <div className={cn(
         "relative z-10 text-center px-6 max-w-md transition-all duration-700",
@@ -102,10 +62,10 @@ export function ModuleCompletionCelebration({
           onClick={onContinue}
           size="lg"
           className={cn(
-            "font-bold gap-2 transition-all duration-300 hover:translate-y-[-2px]",
+            "font-bold gap-2",
             isRookieCourse
-              ? "bg-primary hover:bg-primary text-white shadow-[0_0_30px_-5px_rgba(34,197,94,0.6)]"
-              : "bg-primary hover:bg-primary text-white"
+              ? "bg-primary hover:bg-primary text-primary-foreground"
+              : "bg-primary hover:bg-primary text-primary-foreground"
           )}
         >
           Continue Training

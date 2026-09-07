@@ -70,6 +70,7 @@ const RookieApplication = () => {
 
   const handleBlur = (field: keyof FormData) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
+    if (field === 'referralName') return;
     validateField(field, formData[field]);
   };
 
@@ -80,7 +81,7 @@ const RookieApplication = () => {
         email: "Email Address",
         phone: "Phone Number",
         cityState: "City, State",
-        referralName: "Who did you hear about us from",
+        referralName: "Who told you about Summit",
       };
       const error = `${fieldLabels[field]} is required`;
       setErrors((prev) => ({ ...prev, [field]: error }));
@@ -101,7 +102,6 @@ const RookieApplication = () => {
       "email",
       "phone",
       "cityState",
-      "referralName",
     ];
     
     let isValid = true;
@@ -117,7 +117,7 @@ const RookieApplication = () => {
           email: "Email Address",
           phone: "Phone Number",
           cityState: "City, State",
-          referralName: "Who did you hear about us from",
+          referralName: "Who told you about Summit",
         };
         newErrors[field] = `${fieldLabels[field]} is required`;
         isValid = false;
@@ -137,8 +137,7 @@ const RookieApplication = () => {
       formData.fullName.trim() !== "" &&
       formData.email.trim() !== "" &&
       formData.phone.trim() !== "" &&
-      formData.cityState.trim() !== "" &&
-      formData.referralName.trim() !== ""
+      formData.cityState.trim() !== ""
     );
   };
 
@@ -365,7 +364,7 @@ const RookieApplication = () => {
             <section className="public-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-extrabold text-foreground">How you heard about us</h2>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Who did you hear about us from?<RequiredAsterisk />
+                Who told you about Summit
               </label>
               <input
                 type="text"
@@ -373,12 +372,8 @@ const RookieApplication = () => {
                 onChange={(e) => updateField("referralName", e.target.value)}
                 onBlur={() => handleBlur("referralName")}
                 placeholder="The person who referred you, or the account you saw"
-                className={`input-field ${touched.referralName && errors.referralName ? 'border-destructive' : ''}`}
-                required
+                className="input-field"
               />
-              {touched.referralName && errors.referralName && (
-                <p className="text-destructive text-sm mt-1">{errors.referralName}</p>
-              )}
             </section>
 
             {/* Pinned on the phone, inline from sm up. */}

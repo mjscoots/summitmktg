@@ -62,17 +62,15 @@ export function MobileBottomNav() {
     >
       <div
         ref={rowRef}
-        className="relative mx-auto flex max-w-lg items-stretch gap-0.5 rounded-full p-1.5 backdrop-blur-xl"
+        className="relative mx-auto flex max-w-lg items-stretch gap-0.5 rounded bg-card p-1.5"
         style={{
-          background: 'hsl(var(--surface-elevated) / 0.92)',
-          border: '1px solid hsl(var(--border))',
-          boxShadow: 'var(--shadow-lift)',
+          background: 'hsl(var(--card))',
         }}
       >
         {pill && (
           <span
             aria-hidden
-            className="tab-indicator pointer-events-none absolute rounded-full"
+            className="tab-indicator pointer-events-none absolute rounded"
             style={{
               top: 6,
               bottom: 6,

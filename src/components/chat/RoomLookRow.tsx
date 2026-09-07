@@ -23,7 +23,7 @@ export function RoomLookRow({ slug, onLeave }: { slug: string; onLeave?: () => v
   };
 
   return (
-    <div className="mt-4 space-y-3 rounded-xl border border-border/60 p-3">
+    <div className="mt-4 space-y-3 rounded bg-secondary p-3">
       <button
         type="button"
         onClick={() => {
@@ -46,25 +46,25 @@ export function RoomLookRow({ slug, onLeave }: { slug: string; onLeave?: () => v
           onClick={() => void setOverride(null)}
           aria-pressed={override === null}
           className={cn(
-            'min-h-11 rounded-full border px-4 text-[13px]',
+             'min-h-11 rounded-full px-4 text-[13px]',
             override === null
-              ? 'border-primary bg-primary text-primary-foreground'
-              : 'border-border text-muted-foreground'
+               ? 'bg-primary text-primary-foreground'
+               : 'bg-card text-muted-foreground'
           )}
         >
           Use my default
         </button>
-        {WALLPAPERS.filter((w) => w.key !== 'photo' || prefs.wallpaper_path).map((w) => (
+        {WALLPAPERS.map((w) => (
           <button
             key={w.key}
             type="button"
             onClick={() => void setOverride(w.key)}
             aria-pressed={override === w.key}
             className={cn(
-              'min-h-11 rounded-full border px-4 text-[13px]',
+                'min-h-11 rounded-full px-4 text-[13px]',
               override === w.key
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-border text-muted-foreground'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card text-muted-foreground'
             )}
           >
             {w.label}

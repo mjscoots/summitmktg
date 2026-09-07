@@ -27,7 +27,7 @@ interface IndustryData {
 }
 
 const DEFAULT_STEPS = ["Apply", "Setup steps", "Pick your manager", "Start"];
-const CARD = "rounded border border-border bg-card p-5 sm:p-6";
+const CARD = "rounded bg-card p-5 sm:p-6";
 
 function hashSlug(): Slug | null {
   const h = window.location.hash.replace("#", "").toLowerCase();
@@ -90,7 +90,7 @@ export default function IndustrySwitcher() {
         <div
           role="tablist"
           aria-label="Industry"
-          className="inline-flex items-center rounded border border-border bg-card p-1"
+          className="inline-flex items-center rounded bg-card p-1"
         >
           {TABS.map((t) => (
             <button
@@ -128,7 +128,7 @@ export default function IndustrySwitcher() {
             <ol className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
               {steps.map((s, i) => (
                 <li key={`${s}-${i}`} className="flex items-center gap-2 sm:gap-3">
-                  <span className="rounded border border-border bg-card px-3 py-2 text-sm text-foreground">
+                  <span className="rounded bg-card px-3 py-2 text-sm text-foreground">
                     {s}
                   </span>
                   {i < steps.length - 1 && (
@@ -169,7 +169,7 @@ export default function IndustrySwitcher() {
                     {l.avatar_url ? (
                       <img loading="lazy" decoding="async" width={44} height={44} src={l.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                     ) : (
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-secondary text-sm font-semibold text-foreground">
+                       <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-foreground">
                         {(l.full_name || "").trim().charAt(0).toUpperCase() || "\u2014"}
                       </div>
                     )}

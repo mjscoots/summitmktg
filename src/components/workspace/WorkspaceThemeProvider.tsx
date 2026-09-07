@@ -39,22 +39,6 @@ function hslToHex(triplet: string): string | null {
   return '#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join('');
 }
 
-/** Pest - dotted grid at 6% white, 22px spacing. */
-const DOTS =
-  'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)';
-/** Pest, light appearance - the same dotted grid at 5% black. */
-const DOTS_LIGHT = 'radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px)';
-/** Fiber - fine line grid at 4% white, 44px cells. */
-const LINES =
-  'linear-gradient(to right, rgba(61,220,151,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(61,220,151,0.08) 1px, transparent 1px)';
-/** Fiber, light appearance - the same grid at 5% black. */
-const LINES_LIGHT =
-  'linear-gradient(to right, rgba(16,140,95,0.10) 1px, transparent 1px), linear-gradient(to bottom, rgba(16,140,95,0.10) 1px, transparent 1px)';
-/** Life - soft paper grain at 3% on the light surface. */
-const GRAIN =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E\")";
-
-
 /**
  * Pass 76 - Mono. One near-black palette across the three products. A
  * workspace owns its identity accent (wordmark trinity, active tab, progress,
@@ -106,15 +90,15 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
     ...MONO_DARK,
     workspaceAccent: '193 100% 55%',
     wordmark: { bg: '#0B0D12', accent: '#5AD1FF', outline: '#FFFFFF', letters: '#FFFFFF' },
-    texture: DOTS,
-    textureSize: '22px 22px',
+    texture: 'none',
+    textureSize: 'auto',
   },
   fiber: {
     ...MONO_DARK,
     workspaceAccent: '155 90% 48%',
     wordmark: { bg: '#0B0D12', accent: '#3DDC97', outline: '#FFFFFF', letters: '#FFFFFF' },
-    texture: LINES,
-    textureSize: '28px 28px',
+    texture: 'none',
+    textureSize: 'auto',
   },
   life: {
     mode: 'light',
@@ -133,8 +117,8 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
     primaryForeground: '0 0% 100%',
     workspaceAccent: '256 88% 58%',
     wordmark: { bg: '#FFFFFF', accent: '#6B3BF5', outline: '#FFFFFF', letters: '#0B0D12' },
-    texture: GRAIN,
-    textureSize: '120px 120px',
+    texture: 'none',
+    textureSize: 'auto',
   },
 };
 
@@ -162,7 +146,7 @@ function lightVariant(p: Palette): Palette {
     ...p,
     ...MONO_LIGHT,
     wordmark: { ...p.wordmark, bg: '#FFFFFF', outline: '#0B0D12', letters: '#0B0D12' },
-    texture: p.texture === LINES ? LINES_LIGHT : DOTS_LIGHT,
+    texture: 'none',
   };
 }
 
@@ -172,7 +156,7 @@ function darkVariant(p: Palette): Palette {
     ...p,
     ...MONO_DARK,
     wordmark: { ...p.wordmark, bg: '#0B0D12', outline: '#FFFFFF', letters: '#FFFFFF' },
-    texture: p.texture === GRAIN ? DOTS : p.texture,
+    texture: 'none',
   };
 }
 
@@ -257,7 +241,7 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     // Identity accent: focus ring, active tab, wordmark, progress.
     set('--ring', p.workspaceAccent);
     set('--workspace-accent', p.workspaceAccent);
-    // Mono has no gradient and no glow.
+    // Mono resolves these compatibility tokens to flat colors.
     set('--gradient-ice', `hsl(${p.primary})`);
     set('--gradient-hero', `hsl(${p.surface})`);
     set('--gradient-primary', `hsl(${p.primary})`);
@@ -270,7 +254,7 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
 
     set('--workspace-texture', p.texture);
     set('--workspace-texture-size', p.textureSize);
-    set('--workspace-texture-opacity', '1');
+    set('--workspace-texture-opacity', '0');
 
     // A workspace may ask for serif headings; body type never changes.
     if (theme.headings === 'serif') root.dataset.workspaceHeadings = 'serif';

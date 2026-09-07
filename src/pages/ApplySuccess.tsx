@@ -16,7 +16,7 @@ const ApplySuccess = () => {
   }, []);
 
   return (
-    <div className="gold-world public-dots relative flex min-h-screen items-center justify-center bg-background px-5">
+    <div className="gold-world relative flex min-h-screen items-center justify-center bg-background px-5">
       <div className="relative z-10 mx-auto max-w-md text-center">
         <Wordmark variant="hero" height={100} className="mx-auto !h-auto w-full max-w-[280px]" />
         <div className="mx-auto mt-8 flex h-12 w-12 items-center justify-center rounded-full border border-border-strong">

@@ -59,7 +59,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const yearsRaw = String(body.years_experience ?? "").replace(/[^0-9]/g, "");
     const yearsExperience = yearsRaw ? Number(yearsRaw) : null;
 
-    if (!fullName || !email || !phone || !cityState || !referralSource) return reject();
+    if (!fullName || !email || !phone || !cityState) return reject();
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -98,7 +98,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       email,
       phone,
       city_state: cityState,
-      referral_source: referralSource,
+      referral_source: referralSource || null,
       vertical: vertical === "unsure" ? null : vertical,
       previous_company: previousCompany,
       years_experience: Number.isFinite(yearsExperience as number) ? yearsExperience : null,

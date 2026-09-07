@@ -12,14 +12,13 @@ export function SupraTicketCard({ tickets }: { tickets: number }) {
     <button
       type="button"
       onClick={() => navigate('/app/events')}
-      className="relative block w-full overflow-hidden rounded-[var(--radius)] border border-border bg-card px-5 py-6 text-left"
+      className="relative block w-full overflow-hidden rounded-[var(--radius)] bg-card px-5 py-6 text-left"
     >
       <span
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
-          background:
-            'linear-gradient(135deg, hsl(var(--workspace-accent) / 0.18) 0%, hsl(var(--card)) 55%, hsl(var(--surface-sunken)) 100%)',
+          background: 'hsl(var(--card))',
         }}
       />
       <span className="relative block">

@@ -67,7 +67,7 @@ export default function RecruitCoursePage() {
   if (justFinished) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-5">
-        <div className="w-full max-w-md rounded-2xl border border-[hsl(var(--workspace-accent)/0.35)] bg-card p-8 text-center animate-in fade-in zoom-in-95 duration-300 motion-reduce:animate-none">
+        <div className="w-full max-w-md rounded bg-card p-8 text-center animate-in fade-in duration-300 motion-reduce:animate-none">
           <CheckCircle2 className="mx-auto mb-4 h-10 w-10 text-[hsl(var(--workspace-accent))]" />
           <h1 className="text-xl font-semibold text-foreground">Day one done</h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -86,7 +86,7 @@ export default function RecruitCoursePage() {
       <div className="mx-auto w-full max-w-2xl">
         <Wordmark variant="hero" height={64} className="mx-auto !h-auto w-full max-w-[200px]" />
 
-        <div className="mt-8 rounded-2xl border border-border bg-card p-5">
+        <div className="mt-8 rounded bg-card p-5">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-muted-foreground">
             <Lock className="h-3.5 w-3.5" /> Day one
           </div>
@@ -97,14 +97,14 @@ export default function RecruitCoursePage() {
           </p>
           <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--workspace-accent))] to-primary transition-all"
+              className="h-full rounded-full bg-primary transition-all"
               style={{ width: `${pct}%` }}
             />
           </div>
         </div>
 
         {current?.video_url && (
-          <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="mt-5 overflow-hidden rounded bg-card">
             <VideoPlayer
               src={current.video_url}
               title={current.title}
@@ -127,10 +127,10 @@ export default function RecruitCoursePage() {
               type="button"
               onClick={() => setOpenId(item.video_id)}
               className={cn(
-                'flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors',
+                'flex min-h-12 w-full items-center gap-3 rounded px-4 py-3 text-left transition-colors',
                 item.video_id === current?.video_id
-                  ? 'border-[hsl(var(--workspace-accent)/0.4)] bg-muted/40'
-                  : 'border-border bg-card hover:bg-muted/30',
+                  ? 'bg-muted'
+                  : 'bg-card hover:bg-muted/30',
               )}
             >
               {item.done ? (

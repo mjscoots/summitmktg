@@ -18,7 +18,7 @@ export function AppearanceCard() {
   const { preference, setPreference } = useAppearance();
 
   return (
-    <div className="rounded-[var(--radius)] border border-border bg-card p-6">
+    <div className="rounded bg-card p-5">
       <h3 className="mb-1 flex items-center gap-2 font-semibold text-foreground">
         <Sun className="h-4 w-4 text-primary" />
         Appearance
@@ -41,10 +41,10 @@ export function AppearanceCard() {
               toast(`Appearance set to ${o.label.toLowerCase()}`);
             }}
             className={cn(
-              'min-h-11 rounded-full border px-5 text-[14px]',
+              'min-h-11 rounded px-5 text-[14px]',
               preference === o.key
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-border bg-background text-muted-foreground'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary text-muted-foreground'
             )}
           >
             {o.label}

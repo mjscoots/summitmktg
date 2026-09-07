@@ -16,8 +16,8 @@ function read(): AppearancePref {
   } catch {
     /* private mode */
   }
-  // A brand new visitor follows their phone.
-  return 'system';
+  // A brand new visitor starts in the dark institutional theme.
+  return 'dark';
 }
 
 let preference: AppearancePref = read();

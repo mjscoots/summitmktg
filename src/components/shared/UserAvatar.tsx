@@ -13,9 +13,9 @@ interface UserAvatarProps {
   isTyping?: boolean;
   tierPct?: number;
   teamName?: string | null;
-  /** Leaderboard rank (1-based). Lower = stronger glow. */
+  /** Leaderboard rank (1-based). */
   rank?: number;
-  /** Total number of entries on leaderboard, used to scale glow intensity */
+  /** Total number of leaderboard entries. */
   totalEntries?: number;
 }
  
@@ -70,38 +70,11 @@ const dotSizeClasses = {
   lg: 'w-3 h-3 border-2',
 };
 
-export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, isTyping, tierPct, teamName, rank, totalEntries }: UserAvatarProps) {
+export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOnline, isOnline, isTyping, tierPct, teamName }: UserAvatarProps) {
   const initials = useMemo(() => getInitials(fullName), [fullName]);
   const teamColor = useMemo(() => getTeamColor(teamName), [teamName]);
   const bgColor = useMemo(() => teamName ? teamColor.bg : getColorFromName(fullName), [teamName, teamColor, fullName]);
   const tierBorder = tierPct != null ? getTierBorderClass(tierPct) : '';
-
-  // Compute rank-based glow style
-  const rankGlowStyle = useMemo(() => {
-    if (rank == null || rank < 1) return {};
-    const total = totalEntries || 20;
-    // Percentile: 1.0 = top, 0.0 = bottom
-    const pct = 1 - (rank - 1) / Math.max(total - 1, 1);
-    if (pct < 0.3) return {}; // Bottom 70% get no glow
-    
-    // Scale intensity: top rank gets strongest glow
-    const intensity = Math.round(pct * 100);
-    const spread = Math.round(4 + pct * 12); // 4px to 16px
-    const opacity = (0.15 + pct * 0.55).toFixed(2); // 0.15 to 0.70
-    
-    // Color shifts from blue (lower) → gold (top 3) → white-gold (#1)
-    let color: string;
-    if (rank === 1) color = `rgba(250, 204, 21, ${opacity})`; // gold
-    else if (rank === 2) color = `rgba(192, 192, 230, ${opacity})`; // silver
-    else if (rank === 3) color = `rgba(205, 127, 50, ${opacity})`; // bronze
-    else if (pct >= 0.7) color = `rgba(234, 179, 8, ${opacity})`; // warm gold
-    else color = `rgba(59, 130, 246, ${opacity})`; // blue
-    
-    return {
-      boxShadow: `0 0 ${spread}px ${Math.round(spread / 2)}px ${color}`,
-      transition: 'box-shadow 0.3s ease',
-    };
-  }, [rank, totalEntries]);
 
   // Presence ring around avatar
   const presenceRingClass = showOnline
@@ -130,7 +103,6 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
           presenceRingClass,
           className
         )}
-        style={rankGlowStyle}
       >
         <img loading="lazy" decoding="async" 
           src={avatarUrl} 
@@ -152,7 +124,6 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
         presenceRingClass,
         className
       )}
-      style={rankGlowStyle}
     >
       {initials}
       {onlineDot}

@@ -53,7 +53,7 @@ export function GatedRecruitsPanel() {
             </div>
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--workspace-accent))] to-primary"
+                className="h-full rounded-full bg-primary"
                 style={{ width: `${Math.min(Math.max(r.pct, 0), 100)}%` }}
               />
             </div>

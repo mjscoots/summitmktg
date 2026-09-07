@@ -135,7 +135,7 @@ export function GlobalTrainingProgress({ filterRole }: { filterRole?: 'rookie' |
       <div className={cn(
         "mb-4 p-5 bg-card rounded-xl border transition-all",
         isComplete
-          ? "border-success/50 shadow-[0_0_30px_-10px_rgba(34,197,94,0.3)]"
+          ? "border-success/50"
           : "border-border"
       )}>
         <div className="flex items-center justify-between mb-3">

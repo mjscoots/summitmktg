@@ -288,7 +288,7 @@ export default function AdminApplicationsTab() {
                       <span>{app.city_state}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground/60 mt-1">
-                      {app.referral_source && <span>Referral: {app.referral_source}</span>}
+                      {app.referral_source && <span>Who told them about Summit: {app.referral_source}</span>}
                       {app.source_type && <span>Source: {app.source_type}</span>}
                       {typeFilter === 'veteran' && app.previous_company && <span>Prev: {app.previous_company}</span>}
                       {typeFilter === 'veteran' && app.years_experience != null && <span>Rev: {app.years_experience}</span>}

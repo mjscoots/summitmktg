@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import type { FiberContact, FiberFaq } from '@/hooks/useFiberHub';
 
-export const HUB_CARD = 'rounded-xl border border-border bg-card';
+export const HUB_CARD = 'rounded-xl bg-card';
 
 /** A mint eyebrow above every Fiber section, so the workspace reads as Fiber at a glance. */
 export function FiberEyebrow({ children }: { children: string }) {
@@ -24,22 +24,11 @@ const GAINZ_URL = 'https://gainzops.org';
 export function GainzHero() {
   return (
     <section
-      className="relative overflow-hidden rounded-2xl border p-5"
+      className="relative overflow-hidden rounded-2xl bg-card p-5"
       style={{
-        borderColor: 'hsl(var(--workspace-accent) / 0.35)',
-        background:
-          'linear-gradient(180deg, hsl(var(--workspace-accent) / 0.10), hsl(var(--surface-elevated)))',
+        background: 'hsl(var(--surface-elevated))',
       }}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, hsl(var(--workspace-accent) / 0.10) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--workspace-accent) / 0.10) 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
-        }}
-      />
       <div className="relative">
         <FiberEyebrow>Fiber</FiberEyebrow>
         <h1 className="text-[26px] font-bold leading-tight tracking-tight text-foreground">

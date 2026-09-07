@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Mountain, Sparkles } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 interface CompletionCelebrationProps {
   percentage: number;
@@ -14,30 +13,6 @@ export function CompletionCelebration({ percentage }: CompletionCelebrationProps
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [hasChecked, setHasChecked] = useState(false);
-
-  const fireConfetti = useCallback(() => {
-    const duration = 3000;
-    const end = Date.now() + duration;
-
-    const frame = () => {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.7 },
-        colors: ['#3b82f6', '#22c55e', '#f59e0b'],
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.7 },
-        colors: ['#3b82f6', '#22c55e', '#f59e0b'],
-      });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    };
-    frame();
-  }, []);
 
   useEffect(() => {
     const checkCompletion = async () => {
@@ -64,15 +39,14 @@ export function CompletionCelebration({ percentage }: CompletionCelebrationProps
 
       // Trigger celebration
       setShowModal(true);
-      fireConfetti();
     };
 
     checkCompletion();
-  }, [percentage, user?.id, hasChecked, fireConfetti]);
+  }, [percentage, user?.id, hasChecked]);
 
   return (
     <Dialog open={showModal} onOpenChange={setShowModal}>
-      <DialogContent className="sm:max-w-md bg-card border-primary/30 text-center">
+      <DialogContent className="sm:max-w-md bg-card text-center">
         <div className="flex flex-col items-center gap-4 py-6">
           <div className="p-4 rounded-full bg-primary/15">
             <Mountain className="w-12 h-12 text-primary" />

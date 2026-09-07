@@ -470,7 +470,7 @@ export default function TrainingCoursePage() {
                       ? 'border-border/50 opacity-60'
                       : isCurrentModule
                         ? isRookieCourse
-                          ? 'border-primary/50 ring-1 ring-green-500/20 shadow-[0_0_15px_-5px_rgba(34,197,94,0.15)]'
+                          ? 'border-primary/50'
                           : 'border-primary/50 ring-1 ring-primary/20'
                         : isRookieCourse
                           ? 'border-border hover:border-primary/30'

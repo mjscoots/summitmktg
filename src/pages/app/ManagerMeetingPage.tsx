@@ -82,7 +82,7 @@ function SectionCard({ n, title, subtitle, children }: { n: number; title: strin
   return (
     <div className="rounded-2xl bg-card/60 backdrop-blur-sm border border-white/[0.06] overflow-hidden">
       <div className="flex items-start gap-4 px-5 sm:px-6 py-5 border-b border-white/[0.04]">
-        <div className="w-10 h-10 rounded-xl bg-primary shadow-[0_0_20px_-4px_hsl(var(--primary)/0.5)] flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
           <span className="text-white font-bold">{n}</span>
         </div>
         <div className="min-w-0">

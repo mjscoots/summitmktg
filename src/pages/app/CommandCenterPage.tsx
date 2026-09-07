@@ -136,7 +136,7 @@ function GoldBar({ pct }: { pct: number }) {
         style={{
           width: `${safe}%`,
           height: "100%",
-          background: `linear-gradient(90deg, ${COLORS.goldDeep}, ${COLORS.gold})`,
+          background: COLORS.gold,
           transition: "width 600ms ease",
         }}
       />
@@ -152,18 +152,12 @@ function ProgressRing({ pct, size = 220, stroke = 14, children }: any) {
   return (
     <div style={{ position: "relative", width: size, height: size }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <defs>
-          <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={COLORS.goldDeep} />
-            <stop offset="100%" stopColor={COLORS.gold} />
-          </linearGradient>
-        </defs>
         <circle cx={size / 2} cy={size / 2} r={r} stroke="#1C1C20" strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke="url(#goldGrad)"
+          stroke={COLORS.gold}
           strokeWidth={stroke}
           fill="none"
           strokeDasharray={c}

@@ -325,7 +325,7 @@ export function MemberProfileModal({
         {/* Team color accent bar */}
         <div 
           className="absolute top-0 left-0 right-0 h-1.5 rounded-t-lg"
-          style={{ background: `linear-gradient(90deg, hsl(${teamColor.hsl}), hsl(${teamColor.hsl} / 0.3))` }}
+          style={{ background: `hsl(${teamColor.hsl})` }}
         />
         <DialogHeader>
           <DialogTitle className="sr-only">{getDisplayName(member.full_name)}</DialogTitle>

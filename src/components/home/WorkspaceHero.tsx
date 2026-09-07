@@ -30,7 +30,7 @@ interface HeroProps {
 export function WorkspaceHero({ firstName, workspaceName, streak, metric, className }: HeroProps) {
   return (
     <section
-      className={cn('hero-mesh rounded-[var(--radius)] border border-border/60 p-4', className)}
+      className={cn('rounded-[var(--radius)] bg-card p-5', className)}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -42,7 +42,7 @@ export function WorkspaceHero({ firstName, workspaceName, streak, metric, classN
           </p>
           {typeof streak === 'number' && streak > 0 && (
             <p className="mt-2 inline-flex items-center gap-1.5 text-[13px] text-foreground">
-              <Flame className="h-4 w-4 text-[hsl(var(--workspace-accent))]" strokeWidth={1.75} />
+              <Flame className="h-4 w-4 text-primary" strokeWidth={1.75} />
               <span className="tabular-nums">{streak}</span>
               {streak === 1 ? 'day in a row' : 'days in a row'}
             </p>

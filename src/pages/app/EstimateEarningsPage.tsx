@@ -203,13 +203,9 @@ export default function EstimateEarningsPage() {
                     <div
                       key={tier.key}
                       className={cn(
-                        'relative overflow-hidden rounded-xl p-5 border border-primary/30 transition-all',
-                        tier.key === 'moderate' && 'ring-1 ring-primary/20'
+                        'relative overflow-hidden rounded bg-card p-5 transition-colors',
+                        tier.key === 'moderate' && 'bg-primary/10'
                       )}
-                      style={{
-                        background:
-                          'linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--primary) / 0.06))',
-                      }}
                     >
                       <div className="inline-block text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-3 bg-primary/10 text-primary">
                         {tier.label}
