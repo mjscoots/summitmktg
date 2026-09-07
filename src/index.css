@@ -1125,30 +1125,21 @@ body {
 }
 
 @layer components {
-  /* A celebration surface: accent into the warm tone, one soft emphasis. */
+  /* A celebration surface with a restrained accent tint. */
   .celebrate-card {
-    border: 1px solid hsl(var(--workspace-accent) / 0.45);
-    background:
-      radial-gradient(120% 100% at 0% 0%, hsl(var(--workspace-accent) / 0.18) 0%, transparent 60%),
-      radial-gradient(120% 100% at 100% 100%, hsl(var(--celebrate-warm) / 0.16) 0%, transparent 60%),
-      hsl(var(--surface-elevated));
-    box-shadow: 0 0 32px -14px hsl(var(--workspace-accent) / 0.55);
+    border: 0;
+    background: hsl(var(--surface-elevated));
+    box-shadow: none;
   }
 
   /* A full-screen celebration wash. */
   .celebrate-wash {
-    background:
-      radial-gradient(circle at 50% 38%, hsl(var(--celebrate-warm) / 0.28) 0%, transparent 55%),
-      radial-gradient(circle at 50% 70%, hsl(var(--workspace-accent) / 0.22) 0%, transparent 60%),
-      hsl(var(--background) / 0.96);
+    background: hsl(var(--background) / 0.96);
   }
 
   /* Numbers and names that are being celebrated. */
   .celebrate-text {
-    background: linear-gradient(92deg, hsl(var(--workspace-accent)), hsl(var(--celebrate-warm)));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: hsl(var(--workspace-accent));
   }
 
   /* Small warm badge: a blitz at capacity, a lead signed. */

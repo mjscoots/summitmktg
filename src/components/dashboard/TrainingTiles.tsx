@@ -314,28 +314,23 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                 // Primary card (Learn Your Pitch) gets highlight border
                 !isLockedCourse && !isComingSoon && isPrimary && (
                   isRookie
-                    ? "border-2 border-primary/50 shadow-[0_0_25px_-8px_rgba(34,197,94,0.25)] hover:border-primary/70 hover:shadow-[0_0_35px_-8px_rgba(34,197,94,0.35)]"
-                    : "border-2 border-primary/50 hover:border-primary/70 hover:"
+                    ? "bg-primary/10"
+                    : "bg-primary/10"
                 ),
                 // Non-primary cards
                 !isLockedCourse && !isComingSoon && !isPrimary && (
                   course.progress === 100 
-                    ? 'border border-success/40 hover:border-success/60 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.25)]' 
+                    ? 'bg-success/10' 
                     : isRookie
-                      ? 'border border-border hover:border-primary/40 hover:shadow-[0_0_30px_-10px_rgba(34,197,94,0.2)]'
-                      : 'border border-border hover:border-primary/40 hover:'
+                      ? 'bg-card hover:bg-secondary'
+                      : 'bg-card hover:bg-secondary'
                 ),
-                // In-progress glow
                 !isLockedCourse && !isComingSoon && !isPrimary && course.progress > 0 && course.progress < 100 && (
-                  isRookie 
-                    ? 'shadow-[0_0_15px_-8px_rgba(34,197,94,0.15)]' 
-                    : ''
+                  isRookie ? 'bg-primary/5' : ''
                 )
               )}
             >
-              {/* Subtle grid texture overlay */}
-              <div className="absolute inset-0 rounded-xl opacity-[0.04] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg==')]" />
-              {/* Gradient overlay - always visible for texture */}
+              {/* Progress surface */}
               <div className={cn(
                 "absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-400",
                 course.progress === 100

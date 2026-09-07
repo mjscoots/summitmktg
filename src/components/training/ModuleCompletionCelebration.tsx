@@ -62,10 +62,10 @@ export function ModuleCompletionCelebration({
           onClick={onContinue}
           size="lg"
           className={cn(
-            "font-bold gap-2 transition-all duration-300 hover:translate-y-[-2px]",
+            "font-bold gap-2",
             isRookieCourse
-              ? "bg-primary hover:bg-primary text-white shadow-[0_0_30px_-5px_rgba(34,197,94,0.6)]"
-              : "bg-primary hover:bg-primary text-white"
+              ? "bg-primary hover:bg-primary text-primary-foreground"
+              : "bg-primary hover:bg-primary text-primary-foreground"
           )}
         >
           Continue Training

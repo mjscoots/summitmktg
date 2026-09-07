@@ -46,7 +46,7 @@ export function CompletionCelebration({ percentage }: CompletionCelebrationProps
 
   return (
     <Dialog open={showModal} onOpenChange={setShowModal}>
-      <DialogContent className="sm:max-w-md bg-card border-primary/30 text-center">
+      <DialogContent className="sm:max-w-md bg-card text-center">
         <div className="flex flex-col items-center gap-4 py-6">
           <div className="p-4 rounded-full bg-primary/15">
             <Mountain className="w-12 h-12 text-primary" />
