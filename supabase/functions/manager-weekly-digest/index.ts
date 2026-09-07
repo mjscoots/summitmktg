@@ -166,7 +166,7 @@ serve(async (req: Request): Promise<Response> => {
       const rows = all.filter((r) => r.needs_attention);
       if (rows.length === 0) continue;
 
-      const message = `${rows.length} ${rows.length === 1 ? "rep needs" : "reps need"} attention this week — open My week`;
+      const message = `${rows.length} ${rows.length === 1 ? "rep needs" : "reps need"} attention this week. open My week`;
       const { error: nErr } = await admin.from("user_notifications").insert({
         user_id: id,
         title: "Your week",
@@ -189,7 +189,7 @@ serve(async (req: Request): Promise<Response> => {
           body: JSON.stringify({
             from: FROM_EMAIL,
             to: [prof.email],
-            subject: "Your week — reps who need attention",
+            subject: "Your week. reps who need attention",
             html: buildHtml((prof.full_name || "").split(" ")[0] || "Hello", rows),
           }),
         });
