@@ -1278,7 +1278,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .public-cover-mark { animation: none !important; }
   .production-ticker-card { animation: none !important; }
 }
 
@@ -1353,12 +1352,8 @@ html[data-appearance='light'] .public-auth {
 
 @media (prefers-reduced-motion: reduce) {
   .msg-in,
-  .react-pop,
   .react-pop {
     animation: none !important;
-  }
-  .react-pop {
-    display: none !important;
   }
   .swipe-reply {
     transition: none !important;
@@ -1513,6 +1508,7 @@ html[data-appearance='light'] .public-auth {
 }
 @layer components {
   .card-elevated, .public-card, .public-surface { border: 0; box-shadow: none; }
+  .bg-card.border, .bg-card[class*='border-'] { border-color: transparent !important; }
   .btn-secondary { border: 0; border-radius: 0; padding-inline: 0; }
   .btn-secondary:hover { background: transparent; text-decoration: underline; }
   .app-page { padding: 20px; }

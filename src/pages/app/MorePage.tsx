@@ -54,7 +54,7 @@ export default function MorePage() {
 
   return (
     <AppLayout>
-      <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-3xl space-y-8 px-5 py-8 md:space-y-12 md:px-8 md:py-12">
         <PageHeader title="More" context="Every other place in the app." />
 
         <InstallAppHint />
@@ -73,7 +73,7 @@ export default function MorePage() {
               onOpenChange={() => toggle(group.title)}
               className="space-y-2"
             >
-              <CollapsibleTrigger className="press flex min-h-[52px] w-full items-center gap-3 rounded-[var(--radius)] border border-border bg-card px-4 text-left transition-colors hover:bg-secondary">
+              <CollapsibleTrigger className="press flex min-h-[60px] w-full items-center gap-4 rounded bg-card px-5 text-left transition-colors hover:bg-secondary">
                 {isSettings && (
                   <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-muted text-muted-foreground">
                     <Settings className="h-[18px] w-[18px]" strokeWidth={1.75} />

@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
  * see or send. Read once at app load, held in memory, written through on change.
  */
 
-export type Wallpaper = 'summit' | 'night' | 'slate' | 'forest' | 'sand' | 'ice' | 'photo';
+export type Wallpaper = 'summit' | 'night' | 'slate' | 'forest' | 'sand' | 'ice';
 export type BubbleColor = 'workspace' | 'classic' | 'ocean' | 'graphite' | 'ember';
 export type TextSize = 'small' | 'default' | 'large';
 
@@ -24,7 +24,6 @@ export const WALLPAPERS: { key: Wallpaper; label: string }[] = [
   { key: 'forest', label: 'Forest' },
   { key: 'sand', label: 'Sand' },
   { key: 'ice', label: 'Ice' },
-  { key: 'photo', label: 'Your photo' },
 ];
 
 export const BUBBLES: { key: BubbleColor; label: string }[] = [

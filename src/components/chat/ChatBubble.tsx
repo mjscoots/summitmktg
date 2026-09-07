@@ -300,8 +300,6 @@ export function ChatBubble({
 
   const emojiOnly = !isEditing && isEmojiOnly(message.content);
 
-  // A win post bursts once, inside the bubble, and never again on scroll back.
-
   const hasMediaContent =
     emojiOnly ||
     isStickerMessage(message.content) ||
