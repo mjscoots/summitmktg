@@ -264,7 +264,7 @@ Deno.serve(async (req) => {
             title: "Summer Checklist Reminder",
             message: `${info.reps.length} rep(s) haven't completed the Summer Checklist: ${repNames}`,
             link: "/app",
-            source_key: `checklist:${dayHalf}`,
+            source_key: `checklist:${info.managerId}:${dayHalf.slice(0, 10)}`,
           }, { onConflict: "user_id,source_key", ignoreDuplicates: true });
 
         if (!notifErr) {

@@ -128,6 +128,7 @@ Deno.serve(async (req) => {
         title: "Summer Checklist Overdue",
         message: `${rep.full_name} has not completed the Summer Checklist (${hoursOverdue}h overdue).`,
         link: "/app/manager",
+        source_key: `checklist:${managerUserId}:${now.toISOString().slice(0, 10)}`,
       });
 
       notifiedUserIds.push(rep.user_id);

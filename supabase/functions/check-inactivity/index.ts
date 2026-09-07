@@ -294,7 +294,7 @@ Deno.serve(async (req) => {
         title: "Team Inactivity Alert",
         message,
         link: "/app/team",
-        source_key: `inactive:${user.user_id}:${weekBucket}`,
+        source_key: `inactivity:${user.user_id}:${new Date().toISOString().slice(0, 10)}`,
       }));
       const { error } = await supabase
         .from("user_notifications")
