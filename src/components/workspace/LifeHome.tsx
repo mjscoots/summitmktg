@@ -156,6 +156,10 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
           value: Object.values(counts).reduce((a, b) => a + b, 0),
         }}
       />
+      <Button variant="link" className="min-h-11 w-fit px-0 underline" onClick={() => navigate('/app/progress')}>
+        Progress
+      </Button>
+      <div className="hidden">
 
       <section className={`${LIFE_CARD} p-4`}>
         <div className="flex items-center justify-between gap-3">
@@ -216,6 +220,7 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
           </Button>
         </section>
       )}
+      </div>
 
 
 

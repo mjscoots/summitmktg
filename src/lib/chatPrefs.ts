@@ -5,8 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
  * see or send. Read once at app load, held in memory, written through on change.
  */
 
-export type Wallpaper = 'summit' | 'night' | 'slate' | 'forest' | 'sand' | 'ice';
-export type BubbleColor = 'workspace' | 'classic' | 'ocean' | 'graphite' | 'ember';
+export type Wallpaper = 'summit' | 'night' | 'photo';
+export type BubbleColor = 'workspace' | 'classic';
 export type TextSize = 'small' | 'default' | 'large';
 
 export interface ChatPrefs {
@@ -20,18 +20,12 @@ export interface ChatPrefs {
 export const WALLPAPERS: { key: Wallpaper; label: string }[] = [
   { key: 'summit', label: 'Summit' },
   { key: 'night', label: 'Night' },
-  { key: 'slate', label: 'Slate' },
-  { key: 'forest', label: 'Forest' },
-  { key: 'sand', label: 'Sand' },
-  { key: 'ice', label: 'Ice' },
+  { key: 'photo', label: 'Photo' },
 ];
 
 export const BUBBLES: { key: BubbleColor; label: string }[] = [
   { key: 'workspace', label: 'Workspace' },
   { key: 'classic', label: 'Classic' },
-  { key: 'ocean', label: 'Ocean' },
-  { key: 'graphite', label: 'Graphite' },
-  { key: 'ember', label: 'Ember' },
 ];
 
 export const TEXT_SIZES: { key: TextSize; label: string }[] = [
@@ -44,9 +38,6 @@ export const TEXT_SIZES: { key: TextSize; label: string }[] = [
 export const BUBBLE_HSL: Record<BubbleColor, string | null> = {
   workspace: null, // falls back to the workspace accent already on the page
   classic: '142 62% 38%',
-  ocean: '199 78% 44%',
-  graphite: '215 12% 46%',
-  ember: '18 84% 50%',
 };
 
 export const TEXT_SIZE_PX: Record<TextSize, string> = {

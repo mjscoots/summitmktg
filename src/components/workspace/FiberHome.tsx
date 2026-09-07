@@ -182,7 +182,11 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
           workspaceName={workspace.name}
           metric={{ label: 'Today', value: todaySold }}
         />
+        <Button variant="link" className="min-h-11 w-fit px-0 underline" onClick={() => navigate('/app/progress')}>
+          Progress
+        </Button>
       </div>
+      <div className="hidden">
       <TodayRow />
       <div className="space-y-8 sm:space-y-10">
         <HomeGreeting />
@@ -295,6 +299,7 @@ export function FiberHome({ workspace }: { workspace: Workspace }) {
           <p className="text-[15px] text-muted-foreground">{pinned || 'No announcement yet.'}</p>
         </div>
       </MoreReveal>
+      </div>
 
 
       {/* Team tracking, demoted: official pay and orders live on Gainz. */}

@@ -55,7 +55,7 @@ function money(n: number): string {
  * Managers get their own five: team today, needs attention, one-on-ones,
  * invite and the next event.
  */
-export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
+export function PestHome() {
   const navigate = useNavigate();
   const { user, profile, role } = useAuth();
   const staff = isManagerOrAbove(role);
@@ -154,6 +154,10 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
         streak={saleStreak}
         metric={{ label: heroLabel, value: offSeason && staff ? resign.signed : heroValue }}
       />
+      <Button variant="link" className="min-h-11 w-fit px-0 underline" onClick={() => navigate('/app/progress')}>
+        Progress
+      </Button>
+      <div className="hidden">
       <TodayRow />
       <OnboardingAlert />
 
@@ -266,21 +270,13 @@ export function PestHome({ onOpenPoints }: { onOpenPoints?: () => void }) {
 
         <WinterPlanCard />
 
-        {onOpenPoints && (
-          <Button variant="outline" className="min-h-11 w-full" onClick={onOpenPoints}>
-            My points
-          </Button>
-        )}
-
-
-
-
         {pinned && (
           <p className="text-[15px] text-muted-foreground">
             Pinned: <span className="text-foreground">{pinned}</span>
           </p>
         )}
       </MoreReveal>
+      </div>
 
       <LogSaleSheet open={logOpen} onOpenChange={setLogOpen} onSaved={() => void today.refresh()} />
       {postOpen && (

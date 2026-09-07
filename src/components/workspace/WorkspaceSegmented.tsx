@@ -3,6 +3,7 @@ import { Lock } from 'lucide-react';
 import { useWorkspace, type Workspace } from '@/contexts/WorkspaceContext';
 import { RequestVerticalAccessDialog } from '@/components/workspace/RequestVerticalAccessDialog';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 /** The accent a workspace owns, used only on the active segment. */
 const ACCENT: Record<string, string> = {
@@ -28,8 +29,10 @@ export function WorkspaceSegmented({
   className?: string;
 }) {
   const { myWorkspaces: workspaces, lockedWorkspaces, activeVertical, switchWorkspace } = useWorkspace();
+  const { role } = useAuth();
   const [asking, setAsking] = useState<Workspace | null>(null);
 
+  const canEditLife = role === 'admin' || role === 'owner' || workspaces.some((w) => w.vertical === 'Life' && w.is_president);
   const locked = lockedWorkspaces;
   if (workspaces.length < 2 && locked.length === 0) return null;
 
@@ -37,7 +40,7 @@ export function WorkspaceSegmented({
     if (workspaces.length < 2) return null;
     return (
       <div className={cn('flex flex-col items-center gap-1', className)}>
-        {workspaces.map((w) => {
+        {[...workspaces].sort((a, b) => ['Pest', 'Fiber', 'Life'].indexOf(a.vertical) - ['Pest', 'Fiber', 'Life'].indexOf(b.vertical)).map((w) => {
           const active = w.vertical === activeVertical;
           return (
             <button
@@ -68,7 +71,7 @@ export function WorkspaceSegmented({
           role="group"
           aria-label="Switch workspace"
         >
-          {workspaces.map((w) => {
+          {[...workspaces].sort((a, b) => ['Pest', 'Fiber', 'Life'].indexOf(a.vertical) - ['Pest', 'Fiber', 'Life'].indexOf(b.vertical)).map((w) => {
             const active = w.vertical === activeVertical;
             const accent = ACCENT[w.vertical] || '197 100% 68%';
             return (
@@ -89,9 +92,9 @@ export function WorkspaceSegmented({
         </div>
       )}
 
-      {locked.map((w) => {
+      {[...locked].sort((a, b) => ['Pest', 'Fiber', 'Life'].indexOf(a.vertical) - ['Pest', 'Fiber', 'Life'].indexOf(b.vertical)).map((w) => {
         const pending = w.request_status === 'pending';
-        const comingSoon = w.status === 'coming_soon';
+        const comingSoon = w.vertical === 'Life' && !canEditLife ? true : w.status === 'coming_soon';
         return (
           <button
             key={w.vertical}
@@ -105,11 +108,12 @@ export function WorkspaceSegmented({
             </span>
             <span className="flex-shrink-0 text-[11px] text-muted-foreground">
               {comingSoon
-                ? 'Not open yet'
+                ? w.vertical === 'Life' ? 'Coming' : 'Not open yet'
                 : pending
                   ? 'Requested, waiting on approval'
                   : 'By approval'}
             </span>
+            {w.vertical === 'Fiber' && <span className="block text-[11px] text-muted-foreground">Off season lane</span>}
           </button>
         );
       })}
