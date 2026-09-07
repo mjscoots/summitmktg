@@ -77,17 +77,17 @@ export default function ChatLookPage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {WALLPAPERS.map((w) => (
+            {WALLPAPERS.filter((w) => w.key !== 'photo').map((w) => (
               <button
                 key={w.key}
                 onClick={() => void pickWallpaper(w.key)}
                 aria-pressed={prefs.wallpaper === w.key}
                 className={cn(
-                  'min-h-[88px] overflow-hidden rounded-[var(--radius)] border text-left transition-colors',
-                  prefs.wallpaper === w.key ? 'border-primary' : 'border-border hover:border-muted-foreground'
+                  'min-h-[88px] overflow-hidden rounded bg-secondary text-left transition-colors',
+                  prefs.wallpaper === w.key ? 'ring-2 ring-primary' : 'hover:bg-muted'
                 )}
               >
-                <span className={cn('block h-14 w-full', `chat-wall chat-wall-${w.key}`)}>
+                <span className={cn('block h-14 w-full', `chat-surface chat-surface-${w.key}`)}>
                   {w.key === 'photo' && !prefs.wallpaper_path && (
                     <span className="flex h-full w-full items-center justify-center text-muted-foreground">
                       <ImagePlus className="h-4 w-4" />
@@ -119,7 +119,7 @@ export default function ChatLookPage() {
           </button>
         </section>
 
-        <section className="space-y-3 rounded-[var(--radius)] border border-border bg-card p-5">
+        <section className="space-y-3 rounded bg-card p-5">
           <div>
             <h2 className="text-[15px] font-semibold text-foreground">Bubble color</h2>
             <p className="mt-1 text-[13px] text-muted-foreground">
@@ -146,7 +146,7 @@ export default function ChatLookPage() {
           </div>
         </section>
 
-        <section className="space-y-3 rounded-[var(--radius)] border border-border bg-card p-5">
+        <section className="space-y-3 rounded bg-card p-5">
           <div>
             <h2 className="text-[15px] font-semibold text-foreground">Text size</h2>
             <p className="mt-1 text-[13px] text-muted-foreground">

@@ -6,7 +6,7 @@ import { AppearanceCard } from '@/components/profile/AppearanceCard';
 export default function AppearancePage() {
   return (
     <AppLayout>
-      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-2xl space-y-8 px-5 py-8 md:space-y-12 md:px-8 md:py-12">
         <PageHeader title="App look" context="How the app looks on this account." />
         <AppearanceCard />
       </div>
