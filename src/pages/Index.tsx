@@ -57,7 +57,7 @@ const Index = () => {
               {heroImage && <img src={heroImage} alt="Summit team in the field" className="h-full w-full object-cover" />}
             </div>
             <div className="mt-10 max-w-5xl md:mt-12">
-              <h1 className="max-w-full break-words font-display text-[clamp(2rem,9vw,4.5rem)] font-extrabold leading-[1.05] tracking-tight text-foreground">
+              <h1 className="max-w-full break-words font-display !text-[clamp(2rem,9vw,4.5rem)] font-extrabold !leading-[1.05] tracking-tight text-foreground">
                 Sell pest in the summer. Sell fiber in the fall. Never sit out a season.
               </h1>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
