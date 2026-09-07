@@ -44,7 +44,7 @@ function reasonFor(r: WeekRow): string {
 
 function buildHtml(name: string, rows: WeekRow[]): string {
   const items = rows
-    .map((r) => `<li>${r.full_name || "Rep"} — ${reasonFor(r)}</li>`)
+    .map((r) => `<li>${r.full_name || "Rep"}: ${reasonFor(r)}</li>`)
     .join("");
   return `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#111">
   <div style="max-width:600px;margin:0 auto;padding:24px">
