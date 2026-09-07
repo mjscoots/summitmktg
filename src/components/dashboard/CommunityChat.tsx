@@ -80,6 +80,7 @@ interface CommunityChatProps {
   topSlot?: React.ReactNode;
   /** Placeholder for the composer input. */
   composerPlaceholder?: string;
+  autoFocusComposer?: boolean;
   /** Direct messages hide sender names on incoming bubbles. */
   isDm?: boolean;
 }
@@ -153,7 +154,7 @@ function AwardsSystemMessage({ content }: { content: string }) {
 }
 
 
-export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hideBack, headerRight, headerAvatar, onHeaderTitleClick, topSlot, composerPlaceholder, isDm }: CommunityChatProps) {
+export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hideBack, headerRight, headerAvatar, onHeaderTitleClick, topSlot, composerPlaceholder, autoFocusComposer, isDm }: CommunityChatProps) {
   const { user, profile, role } = useAuth();
   const { activeVertical } = useWorkspace();
   const [activeChannel, setActiveChannel] = useState(channelSlug || 'general');
@@ -977,6 +978,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           onSendVoice={handleSendVoice}
           mentionables={mentionables}
           placeholder={composerPlaceholder}
+          autoFocus={autoFocusComposer}
         />
       </div>
 

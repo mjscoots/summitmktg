@@ -20,6 +20,8 @@ export default function ChatPage() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
+  // A deep link that means "say something" opens the room with the composer ready.
+  const [composeOnOpen] = useState(() => params.get('compose') === '1');
 
 
   const personParam = params.get('person');
@@ -88,6 +90,7 @@ export default function ChatPage() {
             <CommunityChat
               channelSlug={openSlug}
               roomLabel={label}
+              autoFocusComposer={composeOnOpen}
               onBack={backToList}
               isDm={isDm}
               headerAvatar={
