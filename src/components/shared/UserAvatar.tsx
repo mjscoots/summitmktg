@@ -13,9 +13,9 @@ interface UserAvatarProps {
   isTyping?: boolean;
   tierPct?: number;
   teamName?: string | null;
-  /** Leaderboard rank (1-based). Lower = stronger glow. */
+  /** Leaderboard rank (1-based). */
   rank?: number;
-  /** Total number of entries on leaderboard, used to scale glow intensity */
+  /** Total number of leaderboard entries. */
   totalEntries?: number;
 }
  
@@ -76,15 +76,15 @@ export function UserAvatar({ avatarUrl, fullName, size = 'sm', className, showOn
   const bgColor = useMemo(() => teamName ? teamColor.bg : getColorFromName(fullName), [teamName, teamColor, fullName]);
   const tierBorder = tierPct != null ? getTierBorderClass(tierPct) : '';
 
-  // Compute rank-based glow style
+  // Preserve rank emphasis without ornamental effects
   const rankGlowStyle = useMemo(() => {
     if (rank == null || rank < 1) return {};
     const total = totalEntries || 20;
     // Percentile: 1.0 = top, 0.0 = bottom
     const pct = 1 - (rank - 1) / Math.max(total - 1, 1);
-    if (pct < 0.3) return {}; // Bottom 70% get no glow
+    if (pct < 0.3) return {}; // Bottom 70% get no extra emphasis
     
-    // Scale intensity: top rank gets strongest glow
+    // Top ranks get stronger emphasis
     const intensity = Math.round(pct * 100);
     const spread = Math.round(4 + pct * 12); // 4px to 16px
     const opacity = (0.15 + pct * 0.55).toFixed(2); // 0.15 to 0.70

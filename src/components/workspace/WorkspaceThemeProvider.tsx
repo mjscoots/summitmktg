@@ -241,7 +241,7 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     // Identity accent: focus ring, active tab, wordmark, progress.
     set('--ring', p.workspaceAccent);
     set('--workspace-accent', p.workspaceAccent);
-    // Mono has no gradient and no glow.
+    // Mono resolves these compatibility tokens to flat colors.
     set('--gradient-ice', `hsl(${p.primary})`);
     set('--gradient-hero', `hsl(${p.surface})`);
     set('--gradient-primary', `hsl(${p.primary})`);

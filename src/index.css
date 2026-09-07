@@ -395,7 +395,7 @@ html, body, #root {
     border-color: hsl(var(--border-strong));
   }
 
-  /* Retained as no-ops: decorative glow layers were removed. */
+  /* Retained as no-ops: decorative depth layers were removed. */
   .training-tile-glow { position: relative; }
   .rookie-glow,
   .manager-glow,
@@ -771,7 +771,7 @@ button, a, [role="button"] {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 72 - the ice system keeps a small set of gradient and glow
+   PASS 72 - the ice system keeps a small set of color treatments
    tokens, so gradients are no longer flattened. Only ambient,
    non user-caused animation stays off.
    ───────────────────────────────────────────────────────────── */
@@ -1125,7 +1125,7 @@ body {
 }
 
 @layer components {
-  /* A celebration surface: accent into the warm tone, one soft glow. */
+  /* A celebration surface: accent into the warm tone, one soft emphasis. */
   .celebrate-card {
     border: 1px solid hsl(var(--workspace-accent) / 0.45);
     background:

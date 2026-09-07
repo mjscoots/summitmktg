@@ -1,6 +1,6 @@
 /**
  * Determine message highlight class based on reaction count.
- *  3+ reactions → subtle highlight border
+ *  3+ reactions → subtle highlight
  *  8+ reactions → accent highlight
  * 15+ reactions → top insight
  */
@@ -11,7 +11,7 @@ export function getMessageHighlight(reactionCount: number): {
 } {
   if (reactionCount >= 15) {
     return {
-      className: 'ring-1 ring-amber-500/40 bg-primary/[0.03] rounded-lg',
+      className: 'bg-primary/[0.06] rounded-lg',
       badge: '⭐ Top Insight',
       isHot: true,
     };
@@ -25,7 +25,7 @@ export function getMessageHighlight(reactionCount: number): {
   }
   if (reactionCount >= 3) {
     return {
-      className: 'ring-1 ring-border/60 rounded-lg',
+      className: 'bg-card rounded-lg',
       badge: null,
       isHot: false,
     };
