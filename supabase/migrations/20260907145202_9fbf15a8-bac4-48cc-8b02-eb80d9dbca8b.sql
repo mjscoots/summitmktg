@@ -1,0 +1,1 @@
+ALTER TABLE public.applications ALTER COLUMN referral_source DROP NOT NULL;

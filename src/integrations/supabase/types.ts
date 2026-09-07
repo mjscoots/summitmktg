@@ -492,7 +492,7 @@ export type Database = {
           partner_id: string | null
           phone: string
           previous_company: string | null
-          referral_source: string
+          referral_source: string | null
           referrer_user_id: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -514,7 +514,7 @@ export type Database = {
           partner_id?: string | null
           phone: string
           previous_company?: string | null
-          referral_source: string
+          referral_source?: string | null
           referrer_user_id?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -536,7 +536,7 @@ export type Database = {
           partner_id?: string | null
           phone?: string
           previous_company?: string | null
-          referral_source?: string
+          referral_source?: string | null
           referrer_user_id?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
