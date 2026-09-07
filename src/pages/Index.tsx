@@ -37,10 +37,10 @@ const Index = () => {
             <Wordmark variant="compact" height={36} />
           </Link>
           <div className="flex items-center gap-0.5 sm:gap-2">
-            <Link to="/industries/pest" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:px-3">
+            <Link to="/industries/pest" className="hidden min-h-11 items-center px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:inline-flex sm:px-3">
               Pest
             </Link>
-            <Link to="/industries/fiber" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:px-3">
+            <Link to="/industries/fiber" className="hidden min-h-11 items-center px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:inline-flex sm:px-3">
               Fiber
             </Link>
             <Button asChild variant="link" className="min-h-11 whitespace-nowrap px-3 text-foreground">
@@ -57,7 +57,7 @@ const Index = () => {
               {heroImage && <img src={heroImage} alt="Summit team in the field" className="h-full w-full object-cover" />}
             </div>
             <div className="mt-10 max-w-5xl md:mt-12">
-              <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-7xl">
+              <h1 className="font-display text-[34px] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-7xl">
                 Sell pest in the summer. Sell fiber in the fall. Never sit out a season.
               </h1>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
