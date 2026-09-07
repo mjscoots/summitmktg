@@ -20,7 +20,6 @@ import { useIdentity } from '@/hooks/useIdentityChips';
 import { isEmojiOnly } from '@/lib/chatText';
 
 /** A win post bursts once per session, never again on scroll back. */
-const burstedWins = new Set<string>();
 
 
 
@@ -302,14 +301,6 @@ export function ChatBubble({
   const emojiOnly = !isEditing && isEmojiOnly(message.content);
 
   // A win post bursts once, inside the bubble, and never again on scroll back.
-  const [showWinBurst, setShowWinBurst] = useState(false);
-  useEffect(() => {
-    if (message.kind !== 'win' || burstedWins.has(message.id)) return;
-    burstedWins.add(message.id);
-    setShowWinBurst(true);
-    const id = window.setTimeout(() => setShowWinBurst(false), 1000);
-    return () => window.clearTimeout(id);
-  }, [message.id, message.kind]);
 
   const hasMediaContent =
     emojiOnly ||
@@ -441,13 +432,6 @@ export function ChatBubble({
               <span className="text-[11px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
             )}
             {renderContent()}
-            {showWinBurst && (
-              <span aria-hidden className="win-burst">
-                {[12, 30, 48, 66, 84].map((left, i) => (
-                  <span key={left} style={{ left: `${left}%`, animationDelay: `${i * 60}ms` }} />
-                ))}
-              </span>
-            )}
             {!hasMediaContent && !isEditing && (
               <span className={cn("ml-2 inline-flex select-none items-center gap-1 align-bottom text-[11px]", isOwn ? "text-white/70" : "text-muted-foreground/60")}>
                 {message.edited_at && <span>edited</span>}

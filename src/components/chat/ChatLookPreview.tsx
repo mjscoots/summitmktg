@@ -6,7 +6,7 @@ export function ChatLookPreview() {
 
   return (
     <div
-      className={`${className} overflow-hidden rounded-[var(--radius)] border border-border`}
+      className={`${className} overflow-hidden rounded-[var(--radius)]`}
       style={style}
     >
       <div className="space-y-2 p-4">

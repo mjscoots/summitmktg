@@ -73,6 +73,7 @@ const VetApplication = () => {
   const RequiredAsterisk = () => <span className="text-destructive ml-1">*</span>;
 
   const validateField = (field: keyof FormData, value: string): string | undefined => {
+    if (field === 'referralName' && value.trim() === '') return undefined;
     if (field === "email" && value.trim() !== "") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
@@ -87,7 +88,7 @@ const VetApplication = () => {
         cityState: "City, State",
         lastSeasonRevenue: "Last Season Revenue",
         intendedMarket: "Previously Knocked Markets",
-        referralName: "Who did you hear about us from",
+        referralName: "Who told you about Summit",
       };
       return `${fieldLabels[field]} is required`;
     }
@@ -102,7 +103,6 @@ const VetApplication = () => {
       "cityState",
       "lastSeasonRevenue",
       "intendedMarket",
-      "referralName",
     ];
     
     const newErrors: FormErrors = {};
@@ -124,7 +124,7 @@ const VetApplication = () => {
       cityState: true,
       lastSeasonRevenue: true,
       intendedMarket: true,
-      referralName: true,
+      referralName: Boolean(formData.referralName.trim()),
     });
 
     return isValid;
@@ -137,8 +137,7 @@ const VetApplication = () => {
       formData.phone.trim() !== "" &&
       formData.cityState.trim() !== "" &&
       formData.lastSeasonRevenue.trim() !== "" &&
-      formData.intendedMarket.trim() !== "" &&
-      formData.referralName.trim() !== ""
+      formData.intendedMarket.trim() !== ""
     );
   };
 
@@ -439,7 +438,7 @@ const VetApplication = () => {
             <section className="public-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-extrabold text-foreground">How you heard about us</h2>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Who did you hear about us from?<RequiredAsterisk />
+                Who told you about Summit
               </label>
               <input
                 type="text"
@@ -447,12 +446,8 @@ const VetApplication = () => {
                 onChange={(e) => updateField("referralName", e.target.value)}
                 onBlur={() => handleBlur("referralName")}
                 placeholder="The person who referred you, or the account you saw"
-                className={`input-field ${touched.referralName && errors.referralName ? 'border-destructive' : ''}`}
-                required
+                className="input-field"
               />
-              {touched.referralName && errors.referralName && (
-                <p className="text-destructive text-sm mt-1">{errors.referralName}</p>
-              )}
             </section>
 
             {/* Pinned on the phone, inline from sm up. */}
