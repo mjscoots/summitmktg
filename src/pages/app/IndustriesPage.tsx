@@ -69,7 +69,7 @@ const STEP_ICONS: Record<PathStep['step_type'], React.ComponentType<{ className?
 };
 
 export default function IndustriesPage() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const openVertical = searchParams.get('v');
@@ -77,6 +77,7 @@ export default function IndustriesPage() {
   const [verticals, setVerticals] = useState<HubVertical[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyingTo, setApplyingTo] = useState<string | null>(null);
+  const [lifeAvailable, setLifeAvailable] = useState(false);
   const { switchWorkspace, refresh: refreshWorkspaces } = useWorkspace();
   const switchTo = searchParams.get('switch');
 
@@ -92,6 +93,16 @@ export default function IndustriesPage() {
     if (!user?.id) return;
     loadHub();
   }, [user?.id, loadHub]);
+
+  useEffect(() => {
+    void (async () => {
+      const [{ data: scales }, { data: courses }] = await Promise.all([
+        (supabase as any).from('public_pay_scales').select('id, public_pay_bands(id)').eq('vertical', 'Life').eq('is_active', true),
+        (supabase as any).from('training_courses').select('id, training_modules!inner(id, training_lessons!inner(id))').eq('vertical', 'Life').eq('is_active', true),
+      ]);
+      setLifeAvailable(Boolean(scales?.some((s: any) => s.public_pay_bands?.length) || courses?.length));
+    })();
+  }, []);
 
   useEffect(() => {
     if (!switchTo) return;
@@ -136,13 +147,18 @@ export default function IndustriesPage() {
             {verticals.map((v) => {
               const Icon = ICONS[v.vertical] || ListChecks;
               const enr = v.my_enrollment;
+              const canEditLife = role === 'admin' || role === 'owner' || Boolean((v as any).is_president);
+              const lifeLocked = v.vertical === 'Life' && !lifeAvailable && !canEditLife;
               return (
-                <div key={v.vertical} className={cn(CARD, 'flex flex-col gap-3')}>
+                <div key={v.vertical} className={cn(CARD, 'flex flex-col gap-3', lifeLocked && 'opacity-50')}>
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/25">
                       <Icon className="h-4 w-4 text-primary" />
                     </div>
-                    <h2 className="text-sm font-semibold text-foreground">{v.label}</h2>
+                    <div>
+                      <h2 className="text-sm font-semibold text-foreground">{v.label}</h2>
+                      <p className="text-[12px] text-muted-foreground">{v.vertical === 'Pest' ? 'Live' : v.vertical === 'Fiber' ? 'Off season lane' : 'Coming'}</p>
+                    </div>
                   </div>
 
                   <p className="text-[13px] leading-relaxed text-muted-foreground">
@@ -169,7 +185,9 @@ export default function IndustriesPage() {
                   </div>
 
                   <div className="mt-auto pt-1">
-                    {enr?.status === 'active' ? (
+                    {lifeLocked ? (
+                      <Button size="sm" variant="secondary" className="w-full" disabled>Coming</Button>
+                    ) : enr?.status === 'active' ? (
                       <div className="flex items-center gap-2 text-[13px] font-medium text-primary">
                         <Check className="h-4 w-4" /> You are active here
                       </div>

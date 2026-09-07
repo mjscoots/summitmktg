@@ -180,7 +180,6 @@ export function useStreak() {
         longestStreak: Math.max(prev.longestStreak, data.restored_streak),
       }));
 
-      setShowStreakCelebration(true);
       setIsRestoring(false);
       return true;
     } catch (err) {

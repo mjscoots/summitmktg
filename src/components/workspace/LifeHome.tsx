@@ -145,93 +145,15 @@ export function LifeHome({ workspace }: { workspace: Workspace }) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+    <div className="mx-auto max-w-3xl space-y-8 px-4 py-8">
       <WorkspaceHero
-        firstName={
-          (user?.user_metadata?.full_name as string | undefined)?.split(' ')[0] || null
-        }
+        firstName={(user?.user_metadata?.full_name as string | undefined)?.split(' ')[0] || null}
         workspaceName={workspace.name}
-        metric={{
-          label: 'In your pipeline',
-          value: Object.values(counts).reduce((a, b) => a + b, 0),
-        }}
+        metric={{ label: 'In your pipeline', value: Object.values(counts).reduce((a, b) => a + b, 0) }}
       />
       <Button variant="link" className="min-h-11 w-fit px-0 underline" onClick={() => navigate('/app/progress')}>
         Progress
       </Button>
-      <div className="hidden">
-
-      <section className={`${LIFE_CARD} p-4`}>
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-foreground">Next up</p>
-          <Button variant="outline" size="sm" className="min-h-11" onClick={() => navigate('/app/events')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add
-          </Button>
-        </div>
-        {appts.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">No appointments yet</p>
-        ) : (
-          <ul className="mt-3 space-y-3">
-            {appts.map((a) => (
-              <li key={a.id} className="flex items-baseline justify-between gap-3">
-                <span className="min-w-0 truncate text-sm text-foreground">{a.title}</span>
-                <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
-                  {new Date(a.event_date).toLocaleString(undefined, {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section className={`${LIFE_CARD} p-4`}>
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-foreground">Pipeline</p>
-          <Button variant="outline" size="sm" className="min-h-11" onClick={() => navigate('/app/pipeline')}>
-            Open pipeline
-          </Button>
-        </div>
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          {LIFE_STAGES.map((s) => (
-            <div key={s} className="rounded-2xl border border-border p-3">
-              <p className="text-xs text-muted-foreground">{s}</p>
-              <p className="text-xl font-medium tabular-nums text-primary">{counts[s] || 0}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <NeedsYouRow />
-
-      {steps.total > 0 && steps.done < steps.total && (
-        <section className={`${LIFE_CARD} space-y-3 p-4`}>
-          <p className="text-sm font-medium text-foreground">Setup and licensing</p>
-          <p className="text-sm tabular-nums text-muted-foreground">
-            {steps.done} of {steps.total} steps complete
-          </p>
-          <Button variant="outline" size="sm" className="min-h-11" onClick={() => navigate('/app/industries')}>
-            Continue setup
-          </Button>
-        </section>
-      )}
-      </div>
-
-
-
-
-      <section className={`${LIFE_CARD} p-4`}>
-        <p className="text-sm font-medium text-foreground">Announcement</p>
-        <p className="mt-1 text-sm text-muted-foreground">{pinned || 'No announcement yet.'}</p>
-      </section>
-
-
-      <ChatCard label={workspace.short_name} onOpen={() => navigate('/app/chat')} />
     </div>
   );
 }

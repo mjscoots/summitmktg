@@ -100,20 +100,20 @@ export function WorkspaceSegmented({
             key={w.vertical}
             onClick={() => !comingSoon && setAsking(w)}
             disabled={comingSoon}
-            className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 text-left transition-colors hover:bg-foreground/5 disabled:opacity-60"
+            className="grid min-h-11 w-full grid-cols-[auto_1fr] items-center gap-x-2 rounded-xl border border-border bg-card px-3 py-2 text-left transition-colors hover:bg-foreground/5 disabled:opacity-60"
           >
             <span className="flex min-w-0 items-center gap-2">
               <Lock className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
               <span className="truncate text-[13px] font-medium text-foreground">{w.short_name || w.name}</span>
             </span>
-            <span className="flex-shrink-0 text-[11px] text-muted-foreground">
+            <span className="justify-self-end text-[11px] text-muted-foreground">
               {comingSoon
                 ? w.vertical === 'Life' ? 'Coming' : 'Not open yet'
                 : pending
                   ? 'Requested, waiting on approval'
                   : 'By approval'}
             </span>
-            {w.vertical === 'Fiber' && <span className="block text-[11px] text-muted-foreground">Off season lane</span>}
+            {w.vertical === 'Fiber' && <span className="col-span-2 pl-[22px] text-[11px] text-muted-foreground">Off season lane</span>}
           </button>
         );
       })}
