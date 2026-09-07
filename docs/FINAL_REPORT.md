@@ -3838,3 +3838,48 @@ Preview only. Nothing was published and no deployment setting was touched.
 ### Limitation
 
 An authenticated walkthrough at 390 and 1280 could not be captured: preview session minting needs an approval that was not available, so the home layouts were verified by build, typecheck and code review rather than by screenshot. Every new tap target is at least 44px tall.
+
+## Pass 173 - two closes found by the owner's monitor
+
+### 1. Edge functions deployed
+
+Deployed with the backend deploy tool on Mon Sep 7 2026 at 14:52 UTC (single deploy call, all six reported success):
+
+- submit-application
+- bootcamp-reminders
+- check-bootcamp-overdue
+- check-inactivity
+- manager-weekly-digest
+- weekly-champion-notify
+
+The platform deploy tool reports success per function rather than a per function timestamp, so the deploy time above is the time of the call. Live proof that the new submit-application is the running version: a POST to the live function with `referral_source` blank returned `HTTP 200 {"status":"ok"}` (the pre 172 version rejected a blank referral with a 400). The probe row was then deleted, leaving applications at 13.
+
+This is a backend function deploy only. The site was not published.
+
+### 2. applications.referral_source nullability
+
+Migration: `ALTER TABLE public.applications ALTER COLUMN referral_source DROP NOT NULL;` No data changes, no other constraints touched.
+
+Read back from `information_schema.columns`: `referral_source`, type `text`, `is_nullable = YES`.
+
+- The edge function writes `referral_source: referralSource || null`, so a blank field stores null, not an empty string.
+- The staff view already hides the line when null: `AdminApplicationsTab.tsx` renders `{app.referral_source && <span>Who told them about Summit: ...</span>}`.
+
+Rollback test of the insert path: inside a transaction, one `applications` row was inserted with `referral_source` null, the count inside the transaction read 14, and the transaction was rolled back. Final count 13.
+
+### 3. Em dashes removed from manager-weekly-digest
+
+New copy, verbatim:
+
+- 3 reps need attention this week. open My week (pattern: {n} {rep needs|reps need} attention this week. open My week)
+- Your week. reps who need attention
+
+No other copy changed. Note: the digest email body still contains one em dash in an existing list line (`{name} — {reason}`); it was not named in this pass, so under "no other copy changes" it was left as is and is flagged here for a future pass.
+
+### Verification
+
+- Typecheck: `bun x tsgo --noEmit` clean.
+- Production build: `bun x vite build` clean.
+- Baselines: applications 13, profiles 536, chat_messages 715, user_notifications 6372 - all unchanged after the tests.
+- Security linter after the migration: 442 issues, the same pre-existing project wide set as Passes 171 and 172; nothing new introduced.
+- The site was not published.
