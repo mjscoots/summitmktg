@@ -9,6 +9,8 @@ import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
 import { FiberHome } from '@/components/workspace/FiberHome';
 import { LifeHome } from '@/components/workspace/LifeHome';
 import { PestHome } from '@/components/workspace/PestHome';
+import { WelcomeFirstOpen } from '@/components/home/WelcomeFirstOpen';
+
 
 
 function DashboardSkeleton() {
@@ -63,6 +65,7 @@ export default function DashboardPage() {
   if (active && active.vertical !== 'Pest') {
     return (
       <AppLayout>
+        <WelcomeFirstOpen />
         {active.vertical === 'Fiber' && active.status === 'active' ? (
           <FiberHome workspace={active} />
         ) : active.vertical === 'Life' ? (
@@ -80,16 +83,12 @@ export default function DashboardPage() {
     return <Navigate to="/summer-checklist" replace />;
   }
 
-
-
-
   return (
     <AppLayout>
+      <WelcomeFirstOpen />
       <PestHome />
-
-
       <GuidedTour />
-
     </AppLayout>
   );
+
 }

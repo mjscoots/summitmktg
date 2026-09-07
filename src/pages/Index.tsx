@@ -85,8 +85,15 @@ const Index = () => {
                 </article>
               ))}
             </div>
+            <p className="mt-10 text-sm text-text-secondary">
+              Already on the team,{' '}
+              <Link to="/login" className="inline-flex min-h-11 items-center font-semibold text-foreground underline underline-offset-4">
+                sign in
+              </Link>
+            </p>
           </div>
         </section>
+
       </main>
 
     </div>

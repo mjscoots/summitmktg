@@ -3745,6 +3745,7 @@ export type Database = {
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
           experience: Database["public"]["Enums"]["experience_level"] | null
+          first_open_at: string | null
           full_name: string
           hometown: string | null
           id: string
@@ -3826,6 +3827,7 @@ export type Database = {
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           experience?: Database["public"]["Enums"]["experience_level"] | null
+          first_open_at?: string | null
           full_name: string
           hometown?: string | null
           id?: string
@@ -3907,6 +3909,7 @@ export type Database = {
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           experience?: Database["public"]["Enums"]["experience_level"] | null
+          first_open_at?: string | null
           full_name?: string
           hometown?: string | null
           id?: string
@@ -8487,6 +8490,7 @@ export type Database = {
         Args: { p_event_id: string; p_present: boolean; p_user_id: string }
         Returns: undefined
       }
+      mark_first_open: { Args: never; Returns: string }
       mark_first_week_item: {
         Args: { _day: number; _key: string; _on?: boolean; _user: string }
         Returns: Json

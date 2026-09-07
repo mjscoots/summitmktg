@@ -53,6 +53,8 @@ interface ChatComposerProps {
   mentionables?: { user_id: string; full_name: string }[];
   /** Composer prompt, e.g. "Message Legion Mafia". */
   placeholder?: string;
+  /** Focus the input on mount, for a deep link that means "say something". */
+  autoFocus?: boolean;
 }
 
 export function ChatComposer({
@@ -71,9 +73,13 @@ export function ChatComposer({
   onSendVoice,
   mentionables = [],
   placeholder,
+  autoFocus,
 }: ChatComposerProps) {
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus();
+  }, [autoFocus]);
   const fileRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
 

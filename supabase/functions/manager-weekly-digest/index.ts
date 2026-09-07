@@ -172,6 +172,7 @@ serve(async (req: Request): Promise<Response> => {
         title: "Your week",
         message,
         link: "/app/week",
+        source_key: `digest:monday-manager:${new Date().toISOString().slice(0, 10)}`,
       });
       if (nErr) {
         console.error(`notification insert failed for ${id}: ${nErr.message}`);

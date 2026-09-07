@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
       title,
       message,
       link: "/app/leaderboard",
-      source_key: `topperf:${lastMondayStr}`,
+      source_key: `topperf:${uid}:${lastMondayStr}`,
     }));
 
     const { error: insertErr } = await supabase
