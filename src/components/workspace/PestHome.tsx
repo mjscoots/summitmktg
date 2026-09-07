@@ -1,150 +1,32 @@
-import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrAbove } from '@/lib/roles';
 import { useSaleStreak } from '@/hooks/useSaleStreak';
 import { useHomeToday } from '@/hooks/useHomeToday';
-import { useManagerWeek } from '@/hooks/useManagerWeek';
-import { useActionCards } from '@/hooks/useActionCards';
-import { NeedsYouRow } from '@/components/chat/NeedsYouRow';
-import { WinterPlanCard } from '@/components/workspace/WinterPlanCard';
-import { OnboardingAlert } from '@/components/dashboard/OnboardingAlert';
-import { QuickChips, type QuickChip } from '@/components/home/QuickChips';
-import { useSeasonMode, useResignHero, useRepOffSeasonLine } from '@/hooks/useSeasonMode';
-import { WeekBars } from '@/components/home/WeekBars';
-import { TeamTodayCard } from '@/components/home/TeamTodayCard';
-import { HomeFeed } from '@/components/home/HomeFeed';
-import { MoreReveal } from '@/components/home/MoreReveal';
-import { UpdatesStrip } from '@/components/home/UpdatesStrip';
-import { YourNumbers } from '@/components/home/YourNumbers';
-
-import { OwnerNumbersRow } from '@/components/home/OwnerNumbersRow';
-import { SectionEyebrow } from '@/components/home/SectionEyebrow';
-
-import { InviteDialog } from '@/components/invites/InviteDialog';
-import { AnnouncementEditorModal } from '@/components/dashboard/AnnouncementEditorModal';
-import { LogSaleSheet } from '@/components/sales/LogSaleSheet';
+import { useSeasonMode, useResignHero } from '@/hooks/useSeasonMode';
+import { WorkspaceHero } from '@/components/home/WorkspaceHero';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FirstWeekCard } from '@/components/home/FirstWeekCard';
-import OnboardingProgressCard from '@/components/onboarding/OnboardingProgressCard';
-import { GoalInterviewCard } from '@/components/home/GoalInterviewCard';
-import { FiberStartCard } from '@/components/workspace/FiberStartCard';
-import { HomeGreeting } from '@/components/home/HomeGreeting';
-import { TodayRow } from '@/components/home/TodayRow';
-import { WorkspaceHero } from '@/components/home/WorkspaceHero';
-import { DarkRepRadar } from '@/components/team/DarkRepRadar';
 
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
-}
-
-/** Whole dollars, no cents - these are season totals, not invoices. */
-function money(n: number): string {
-  return `$${Math.round(n).toLocaleString()}`;
-}
-
-
-/**
- * Pass 95 - Air. Pest home shows five things and folds the rest behind More:
- * the greeting with today's number, Doors, needs you, the next event and chat.
- * Managers get their own five: team today, needs attention, one-on-ones,
- * invite and the next event.
- */
 export function PestHome() {
   const navigate = useNavigate();
-  const { user, profile, role } = useAuth();
+  const { profile, role } = useAuth();
   const staff = isManagerOrAbove(role);
-
   const { days: saleStreak } = useSaleStreak();
   const today = useHomeToday();
-  const { totals } = useManagerWeek();
-  const { cards } = useActionCards();
   const { offSeason } = useSeasonMode();
   const resign = useResignHero(offSeason && staff);
-  const repLine = useRepOffSeasonLine(offSeason && !staff);
-
-
-  const [logOpen, setLogOpen] = useState(false);
-  const [postOpen, setPostOpen] = useState(false);
-  const [pinned, setPinned] = useState<string | null>(null);
-
-  const loadPinned = useCallback(async () => {
-    const { data } = await (supabase as any)
-      .from('announcement_posts')
-      .select('title')
-      .eq('is_pinned', true)
-      .eq('status', 'published')
-      .limit(1);
-    setPinned(((data as { title: string }[]) || [])[0]?.title || null);
-  }, []);
-
-  useEffect(() => {
-    void loadPinned();
-  }, [loadPinned]);
-
-  const firstName = profile?.full_name?.split(' ')[0] || 'there';
-  const weekCount = today.weekBars.reduce((a, n) => a + n, 0);
-
-  const moreChips: QuickChip[] = staff
-    ? [
-        { label: 'My week', to: '/app/team' },
-        { label: 'Leads', to: '/app/leads' },
-        { label: 'Incentives', to: '/app/leaderboard' },
-        { label: 'Post', onClick: () => setPostOpen(true) },
-        { label: 'Log a sale', onClick: () => setLogOpen(true) },
-      ]
-    : [
-        { label: 'Field pack', to: '/app/training#field-pack' },
-        { label: 'Ask Summit', to: '/app/ask' },
-        { label: 'To do', to: '/app/missions', badge: cards.length },
-        { label: 'Board', to: '/app/leaderboard' },
-      ];
 
   if (today.loading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-8 px-4 py-6">
-        <Skeleton className="skeleton-shimmer h-24 w-full" />
-        <Skeleton className="skeleton-shimmer h-14 w-full" />
-        <Skeleton className="skeleton-shimmer h-28 w-full" />
+      <div className="mx-auto max-w-2xl space-y-8 px-4 py-6">
+        <Skeleton className="h-24 w-full" />
       </div>
     );
   }
 
-  const heroValue = offSeason ? today.trainingMinutes : staff ? today.visibleToday : today.today;
-  const showHeroNumber = offSeason && staff ? resign.signed > 0 || resign.rosterTotal > 0 : heroValue > 0;
-
-  const sublineParts = offSeason
-    ? staff
-      ? [
-          resign.signedRevenue > 0 ? `${money(resign.signedRevenue)} signed` : null,
-          resign.unsigned > 0
-            ? `${resign.unsigned} on the roster not signed (${money(resign.unsignedRevenue)})`
-            : null,
-        ]
-      : [
-          repLine.goal > 0 ? `Goal ${money(repLine.goal)} for 2027` : null,
-          repLine.streak > 0 ? `${repLine.streak} ${repLine.streak === 1 ? 'day' : 'days'} in a row` : null,
-        ]
-    : staff
-      ? [totals.sales > 0 ? `${totals.sales} this week` : null]
-      : [
-          weekCount > 0 ? `${weekCount} this week` : null,
-          saleStreak > 0 ? `${saleStreak} ${saleStreak === 1 ? 'day' : 'days'} with a sale` : null,
-        ];
-  const subline = sublineParts.filter(Boolean).join(' · ');
-
-  const heroLabel = offSeason
-    ? staff
-      ? 'Signed for 2027'
-      : 'Training this week'
-    : staff
-      ? 'Team today'
-      : 'Today';
+  const value = offSeason ? (staff ? resign.signed : today.trainingMinutes) : staff ? today.visibleToday : today.today;
+  const label = offSeason ? (staff ? 'Signed for 2027' : 'Training this week') : staff ? 'Team today' : 'Today';
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-6 sm:space-y-10">
@@ -152,7 +34,7 @@ export function PestHome() {
         firstName={profile?.full_name?.split(' ')[0] || null}
         workspaceName="Pest"
         streak={saleStreak}
-        metric={{ label: heroLabel, value: offSeason && staff ? resign.signed : heroValue }}
+        metric={{ label, value }}
       />
       <Button variant="link" className="min-h-11 w-fit px-0 underline" onClick={() => navigate('/app/progress')}>
         Progress
