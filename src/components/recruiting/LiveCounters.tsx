@@ -1,5 +1,4 @@
 import { usePublicCounters } from '@/hooks/usePublicRecruiting';
-import { COVER_STATS } from '@/lib/coverStats';
 
 interface LiveCountersProps {
   /** 'inline' for the cover hero, 'section' for the recruiting page */
@@ -17,7 +16,8 @@ export function LiveCounters({ variant = 'section' }: LiveCountersProps) {
   if (!counters) return null;
 
   const items: { value: number; label: string }[] = [];
-if (counters.signed_season) items.push({ value: counters.signed_season, label: 'signed this season' });
+  if (counters.active_reps && counters.active_reps > 0) items.push({ value: counters.active_reps, label: 'active reps' });
+  if (counters.signed_season && counters.signed_season > 0) items.push({ value: counters.signed_season, label: 'signed this season' });
   if (items.length === 0) return null;
 
   if (variant === 'inline') {
@@ -38,7 +38,7 @@ if (counters.signed_season) items.push({ value: counters.signed_season, label: '
       {items.map((i) => (
         <div
           key={i.label}
-          className="rounded border border-border bg-card px-5 py-3 text-center"
+          className="bg-card px-5 py-3 text-center"
         >
           <span className="text-xl font-semibold stat-num text-foreground">{i.value.toLocaleString()}</span>
           <span className="ml-2 text-sm text-muted-foreground">
@@ -54,21 +54,22 @@ if (counters.signed_season) items.push({ value: counters.signed_season, label: '
 export function PublicProofStrip() {
   const counters = usePublicCounters();
 
-  if (!COVER_STATS) return null;
-  if (!counters || counters.serviced_total <= 0) return null;
-
-  const serviced = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    notation: 'compact',
-    maximumFractionDigits: 2,
-  }).format(counters.serviced_total);
+  if (!counters) return null;
+  const items: { value: number; label: string }[] = [];
+  if (counters.active_reps && counters.active_reps > 0) items.push({ value: counters.active_reps, label: 'active reps' });
+  if (counters.signed_season && counters.signed_season > 0) items.push({ value: counters.signed_season, label: 'signed this season' });
+  if (items.length === 0) return null;
 
   return (
-    <div className="public-proof-strip" aria-label="Summit production proof">
-      <span><strong>{serviced}</strong> serviced</span>
-      <span aria-hidden="true">·</span>
-      <span><strong>{counters.signed_2027.toLocaleString()}</strong> signed for 2027</span>
-    </div>
+    <section className="px-5 py-10 md:px-8" aria-label="Summit team proof">
+      <div className="mx-auto flex max-w-6xl flex-wrap gap-x-10 gap-y-4">
+        {items.map((item) => (
+          <p key={item.label} className="text-sm text-muted-foreground">
+            <strong className="mr-2 text-2xl font-bold tabular-nums text-foreground">{item.value.toLocaleString()}</strong>
+            {item.label}
+          </p>
+        ))}
+      </div>
+    </section>
   );
 }
