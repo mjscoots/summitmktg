@@ -14,12 +14,12 @@ export function SettingsList() {
   const [lookOpen, setLookOpen] = useState(false);
 
   const row =
-    'press flex min-h-[52px] w-full items-center gap-3 px-4 text-left transition-colors hover:bg-secondary';
+    'press flex min-h-[60px] w-full items-center gap-4 rounded bg-card px-5 text-left transition-colors hover:bg-secondary';
   const tile =
-    'flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-muted text-muted-foreground';
+    'flex h-9 w-9 flex-shrink-0 items-center justify-center rounded bg-secondary text-muted-foreground';
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius)] border border-border bg-card">
+    <div className="space-y-2">
       <button onClick={() => navigate('/app/profile')} className={row}>
         <span className={tile}>
           <User className="h-[18px] w-[18px]" strokeWidth={1.75} />
@@ -29,7 +29,7 @@ export function SettingsList() {
       </button>
 
       <Collapsible open={lookOpen} onOpenChange={setLookOpen}>
-        <CollapsibleTrigger className={row + ' border-t border-border'}>
+        <CollapsibleTrigger className={row}>
           <span className={tile}>
             <Palette className="h-[18px] w-[18px]" strokeWidth={1.75} />
           </span>
@@ -42,14 +42,14 @@ export function SettingsList() {
           />
         </CollapsibleTrigger>
         <CollapsibleContent className="overflow-hidden data-[state=open]:collapse-open data-[state=closed]:collapse-closed">
-          <div className="border-t border-border bg-background/40">
+          <div className="mt-2 space-y-2 pl-4">
             <button onClick={() => navigate('/app/appearance')} className={row + ' pl-[64px]'}>
               <span className="flex-1 truncate text-[15px] text-foreground">App look</span>
               <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
             </button>
             <button
               onClick={() => navigate('/app/chat-look')}
-              className={row + ' border-t border-border pl-[64px]'}
+              className={row + ' pl-[64px]'}
             >
               <span className="flex-1 truncate text-[15px] text-foreground">Chat look</span>
               <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
@@ -58,7 +58,7 @@ export function SettingsList() {
         </CollapsibleContent>
       </Collapsible>
 
-      <button onClick={() => navigate('/app/notifications')} className={row + ' border-t border-border'}>
+      <button onClick={() => navigate('/app/notifications')} className={row}>
         <span className={tile}>
           <Bell className="h-[18px] w-[18px]" strokeWidth={1.75} />
         </span>
@@ -66,7 +66,7 @@ export function SettingsList() {
         <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
       </button>
 
-      <button onClick={() => navigate('/app/account')} className={row + ' border-t border-border'}>
+      <button onClick={() => navigate('/app/account')} className={row}>
         <span className={tile}>
           <Lock className="h-[18px] w-[18px]" strokeWidth={1.75} />
         </span>

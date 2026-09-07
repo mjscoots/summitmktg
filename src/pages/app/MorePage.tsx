@@ -95,21 +95,20 @@ export default function MorePage() {
                 {isSettings ? (
                   <SettingsList />
                 ) : (
-                  <div className="overflow-hidden rounded-[var(--radius)] border border-border bg-card">
+                  <div className="space-y-2">
                     {group.items.map((item, i) => (
                       <button
                         key={item.key}
                         onClick={() => navigate(item.path)}
                         className={
-                          'press flex min-h-[52px] w-full items-center gap-3 px-4 text-left transition-colors hover:bg-secondary' +
-                          (i > 0 ? ' border-t border-border' : '')
+                          'press flex min-h-[60px] w-full items-center gap-4 rounded bg-card px-5 text-left transition-colors hover:bg-secondary'
                         }
                       >
                         <span
                           className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)]"
                           style={{
-                            background: 'hsl(var(--workspace-accent) / 0.12)',
-                            color: 'hsl(var(--workspace-accent))',
+                            background: 'hsl(var(--secondary))',
+                            color: 'hsl(var(--primary))',
                           }}
                         >
                           <item.icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
@@ -129,7 +128,7 @@ export default function MorePage() {
 
         <FeedbackDialog
           trigger={
-            <button className="w-full rounded-[var(--radius)] border border-border bg-card p-4 text-left transition-colors hover:bg-secondary">
+            <button className="w-full rounded bg-card p-5 text-left transition-colors hover:bg-secondary">
               <span className="flex items-center gap-3">
                 <MessageSquare className="h-[18px] w-[18px] text-muted-foreground" strokeWidth={1.75} />
                 <span className="text-[15px] text-foreground">Report an issue or idea</span>
@@ -146,7 +145,7 @@ export default function MorePage() {
             await signOut();
             navigate('/');
           }}
-          className="flex min-h-[52px] w-full items-center gap-3 rounded-[var(--radius)] border border-border bg-card px-4 text-left text-[15px] text-muted-foreground transition-colors hover:bg-secondary"
+          className="flex min-h-[60px] w-full items-center gap-4 rounded bg-card px-5 text-left text-[15px] text-muted-foreground transition-colors hover:bg-secondary"
         >
           <LogOut className="h-[18px] w-[18px]" strokeWidth={1.75} />
           Log out

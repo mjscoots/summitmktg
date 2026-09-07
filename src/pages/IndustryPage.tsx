@@ -52,15 +52,15 @@ export default function IndustryPage() {
 
   if (isLife) {
     return (
-      <div className="gold-world public-dots min-h-screen bg-background flex flex-col">
-        <header className="sticky top-0 z-30 border-b border-border bg-background/[0.88] backdrop-blur">
+      <div className="gold-world min-h-screen bg-background flex flex-col">
+        <header className="sticky top-0 z-30 bg-background/[0.95] backdrop-blur">
           <nav className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3 sm:px-6">
             <Link to="/" aria-label="Summit home" className="flex min-h-11 items-center">
               <Wordmark variant="compact" height={34} />
             </Link>
             <button
               onClick={() => navigate('/login')}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border-strong px-4 text-sm font-semibold text-foreground transition-colors hover:border-foreground"
+              className="inline-flex min-h-11 items-center gap-2 px-4 text-sm font-semibold text-foreground underline-offset-4 hover:underline"
             >
               <LogIn className="w-4 h-4" /> Sign in
             </button>
@@ -101,15 +101,15 @@ export default function IndustryPage() {
   }
 
   return (
-    <div className="gold-world public-dots min-h-screen bg-background flex flex-col relative">
-      <header className="sticky top-0 z-30 border-b border-border bg-background/[0.88] backdrop-blur">
+    <div className="gold-world min-h-screen bg-background flex flex-col relative">
+      <header className="sticky top-0 z-30 bg-background/[0.95] backdrop-blur">
         <nav className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3 sm:px-6">
           <Link to="/" aria-label="Summit home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={34} />
           </Link>
           <button
             onClick={() => navigate('/login')}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border-strong px-4 text-sm font-semibold text-foreground transition-colors hover:border-foreground"
+            className="inline-flex min-h-11 items-center gap-2 px-4 text-sm font-semibold text-foreground underline-offset-4 hover:underline"
           >
             <LogIn className="w-4 h-4" /> Sign in
           </button>
@@ -144,7 +144,7 @@ export default function IndustryPage() {
               <ol className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                 {steps.map((s, i) => (
                   <li key={s} className="flex items-center gap-2 sm:gap-3">
-                    <span className="inline-flex min-h-11 items-center rounded-xl border border-border px-3 text-sm text-foreground">
+                    <span className="inline-flex min-h-11 items-center rounded bg-card px-3 text-sm text-foreground">
                       {s}
                     </span>
                     {i < steps.length - 1 && <ArrowRight className="hidden sm:block w-3.5 h-3.5 text-muted-foreground" />}
@@ -186,7 +186,7 @@ export default function IndustryPage() {
                         {l.avatar_url ? (
                           <img loading="lazy" decoding="async" width={44} height={44} src={l.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
                         ) : (
-                          <div className="h-11 w-11 rounded-full border border-border-strong" />
+                          <div className="h-11 w-11 rounded-full bg-secondary" />
                         )}
                         <div className="min-w-0">
                           <p className="text-sm font-bold text-foreground truncate">{l.full_name || ''}</p>
