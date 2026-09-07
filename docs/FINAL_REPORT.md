@@ -3883,3 +3883,37 @@ No other copy changed. Note: the digest email body still contains one em dash in
 - Baselines: applications 13, profiles 536, chat_messages 715, user_notifications 6372 - all unchanged after the tests.
 - Security linter after the migration: 442 issues, the same pre-existing project wide set as Passes 171 and 172; nothing new introduced.
 - The site was not published.
+
+## Pass 174 - one copy close in manager-weekly-digest
+
+### Changes
+
+In `supabase/functions/manager-weekly-digest/index.ts` only:
+
+1. In-app notification message: now capitalized.
+   - Old: `{n} {rep needs|reps need} attention this week. open My week`
+   - New: `{n} {rep needs|reps need} attention this week. Open My week`
+2. Email subject: added a colon.
+   - Old: `Your week. reps who need attention`
+   - New: `Your week: reps who need attention`
+3. Email body list line: replaced the em dash with a colon and a space.
+   - Old: `{name} — {reason}`
+   - New: `{name}: {reason}`
+
+No other copy, logic, or permissions changed. The function was redeployed with the backend deploy tool.
+
+### New copy, verbatim
+
+- `3 reps need attention this week. Open My week` (pattern: `{n} {rep needs|reps need} attention this week. Open My week`)
+- `Your week: reps who need attention`
+- `Rep: no sales and no training this week` (pattern: `{name}: {reason}`)
+
+### Verification
+
+- Em dash grep: `rg '—' supabase/functions/manager-weekly-digest/index.ts` returned zero matches.
+- Typecheck: `bun x tsgo --noEmit` clean.
+- Production build: `bun x vite build` clean (pre-existing CSS warnings only).
+- Shell gzip: entry JS `dist/assets/index-*.js` = 16,412 bytes gzip; entry CSS `dist/assets/index-*.css` = 28,216 bytes gzip.
+- Deploy: backend deploy tool reported `Successfully deployed edge functions: manager-weekly-digest`.
+- Baselines unchanged: applications 13, profiles 536, chat_messages 715, user_notifications 6372.
+- No data writes, no real form submissions, no live function calls that create rows. The site was not published.
