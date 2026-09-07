@@ -65,6 +65,7 @@ export default function DashboardPage() {
   if (active && active.vertical !== 'Pest') {
     return (
       <AppLayout>
+        <WelcomeFirstOpen />
         {active.vertical === 'Fiber' && active.status === 'active' ? (
           <FiberHome workspace={active} />
         ) : active.vertical === 'Life' ? (
@@ -82,16 +83,12 @@ export default function DashboardPage() {
     return <Navigate to="/summer-checklist" replace />;
   }
 
-
-
-
   return (
     <AppLayout>
+      <WelcomeFirstOpen />
       <PestHome />
-
-
       <GuidedTour />
-
     </AppLayout>
   );
+
 }
