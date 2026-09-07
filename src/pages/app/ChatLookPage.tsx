@@ -69,7 +69,7 @@ export default function ChatLookPage() {
 
         <ChatLookPreview />
 
-        <section className="space-y-3 rounded-[var(--radius)] border border-border bg-card p-5">
+        <section className="space-y-3 rounded bg-card p-5">
           <div>
             <h2 className="text-[15px] font-semibold text-foreground">Wallpaper</h2>
             <p className="mt-1 text-[13px] text-muted-foreground">

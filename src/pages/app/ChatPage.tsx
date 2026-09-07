@@ -119,7 +119,7 @@ export default function ChatPage() {
   return (
     <AppLayout fullHeight>
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
-        <div className="flex flex-shrink-0 items-center gap-2 border-b border-border/10 bg-background/60 px-3 py-2 backdrop-blur-2xl">
+        <div className="flex flex-shrink-0 items-center gap-2 bg-background px-5 py-3">
           <h1 className="flex-1 text-[17px] font-bold tracking-tight">Chats</h1>
           <button
             onClick={() => setNewOpen(true)}
@@ -135,14 +135,14 @@ export default function ChatPage() {
 
 
         {searchOpen && (
-          <div className="flex-shrink-0 border-b border-border/10 px-3 py-2">
+          <div className="flex-shrink-0 px-5 py-3">
             <div className="mx-auto w-full max-w-2xl">
               <PeopleSearch onOpenDm={openDm} openPersonId={personParam} onPersonHandled={clearPerson} />
             </div>
           </div>
         )}
 
-        <div className="phone-bar-clear min-h-0 flex-1 overflow-y-auto px-3 py-3">
+        <div className="phone-bar-clear min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {!loading && <ChatList conversations={channels} onOpen={openRoom} onMuteChanged={refresh} />}
         </div>
       </div>

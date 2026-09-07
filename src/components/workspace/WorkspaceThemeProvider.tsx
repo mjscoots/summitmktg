@@ -11,7 +11,7 @@ export interface WorkspaceTheme {
   border?: string;
   accent?: string;
   accent_foreground?: string;
-  texture?: 'none';
+  texture?: 'none' | 'camo';
   headings?: 'serif';
   texture_opacity?: number;
 }
