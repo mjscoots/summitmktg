@@ -3738,3 +3738,29 @@ No em dashes, no emoji.
 
 ### Release posture
 Preview-only and unpublished. The `submit-application` edge function and database migration were not deployed as part of this pass.
+
+## Pass 171 - simplification (September 7, 2026)
+
+**Status:** Complete in preview only. Nothing was published and deployment settings were not changed.
+
+### Delivered
+- Added one protected `/app/progress` screen: quiet Streak and Points this week figures, personal leaderboard rank, Badges and Trophy case in one row, then To do.
+- Reduced Pest, Fiber, and Life Home to the Pass 168 hero and one underlined `Progress` link. Removed points and badge surfaces from self Profile; manager-facing Person Profile recognition remains.
+- Removed automatic login and restore streak overlays. A returned milestone now uses one one-line toast.
+- Reduced chat appearance to wallpapers `Summit`, `Night`, `Photo`; bubbles `Workspace`, `Classic`; text sizes unchanged. The single existing preference row was retained and normalized, including room overrides.
+- Reduced More to `Your work`, `Manage`, and `Settings`. Sales sees Your work and Settings; manager tier adds Manage; owner sees all three. Recruits remains manager-gated. Admin moved into Settings for admin and owner only.
+- Added the Training top row with `Scripts`, `Resources`, `Video library`, `Ask Summit`, and Pest-only `Estimate earnings`. All existing destination routes remain reachable.
+- Ordered three-industry choices Pest, Fiber, Life. The named lines are `Live`, `Off season lane`, and `Coming`. Life is disabled for ordinary users while both a Life day-one course and Life pay band are absent; admin, owner, and Life president controls remain available.
+- Extended the existing notification dedupe trigger to cap routine cron prefixes at three rows per person per UTC day. The fourth becomes one `Daily digest` row; later overflow is suppressed. Direct messages, mentions, approvals, event reminders, Monday manager digest, and Sunday weekly digest are outside this cap.
+
+### Verification
+- Chat preference migration: `chat_prefs=1` before and `chat_prefs=1` after; all rows match the new constraints. Readback allows wallpaper `summit|night|photo` and bubble `workspace|classic` only.
+- Notification rollback proof inserted four capped candidates for one person on an isolated day and reached exactly three routine rows plus one digest fold; the deliberate exception rolled the transaction back. Rollback row count read back as zero.
+- Notification count was `6369` before and `6369` after the rollback proof. Final baselines: `chat_messages=715`, `profiles=536`, `chat_prefs=1`, `user_notifications=6369`.
+- Function permissions were unchanged: `skip_duplicate_notification()` remains trigger-only with anon execute false and authenticated execute false. Existing table policies and workspace scope were not changed.
+- TypeScript check passed. Production build passed. Initial-entry JavaScript is **166.5 KB gzip** using the Pass 170 entry-reference method, below 198.5 KB.
+- Source checks found no new em dash or emoji in Pass 171 copy. New copy is listed verbatim above, plus `Your points, recognition and To do.`, `Leaderboard rank`, `Not ranked`, `Points this week`, and `More updates are waiting for you.`
+- Authenticated 390px sales walkthrough and role-switched 1280px walkthrough could not be completed because preview session minting required unavailable user approval. The responsive layouts, 44px controls, route guards, role conditions, database readbacks, typecheck, and production output were verified directly.
+
+### Release posture
+Preview-only and unpublished. No data was deleted and no deployment settings were touched.
