@@ -9,6 +9,8 @@ import { WorkspaceHome } from '@/components/workspace/WorkspaceHome';
 import { FiberHome } from '@/components/workspace/FiberHome';
 import { LifeHome } from '@/components/workspace/LifeHome';
 import { PestHome } from '@/components/workspace/PestHome';
+import { WelcomeFirstOpen } from '@/components/home/WelcomeFirstOpen';
+
 
 
 function DashboardSkeleton() {
