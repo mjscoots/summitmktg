@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { captureSourceFromUrl, ORGANIC, type SourceAttribution } from '@/lib/source';
 
 export const INDUSTRY_OPTIONS = [
-  { value: 'Pest', label: 'Pest control' },
-  { value: 'Fiber', label: 'Fiber internet' },
-  { value: 'Life', label: 'Life insurance' },
+  { value: 'Pest', label: 'Pest control', line: 'Live', disabled: false },
+  { value: 'Fiber', label: 'Fiber internet', line: 'Off season lane', disabled: false },
+  { value: 'Life', label: 'Life insurance', line: 'Coming', disabled: true },
 ] as const;
 
 /** Reads ?vertical= and ?ref= once on mount and resolves the source attribution. */
@@ -40,13 +40,15 @@ export default function IndustryStep({ value, onChange, error }: Props) {
             key={o.value}
             type="button"
             onClick={() => onChange(o.value)}
+            disabled={o.disabled}
             className={`min-h-12 rounded-xl border px-3 text-sm font-medium transition-colors ${
               value === o.value
                 ? 'border-primary bg-primary/10 text-foreground'
-                : 'border-border/60 text-muted-foreground hover:border-primary/50'
+                : 'border-border/60 text-muted-foreground hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-50'
             }`}
           >
-            {o.label}
+            <span className="block">{o.label}</span>
+            <span className="mt-1 block text-[12px] font-normal text-muted-foreground">{o.line}</span>
           </button>
         ))}
       </div>

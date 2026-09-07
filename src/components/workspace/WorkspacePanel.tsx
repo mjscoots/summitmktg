@@ -4,6 +4,7 @@ import { VerticalApplicationForm } from './VerticalApplicationForm';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Check, Circle, Lock } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 function statusLine(w: Workspace): string {
   switch (w.membership_status) {
@@ -22,10 +23,13 @@ function statusLine(w: Workspace): string {
 
 export function WorkspacePanel({ onNavigate }: { onNavigate?: () => void }) {
   const { workspaces, activeVertical, switchWorkspace, refresh } = useWorkspace();
+  const { role } = useAuth();
   const [applyingTo, setApplyingTo] = useState<string | null>(null);
 
-  const mine = workspaces.filter(isMember);
-  const locked = workspaces.filter((w) => !isMember(w));
+  const order = (a: Workspace, b: Workspace) => ['Pest', 'Fiber', 'Life'].indexOf(a.vertical) - ['Pest', 'Fiber', 'Life'].indexOf(b.vertical);
+  const mine = workspaces.filter(isMember).sort(order);
+  const locked = workspaces.filter((w) => !isMember(w)).sort(order);
+  const canEditLife = role === 'admin' || role === 'owner' || workspaces.some((w) => w.vertical === 'Life' && w.is_president);
 
   const select = async (w: Workspace) => {
     await switchWorkspace(w.vertical);
@@ -57,7 +61,7 @@ export function WorkspacePanel({ onNavigate }: { onNavigate?: () => void }) {
               <span className="min-w-0">
                 <span className="block truncate text-[14px] font-medium text-foreground">{w.name}</span>
                 <span className="block text-[12px] text-muted-foreground">
-                  {statusLine(w)}
+                  {w.vertical === 'Fiber' ? 'Off season lane' : w.vertical === 'Life' ? 'Coming' : statusLine(w)}
                   {w.is_president ? ` · You lead this industry` : ''}
                 </span>
               </span>
@@ -75,7 +79,7 @@ export function WorkspacePanel({ onNavigate }: { onNavigate?: () => void }) {
           {locked.map((w) => {
             const applied = w.membership_status === 'applied';
             const rejected = w.membership_status === 'rejected';
-            const comingSoon = w.status === 'coming_soon';
+            const comingSoon = w.vertical === 'Life' && !canEditLife ? true : w.status === 'coming_soon';
             return (
               <div key={w.vertical} className="rounded-lg border border-border/60 px-3 py-2.5">
                 <div className="flex items-center justify-between gap-2">
@@ -83,7 +87,8 @@ export function WorkspacePanel({ onNavigate }: { onNavigate?: () => void }) {
                   <Lock className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
 
-                {comingSoon && <p className="mt-1 text-[12px] text-muted-foreground">Opening soon</p>}
+                {comingSoon && <p className="mt-1 text-[12px] text-muted-foreground">Coming</p>}
+                {w.vertical === 'Fiber' && <p className="mt-1 text-[12px] text-muted-foreground">Off season lane</p>}
 
                 {!comingSoon && applied && (
                   <div className="mt-2 space-y-1">

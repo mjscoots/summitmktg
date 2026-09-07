@@ -34,6 +34,7 @@ const ResetPasswordPage = lazyRoute(() => import("./pages/app/ResetPasswordPage"
 
 const DashboardPage = lazyRoute(() => import("./pages/app/DashboardPage"));
 const TrainingPage = lazyRoute(() => import("./pages/app/TrainingPage"));
+const ProgressPage = lazyRoute(() => import("./pages/app/ProgressPage"));
 
 
 // Lazy-loaded pages (loaded on demand to reduce initial bundle)
@@ -253,7 +254,11 @@ function LazyFallback() {
              <Route path="/rookie" element={<Navigate to="/app" replace />} />
              <Route path="/manager" element={<Navigate to="/app" replace />} />
              <Route path="/app-redirect" element={<Navigate to="/app" replace />} />
-             <Route path="/app/progress" element={<Navigate to="/app/training" replace />} />
+             <Route path="/app/progress" element={
+               <ProtectedRoute>
+                 <ProgressPage />
+               </ProtectedRoute>
+             } />
 
               {/* More - every destination the phone bar does not carry */}
               <Route path="/app/more" element={

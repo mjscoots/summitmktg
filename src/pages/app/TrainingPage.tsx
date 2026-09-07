@@ -11,7 +11,7 @@ import { WelcomeBanner } from '@/components/training/WelcomeBanner';
 import { NextUpCard } from '@/components/training/NextUpCard';
 import { TrainingWeekRow } from '@/components/training/TrainingWeekRow';
 
-import { BookOpen, Users, ChevronLeft, Play, ChevronRight, FileText } from 'lucide-react';
+import { BookOpen, Users, ChevronLeft, Play, ChevronRight, FileText, Link2, Sparkles, DollarSign } from 'lucide-react';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { GlobalTrainingProgress } from '@/components/training/GlobalTrainingProgress';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -35,6 +35,23 @@ export default function TrainingPage() {
   const { activeVertical, isPresidentOfActive } = useWorkspace();
   // Only staff or the workspace president can start a workspace's training.
   const canBuildModules = role === 'admin' || role === 'owner' || isPresidentOfActive;
+  const tools = [
+    { label: 'Scripts', path: '/app/scripts', icon: FileText },
+    { label: 'Resources', path: '/app/links', icon: Link2 },
+    { label: 'Video library', path: '/app/training/videos', icon: Play },
+    { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
+    ...(activeVertical === 'Pest' ? [{ label: 'Estimate earnings', path: '/app/estimate-earnings', icon: DollarSign }] : []),
+  ];
+  const toolRow = (
+    <nav className="mb-8 flex gap-2 overflow-x-auto pb-1" aria-label="Learn and tools">
+      {tools.map((tool) => (
+        <button key={tool.path} onClick={() => navigate(tool.path)} className="flex min-h-11 shrink-0 items-center gap-2 rounded bg-secondary px-4 text-[14px] text-foreground">
+          <tool.icon className="h-4 w-4 text-primary" />
+          {tool.label}
+        </button>
+      ))}
+    </nav>
+  );
 
 
   useEffect(() => {
@@ -103,6 +120,7 @@ export default function TrainingPage() {
         <div className="mx-auto max-w-3xl px-4 py-6">
           <PageBackButton to="/app" label="Back" />
           <PageHeader title="Training" context={`${activeVertical} training.`} className="mb-6" />
+          {toolRow}
           <div className="rounded-xl border border-border bg-card p-5">
             {activeVertical === 'Fiber' ? (
               <>
@@ -138,6 +156,7 @@ export default function TrainingPage() {
         <div className="max-w-5xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Back" />
           <PageHeader title="Training" context="Your lessons, drills and scripts." className="mb-6" />
+          {toolRow}
 
           {showWelcome && lessonsCompleted < 15 && (
             <WelcomeBanner
@@ -206,6 +225,7 @@ export default function TrainingPage() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Back" />
           <PageHeader title="Training" context="Pick a track." className="mb-6" />
+          {toolRow}
 
           <NextUpCard track="rookie" />
           <TrainingWeekRow />

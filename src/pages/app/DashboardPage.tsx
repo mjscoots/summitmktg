@@ -1,12 +1,7 @@
-import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { StreakCelebration } from '@/components/training/StreakCelebration';
-import { useStreak } from '@/hooks/useStreak';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
-import { MyPointsDashboard } from '@/components/points/MyPointsDashboard';
-import { PointSystemModal } from '@/components/points/PointSystemModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useBootcamp } from '@/hooks/useBootcamp';
@@ -53,9 +48,6 @@ export default function DashboardPage() {
   const { isLoading } = useAuth();
   const { active } = useWorkspace();
   const { isLocked: bootcampLocked } = useBootcamp();
-  const { streakData, showStreakCelebration, clearStreakCelebration, getStreakMessage, newMilestone, clearMilestone } = useStreak();
-  const [showPoints, setShowPoints] = useState(false);
-  const [showPointSystem, setShowPointSystem] = useState(false);
 
 
 
@@ -93,22 +85,11 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      <PestHome onOpenPoints={() => setShowPoints(true)} />
+      <PestHome />
 
 
       <GuidedTour />
 
-      {showStreakCelebration && streakData.currentStreak > 0 && (
-        <StreakCelebration
-          streak={streakData.currentStreak}
-          milestone={newMilestone}
-          message={getStreakMessage()}
-          onComplete={() => { clearStreakCelebration(); clearMilestone(); }}
-        />
-      )}
-
-      {showPoints && <MyPointsDashboard open={showPoints} onOpenChange={setShowPoints} />}
-      {showPointSystem && <PointSystemModal open={showPointSystem} onOpenChange={setShowPointSystem} />}
     </AppLayout>
   );
 }

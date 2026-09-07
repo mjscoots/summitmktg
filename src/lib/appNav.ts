@@ -177,12 +177,6 @@ export function moreGroups(
   const groups: NavGroup[] = [
     { title: 'Your work', items: workspaceKeys.map((k) => ALL[k]) },
     {
-      title: 'Learn and tools',
-      items: ['scripts', 'resources', 'videos', 'ask', ...(w === 'pest' ? ['estimate'] : [])].map(
-        (k) => ALL[k]
-      ),
-    },
-    {
       title: 'Manage',
       items: [
         'today',
@@ -199,7 +193,6 @@ export function moreGroups(
         'managerMeeting',
       ].map((k) => ALL[k]),
     },
-    { title: 'Company', items: ['admin', 'command', 'alumni'].map((k) => ALL[k]) },
     {
       title: 'Settings',
       items: ['profile', 'appearance', 'notificationSettings', 'account'].map((k) => ALL[k]),

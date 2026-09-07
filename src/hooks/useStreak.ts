@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { postBotShoutout } from '@/lib/botShoutout';
+import { toast } from 'sonner';
 
 interface StreakData {
   currentStreak: number;
@@ -125,15 +126,12 @@ export function useStreak() {
         if (!result.already_recorded) {
           setPointsAwarded(result.points_awarded);
 
-          if (result.current_streak > 1) {
-            setShowStreakCelebration(true);
-          }
-
           if (result.milestone) {
             const milestoneMatch = result.milestone.match(/^(\d+)/);
             if (milestoneMatch) {
               setNewMilestone(parseInt(milestoneMatch[1]));
             }
+            toast.success(result.milestone);
             // The streak notification row is written by useSmartNotifications
             // with source_key streak:<n>. One writer only.
 
@@ -182,7 +180,6 @@ export function useStreak() {
         longestStreak: Math.max(prev.longestStreak, data.restored_streak),
       }));
 
-      setShowStreakCelebration(true);
       setIsRestoring(false);
       return true;
     } catch (err) {

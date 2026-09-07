@@ -3,6 +3,7 @@ import { Lock } from 'lucide-react';
 import { useWorkspace, type Workspace } from '@/contexts/WorkspaceContext';
 import { RequestVerticalAccessDialog } from '@/components/workspace/RequestVerticalAccessDialog';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 
 /** The accent a workspace owns, used only on the active segment. */
 const ACCENT: Record<string, string> = {
@@ -28,8 +29,10 @@ export function WorkspaceSegmented({
   className?: string;
 }) {
   const { myWorkspaces: workspaces, lockedWorkspaces, activeVertical, switchWorkspace } = useWorkspace();
+  const { role } = useAuth();
   const [asking, setAsking] = useState<Workspace | null>(null);
 
+  const canEditLife = role === 'admin' || role === 'owner' || workspaces.some((w) => w.vertical === 'Life' && w.is_president);
   const locked = lockedWorkspaces;
   if (workspaces.length < 2 && locked.length === 0) return null;
 
@@ -37,7 +40,7 @@ export function WorkspaceSegmented({
     if (workspaces.length < 2) return null;
     return (
       <div className={cn('flex flex-col items-center gap-1', className)}>
-        {workspaces.map((w) => {
+        {[...workspaces].sort((a, b) => ['Pest', 'Fiber', 'Life'].indexOf(a.vertical) - ['Pest', 'Fiber', 'Life'].indexOf(b.vertical)).map((w) => {
           const active = w.vertical === activeVertical;
           return (
             <button
@@ -68,7 +71,7 @@ export function WorkspaceSegmented({
           role="group"
           aria-label="Switch workspace"
         >
-          {workspaces.map((w) => {
+          {[...workspaces].sort((a, b) => ['Pest', 'Fiber', 'Life'].indexOf(a.vertical) - ['Pest', 'Fiber', 'Life'].indexOf(b.vertical)).map((w) => {
             const active = w.vertical === activeVertical;
             const accent = ACCENT[w.vertical] || '197 100% 68%';
             return (
@@ -89,27 +92,28 @@ export function WorkspaceSegmented({
         </div>
       )}
 
-      {locked.map((w) => {
+      {[...locked].sort((a, b) => ['Pest', 'Fiber', 'Life'].indexOf(a.vertical) - ['Pest', 'Fiber', 'Life'].indexOf(b.vertical)).map((w) => {
         const pending = w.request_status === 'pending';
-        const comingSoon = w.status === 'coming_soon';
+        const comingSoon = w.vertical === 'Life' && !canEditLife ? true : w.status === 'coming_soon';
         return (
           <button
             key={w.vertical}
             onClick={() => !comingSoon && setAsking(w)}
             disabled={comingSoon}
-            className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 text-left transition-colors hover:bg-foreground/5 disabled:opacity-60"
+            className="grid min-h-11 w-full grid-cols-[auto_1fr] items-center gap-x-2 rounded-xl border border-border bg-card px-3 py-2 text-left transition-colors hover:bg-foreground/5 disabled:opacity-60"
           >
             <span className="flex min-w-0 items-center gap-2">
               <Lock className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
               <span className="truncate text-[13px] font-medium text-foreground">{w.short_name || w.name}</span>
             </span>
-            <span className="flex-shrink-0 text-[11px] text-muted-foreground">
+            <span className="justify-self-end text-[11px] text-muted-foreground">
               {comingSoon
-                ? 'Not open yet'
+                ? w.vertical === 'Life' ? 'Coming' : 'Not open yet'
                 : pending
                   ? 'Requested, waiting on approval'
                   : 'By approval'}
             </span>
+            {w.vertical === 'Fiber' && <span className="col-span-2 pl-[22px] text-[11px] text-muted-foreground">Off season lane</span>}
           </button>
         );
       })}

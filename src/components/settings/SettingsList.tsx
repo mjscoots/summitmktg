@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Lock, Palette, Bell, User } from 'lucide-react';
+import { ChevronRight, Lock, Palette, Bell, User, Shield } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 /**
@@ -11,6 +12,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
  */
 export function SettingsList() {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const [lookOpen, setLookOpen] = useState(false);
 
   const row =
@@ -73,6 +75,16 @@ export function SettingsList() {
         <span className="flex-1 truncate text-[15px] text-foreground">Account</span>
         <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
       </button>
+
+      {(role === 'admin' || role === 'owner') && (
+        <button onClick={() => navigate('/admin/requests')} className={row}>
+          <span className={tile}>
+            <Shield className="h-[18px] w-[18px]" strokeWidth={1.75} />
+          </span>
+          <span className="flex-1 truncate text-[15px] text-foreground">Admin</span>
+          <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+        </button>
+      )}
     </div>
   );
 }

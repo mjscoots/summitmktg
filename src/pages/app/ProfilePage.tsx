@@ -4,11 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { uploadAvatar, deleteAvatarFile } from '@/lib/avatarUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { User, FileText, Camera, Loader2, CheckCircle2, Globe, Trash2, Trophy, Clock, Flame, TrendingUp, ClipboardCheck } from 'lucide-react';
+import { User, FileText, Camera, Loader2, CheckCircle2, Globe, Trash2, ClipboardCheck } from 'lucide-react';
 import { TierBadge, getTierBorderClass } from '@/components/shared/TierBadge';
-import { BadgeShelf } from '@/components/badges/BadgeStrip';
 import { useEliteTier } from '@/hooks/useEliteTier';
-import { useMyPoints } from '@/hooks/useMyPoints';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -25,84 +23,6 @@ import { RepScorecard } from '@/components/shared/RepScorecard';
 import { MyRefCodeCard } from '@/components/recruiting/MyRefCodeCard';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { YearsInIndustryField } from '@/components/shared/YearsInIndustryField';
-
-
-function PointsCard() {
-  const { data } = useMyPoints();
-  if (!data) return null;
-
-  const hoursToday = Math.floor(data.timeTodayMinutes / 60);
-  const minsToday = data.timeTodayMinutes % 60;
-
-  // All point-earning categories
-  const categories = [
-    { label: 'Hours', value: data.weeklyHoursPoints },
-    { label: 'Streak', value: (data.weeklyEvents.daily_login || 0) + (data.weeklyEvents.streak || 0) },
-    { label: 'Chat', value: data.weeklyEvents.chat || 0 },
-    { label: 'Lessons', value: data.weeklyEvents.lesson || 0 },
-    { label: 'Videos', value: data.weeklyEvents.video || 0 },
-    { label: 'Chapters', value: data.weeklyEvents.manual || 0 },
-    { label: 'Reactions', value: (data.weeklyEvents.reaction_given || 0) + (data.weeklyEvents.reaction_received || 0) },
-    { label: '1:1s', value: data.weeklyEvents.one_on_one || 0 },
-    { label: 'Attendance', value: data.weeklyEvents.attendance || 0 },
-    { label: 'Bonus', value: data.weeklyThresholdBonus || 0 },
-  ].filter(c => c.value > 0);
-
-  const sorted = [...categories].sort((a, b) => b.value - a.value);
-  const topCategory = sorted.length > 0 ? sorted[0] : null;
-
-  return (
-    <div className="bg-card rounded-xl border border-border/50 p-5 mb-6">
-      <div className="flex items-center gap-2 mb-3">
-        <Trophy className="w-4 h-4 text-primary" />
-        <h3 className="font-semibold text-foreground text-sm">Points</h3>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
-          <p className="text-[9px] text-muted-foreground font-bold uppercase">This week</p>
-          <p className="text-xl font-black text-primary tabular-nums">{data.weeklyTotal.toLocaleString()}</p>
-        </div>
-        <div className="p-3 rounded-lg bg-muted/50 border border-border/30 text-center">
-          <p className="text-[9px] text-muted-foreground font-bold uppercase">All time</p>
-          <p className="text-xl font-black text-foreground tabular-nums">{data.allTimeTotal.toLocaleString()}</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="p-2 rounded-lg bg-muted/30">
-          <Flame className={cn("w-3.5 h-3.5 mx-auto mb-0.5", data.currentStreak >= 7 ? "text-primary" : "text-primary/70")} />
-          <p className="text-xs font-bold">{data.currentStreak}d</p>
-          <p className="text-[9px] text-muted-foreground">Streak</p>
-        </div>
-        <div className="p-2 rounded-lg bg-muted/30">
-          <Clock className="w-3.5 h-3.5 mx-auto mb-0.5 text-primary" />
-          <p className="text-xs font-bold">{hoursToday}h {minsToday}m</p>
-          <p className="text-[9px] text-muted-foreground">Today</p>
-        </div>
-        <div className="p-2 rounded-lg bg-muted/30">
-          <TrendingUp className="w-3.5 h-3.5 mx-auto mb-0.5 text-primary" />
-          <p className="text-xs font-bold">{topCategory?.label || '-'}</p>
-          <p className="text-[9px] text-muted-foreground">Top source</p>
-        </div>
-      </div>
-
-      {/* Category breakdown */}
-      {sorted.length > 0 && (
-        <div className="mt-3 space-y-1.5">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">This week</p>
-          {sorted.map(c => (
-            <div key={c.label} className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{c.label}</span>
-              <span className="font-semibold text-foreground tabular-nums">{c.value.toLocaleString()} pts</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-    </div>
-  );
-}
 
 
 function CompletenessMeter({
@@ -405,7 +325,6 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
-              {user?.id && <BadgeShelf userId={user.id} className="mt-2" />}
 
               {committedLastDay && (
                 <div className="mt-2 rounded-lg border border-white/[0.06] bg-background/40 px-3 py-2">
@@ -441,9 +360,6 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-
-        {/* Points Baseball Card */}
-        <PointsCard />
 
         {/* Profile completeness */}
         <CompletenessMeter
