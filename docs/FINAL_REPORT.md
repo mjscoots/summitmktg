@@ -3764,3 +3764,77 @@ Preview-only and unpublished. The `submit-application` edge function and databas
 
 ### Release posture
 Preview-only and unpublished. No data was deleted and no deployment settings were touched.
+
+## Pass 172 - center of gravity
+
+Preview only. Nothing was published and no deployment setting was touched.
+
+### What was built
+
+1. One number, then one next action, on every workspace home.
+   - New hook `useHomeNumber` reads only sources the workspace already reports through: Pest counts `sales_log` rows for the person (week from local Monday, season from April 1, the same rows the week leaderboard ranks on), Fiber sums `fiber_day_numbers.sold` for the week, Life counts `life_pipeline` rows. The person's own goal comes from `earnings_goals.goal` when a row exists; with no goal the number stands alone.
+   - New hook `useNextAction` picks one row in this fixed order: an unread direct message from `profiles.manager_id` (from `get_conversations`), an unanswered RSVP card inside 48 hours (from `get_action_cards`), an unfinished day one video while `recruit_gate_state` is locked, then the first incomplete `todo_items` row. With none of those the row is hidden; there is no placeholder.
+   - Everything else on a home sits under a fold labelled More on your week.
+2. Manager, admin and owner homes open on Today: `ManagerTodayCard` renders the five `manager_day` counts and links to /app/day, and shows Clear today in one line when every count is zero. The Team row sits under it.
+3. Re sign 2027 card on the Pest and Fiber homes. The count is `get_public_counters().signed_2027`, the same figure the public cover reads. The button calls the existing `submit_resign_intent`. A person with a confirmed intent sees their date instead of the button. No pay figures on the card. Visibility follows `app_settings.resign_2027_card`, default on.
+4. First ten minutes: `WelcomeFirstOpen` shows once when `profiles.first_open_at` is null, stamping it through the authenticated `mark_first_open()` on that first render. Three steps: day one (gated course or workspace training), the Pillar message, and general with the composer focused through a new `compose=1` deep link carried through ChatPage, CommunityChat and ChatComposer. Skipping is a small text link.
+5. Cover: one line under Where this goes linking to sign in. Nothing else on the cover changed.
+6. Cap follow through. Every capped cron writer now supplies a source key the Pass 171 trigger already classifies. The trigger itself was not changed and no old rows were backfilled.
+   - `check-inactivity` (Team Inactivity Alert): `inactivity:<user_id>:<date>`
+   - `bootcamp-reminders` (Summer Checklist Reminder): `checklist:<manager_user_id>:<date>`
+   - `check-bootcamp-overdue` (Summer Checklist Overdue): `checklist:<manager_user_id>:<date>`
+   - `weekly-champion-notify` (top performer): `topperf:<user_id>:<date>`
+   - `manager-weekly-digest` (Your week, Monday manager digest): `digest:monday-manager:<date>`
+   - `run_notification_digest()` (N updates while you were off): `digest:offline:<user_id>:<UTC date>`
+   - No in app writer of a Sunday weekly digest row exists in the codebase, so there was nothing to tag for `digest:sunday-weekly:<date>`; the trigger already accepts that key. Direct messages, mentions, leads, announcements and event reminders stay untagged and uncapped.
+
+### New copy, verbatim
+
+- Accounts this week
+- Installs this week
+- In your pipeline
+- Season 12 of 100 goal (pattern: Season {season} of {goal} goal)
+- Season 12 (pattern: Season {season})
+- More on your week
+- Today
+- Clear today
+- Call today: 0
+- One on ones owed this week: 0
+- Stuck on onboarding: 0
+- Blitz RSVPs still open: 0
+- Waiting to be placed: 0
+- Team
+- 14 signed for 2027
+- Lock in your spot
+- I'm in for 2027
+- Signed for 2027 on Sep 7, 2026 (pattern: Signed for 2027 on {date})
+- Asked to lock in on Sep 7, 2026 (pattern: Asked to lock in on {date})
+- That did not send
+- Welcome to Summit, first name. (pattern: Welcome to Summit, {first name}.)
+- Three things before your first door.
+- 1. Watch day one
+- Open day one
+- 2. Meet your Pillar
+- Open the message
+- 3. Say hi
+- Open general
+- Skip for now
+- Already on the team, sign in
+- Unread message from Sam (pattern: Unread message from {name})
+- Answer the RSVP for Monday meeting (pattern: Answer the RSVP for {event})
+- Watch Day one part 1 (pattern: Watch {video title})
+
+### Verification
+
+- Typecheck: `bun x tsgo --noEmit` clean.
+- Production build: `bun x vite build` clean, 185 JS assets.
+- Shell gzip: entry `index` chunk 16,412 bytes gzip; entry plus the three vendor chunks 241,196 bytes gzip.
+- Settings key read back: `resign_2027_card = on`.
+- Cap proof, rolled back: four capped rows for one person on one day produced three kept rows plus one `digest:daily-fold` row (kept=3, fold=1, total=4).
+- Tagged insert proof, rolled back: one row each of `inactivity`, `checklist`, `digest:offline`, `digest:sunday-weekly`, `digest:monday-manager`, `topperf` all passed the trigger (tagged_kept=6, folds=0).
+- First open proof, rolled back: the guarded update stamped once and a second run left the same timestamp (same=t).
+- Baselines after rollback: chat_messages 715, profiles 536, resign_intents 0, earnings_goals 0, user_notifications 6369 (6369 before), first_open_at set 0, daily-fold rows 0.
+
+### Limitation
+
+An authenticated walkthrough at 390 and 1280 could not be captured: preview session minting needs an approval that was not available, so the home layouts were verified by build, typecheck and code review rather than by screenshot. Every new tap target is at least 44px tall.
