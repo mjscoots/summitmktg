@@ -457,7 +457,7 @@ export function TrainingTiles({ filterRole, managerManualComplete = true }: Trai
                         : course.progress === 100
                           ? "bg-muted text-foreground hover:bg-muted/80"
                           : isRookie
-                            ? "bg-primary hover:bg-primary text-white shadow-[0_0_15px_-5px_rgba(34,197,94,0.4)] hover:shadow-[0_0_25px_-5px_rgba(34,197,94,0.6)]"
+                            ? "bg-primary hover:bg-primary text-white"
                             : "bg-primary hover:bg-primary text-white hover:"
                     )}
                     onClick={(e) => {

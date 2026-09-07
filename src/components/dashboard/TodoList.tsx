@@ -322,7 +322,7 @@ export function TodoList() {
                 className={cn(
                   "inline-flex min-h-10 items-center whitespace-nowrap rounded-xl px-3 text-[11px] font-bold uppercase tracking-wider transition-all duration-180",
                   isActive
-                    ? "border border-primary/25 bg-primary/15 text-primary shadow-[0_0_8px_-2px_hsl(var(--primary)/0.3)]"
+                    ? "border border-primary/25 bg-primary/15 text-primary"
                     : "border border-transparent text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
                 )}
               >
