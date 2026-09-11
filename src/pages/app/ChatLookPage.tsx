@@ -88,11 +88,35 @@ export default function ChatLookPage() {
                 )}
               >
                 <span className={cn('block h-14 w-full', `chat-surface chat-surface-${w.key}`)}>
+                  {w.key === 'photo' && !prefs.wallpaper_path && (
+                    <span className="flex h-full w-full items-center justify-center text-muted-foreground">
+                      <ImagePlus className="h-4 w-4" />
+                    </span>
+                  )}
                 </span>
                 <span className="block px-2 py-2 text-[13px] text-foreground">{w.label}</span>
               </button>
             ))}
           </div>
+          <input
+            ref={photoRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = '';
+              if (file) void uploadPhoto(file);
+            }}
+          />
+          <button
+            onClick={() => photoRef.current?.click()}
+            disabled={uploading}
+            className="flex min-h-11 items-center gap-2 rounded border border-border px-4 text-[14px] text-foreground transition-colors hover:bg-secondary"
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+            {prefs.wallpaper_path ? 'Replace your photo' : 'Upload your photo'}
+          </button>
         </section>
 
         <section className="space-y-3 rounded bg-card p-5">
