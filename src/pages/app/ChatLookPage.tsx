@@ -1,7 +1,12 @@
+import { useRef, useState } from 'react';
+import { ImagePlus, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatPrefs } from '@/hooks/useChatSkin';
+import { prepareChatImage } from '@/lib/chatImage';
 import { cn } from '@/lib/utils';
 import {
   BUBBLES,
@@ -21,9 +26,40 @@ import { ChatLookPreview } from '@/components/chat/ChatLookPreview';
 export default function ChatLookPage() {
   const { user } = useAuth();
   const prefs = useChatPrefs();
+  const photoRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   const pickWallpaper = async (key: Wallpaper) => {
+    // Photo with nothing uploaded yet opens the picker instead of setting a blank surface.
+    if (key === 'photo' && !prefs.wallpaper_path) {
+      photoRef.current?.click();
+      return;
+    }
     await saveChatPrefs({ wallpaper: key }, user?.id);
+  };
+
+  const uploadPhoto = async (file: File) => {
+    if (!user) return;
+    setUploading(true);
+    try {
+      const prepared = await prepareChatImage(file);
+      if (!prepared) {
+        toast.error('That image could not be read');
+        return;
+      }
+      // A fresh path per upload, so the signed URL changes and the new photo shows.
+      const path = `${user.id}/wallpaper-${Date.now()}.jpg`;
+      const { error } = await supabase.storage
+        .from('chat-wallpapers')
+        .upload(path, prepared.blob, { contentType: 'image/jpeg', upsert: true });
+      if (error) throw error;
+      await saveChatPrefs({ wallpaper: 'photo', wallpaper_path: path }, user.id);
+      toast.success('Wallpaper set');
+    } catch {
+      toast.error('That upload failed');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
