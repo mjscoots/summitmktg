@@ -1,9 +1,9 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowDown, ArrowRight, DoorOpen, Handshake, Wallet } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { MountainRange } from "@/components/brand/MountainRange";
+import { MountainScene } from "@/components/brand/MountainScene";
 import { PublicProofStrip } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { COVER_STATS } from "@/lib/coverStats";
 import { RidgelineMark } from '@/components/brand/RidgelineMark';
 import { usePublicMotion } from '@/hooks/usePublicMotion';
+import { useCoverMedia } from '@/hooks/useCoverMedia';
 
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
@@ -31,116 +32,191 @@ const SEASON_STEPS = [
 /**
  * Public front door for Trinity Sales.
  *
- * Pass 175 restores the sections and copy that stood before Pass 170 and
- * restyles them on the new system: the range behind the hero, the TRNTY
- * lockup, one lime action per section and blue for links.
+ * Pass 178 puts the living canvas range behind the whole page: the sky lifts
+ * from night to dawn as the person scrolls, the sections ride over it on their
+ * own near opaque surfaces, and the type runs at editorial scale.
  */
 const Index = () => {
   const navigate = useNavigate();
   const calc = usePublicCalc();
-  const [offset, setOffset] = useState(0);
+  const media = useCoverMedia();
   const [scrolled, setScrolled] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
+  const [day, setDay] = useState(0.35);
+  const [active, setActive] = useState('work');
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+  const navRef = useRef<HTMLDivElement | null>(null);
   usePublicMotion();
 
-  // Slow parallax on the range, off under prefers-reduced-motion.
+  const hasPublishedBands = Boolean(calc?.pay_scale?.bands?.length);
+
+  // The sky scalar follows scroll: 0.35 at the hero, 1 at the bottom.
   useEffect(() => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const el = document.getElementById('root');
     const target: HTMLElement | Window = el || window;
     const onScroll = () => {
       const y = el ? el.scrollTop : window.scrollY;
-      setOffset(reduceMotion ? 0 : y * 0.15);
+      const total = el
+        ? el.scrollHeight - el.clientHeight
+        : document.documentElement.scrollHeight - window.innerHeight;
+      const progress = total > 0 ? Math.min(1, Math.max(0, y / total)) : 0;
       setScrolled(y > 40);
+      setPastHero(y > window.innerHeight * 0.7);
+      setDay(reduceMotion ? 0.35 : 0.35 + progress * 0.65);
     };
+    onScroll();
     target.addEventListener('scroll', onScroll, { passive: true });
     return () => target.removeEventListener('scroll', onScroll);
   }, []);
 
-  const scrollToEarnings = () => {
-    document.getElementById('earnings')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  // Which section the reader is in, for the sticky section nav underline.
+  useEffect(() => {
+    const ids = ['work', 'earnings', 'season', 'apply'];
+    const nodes = ids
+      .map((id) => document.getElementById(id))
+      .filter((node): node is HTMLElement => Boolean(node));
+    if (nodes.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const seen = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (seen?.target.id) setActive(seen.target.id);
+      },
+      { threshold: [0.25, 0.5] }
+    );
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [hasPublishedBands]);
 
-  const hasPublishedBands = Boolean(calc?.pay_scale?.bands?.length);
+  useEffect(() => {
+    const bar = navRef.current;
+    if (!bar) return;
+    const button = bar.querySelector<HTMLElement>(`[data-section='${active}']`);
+    if (!button) return;
+    setIndicator({ left: button.offsetLeft, width: button.offsetWidth });
+  }, [active, pastHero, hasPublishedBands]);
+
+  const jump = useCallback((id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const sections = [
+    { id: 'work', label: 'The work' },
+    ...(hasPublishedBands ? [{ id: 'earnings', label: 'Earnings' }] : []),
+    { id: 'season', label: 'The season' },
+    { id: 'apply', label: 'Apply' },
+  ];
 
   return (
-    <div className="gold-world public-world min-h-screen bg-background flex flex-col">
+    <div className="gold-world public-world relative flex min-h-screen flex-col">
+      {/* The living range sits fixed behind the whole cover. */}
+      <div className="cover-scene" aria-hidden="true">
+        {media.video ? (
+          <video className="cover-media" src={media.video} autoPlay muted loop playsInline />
+        ) : media.image ? (
+          <img className="cover-media" src={media.image} alt="" />
+        ) : null}
+        {(media.video || media.image) && <div className="cover-scrim" />}
+        <MountainScene day={day} pointerParallax />
+      </div>
+
       <header className={`public-nav sticky top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 sm:px-6">
-          <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
+          <Link to="/" aria-label="Trinity home" className="wordmark-sweep flex min-h-11 items-center">
             <Wordmark variant="compact" height={26} />
           </Link>
           <div className="flex items-center gap-0.5 sm:gap-2">
-            <Link to="/industries/pest" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:px-3">
+            <Link to="/industries/pest" className="public-link inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary sm:px-3">
               Pest
             </Link>
-            <Link to="/industries/fiber" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary transition-colors hover:text-foreground sm:px-3">
+            <Link to="/industries/fiber" className="public-link inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary sm:px-3">
               Fiber
             </Link>
-            <Link to="/login" className="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-ice">
+            <Link to="/login" className="public-link inline-flex min-h-11 items-center px-3 text-sm font-semibold text-ice">
               Sign in
             </Link>
           </div>
         </nav>
-      </header>
-
-      <main className="flex-1">
-        {/* Hero: the range sits behind the headline, bottom aligned. */}
-        <section className="public-cover relative isolate overflow-hidden px-5 sm:px-6">
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[82%] sm:h-[76%]"
-            style={{ transform: `translateY(${offset}px)` }}
-            aria-hidden="true"
-          >
-            <MountainRange animate pointerParallax />
-          </div>
-          <div className="relative z-10 mx-auto flex min-h-[min(760px,calc(100svh-69px))] max-w-6xl flex-col justify-end pb-16 pt-24 sm:pb-20 md:pb-24 md:pt-32">
-            <div className="max-w-4xl">
-              <Wordmark variant="hero" height={72} className="mb-8" animate />
-              <h1 className="font-display font-bold !text-[clamp(2.25rem,8vw,5rem)] !leading-[1.02] tracking-tight text-foreground">
-                <span className="cover-headline-line">Financial freedom.</span>
-                <span className="cover-headline-line">Done differently.</span>
-              </h1>
-              {COVER_STATS && <PublicProofStrip />}
-              <p className="cover-support mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
-                A performance-based path through sales, training, and team leadership.
-              </p>
-            </div>
-
-            <div className="cover-actions mt-9 flex w-full max-w-xl flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <Button asChild className="primary-sheen min-h-12 w-full overflow-hidden px-8 font-bold sm:w-auto">
-                <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
-              </Button>
-              {hasPublishedBands && (
+        {pastHero && (
+          <div className="section-nav" ref={navRef}>
+            <div className="mx-auto flex max-w-6xl items-center gap-1 px-5 sm:px-6">
+              {sections.map((section) => (
                 <button
+                  key={section.id}
                   type="button"
-                  onClick={scrollToEarnings}
-                  className="inline-flex min-h-12 items-center gap-1.5 text-sm font-semibold text-ice"
+                  data-section={section.id}
+                  onClick={() => jump(section.id)}
+                  className={`inline-flex min-h-11 items-center px-3 text-sm ${active === section.id ? 'text-foreground' : 'text-text-secondary'}`}
                 >
-                  See what you could make <ArrowDown className="h-4 w-4" aria-hidden="true" />
+                  {section.label}
                 </button>
+              ))}
+              {indicator && (
+                <span
+                  className="section-nav-underline"
+                  style={{ transform: `translateX(${indicator.left}px)`, width: `${indicator.width}px` }}
+                />
               )}
             </div>
+          </div>
+        )}
+      </header>
 
-            <p className="mt-5 text-sm text-text-muted">
-              Pest control now · Fiber internet in the off-season
-            </p>
+      <main className="relative flex-1">
+        {/* Hero: full viewport, lockup top left, headline in the lower third. */}
+        <section className="public-cover relative isolate px-5 sm:px-6">
+          <div className="relative z-10 mx-auto flex min-h-[calc(100svh-69px)] max-w-6xl flex-col justify-between pb-16 pt-10 sm:pb-20 md:pb-24">
+            <Wordmark variant="hero" height={72} animate />
+            <div>
+              <div className="max-w-4xl">
+                <h1 className="cover-headline font-display font-bold text-foreground">
+                  <span className="cover-headline-line">Financial freedom.</span>
+                  <span className="cover-headline-line">Done differently.</span>
+                </h1>
+                {COVER_STATS && <PublicProofStrip />}
+                <p className="cover-support mt-6 max-w-[60ch] text-base leading-relaxed text-text-secondary sm:text-lg">
+                  A performance-based path through sales, training, and team leadership.
+                </p>
+              </div>
+
+              {/* Space for both actions is reserved so the late pay scale read
+                  cannot shift the hero. */}
+              <div className="cover-actions mt-9 flex min-h-[112px] w-full max-w-xl flex-col items-start gap-4 sm:min-h-12 sm:flex-row sm:items-center">
+                <Button asChild className="primary-sheen magnetic min-h-12 w-full overflow-hidden px-8 font-bold sm:w-auto">
+                  <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                </Button>
+                {hasPublishedBands && (
+                  <button
+                    type="button"
+                    onClick={() => jump('earnings')}
+                    className="public-link inline-flex min-h-12 items-center gap-1.5 text-sm font-semibold text-ice"
+                  >
+                    See what you could make <ArrowDown className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+
+              <p className="mt-5 text-sm text-text-muted">
+                Pest control now · Fiber internet in the off-season
+              </p>
+            </div>
           </div>
         </section>
 
         <ThreeDoorSection />
 
         {/* What the work is */}
-        <section className="public-reveal bg-surface px-5 py-16 sm:px-6 md:py-24" data-reveal>
+        <section id="work" className="public-section public-reveal px-5 py-16 sm:px-6 md:py-24" data-reveal>
           <h2 className="sr-only">What the work is</h2>
           <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3 md:gap-12">
             {WHAT_WE_DO.map((c, index) => (
-              <article key={c.title} className="public-process">
+              <article key={c.title} className="public-process card-spotlight">
                 <div className="mb-5 flex items-center justify-between">
                   <c.icon className="h-5 w-5 text-primary" strokeWidth={1.5} aria-hidden="true" />
                   <span className="text-xs tabular-nums text-text-muted">0{index + 1}</span>
                 </div>
                 <h3 className="text-lg font-bold text-foreground">{c.title}</h3>
-                <p className="mt-2 text-sm text-text-secondary">{c.line}</p>
+                <p className="mt-2 max-w-[60ch] text-sm text-text-secondary">{c.line}</p>
               </article>
             ))}
           </div>
@@ -148,9 +224,9 @@ const Index = () => {
 
         {/* Calculator, still gated on a published pay scale */}
         {hasPublishedBands && (
-          <section id="earnings" className="public-reveal scroll-mt-20 px-5 py-16 sm:px-6 md:py-24" data-reveal>
+          <section id="earnings" className="public-section public-reveal scroll-mt-20 px-5 py-16 sm:px-6 md:py-24" data-reveal>
             <div className="mx-auto max-w-3xl">
-              <h2 className="text-center text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+              <h2 className="section-title text-center font-display font-bold tracking-tight text-foreground">
                 Estimate your earnings
               </h2>
               <p className="mt-2 text-center text-sm text-text-secondary">
@@ -166,17 +242,17 @@ const Index = () => {
         )}
 
         {/* How the season works */}
-        <section className="public-reveal px-5 py-16 sm:px-6 md:py-24" data-reveal>
+        <section id="season" className="public-section public-reveal px-5 py-16 sm:px-6 md:py-24" data-reveal>
           <div className="mx-auto max-w-4xl">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            <h2 className="section-title font-display font-bold tracking-tight text-foreground">
               How the season works
             </h2>
             <ol className="mt-10">
               {SEASON_STEPS.map((s, i) => (
-                <li key={s.title} className="grid gap-2 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-5">
+                <li key={s.title} className="card-spotlight grid gap-2 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-5">
                   <span className="text-xs tabular-nums text-primary">0{i + 1}</span>
                   <h3 className="text-lg font-bold text-foreground">{s.title}</h3>
-                  <p className="text-sm text-text-secondary">{s.line}</p>
+                  <p className="max-w-[60ch] text-sm text-text-secondary">{s.line}</p>
                 </li>
               ))}
             </ol>
@@ -184,16 +260,16 @@ const Index = () => {
         </section>
 
         {/* Final band */}
-        <section className="public-cta public-reveal relative overflow-hidden bg-surface px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
+        <section id="apply" className="public-cta public-section public-reveal relative px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
           <div className="relative z-10 mx-auto max-w-xl">
             <Wordmark variant="hero" height={96} className="mx-auto" />
             <p className="mt-6 text-base text-text-secondary">Applications take a few minutes.</p>
-            <Button asChild className="mt-7 min-h-12 px-8 font-bold">
+            <Button asChild className="magnetic mt-7 min-h-12 px-8 font-bold">
               <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
             </Button>
             <p className="mt-8 text-sm text-text-secondary">
               Already on the team,{' '}
-              <Link to="/login" className="inline-flex min-h-11 items-center font-semibold text-ice underline underline-offset-4">
+              <Link to="/login" className="public-link inline-flex min-h-11 items-center font-semibold text-ice">
                 sign in
               </Link>
             </p>
@@ -201,7 +277,7 @@ const Index = () => {
         </section>
       </main>
 
-      <footer className="footer-signature public-reveal py-8" data-reveal>
+      <footer className="footer-signature public-section public-reveal py-8" data-reveal>
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 sm:flex-row sm:justify-between sm:px-6">
           <div className="flex items-center gap-3">
             <RidgelineMark size={26} animate={false} />
@@ -211,14 +287,14 @@ const Index = () => {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Link to="/parents" className="inline-flex min-h-11 items-center px-3 text-sm text-text-secondary transition-colors hover:text-foreground">
+            <Link to="/parents" className="public-link inline-flex min-h-11 items-center px-3 text-sm text-text-secondary">
               For parents
             </Link>
             <a
               href="https://www.instagram.com/summitmktgsales/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center px-3 text-sm text-text-secondary transition-colors hover:text-foreground"
+              className="public-link inline-flex min-h-11 items-center px-3 text-sm text-text-secondary"
             >
               Instagram
             </a>

@@ -4130,3 +4130,106 @@ At 390px, the cover keeps its single-column actions and bottom-aligned range; `p
 - Baselines read back unchanged: profiles 536, chat_messages 715, applications 13.
 - No new copy was introduced. No em dash or emoji was added by Pass 177.
 - No live function or form was called. The site remains unpublished.
+
+## Pass 178: cinematic cover
+
+### Living hero (src/components/brand/MountainScene.tsx)
+Canvas scene on the public cover only. It reuses the five exported ridgeline
+paths from `MountainRange` through `Path2D` on the same 1440 x 600 box, so the
+silhouette is identical to the SVG range. The SVG `MountainRange` is untouched
+and still serves login, Home and the chat wallpaper.
+
+Scene elements, all drawn per frame:
+- Sky fill interpolated by the time of day scalar: #070A10 at 0 to #0B1224 at 1.
+- Blue light band (#3D7BFF) behind the tallest peak, radial, alpha 0.08, breathing over 12 seconds.
+- Particle field above the range: 60 on a phone (canvas width under 700), 160 on desktop, 1 to 2px, lime at 25 percent and white at 15 percent, rising with a slight drift and wrapping.
+- Five ridges far to near, each colour interpolated from its night value to one step brighter at time of day 1.
+- Lime crest line stroked along the far ridge, drawing in once over 1.2 seconds with a dash offset.
+- Three mist bands drifting horizontally between the ridges, loops of 40, 62 and 90 seconds, wrapped so there is no seam.
+- Bottom haze in the sky colour so the range dissolves into the page, matching the SVG range.
+
+Cost control: device pixel ratio capped at 1.5; a single `IntersectionObserver`
+plus `visibilitychange` pauses the loop when the tab is hidden or the canvas
+leaves the viewport; pointer parallax only on fine pointers.
+
+Hero at 390 x 844: the range fills the lower ~55 percent (fit rule is
+`max(width / 1440, height * 0.55 / 600)`, so the outer ridges crop and the
+centre peak stays in view). Measured canvas pixels at x=30 show sky rgb(8,13,23)
+down to y=500, the far ridge crest with the lime line at y=510 at rgb(36,55,91),
+the nearer ridges stepping down to rgb(14,22,39) by y=660, then the haze back to
+the sky colour. Lockup top left, headline in the lower third, one lime Apply
+button, the blue earnings link when a scale is published.
+
+Hero at 1280 x 800: same scene at full width, ridges reading clearly across the
+frame, particles visible in the upper two thirds, pointer parallax active on the
+ridges (depth 1 to 5) and particles (three depths).
+
+### Frame time
+`requestAnimationFrame` callbacks were instrumented in the page and the last 200
+frames sampled after load.
+- 390 x 844: median 0.1ms, p95 0.3ms, max 2.1ms per frame.
+- 1280 x 800: median 0.2ms, p95 0.4ms, max 0.8ms per frame.
+Frame interval stayed at a steady 16.7ms median (60fps). Well under the 8ms bar.
+
+### Scroll story
+The cover scene is `position: fixed` behind the whole page and every section
+below the hero rides over it on a surface at `hsl(var(--surface) / 0.92)`, so the
+range shows faintly through. The sky scalar follows scroll progress of the page:
+- Top (hero): 0.35, reached by easing from 0 over the first 1.5 seconds on load.
+- Middle: 0.35 + 0.5 x 0.65 = 0.675.
+- Bottom: 1.0, the lifted sky with the far ridges one step brighter.
+Sections still enter with the Pass 177 reveals.
+
+### Pinned doors
+Desktop (min-width 1024, motion allowed): the doors section is 200vh with a
+sticky inner block for 100vh. Measured section height 1600px at a 800px
+viewport. Door progress variables move in sequence with scroll: at 0.85 and 1.15
+viewports scrolled they read 0.000 / 0.000 / 0.000, and at 1.6 viewports they
+read 1.000 / 0.222 / 0.000, so Pest is fully in, Fiber is sliding in from the
+right and the Life line has not started. Each door translates from 40vw with
+opacity following the same scalar.
+Phone: the pin never mounts. The section is the plain stacked reveal, measured
+height 840px, no sticky child.
+
+### Sticky section nav
+Desktop only (`display: none` under 1024px). Appears after 0.7 of a viewport of
+scroll with The work, Earnings (only when a pay scale is published), The season
+and Apply, each a smooth scroll link, with a lime 2px underline that translates
+and resizes to the active section over 280ms.
+
+### Micro interactions
+- Magnetic primary Apply buttons: up to 6px toward the pointer inside a 40px halo, spring easing, released to 0 outside it. Desktop only.
+- Card spotlight: a 220px radial lime highlight at 6 percent following the cursor inside the doors and the season steps. Desktop only.
+- Links: the underline scales from the left on hover.
+- Nav wordmark: a one time light sweep across the TRNTY letters on hover, opacity only, 60ms stagger.
+
+### Media slots
+`useCoverMedia` reads `cover_hero_video` and `cover_hero_image` through the
+allowlisted `get_public_setting`. Both are empty today (0 rows in `app_settings`
+for those keys), so nothing renders and the scene stands alone. When a video is
+set it renders full bleed, muted, looping, autoplay, `playsInline`, under a
+40 percent scrim; when only an image is set it renders the same way. No stock
+art and no placeholder box.
+
+### Reduced motion
+With `prefers-reduced-motion: reduce` the scene draws one static frame at time of
+day 0.35 and never starts a loop: instrumented `requestAnimationFrame` calls
+stayed at 0 across five seconds after load. No particle movement, no mist drift,
+no breathing light, the crest line drawn complete, no scroll driven sky change,
+no pin (section height 840px, no sticky child), no magnetic pull, no spotlight,
+no wordmark sweep, no underline transition.
+
+### Editorial scale
+Headline `clamp(3rem, 9.5vw, 7.5rem)`, line height 0.95, tracking -0.035em, hero
+at `calc(100svh - 69px)`. Section titles `clamp(2rem, 5vw, 4rem)`. Proof strip
+numbers Space Grotesk 700 at `clamp(3rem, 8vw, 6rem)` with tabular numerals and
+the Pass 177 count up. Body copy stays 16 to 18px with a 60ch measure.
+
+### Checks
+- Typecheck clean (`tsgo --noEmit -p tsconfig.app.json`).
+- Production build clean, 3093 modules, no CSS warnings.
+- Shell gzip: entry JS 16,430 bytes (Pass 177: 16,461, so 31 bytes smaller), entry CSS 29,946 bytes (Pass 177: 29,655, plus 291 bytes). Well inside the 6 KB allowance.
+- No layout shift from the hero: measured cumulative layout shift 0.0000 at 390 and at 1280 after reserving the actions row height, which the late pay scale read had been shifting by 64px.
+- Fonts load from Google Fonts with `display=swap` on both stylesheet links.
+- Baselines unchanged: profiles 536, chat_messages 715, applications 13.
+- No copy changes, no permission changes, no data writes, no live function calls, no forms submitted, site not published.

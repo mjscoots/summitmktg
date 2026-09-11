@@ -86,8 +86,8 @@ export function PublicProofStrip() {
     <section className="px-5 py-10 md:px-8" aria-label="Trinity team proof">
       <div className="mx-auto flex max-w-6xl flex-wrap gap-x-10 gap-y-4">
         {items.map((item) => (
-          <p key={item.label} className="text-sm text-muted-foreground">
-            <strong className="mr-2 text-2xl font-bold tabular-nums text-foreground"><ProofNumber value={item.value} /></strong>
+          <p key={item.label} className="flex items-baseline gap-3 text-sm text-muted-foreground">
+            <strong className="cover-bignum text-foreground"><ProofNumber value={item.value} /></strong>
             {item.label}
           </p>
         ))}
