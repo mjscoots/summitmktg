@@ -58,7 +58,7 @@ export function LockedOutScreen({ archived, defaultName, requestStatus }: Props)
         ) : (
           <div className="space-y-5">
             <p className="text-center text-foreground">
-              Summit is resetting access for the 2027 season. Your manager or Mathew will reactivate you.
+              Trinity is resetting access for the 2027 season. Your manager or Mathew will reactivate you.
             </p>
 
             {sent ? (

@@ -105,12 +105,12 @@ function SystemMessage({ content }: { content: string }) {
   );
 }
 
-/** Scheduled Summit HQ posts, such as the Sunday digest. */
+/** Scheduled Trinity HQ posts, such as the Sunday digest. */
 function HqMessage({ content }: { content: string }) {
   return (
     <div className="my-3 flex justify-center px-4">
       <div className="max-w-[85%] rounded-2xl border border-primary/20 bg-primary/[0.06] px-4 py-3">
-        <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-primary/70">Summit HQ</span>
+        <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-primary/70">Trinity HQ</span>
         <span className="block text-[13px] leading-relaxed text-foreground/80">{content}</span>
       </div>
     </div>
@@ -520,7 +520,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   };
 
   const getProfile = (msg: ChatMessage): ProfileInfo => {
-    if (msg.is_ai) return { full_name: 'Summit AI', avatar_url: null, role: 'bot' };
+    if (msg.is_ai) return { full_name: 'Trinity AI', avatar_url: null, role: 'bot' };
     const base = profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
     return { ...base, team_name: teamNames[msg.user_id] || null };
 

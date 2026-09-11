@@ -130,7 +130,7 @@ export default function IndustriesPage() {
         <PageBackButton />
         <PageHeader
           title="Industries"
-          context="The lines of business you can run with Summit. Join one to see its setup checklist."
+          context="The lines of business you can run with Trinity. Join one to see its setup checklist."
         />
 
         {!loading && verticals.length > 0 && (

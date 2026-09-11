@@ -129,7 +129,7 @@ function ContactCard({
 
 /**
  * Search field on the chat home. People, saved numbers and emails, upcoming
- * events, and Ask Summit last. Every rule about who may see a number or start
+ * events, and Ask Trinity last. Every rule about who may see a number or start
  * a direct message is decided by `search_people` and `start_dm` on the server.
  */
 export function PeopleSearch({
@@ -320,7 +320,7 @@ export function PeopleSearch({
           <li>
             <button onClick={() => navigate(`/app/ask?q=${encodeURIComponent(q.trim())}`)} className={ROW}>
               <Bot className="h-4 w-4 flex-shrink-0 text-primary" />
-              <span className="min-w-0 flex-1 truncate text-sm font-medium">Ask Summit: {q.trim()}</span>
+              <span className="min-w-0 flex-1 truncate text-sm font-medium">Ask Trinity: {q.trim()}</span>
             </button>
           </li>
         </ul>

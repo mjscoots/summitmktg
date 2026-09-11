@@ -384,7 +384,7 @@ export default function LeadsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all" className="text-[13px]">Both systems</SelectItem>
-                  <SelectItem value="Summit" className="text-[13px]">Summit</SelectItem>
+                  <SelectItem value="Trinity" className="text-[13px]">Trinity</SelectItem>
                   <SelectItem value="Josh" className="text-[13px]">Josh</SelectItem>
                 </SelectContent>
               </Select>

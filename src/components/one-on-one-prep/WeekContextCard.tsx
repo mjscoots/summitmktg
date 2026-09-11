@@ -51,7 +51,7 @@ export function WeekContextCard({ userId }: { userId: string }) {
 
       {row.summary_line ? (
         <p className="text-[13px] text-muted-foreground">
-          Summit says: <span className="text-foreground">{row.summary_line}</span>
+          Trinity says: <span className="text-foreground">{row.summary_line}</span>
         </p>
       ) : null}
 
@@ -75,7 +75,7 @@ export function WeekContextCard({ userId }: { userId: string }) {
       {threads.length > 0 ? (
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Recent Ask Summit questions
+            Recent Ask Trinity questions
           </p>
           <ul className="list-disc pl-5 text-[13px] text-foreground">
             {threads.map((t) => (

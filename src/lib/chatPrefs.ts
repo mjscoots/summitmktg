@@ -18,7 +18,7 @@ export interface ChatPrefs {
 }
 
 export const WALLPAPERS: { key: Wallpaper; label: string }[] = [
-  { key: 'summit', label: 'Summit' },
+  { key: 'summit', label: 'Trinity' },
   { key: 'night', label: 'Night' },
   { key: 'photo', label: 'Photo' },
 ];

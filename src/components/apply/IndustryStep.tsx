@@ -32,7 +32,7 @@ export default function IndustryStep({ value, onChange, error }: Props) {
   return (
     <div className="mb-6">
       <label className="block text-sm font-medium text-foreground mb-2">
-        Which Summit are you applying to?<span className="text-destructive"> *</span>
+        Which Trinity are you applying to?<span className="text-destructive"> *</span>
       </label>
       <div className="grid grid-cols-2 gap-2">
         {INDUSTRY_OPTIONS.map((o) => (

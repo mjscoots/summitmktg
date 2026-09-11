@@ -22,7 +22,7 @@ export interface ChatConversation {
   other_is_active?: boolean | null;
   /** Row id of the room, used by the pin writer. */
   channel_id?: string | null;
-  /** The industry this room belongs to. NULL is All Summit. */
+  /** The industry this room belongs to. NULL is All Trinity. */
   vertical?: string | null;
   /** Group rooms only: object path of the cover photo. */
   cover_image_path?: string | null;

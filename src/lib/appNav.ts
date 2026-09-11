@@ -121,7 +121,7 @@ const ALL: Record<string, NavDest> = {
   account: { key: 'account', label: 'Account', path: '/app/account', icon: Lock },
   scripts: { key: 'scripts', label: 'Scripts', path: '/app/scripts', icon: BookOpen },
   resources: { key: 'resources', label: 'Resources', path: '/app/links', icon: Link2 },
-  ask: { key: 'ask', label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
+  ask: { key: 'ask', label: 'Ask Trinity', path: '/app/ask', icon: Sparkles },
   doors: { key: 'doors', label: 'Doors mode', path: '/app/doors', icon: Home },
   missions: { key: 'missions', label: 'To do', path: '/app/missions', icon: ClipboardList },
   recruits: { key: 'recruits', label: 'Recruits', path: '/app/recruits', icon: Users, minTier: 'manager' },

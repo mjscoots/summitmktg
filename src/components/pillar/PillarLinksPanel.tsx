@@ -81,7 +81,7 @@ export function PillarLinksPanel() {
 
   const share = async (p: Pillar, token: string) => {
     const url = linkFor(token);
-    const text = `Join ${p.name} at Summit: ${url}`;
+    const text = `Join ${p.name} at Trinity: ${url}`;
     if (navigator.share) {
       try {
         await navigator.share({ title: `Join ${p.name}`, text, url });

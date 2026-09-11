@@ -256,7 +256,7 @@ export default function AskSummitPage() {
     <AppLayout>
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <PageHeader
-          title="Ask Summit"
+          title="Ask Trinity"
           context={
             isPractice
               ? 'Practice working a door. The AI plays the homeowner.'

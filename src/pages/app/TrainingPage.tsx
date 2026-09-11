@@ -39,7 +39,7 @@ export default function TrainingPage() {
     { label: 'Scripts', path: '/app/scripts', icon: FileText },
     { label: 'Resources', path: '/app/links', icon: Link2 },
     { label: 'Video library', path: '/app/training/videos', icon: Play },
-    { label: 'Ask Summit', path: '/app/ask', icon: Sparkles },
+    { label: 'Ask Trinity', path: '/app/ask', icon: Sparkles },
     ...(activeVertical === 'Pest' ? [{ label: 'Estimate earnings', path: '/app/estimate-earnings', icon: DollarSign }] : []),
   ];
   const toolRow = (

@@ -131,7 +131,7 @@ export function AdminAssistantTab() {
       <div className={cn(CARD, 'p-4')}>
         <div className="flex items-center gap-2 mb-1">
           <Sparkles className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">Ask Summit knowledge</h3>
+          <h3 className="text-sm font-semibold text-foreground">Ask Trinity knowledge</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
           Question and answer pairs the assistant is allowed to use. Anything not here, and not already in the

@@ -218,7 +218,7 @@ const InvitePage = () => {
   return shell(
     <form onSubmit={submit} className="public-surface p-6">
       <h1 className="text-xl font-extrabold text-foreground">
-        {greetName ? `${greetName}, you are invited to Summit` : 'You are invited to Summit'}
+        {greetName ? `${greetName}, you are invited to Trinity` : 'You are invited to Trinity'}
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">{details.join(' · ')}</p>
       {(inviterFirst || preview.inviter) && (

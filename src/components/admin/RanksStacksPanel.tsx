@@ -34,9 +34,9 @@ interface Requirement {
 }
 
 const SETTING_KEYS = [
-  { key: 'summit_stack_fiber_sonic', label: 'Summit stack - Fiber / Sonic' },
-  { key: 'summit_stack_fiber_surf', label: 'Summit stack - Fiber / Surf' },
-  { key: 'vertical_lead_margin', label: 'Vertical lead margin (Summit stack minus this)' },
+  { key: 'summit_stack_fiber_sonic', label: 'Trinity stack - Fiber / Sonic' },
+  { key: 'summit_stack_fiber_surf', label: 'Trinity stack - Fiber / Surf' },
+  { key: 'vertical_lead_margin', label: 'Vertical lead margin (Trinity stack minus this)' },
   { key: 'fiber_expense_allowance_per_install', label: 'Fiber expense allowance per install' },
   { key: 'fiber_holdback_percent', label: 'Fiber holdback percent' },
   { key: 'producing_rep_definition', label: 'Producing rep definition' },
@@ -353,7 +353,7 @@ export function RanksStacksPanel() {
               >
                 <option value="self">Their own stack only</option>
                 <option value="direct_leader">Their own plus their direct leader</option>
-                <option value="full_chain">The full chain up to Summit</option>
+                <option value="full_chain">The full chain up to Trinity</option>
               </select>
               <Button size="sm" variant="ghost" className="h-8 text-xs" disabled={busy} onClick={() => saveSetting('stack_visibility')}>
                 Save

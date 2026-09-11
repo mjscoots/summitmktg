@@ -1,4 +1,4 @@
-// Hierarchy utility functions for Summit team structure
+// Hierarchy utility functions for Trinity team structure
 // SYSTEM-LEVEL HIERARCHY - Rebuilt with strict normalization rules
 
 export interface TeamMember {

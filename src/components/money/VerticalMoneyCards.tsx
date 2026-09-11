@@ -121,7 +121,7 @@ export function VerticalMoneyCards({
   if (loading) return <LoadingList rows={3} />;
   if (!data) return null;
 
-  const rankLabel = data.rank ?? (data.rank_is_summit ? 'Summit' : 'Not set');
+  const rankLabel = data.rank ?? (data.rank_is_summit ? 'Trinity' : 'Not set');
 
 
 
@@ -250,7 +250,7 @@ export function VerticalMoneyCards({
                       </div>
                     ))}
                     <div className="flex items-center justify-between border-t border-white/[0.05] px-4 py-2 text-sm">
-                      <span className="text-muted-foreground">Summit</span>
+                      <span className="text-muted-foreground">Trinity</span>
                       <span className="tabular-nums font-semibold text-foreground">
                         {v.summit_stack ? formatCurrency(Number(v.summit_stack)) : 'Not set'}
                       </span>

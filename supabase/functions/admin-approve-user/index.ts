@@ -124,13 +124,13 @@ Deno.serve(async (req) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit <onboarding@resend.dev>",
+              from: Deno.env.get("RESEND_FROM_EMAIL") || "Trinity <onboarding@resend.dev>",
               to: [profile.email],
-              subject: "Your Summit Account Has Been Approved",
+              subject: "Your Trinity Account Has Been Approved",
               html: `
-                <h2>Welcome to Summit, ${profile.full_name}!</h2>
+                <h2>Welcome to Trinity, ${profile.full_name}!</h2>
                 <p>Your account has been approved. You can now log in and begin your Boot Camp.</p>
-                <p><a href="https://summitmktg.lovable.app/login">Log in to Summit</a></p>
+                <p><a href="https://summitmktg.lovable.app/login">Log in to Trinity</a></p>
               `,
             }),
           });

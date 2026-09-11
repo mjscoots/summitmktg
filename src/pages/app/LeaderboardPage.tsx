@@ -151,7 +151,7 @@ export default function LeaderboardPage() {
           {/* Scope pill - ranks everyone or just your team */}
           {isPest && (activeTab === 'weekly' || activeTab === 'overall') && (
             <div className="mb-4 inline-flex rounded-[var(--radius)] border border-border/40 bg-card p-1">
-              {([['team', 'My team'], ['summit', 'Summit']] as const).map(([id, label]) => (
+              {([['team', 'My team'], ['summit', 'Trinity']] as const).map(([id, label]) => (
                 <button
                   key={id}
                   onClick={() => setScope(id)}

@@ -40,7 +40,7 @@ const BADGES: Badge[] = [
   },
   {
     type: 'summit',
-    label: 'Summit',
+    label: 'Trinity',
     threshold: 100,
     icon: <Mountain className="w-5 h-5" />,
     colorClass: 'text-primary',

@@ -15,9 +15,9 @@ const Recruiting = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Summer Sales Jobs - Summit Marketing",
+      title: "Summer Sales Jobs - Trinity Sales",
       description:
-        "Summit trains and fields door-to-door sales reps. Training, housing and pay explained.",
+        "Trinity trains and fields door-to-door sales reps. Training, housing and pay explained.",
       path: "/recruiting",
     });
   }, []);
@@ -55,7 +55,7 @@ const Recruiting = () => {
             className="flex min-h-11 items-center gap-2 text-foreground hover:text-primary transition-colors"
           >
             <Mountain className="w-5 h-5 text-primary" />
-            <span className="text-lg font-black tracking-tight">Summit</span>
+            <span className="text-lg font-black tracking-tight">Trinity</span>
           </button>
           <div className="flex items-center gap-4">
             <a
@@ -86,7 +86,7 @@ const Recruiting = () => {
           </h1>
           
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Summit is looking for driven individuals ready to work hard, 
+            Trinity is looking for driven individuals ready to work hard, 
             compete, and earn more in 4 months than most make in a year.
           </p>
           
@@ -124,7 +124,7 @@ const Recruiting = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-wide">
-              Why Summit?
+              Why Trinity?
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               We're not just another sales job. We're building the next generation of entrepreneurs.
@@ -156,7 +156,7 @@ const Recruiting = () => {
               Who We're Looking For
             </h2>
             <p className="text-muted-foreground">
-              Summit isn't for everyone. But if you're the right fit, it'll change your life.
+              Trinity isn't for everyone. But if you're the right fit, it'll change your life.
             </p>
           </div>
           
@@ -191,7 +191,7 @@ const Recruiting = () => {
               Each path is designed to set you up for success.
             </p>
             <p className="text-xs text-muted-foreground max-w-xl mx-auto mt-3">
-              Pest is the main season. Summit also runs fiber internet in the winter.
+              Pest is the main season. Trinity also runs fiber internet in the winter.
             </p>
 
           </div>
@@ -303,7 +303,7 @@ const Recruiting = () => {
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Mountain className="w-12 h-12 text-primary mx-auto mb-6" />
           <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-wide">
-            Ready to Find the Summit?
+            Ready to Find the Trinity?
           </h2>
           <p className="text-muted-foreground mb-8">
             Stop wondering "what if" and start building the life you want.

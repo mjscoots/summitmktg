@@ -64,7 +64,7 @@ export function WelcomeFirstOpen() {
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background px-5 py-10">
       <div className="mx-auto max-w-md">
         <h1 className="text-[26px] font-bold tracking-tight text-foreground">
-          {firstName ? `Welcome to Summit, ${firstName}.` : 'Welcome to Summit.'}
+          {firstName ? `Welcome to Trinity, ${firstName}.` : 'Welcome to Trinity.'}
         </h1>
         <p className="mt-2 text-[15px] text-muted-foreground">Three things before your first door.</p>
 

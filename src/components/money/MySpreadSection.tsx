@@ -64,7 +64,7 @@ export function MySpreadSection() {
         <Cell label="My stack" value={money(data.my_stack)} />
         <Cell label="Expense allowance per install" value={money(data.expense_allowance)} />
         <Cell
-          label="Summit margin"
+          label="Trinity margin"
           value={data.vertical_lead_margin ? money(Number(data.vertical_lead_margin)) : 'Not set'}
         />
       </div>
@@ -102,7 +102,7 @@ export function MySpreadSection() {
       </div>
 
       <p className="mt-3 text-xs text-muted-foreground">
-        Summit-sourced: spread minus the expense allowance, then split 50/50 with Summit. Self-sourced:
+        Trinity-sourced: spread minus the expense allowance, then split 50/50 with Trinity. Self-sourced:
         the full spread stays with you. Anything not set is left blank rather than estimated.
       </p>
     </section>

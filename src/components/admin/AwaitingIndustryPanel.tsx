@@ -77,7 +77,7 @@ export function AwaitingIndustryPanel() {
       <div className="rounded-lg border border-border bg-card p-4">
         <p className="text-sm font-semibold text-foreground">Waiting to be placed</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          These people can only see Summit Trinity chat until you pick their industry.
+          These people can only see Trinity chat until you pick their industry.
         </p>
       </div>
 

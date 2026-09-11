@@ -41,7 +41,7 @@ export default function IndustryPage() {
       setData(res || null);
       setLoading(false);
       setPageMeta({
-        title: `${res?.label || vertical} - Summit Marketing`,
+        title: `${res?.label || vertical} - Trinity Sales`,
         description:
           res?.description ||
           'We train and field sales reps in pest control and fiber internet. You close, you get paid on what you close.',
@@ -55,7 +55,7 @@ export default function IndustryPage() {
       <div className="gold-world min-h-screen bg-background flex flex-col">
         <header className="sticky top-0 z-30 bg-background/[0.95] backdrop-blur">
           <nav className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3 sm:px-6">
-            <Link to="/" aria-label="Summit home" className="flex min-h-11 items-center">
+            <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
               <Wordmark variant="compact" height={34} />
             </Link>
             <button
@@ -71,7 +71,7 @@ export default function IndustryPage() {
             <ArrowLeft className="w-4 h-4" /> Back home
           </Link>
           <p className="micro-label text-primary">Coming soon</p>
-          <h1 className="mt-3 text-3xl md:text-5xl font-black tracking-tight text-foreground">Summit Life</h1>
+          <h1 className="mt-3 text-3xl md:text-5xl font-black tracking-tight text-foreground">Trinity Life</h1>
           <p className="mt-4 text-base text-muted-foreground">
             Life insurance. The career product for reps who want off the doors. Requires a state
             license to sell.
@@ -104,7 +104,7 @@ export default function IndustryPage() {
     <div className="gold-world min-h-screen bg-background flex flex-col relative">
       <header className="sticky top-0 z-30 bg-background/[0.95] backdrop-blur">
         <nav className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3 sm:px-6">
-          <Link to="/" aria-label="Summit home" className="flex min-h-11 items-center">
+          <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={34} />
           </Link>
           <button
