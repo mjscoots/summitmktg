@@ -4057,3 +4057,26 @@ All remaining hits are identifiers, keys, URLs, file names or addresses:
 - Baselines: profiles 536, chat_messages 715, applications 13 - unchanged. `user_notifications` reads 6445, up from 6375, entirely from the cron writers between Pass 174 and now; this pass wrote no notification.
 - One accidental data write happened and was rolled back: opening `/app` in the verification browser as the owner rendered the Pass 172 first open screen, which stamped `profiles.first_open_at` for that one account. It was set back to NULL in a migration, so the welcome screen behaves as it did before this pass. No other row was written. No form was submitted and no live function was called.
 - The site was not published.
+
+## Pass 176 — user-facing em dash removal in edge functions
+
+Scope: every file under supabase/functions grepped for the em dash character; AI system prompts in ai-coach and ask-summit left untouched by instruction. All remaining em dash hits outside those two files are code comments only.
+
+Changed strings, verbatim (new value):
+
+1. admin-create-user/index.ts email subject: `Welcome to Trinity. Your account is ready`
+2. weekly-owner-report/index.ts email body list line: `<li>${r.name}: ${r.days == null ? "never active" : `${r.days}d`}</li>`
+3. weekly-owner-report/index.ts email subject: `Weekly report: week ending ${latest.week_ending}`
+4. extract-leaderboard/index.ts error: `Rate limited by the AI service. Try again in a minute.`
+5. extract-leaderboard/index.ts error: `AI credits are exhausted. Add credits to run the import.`
+6. bulk-create-users/index.ts warning: `${summerReadyGap} imported Summer Ready reps were not mapped to canonical records. Review required.`
+7. bulk-create-users/index.ts warning: `${nlcGap} imported NLC reps were not mapped to canonical records. Review required.`
+8. daily-accountability-post/index.ts post line: `_...and ${remaining} more. See Team page for full list_`
+9. daily-accountability-post/index.ts section title: `GHOST MODE: 3+ DAYS INACTIVE`
+10. daily-accountability-post/index.ts post footer: `Managers: if your people are on this list, it's your job to get them off it.`
+
+No emoji were added; existing emoji in the accountability post are unchanged and predate this pass.
+
+Deploy: admin-create-user, weekly-owner-report, extract-leaderboard, bulk-create-users, daily-accountability-post, submit-vet-lead deployed successfully with the backend deploy tool (submit-vet-lead subject changed to `Veteran bid request: ${fullName}`).
+
+Verification: typecheck clean. No live function was called and no form was submitted; no rows were created. Site remains unpublished.
