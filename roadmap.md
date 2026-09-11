@@ -10,3 +10,10 @@
 - [x] Colour audit below the hero (black, greys, white, one gradient element per section)
 - [x] Hero eyebrow NOT ON A JOB BOARD., gradient redaction reveal, Get in button label
 - [x] Verify and append Pass 182 report
+
+## Pass 185
+- [ ] Replace pixel assembly and burst with 28/56 clipped vector shards
+- [ ] Separate the logo hero and statement into full-screen sections
+- [ ] Update statement, doors, and ticker copy
+- [ ] Remove Who runs it, pay, season, and work sections
+- [ ] Verify and append Pass 185 report
