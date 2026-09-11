@@ -2005,6 +2005,8 @@ html[data-appearance='light'] .btn-gradient {
   .logo-burst { display: none !important; }
   .cover-headline[data-hidden='true'] { opacity: 1 !important; }
   .cover-opening [data-opening-hidden='true'] { opacity: 1 !important; }
+  .cover-rise { opacity: 1 !important; transform: none !important; transition: none !important; }
+
   .cover-opening-in { animation: none !important; }
   .cover-eyebrow { transition: none !important; }
   .cover-redact > span { opacity: 1 !important; transition: none !important; }
