@@ -1556,6 +1556,11 @@ html[data-appearance='light'] .public-auth {
   animation-duration: 1.6s;
   animation-iteration-count: infinite;
 }
+.footer-signature .ridgeline-mark path { stroke-dashoffset: 180; opacity: 0; }
+.footer-signature[data-visible='true'] .ridgeline-mark path {
+  animation: ridgeline-draw var(--motion-hero) var(--motion-ease-out) both,
+    ridgeline-glow var(--motion-hero) var(--motion-ease-out) both;
+}
 
 @keyframes wordmark-rise {
   from { opacity: 0; transform: translateY(12px); }
@@ -1709,7 +1714,7 @@ html[data-appearance='light'] .public-auth {
 @keyframes welcome-breathe { 50% { transform: scale(1.02); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .ridgeline-mark path { stroke-dashoffset: 0 !important; filter: none !important; }
+  .ridgeline-mark path { stroke-dashoffset: 0 !important; opacity: 1 !important; filter: none !important; }
   .wordmark-letter,
   .wordmark-lockup-line,
   .cover-headline-line,

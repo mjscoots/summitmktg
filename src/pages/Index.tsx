@@ -201,10 +201,10 @@ const Index = () => {
         </section>
       </main>
 
-      <footer className="public-reveal py-8" data-reveal>
+      <footer className="footer-signature public-reveal py-8" data-reveal>
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 sm:flex-row sm:justify-between sm:px-6">
           <div className="flex items-center gap-3">
-            <RidgelineMark size={26} />
+            <RidgelineMark size={26} animate={false} />
             <div>
               <p className="text-sm font-semibold text-foreground">Trinity Sales</p>
               <p className="text-xs text-text-muted">© 2026</p>
