@@ -323,7 +323,7 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
               onClick={() => setSelectedEntry(entry)}
               className={cn(
                 'card-ice block w-full px-3 py-2.5 text-left transition-colors',
-                isCurrentUser && 'border-primary/60 bg-primary/5'
+                isCurrentUser && 'bg-accent/[0.08]'
               )}
             >
               <div className="flex items-center gap-3">
@@ -338,7 +338,7 @@ export function TrainingLeaderboard({ mode = 'overall', scope = 'summit' }: Trai
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1.5">
-                    <span className={cn('truncate text-[14px] font-semibold', isCurrentUser ? 'text-primary' : 'text-foreground')}>
+                    <span className={cn('truncate text-[14px] font-semibold', isCurrentUser ? 'text-accent' : 'text-foreground')}>
                       {displayName(entry)}
                       {isCurrentUser && <span className="ml-1 text-[11px] font-normal text-muted-foreground">You</span>}
                     </span>

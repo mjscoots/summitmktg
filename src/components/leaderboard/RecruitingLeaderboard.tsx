@@ -57,7 +57,7 @@ export function RecruitingLeaderboard() {
       {entries.map((e, i) => (
         <div
           key={e.user_id}
-          className={cn('flex items-center gap-3 px-4 py-3', e.user_id === user?.id && 'bg-primary/[0.06]')}
+          className={cn('flex items-center gap-3 px-4 py-3', e.user_id === user?.id && 'bg-accent/[0.08]')}
         >
           <span className={cn('w-6 text-center text-sm font-black', RANK_COLOR[i] || 'text-muted-foreground')}>
             {i + 1}

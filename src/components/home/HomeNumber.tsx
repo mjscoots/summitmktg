@@ -27,7 +27,7 @@ export function HomeNumber({ vertical }: { vertical: string }) {
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{shownLabel}</p>
       <p
         key={mode}
-        className="number-flip mt-1 text-[44px] font-bold leading-none tracking-tight tabular-nums text-foreground"
+        className="number-flip mt-1 text-[44px] font-bold leading-none tracking-tight tabular-nums text-accent"
       >
         {typeof shown === 'number' ? <CountUp value={shown} duration={700} /> : shown}
       </p>
