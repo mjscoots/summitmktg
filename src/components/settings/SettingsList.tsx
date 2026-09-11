@@ -21,7 +21,7 @@ export function SettingsList() {
     'flex h-9 w-9 flex-shrink-0 items-center justify-center rounded bg-secondary text-muted-foreground';
 
   return (
-    <div className="space-y-2">
+    <div className="motion-stagger space-y-2">
       <button onClick={() => navigate('/app/profile')} className={row}>
         <span className={tile}>
           <User className="h-[18px] w-[18px]" strokeWidth={1.75} />

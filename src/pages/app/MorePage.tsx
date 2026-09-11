@@ -63,6 +63,7 @@ export default function MorePage() {
           <WorkspaceSegmented />
         </div>
 
+        <div className="motion-stagger space-y-8">
         {groups.map((group) => {
           const isOpen = Boolean(open[group.title]);
           const isSettings = group.title === 'Settings';
@@ -123,6 +124,7 @@ export default function MorePage() {
             </Collapsible>
           );
         })}
+        </div>
 
         <ViewAsSwitcher />
 

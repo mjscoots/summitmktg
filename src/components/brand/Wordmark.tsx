@@ -33,10 +33,12 @@ interface WordmarkProps {
   /** Rendered height in px. */
   height?: number;
   className?: string;
+  /** Staggers the five letters and lockup line on first mount. */
+  animate?: boolean;
 }
 
 const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkBase(
-  { variant = "hero", height = 32, className },
+  { variant = "hero", height = 32, className, animate = false },
   ref
 ) {
   const renderedHeight = Math.max(height, 12);
@@ -77,6 +79,9 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
   const width = Math.round(glyphHeight * 2.95);
   const baseline = lockup ? glyphHeight * 0.94 : renderedHeight * 0.78;
 
+  const fontSize = glyphHeight * 0.86;
+  const letterStep = fontSize * 0.7;
+
   return (
     <svg
       ref={ref}
@@ -89,24 +94,31 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
       style={{ display: "block" }}
     >
       <title>Trinity Sales</title>
-      <text
-        x="0"
-        y={baseline}
-        fill={letters}
-        style={{
-          fontFamily: DISPLAY_STACK,
-          fontWeight: 700,
-          fontSize: `${glyphHeight * 0.86}px`,
-          letterSpacing: "0.08em",
-        }}
-      >
-        TRNTY
-      </text>
+      <g aria-hidden="true">
+        {'TRNTY'.split('').map((letter, index) => (
+          <text
+            key={`${letter}-${index}`}
+            x={index * letterStep}
+            y={baseline}
+            fill={letters}
+            className={animate ? 'wordmark-letter' : undefined}
+            style={{
+              fontFamily: DISPLAY_STACK,
+              fontWeight: 700,
+              fontSize: `${fontSize}px`,
+              animationDelay: animate ? `calc(${index} * var(--motion-stagger))` : undefined,
+            }}
+          >
+            {letter}
+          </text>
+        ))}
+      </g>
       {lockup && (
         <text
           x="1"
           y={renderedHeight * 0.96}
           fill="var(--wordmark-accent, #B4F53B)"
+          className={animate ? 'wordmark-lockup-line' : undefined}
           style={{
             fontFamily: DISPLAY_STACK,
             fontWeight: 700,

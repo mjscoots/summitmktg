@@ -58,7 +58,7 @@ export function NotificationBell() {
             )} />
           )}
           {hasUnread && (
-            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary animate-in zoom-in-50 duration-200" />
+            <span className="unread-pulse absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary" />
           )}
           {justCleared && (
             <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary animate-out fade-out zoom-out-50 duration-500" />
@@ -106,7 +106,7 @@ export function NotificationBell() {
                         {notification.title}
                       </p>
                       {!notification.is_read && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 mt-2" />
+                        <span className="unread-pulse mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>

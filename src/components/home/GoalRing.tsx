@@ -40,6 +40,7 @@ export function GoalRing({ weekCount }: { weekCount: number }) {
             strokeLinecap="round"
             strokeDasharray={c}
             strokeDashoffset={c - (c * pct) / 100}
+            className="goal-ring-progress"
           />
         </svg>
         <span className="absolute text-[13px] font-bold tabular-nums text-foreground">

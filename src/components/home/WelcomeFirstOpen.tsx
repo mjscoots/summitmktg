@@ -68,7 +68,7 @@ export function WelcomeFirstOpen() {
         </h1>
         <p className="mt-2 text-[15px] text-muted-foreground">Three things before your first door.</p>
 
-        <ol className="mt-8 space-y-6">
+        <ol className="welcome-steps mt-8 space-y-6">
           {steps.map((step, i) => (
             <li key={step.title}>
               <p className="text-[15px] font-semibold text-foreground">
@@ -77,7 +77,7 @@ export function WelcomeFirstOpen() {
               {/* One lime action on the screen; the other two steps are outlined. */}
               <Button
                 variant={i === 0 ? 'default' : 'outline'}
-                className="mt-3 min-h-11 w-full"
+                className={i === 0 ? 'welcome-primary mt-3 min-h-11 w-full' : 'mt-3 min-h-11 w-full'}
                 onClick={() => { setShow(false); navigate(step.to); }}
               >
                 {step.button}

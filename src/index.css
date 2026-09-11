@@ -53,10 +53,15 @@ html, body, #root {
     --radius-sm: 0.625rem;
     --shadow: 0 0 0 0 transparent;
     --shadow-lift: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --motion-fast: 120ms;
-    --motion-base: 200ms;
-    --motion-slow: 320ms;
-    --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+    --motion-fast: 160ms;
+    --motion-base: 280ms;
+    --motion-slow: 520ms;
+    --motion-hero: 900ms;
+    --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --motion-stagger: 60ms;
+    --motion-ease: var(--motion-ease-out);
 
     /* ━━━ SURFACE LAYERS ━━━ */
     --surface: 219 35% 8%;
@@ -690,10 +695,10 @@ button, a, [role="button"] {
     button, a[role="button"], [role="tab"], select, summary {
       min-height: 44px;
     }
-    button.h-auto, a.h-auto { min-height: 0; }
+    button[class~='h-auto'], a[class~='h-auto'] { min-height: 0; }
   }
 
-  /* Skeleton loader - flat, no accent tint */
+  /* Skeleton loader: one low-cost transform-only highlight. */
   .skeleton-shimmer {
     position: relative;
     overflow: hidden;
@@ -703,12 +708,12 @@ button, a, [role="button"] {
     content: '';
     position: absolute;
     inset: 0;
-    background: hsl(var(--foreground) / 0.04);
-    animation: skeleton-fade 1.4s ease-in-out infinite;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.08), transparent);
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.4s var(--motion-ease-in-out) infinite;
   }
-  @keyframes skeleton-fade {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 1; }
+  @keyframes skeleton-shimmer {
+    to { transform: translateX(100%); }
   }
 
   .page-enter {
@@ -1527,6 +1532,218 @@ html[data-appearance='light'] .public-auth {
   }
   .msg-lift { transform: none !important; }
   .press:active { transform: none !important; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PASS 177 - one motion language for cover and app
+   ───────────────────────────────────────────────────────────── */
+@keyframes ridgeline-draw {
+  0% { stroke-dashoffset: 180; opacity: 0; }
+  10% { opacity: 1; }
+  72%, 100% { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes ridgeline-glow {
+  0%, 72%, 100% { opacity: 1; filter: drop-shadow(0 0 0 hsl(var(--primary) / 0)); }
+  86% { opacity: 1; filter: drop-shadow(0 0 7px hsl(var(--primary) / 0.55)); }
+}
+.ridgeline-mark { color: hsl(var(--primary)); }
+.ridgeline-mark path { stroke-dasharray: 180; stroke-dashoffset: 0; }
+.ridgeline-mark-draw path {
+  animation: ridgeline-draw var(--motion-hero) var(--motion-ease-out) both,
+    ridgeline-glow var(--motion-hero) var(--motion-ease-out) both;
+}
+.ridgeline-mark-loop path {
+  animation-duration: 1.6s;
+  animation-iteration-count: infinite;
+}
+.footer-signature .ridgeline-mark path { stroke-dashoffset: 180; opacity: 0; }
+.footer-signature[data-visible='true'] .ridgeline-mark path {
+  animation: ridgeline-draw var(--motion-hero) var(--motion-ease-out) both,
+    ridgeline-glow var(--motion-hero) var(--motion-ease-out) both;
+}
+
+@keyframes wordmark-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.wordmark-letter {
+  opacity: 0;
+  animation: wordmark-rise var(--motion-base) var(--motion-ease-out) forwards;
+}
+.wordmark-lockup-line {
+  opacity: 0;
+  animation: wordmark-rise var(--motion-base) var(--motion-ease-out) 420ms forwards;
+}
+
+@keyframes headline-wipe {
+  from { opacity: 0; transform: translateY(12px); clip-path: inset(100% 0 0 0); }
+  to { opacity: 1; transform: translateY(0); clip-path: inset(0 0 0 0); }
+}
+.cover-headline-line {
+  display: block;
+  opacity: 0;
+  animation: headline-wipe var(--motion-slow) var(--motion-ease-out) 520ms forwards;
+}
+.cover-headline-line:nth-child(2) { animation-delay: 640ms; }
+.cover-support,
+.cover-actions {
+  opacity: 0;
+  animation: wordmark-rise var(--motion-base) var(--motion-ease-out) 920ms forwards;
+}
+.cover-actions { animation-delay: 980ms; }
+
+@keyframes mountain-settle {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.mountain-layer {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+.mountain-settle .mountain-layer {
+  opacity: 0;
+  animation: mountain-settle var(--motion-hero) var(--motion-ease-out) forwards;
+  animation-delay: calc((var(--range-depth) - 1) * 80ms);
+}
+@media (hover: hover) and (pointer: fine) {
+  .mountain-pointer .mountain-layer:nth-of-type(1) { translate: var(--range-x-1, 0) var(--range-y-1, 0); }
+  .mountain-pointer .mountain-layer:nth-of-type(2) { translate: var(--range-x-2, 0) var(--range-y-2, 0); }
+  .mountain-pointer .mountain-layer:nth-of-type(3) { translate: var(--range-x-3, 0) var(--range-y-3, 0); }
+  .mountain-pointer .mountain-layer:nth-of-type(4) { translate: var(--range-x-4, 0) var(--range-y-4, 0); }
+  .mountain-pointer .mountain-layer:nth-of-type(5) { translate: var(--range-x-5, 0) var(--range-y-5, 0); }
+}
+
+.public-nav {
+  border-bottom: 1px solid transparent;
+  background: hsl(var(--background) / 0.85);
+  transition: border-color var(--motion-base) var(--motion-ease-out), backdrop-filter var(--motion-base) var(--motion-ease-out);
+}
+.public-nav-scrolled {
+  border-bottom-color: hsl(var(--border));
+  backdrop-filter: blur(16px);
+}
+
+.public-reveal > * {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.public-reveal[data-visible='true'] > * {
+  animation: public-reveal var(--motion-slow) var(--motion-ease-out) forwards;
+}
+.public-reveal[data-visible='true'] > *:nth-child(2) { animation-delay: var(--motion-stagger); }
+.public-reveal[data-visible='true'] > *:nth-child(3) { animation-delay: calc(var(--motion-stagger) * 2); }
+.public-reveal[data-visible='true'] > *:nth-child(4) { animation-delay: calc(var(--motion-stagger) * 3); }
+@keyframes public-reveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.public-door {
+  position: relative;
+  transition: transform var(--motion-base) var(--motion-ease-out), background-color var(--motion-base) var(--motion-ease-out);
+}
+.public-door:hover { transform: translateY(-4px); background: hsl(var(--surface-elevated)); }
+.public-door-pest::after,
+.primary-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, hsl(var(--primary) / 0.24) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
+.public-door-pest:hover::after { animation: sheen-sweep var(--motion-hero) var(--motion-ease-out) both; }
+.primary-sheen { position: relative; }
+.primary-sheen:hover::after { animation: sheen-sweep var(--motion-slow) var(--motion-ease-out) both; }
+@keyframes sheen-sweep { to { transform: translateX(120%); } }
+
+.page-transition { animation-duration: var(--motion-fast); }
+.page-transition-forward { --page-x: 12px; }
+.page-transition-back { --page-x: -12px; }
+@keyframes page-lift {
+  from { opacity: 0; transform: translateX(var(--page-x, 12px)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.goal-ring-progress {
+  animation: goal-ring-draw var(--motion-hero) var(--motion-ease-out) both;
+}
+@keyframes goal-ring-draw { from { stroke-dashoffset: 164; } }
+.next-action-in {
+  animation: next-action-in var(--motion-base) var(--motion-ease-out) 700ms both;
+}
+@keyframes next-action-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.nav-icon-pop { animation: nav-icon-pop var(--motion-base) var(--motion-spring); }
+@keyframes nav-icon-pop { 50% { transform: scale(1.08); } }
+.motion-stagger > * {
+  opacity: 0;
+  animation: wordmark-rise var(--motion-base) var(--motion-ease-out) forwards;
+}
+.motion-stagger > *:nth-child(2) { animation-delay: var(--motion-stagger); }
+.motion-stagger > *:nth-child(3) { animation-delay: calc(var(--motion-stagger) * 2); }
+.motion-stagger > *:nth-child(4) { animation-delay: calc(var(--motion-stagger) * 3); }
+.motion-stagger > *:nth-child(n+5) { animation-delay: calc(var(--motion-stagger) * 4); }
+.badge-pop {
+  display: inline-flex;
+  opacity: 0;
+  animation: badge-pop var(--motion-base) var(--motion-spring) forwards;
+}
+@keyframes badge-pop {
+  from { opacity: 0; transform: scale(0.72); }
+  to { opacity: 1; transform: scale(1); }
+}
+.unread-pulse { animation: unread-pulse var(--motion-slow) var(--motion-ease-in-out) 2; }
+@keyframes unread-pulse {
+  50% { opacity: 0.62; transform: scale(1.12); }
+}
+.app-toast[data-state='open'] { animation: toast-up var(--motion-base) var(--motion-spring) both; }
+.app-toast[data-state='closed'] { animation: toast-out var(--motion-fast) var(--motion-ease-in-out) both; }
+@keyframes toast-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+.welcome-steps > li {
+  opacity: 0;
+  animation: wordmark-rise var(--motion-base) var(--motion-ease-out) forwards;
+}
+.welcome-steps > li:nth-child(2) { animation-delay: var(--motion-stagger); }
+.welcome-steps > li:nth-child(3) { animation-delay: calc(var(--motion-stagger) * 2); }
+.welcome-primary { animation: welcome-breathe var(--motion-slow) var(--motion-ease-in-out) 460ms both; }
+@keyframes welcome-breathe { 50% { transform: scale(1.02); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ridgeline-mark path { stroke-dashoffset: 0 !important; opacity: 1 !important; filter: none !important; }
+  .wordmark-letter,
+  .wordmark-lockup-line,
+  .cover-headline-line,
+  .cover-support,
+  .cover-actions,
+  .mountain-layer,
+  .public-reveal > *,
+  .page-transition,
+  .goal-ring-progress,
+  .next-action-in,
+  .nav-icon-pop,
+  .motion-stagger > *,
+  .badge-pop,
+  .unread-pulse,
+  .app-toast,
+  .welcome-steps > li,
+  .welcome-primary,
+  .skeleton-shimmer::after {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    translate: none !important;
+    clip-path: none !important;
+  }
+  .public-door,
+  .public-nav { transition: none !important; }
+  .public-door:hover { transform: none !important; }
+  .public-door-pest::after,
+  .primary-sheen::after { display: none !important; }
 }
 
 

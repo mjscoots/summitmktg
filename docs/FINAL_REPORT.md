@@ -4080,3 +4080,53 @@ No emoji were added; existing emoji in the accountability post are unchanged and
 Deploy: admin-create-user, weekly-owner-report, extract-leaderboard, bulk-create-users, daily-accountability-post, submit-vet-lead deployed successfully with the backend deploy tool (submit-vet-lead subject changed to `Veteran bid request: ${fullName}`).
 
 Verification: typecheck clean. No live function was called and no form was submitted; no rows were created. Site remains unpublished.
+
+## Pass 177 - motion
+
+**Status:** Complete in preview only. Nothing was published or deployed, and no data was written.
+
+### Motion system
+
+All new motion uses `--motion-fast` 160ms, `--motion-base` 280ms, `--motion-slow` 520ms, or `--motion-hero` 900ms; `--motion-ease-out`, `--motion-ease-in-out`, `--motion-spring`, and the 60ms `--motion-stagger` provide the shared timing language.
+
+- `src/components/brand/RidgelineMark.tsx`, `src/index.css`: three-peak stroke draw and one glow pulse, 900ms ease-out; loader repeats every 1.6s. Login runs on mount and the footer runs once when observed.
+- `src/components/brand/Wordmark.tsx`, `src/pages/Index.tsx`, `src/index.css`: TRNTY letters rise at 280ms ease-out with 60ms staggering; lockup follows; two headline lines wipe at 520ms ease-out, 120ms apart; support and actions rise at 280ms ease-out.
+- `src/components/brand/MountainRange.tsx`, `src/pages/Index.tsx`, `src/index.css`: five layers settle over 900ms ease-out with 80ms offsets. Desktop pointer movement uses requestAnimationFrame with 0.08 lerp and up to 6px depth-scaled translation. Existing scroll parallax remains 0.15.
+- `src/hooks/usePublicMotion.ts`, `src/pages/Index.tsx`, `src/components/recruiting/ThreeDoorSection.tsx`, `src/index.css`: below-hero sections reveal once at threshold 0.2; children rise over 520ms ease-out with 60ms staggering.
+- `src/components/recruiting/LiveCounters.tsx`: proof figures count from zero over 900ms when first observed, retaining tabular numerals.
+- `src/components/recruiting/ThreeDoorSection.tsx`, `src/index.css`: doors lift 4px over 280ms ease-out; Pest gets a 900ms ease-out edge sweep. The primary Apply sheen crosses over 520ms ease-out and the existing press state remains 0.98.
+- `src/pages/Index.tsx`, `src/index.css`: public navigation border and backdrop settle over 280ms ease-out after 40px scroll.
+- `src/components/layout/AppLayout.tsx`, `src/index.css`: route entry is a directional 12px slide and fade over 160ms ease-out, reading the existing history index for forward and back.
+- `src/components/home/HomeNumber.tsx`: Home number counts over 700ms through the existing reduced-motion-aware requestAnimationFrame counter.
+- `src/components/home/GoalRing.tsx`, `src/index.css`: pace ring draws over 900ms ease-out through stroke dashoffset.
+- `src/components/home/NextActionRow.tsx`, `src/index.css`: next action rises after the number over 280ms ease-out.
+- `src/components/layout/MobileBottomNav.tsx`, `src/index.css`: tapped icon scales to 1.08 and returns over 280ms spring.
+- `src/pages/app/MorePage.tsx`, `src/components/settings/SettingsList.tsx`, `src/index.css`: first-render tiles rise over 280ms ease-out in 60ms sequence.
+- `src/components/badges/BadgeStrip.tsx`, `src/index.css`: badges pop over 280ms spring in 60ms sequence.
+- `src/pages/app/ProgressPage.tsx`: streak count uses the existing counter over 700ms.
+- `src/components/notifications/NotificationBell.tsx`, `src/components/layout/MobileBottomNav.tsx`, `src/index.css`: unread dots pulse subtly twice over 520ms in-out.
+- `src/components/ui/toast.tsx`, `src/components/ui/sonner.tsx`, `src/index.css`: toasts rise 16px and fade over 280ms spring; dismiss fades and lowers over 160ms in-out.
+- `src/components/home/WelcomeFirstOpen.tsx`, `src/index.css`: three steps rise over 280ms ease-out in 60ms sequence; the primary button breathes once over 520ms in-out after the steps land.
+- `src/components/ui/skeleton.tsx`, `src/index.css`: skeleton highlight translates left to right every 1.4s using the in-out easing.
+- Existing Pass 168 chat arrival, reaction, send and typing motion remains intact.
+
+### Performance and reduced motion
+
+The new animations use transform and opacity only except for intentional SVG `stroke-dashoffset` drawing, the ridgeline `filter` glow, the headline `clip-path` reveal, nav `backdrop-filter` and border transition, and hover surface color changes. These exceptions are bounded decorative effects; no layout property is animated. Pointer parallax writes CSS translation variables inside requestAnimationFrame and never starts on hoverless/touch devices.
+
+Under `prefers-reduced-motion: reduce`, the observer resolves sections immediately, scroll parallax remains at zero, pointer parallax never starts, count-up resolves immediately, and the comprehensive stylesheet override removes animation, transform, translation, clipping, glow and sheen while restoring full opacity. Existing chat and app reduced-motion blocks remain active.
+
+### Cover sequence and responsive behavior
+
+At load, TRNTY letters rise from 0ms through 520ms. The lockup follows at 420ms. Headline line one runs 520ms to 1040ms and line two runs 640ms to 1160ms. Supporting text runs 920ms to 1200ms and actions run 980ms to 1260ms. Mountain layers run far to near from 0ms through 1220ms. The settled hero is therefore complete by 1.26 seconds, under 1.8 seconds.
+
+At 390px, the cover keeps its single-column actions and bottom-aligned range; `preserveAspectRatio="xMidYMax slice"` crops the outer ridges while keeping the central peak visible. At 1280px, actions sit in a row and all five layers have room for the full depth effect. App controls retain the existing 44px minimum touch targets. An authenticated visual walkthrough was unavailable, so app behavior was verified by source inspection, typecheck and production build without creating a session or writing data.
+
+### Verification
+
+- `tsgo --noEmit -p tsconfig.app.json`: clean.
+- `npm run build`: clean.
+- Shell gzip: entry JS 16,483 bytes, below the 16.5 KB reference and with no growth over 3 KB; entry CSS 29,677 bytes.
+- Baselines read back unchanged: profiles 536, chat_messages 715, applications 13.
+- No new copy was introduced. No em dash or emoji was added by Pass 177.
+- No live function or form was called. The site remains unpublished.

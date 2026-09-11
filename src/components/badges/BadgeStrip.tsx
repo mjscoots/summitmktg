@@ -38,8 +38,10 @@ export function BadgeShelf({ userId, className }: { userId: string; className?: 
 
   return (
     <div className={cn('flex flex-wrap gap-1.5', className)}>
-      {badges.map((b) => (
-        <BadgeChip key={b.badge_key} badge={b} size="sm" showLabel />
+      {badges.map((b, index) => (
+        <span key={b.badge_key} className="badge-pop" style={{ animationDelay: `calc(${index} * var(--motion-stagger))` }}>
+          <BadgeChip badge={b} size="sm" showLabel />
+        </span>
       ))}
     </div>
   );
