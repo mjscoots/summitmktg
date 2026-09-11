@@ -103,7 +103,10 @@ function MountainSceneBase({ className, day = 0.35, pointerParallax = true }: Mo
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      scale = Math.max(width / VIEW_W, height / VIEW_H);
+      // Fit the width, but never let the range read as a thin strip: it always
+      // occupies at least 55 percent of the viewport height, cropping the outer
+      // ridges on a phone the way the SVG range does.
+      scale = Math.max(width / VIEW_W, (height * 0.55) / VIEW_H);
       tx = (width - VIEW_W * scale) / 2;
       ty = height - VIEW_H * scale;
 
