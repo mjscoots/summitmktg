@@ -362,6 +362,20 @@ function MountainSceneBase({
     const onResize = () => resize();
     window.addEventListener('resize', onResize);
     if (pointerParallax && !coarse) window.addEventListener('pointermove', onPointer, { passive: true });
+
+    // A tap on the range sends a ripple. Taps on anything the visitor can use
+    // are left alone, so the ripple never competes with a button or a link.
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('a, button, input, textarea, select, [role="button"]')) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+      ripples.push({ x, y, start: performance.now() });
+      if (ripples.length > 4) ripples.shift();
+    };
+    if (ripple) window.addEventListener('pointerdown', onDown, { passive: true });
     play();
 
     return () => {
@@ -370,8 +384,10 @@ function MountainSceneBase({
       document.removeEventListener('visibilitychange', sync);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('pointerdown', onDown);
     };
-  }, [pointerParallax]);
+  }, [pointerParallax, ripple]);
+
 
   return <canvas ref={canvasRef} aria-hidden="true" className={className} style={{ display: 'block', width: '100%', height: '100%' }} />;
 }
