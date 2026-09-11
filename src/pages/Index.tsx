@@ -175,8 +175,9 @@ const Index = () => {
           )}
           <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-4xl flex-col items-center justify-center py-20 text-center">
             <p
-              data-opening-hidden={intro && !settled ? 'true' : undefined}
-              className="cover-eyebrow text-text-secondary"
+              className="cover-eyebrow cover-rise text-text-secondary"
+              data-in={settled ? 'true' : undefined}
+              style={{ '--rise': 0 } as React.CSSProperties}
             >
               NOT ON A JOB BOARD.
             </p>
@@ -195,15 +196,17 @@ const Index = () => {
             </h1>
 
             <p
-              data-opening-hidden={intro && !settled ? 'true' : undefined}
-              className="cover-support cover-measure mt-6 text-base leading-relaxed text-text-secondary sm:text-lg"
+              className="cover-support cover-rise cover-measure mt-6 text-base leading-relaxed text-text-secondary sm:text-lg"
+              data-in={settled ? 'true' : undefined}
+              style={{ '--rise': 1 } as React.CSSProperties}
             >
               Pest control in season. Fiber internet after it. One team, selling all year.
             </p>
 
             <div
-              data-opening-hidden={intro && !settled ? 'true' : undefined}
-              className="cover-actions mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:flex-row sm:justify-center"
+              className="cover-actions cover-rise mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:flex-row sm:justify-center"
+              data-in={settled ? 'true' : undefined}
+              style={{ '--rise': 2 } as React.CSSProperties}
             >
               <Link
                 to="/apply/rookie"
@@ -218,7 +221,11 @@ const Index = () => {
             </div>
 
             {COVER_STATS && (
-              <div data-opening-hidden={intro && !settled ? 'true' : undefined} className="mt-10 w-full">
+              <div
+                className="cover-rise mt-10 w-full"
+                data-in={settled ? 'true' : undefined}
+                style={{ '--rise': 3 } as React.CSSProperties}
+              >
                 <PublicProofStrip />
               </div>
             )}
