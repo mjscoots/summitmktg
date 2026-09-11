@@ -8038,6 +8038,15 @@ export type Database = {
       get_public_cover_content: { Args: never; Returns: Json }
       get_public_fiber_stacks: { Args: never; Returns: Json }
       get_public_industry: { Args: { p_vertical: string }; Returns: Json }
+      get_public_managers: {
+        Args: never
+        Returns: {
+          first_name: string
+          manager_intro: string
+          office_name: string
+          pillar_token: string
+        }[]
+      }
       get_public_setting: { Args: { _key: string }; Returns: string }
       get_question_summary: { Args: { _question_id: string }; Returns: Json }
       get_quiz_leaderboard: {

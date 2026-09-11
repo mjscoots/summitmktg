@@ -1,13 +1,12 @@
 import { memo, useEffect, useRef } from 'react';
-import { MARK_PATH } from './Wordmark';
 
 /**
- * Pass 180 - the opening and the sweep. Cover only.
+ * Pass 181 - the opening and the sweep. Cover only.
  *
- * On the first load of the cover in a session the lockup draws itself in the
- * middle of the hero, flashes, shatters into thousands of pieces, and those
- * pieces are pulled into the shape of the real headline before the DOM headline
- * crossfades in on top. After that the same particle field answers scroll: the
+ * On the first load of the cover in a session TRNTY alone draws itself huge and
+ * centred in the hero, holds, shatters into thousands of pieces, and those
+ * pieces are pulled into the shape of the real two line headline before the DOM
+ * headline crossfades in on top. After that the same particle field answers scroll: the
  * headline tears off the right edge of the page and reassembles on the way back.
  *
  * The settled hero is always the real DOM text, so it stays selectable and
@@ -21,20 +20,22 @@ import { MARK_PATH } from './Wordmark';
 
 const SESSION_KEY = 'trnty_intro_seen';
 
-const T_DRAW = 900;
-const T_HOLD = 400;
-const T_FLASH = 240;
-const T_BURST = 1100;
-const T_FORM = 1400;
+const T_DRAW = 500;
+const T_HOLD = 250;
+const T_BURST = 800;
+const T_FORM = 1000;
 const T_CROSS = 200;
 const FONT_TIMEOUT = 2500;
 
 const DRAW_END = T_DRAW + T_HOLD;
-const FLASH_END = DRAW_END + T_FLASH;
-const BURST_END = FLASH_END + T_BURST;
+const BURST_END = DRAW_END + T_BURST;
 const FORM_END = BURST_END + T_FORM;
 
-const EMBER = '#F2673A';
+/** The second headline line settles as the gradient: blue into violet. */
+const BLUE = '#3A8DFF';
+const VIOLET = '#B69CFF';
+/** Painted into the target sample so line two can be recoloured on pairing. */
+const LINE_TWO_KEY = 'rgb(58,141,255)';
 
 /** The spring easing token, as a function. */
 function spring(t: number): number {
@@ -67,7 +68,7 @@ interface Particle {
 export interface LogoBurstProps {
   /** The real headline, used for the target shape and the crossfade. */
   headlineRef: React.RefObject<HTMLElement>;
-  /** Scroll progress over the first 70vh, 0 to 1. */
+  /** Scroll progress over the first 60vh, 0 to 1. */
   progress: number;
   /** Called with false while the particles stand in for the headline. */
   onHeadlineVisible?: (visible: boolean) => void;
@@ -157,35 +158,28 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
       return points;
     };
 
-    const letterColour = getComputedStyle(headline).color || '#F4EFE6';
     const headlineStyle = getComputedStyle(headline);
-    const serif = `${headlineStyle.fontWeight} ${headlineStyle.fontSize} ${headlineStyle.fontFamily}`;
-    const serifItalic = `italic ${headlineStyle.fontWeight} ${headlineStyle.fontSize} ${headlineStyle.fontFamily}`;
+    const letterColour = '#FFFFFF';
+    const headlineFont = `${headlineStyle.fontWeight} ${headlineStyle.fontSize} ${headlineStyle.fontFamily}`;
 
-    /** The lockup, centred, at about a fifth of the hero width. */
+    /**
+     * TRNTY alone, centred, at clamp(4rem, 22vw, 14rem) so it fills a phone
+     * screen. No mark: the letters and the peak never appear side by side.
+     */
     const paintLockup = (c: CanvasRenderingContext2D) => {
-      const markSize = Math.max(48, Math.min(120, width * 0.09));
-      const fontSize = markSize * 1.15;
-      c.font = `400 ${fontSize}px 'Instrument Serif', Georgia, serif`;
+      const fontSize = Math.max(64, Math.min(224, width * 0.22));
+      c.font = `800 ${fontSize}px 'Archivo', system-ui, sans-serif`;
       c.textBaseline = 'alphabetic';
       const text = 'TRNTY';
-      const tracking = fontSize * 0.12;
+      const tracking = fontSize * 0.04;
       let textWidth = 0;
       for (const ch of text) textWidth += c.measureText(ch).width + tracking;
-      const total = markSize + fontSize * 0.5 + textWidth;
-      const left = (width - total) / 2;
+      const left = (width - textWidth) / 2;
       const baseline = height / 2 + fontSize * 0.36;
-      lockupBox = { x: left, y: baseline - fontSize, w: total, h: fontSize * 1.2 };
-
-      c.save();
-      c.translate(left, baseline - markSize);
-      c.scale(markSize / 64, markSize / 64);
-      c.fillStyle = EMBER;
-      c.fill(new Path2D(MARK_PATH));
-      c.restore();
+      lockupBox = { x: left, y: baseline - fontSize, w: textWidth, h: fontSize * 1.2 };
 
       c.fillStyle = letterColour;
-      let x = left + markSize + fontSize * 0.5;
+      let x = left;
       for (const ch of text) {
         c.fillText(ch, x, baseline);
         x += c.measureText(ch).width + tracking;
@@ -203,13 +197,17 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
       c.textBaseline = 'alphabetic';
       const fontPx = parseFloat(headlineStyle.fontSize) || 48;
       const lineHeight = (parseFloat(headlineStyle.lineHeight) || fontPx * 0.92);
+      c.font = headlineFont;
       lines.forEach((line, index) => {
-        c.font = index === 1 ? serifItalic : serif;
+        // Line two is painted in flat blue purely as a key: on pairing those
+        // points alternate blue and violet so the settled field reads as the
+        // gradient.
+        c.fillStyle = index === 1 ? BLUE : letterColour;
         const y = top + lineHeight * index + fontPx * 0.78;
         c.fillText(line.textContent || '', left, y);
       });
       if (lines.length === 0) {
-        c.font = serif;
+        c.fillStyle = letterColour;
         c.fillText(headline.textContent || '', left, top + fontPx * 0.78);
       }
     };
@@ -248,7 +246,13 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
           by: p.y + Math.sin(angle) * reach,
           tx: claim ? claim.x : null,
           ty: claim ? claim.y : null,
-          color: p.color,
+          color: claim
+            ? claim.color === LINE_TWO_KEY
+              ? index % 2 === 0
+                ? BLUE
+                : VIOLET
+              : letterColour
+            : letterColour,
           wx: 0.6 + Math.random() * 0.8,
           wy: -120 + Math.random() * 240,
           seed: Math.random() * Math.PI * 2,
@@ -307,21 +311,8 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
         ctx.restore();
         return;
       }
-      if (t < FLASH_END) {
-        ctx.clearRect(0, 0, width, height);
-        paintLockup(ctx);
-        const p = (t - DRAW_END) / T_FLASH;
-        const glow = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, Math.max(width, height) * 0.4);
-        glow.addColorStop(0, 'rgba(245,185,75,1)');
-        glow.addColorStop(1, 'rgba(245,185,75,0)');
-        ctx.globalAlpha = 0.5 * Math.sin(p * Math.PI);
-        ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, width, height);
-        ctx.globalAlpha = 1;
-        return;
-      }
       if (t < BURST_END) {
-        const p = spring(Math.min(1, (t - FLASH_END) / T_BURST));
+        const p = spring(Math.min(1, (t - DRAW_END) / T_BURST));
         const spin = p * 0.12;
         const cos = Math.cos(spin);
         const sin = Math.sin(spin);
@@ -359,7 +350,7 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     /** The sweep: a pure function of scroll progress. */
     const drawSweep = () => {
       const p = Math.min(1, Math.max(0, progressRef.current));
-      if (p <= 0.02) {
+      if (p <= 0.05) {
         if (!headlineShown) {
           showHeadline(true);
           ctx.clearRect(0, 0, width, height);
@@ -407,8 +398,8 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
 
     let cancelled = false;
     const fonts = Promise.all([
-      document.fonts?.load("400 64px 'Instrument Serif'"),
-      document.fonts?.load("500 16px 'Geist'"),
+      document.fonts?.load("800 64px 'Archivo'"),
+      document.fonts?.load("400 16px 'Archivo'"),
     ]).catch(() => undefined);
     Promise.race([fonts, new Promise((resolve) => window.setTimeout(resolve, FONT_TIMEOUT))]).then(() => {
       if (!cancelled) boot();

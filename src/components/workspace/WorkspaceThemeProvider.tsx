@@ -70,53 +70,53 @@ type Palette = {
 
 const MONO_DARK = {
   mode: 'dark' as const,
-  background: '30 9% 4%',
-  surface: '30 11% 7%',
-  surfaceElevated: '30 12% 10%',
-  surfaceSunken: '30 10% 3%',
-  foreground: '39 39% 93%',
-  secondaryText: '37 13% 66%',
-  muted: '33 8% 50%',
-  border: '30 11% 15%',
-  borderSubtle: '30 11% 15%',
-  borderStrong: '30 9% 21%',
-  primary: '15 88% 59%',
-  primaryDeep: '15 88% 59%',
-  primaryForeground: '30 9% 4%',
+  background: '0 0% 0%',
+  surface: '240 18% 3%',
+  surfaceElevated: '240 18% 7%',
+  surfaceSunken: '0 0% 0%',
+  foreground: '0 0% 100%',
+  secondaryText: '231 12% 67%',
+  muted: '229 9% 51%',
+  border: '240 16% 12%',
+  borderSubtle: '240 16% 12%',
+  borderStrong: '240 16% 18%',
+  primary: '215 100% 61%',
+  primaryDeep: '215 100% 61%',
+  primaryForeground: '0 0% 0%',
 };
 
 const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
   pest: {
     ...MONO_DARK,
-    workspaceAccent: '15 88% 59%',
-    wordmark: { bg: '#0C0B0A', accent: '#F2673A', outline: '#F4EFE6', letters: '#F4EFE6' },
+    workspaceAccent: '215 100% 61%',
+    wordmark: { bg: '#000000', accent: '#3A8DFF', outline: '#FFFFFF', letters: '#FFFFFF' },
     texture: 'none',
     textureSize: 'auto',
   },
   fiber: {
     ...MONO_DARK,
-    workspaceAccent: '15 88% 59%',
-    wordmark: { bg: '#0C0B0A', accent: '#F2673A', outline: '#F4EFE6', letters: '#F4EFE6' },
+    workspaceAccent: '215 100% 61%',
+    wordmark: { bg: '#000000', accent: '#3A8DFF', outline: '#FFFFFF', letters: '#FFFFFF' },
     texture: 'none',
     textureSize: 'auto',
   },
   life: {
     mode: 'light',
-    background: '38 41% 95%',
-    surface: '36 32% 91%',
+    background: '0 0% 100%',
+    surface: '240 18% 97%',
     surfaceElevated: '0 0% 100%',
-    surfaceSunken: '36 32% 91%',
-    foreground: '30 11% 7%',
-    secondaryText: '34 8% 33%',
-    muted: '33 9% 40%',
-    border: '37 24% 85%',
-    borderSubtle: '37 24% 85%',
-    borderStrong: '37 24% 80%',
-    primary: '30 11% 7%',
-    primaryDeep: '30 11% 7%',
-    primaryForeground: '38 41% 95%',
-    workspaceAccent: '17 82% 38%',
-    wordmark: { bg: '#F7F3EC', accent: '#B23E12', outline: '#141210', letters: '#141210' },
+    surfaceSunken: '240 18% 97%',
+    foreground: '0 0% 0%',
+    secondaryText: '231 14% 36%',
+    muted: '231 11% 48%',
+    border: '240 17% 91%',
+    borderSubtle: '240 17% 91%',
+    borderStrong: '240 17% 87%',
+    primary: '0 0% 0%',
+    primaryDeep: '0 0% 0%',
+    primaryForeground: '0 0% 100%',
+    workspaceAccent: '223 100% 56%',
+    wordmark: { bg: '#FFFFFF', accent: '#1F5EFF', outline: '#000000', letters: '#000000' },
     texture: 'none',
     textureSize: 'auto',
   },
@@ -125,19 +125,19 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
 /** Pass 83 - the Light palette. Same token names, daylight values. */
 const MONO_LIGHT = {
   mode: 'light' as const,
-  background: '38 41% 95%',
-  surface: '36 32% 91%',
+  background: '0 0% 100%',
+  surface: '240 18% 97%',
   surfaceElevated: '0 0% 100%',
-  surfaceSunken: '36 32% 91%',
-  foreground: '30 11% 7%',
-  secondaryText: '34 8% 33%',
-  muted: '33 9% 40%',
-  border: '37 24% 85%',
-  borderSubtle: '37 24% 85%',
-  borderStrong: '37 24% 80%',
-  primary: '30 11% 7%',
-  primaryDeep: '30 11% 7%',
-  primaryForeground: '38 41% 95%',
+  surfaceSunken: '240 18% 97%',
+  foreground: '0 0% 0%',
+  secondaryText: '231 14% 36%',
+  muted: '231 11% 48%',
+  border: '240 17% 91%',
+  borderSubtle: '240 17% 91%',
+  borderStrong: '240 17% 87%',
+  primary: '0 0% 0%',
+  primaryDeep: '0 0% 0%',
+  primaryForeground: '0 0% 100%',
 };
 
 /** The light-appearance twin of a dark workspace palette. */
@@ -145,7 +145,7 @@ function lightVariant(p: Palette): Palette {
   return {
     ...p,
     ...MONO_LIGHT,
-    wordmark: { ...p.wordmark, bg: '#F7F3EC', accent: '#B23E12', outline: '#141210', letters: '#141210' },
+    wordmark: { ...p.wordmark, bg: '#FFFFFF', accent: '#1F5EFF', outline: '#000000', letters: '#000000' },
     texture: 'none',
   };
 }
@@ -155,7 +155,7 @@ function darkVariant(p: Palette): Palette {
   return {
     ...p,
     ...MONO_DARK,
-    wordmark: { ...p.wordmark, bg: '#0C0B0A', accent: '#F2673A', outline: '#F4EFE6', letters: '#F4EFE6' },
+    wordmark: { ...p.wordmark, bg: '#000000', accent: '#3A8DFF', outline: '#FFFFFF', letters: '#FFFFFF' },
     texture: 'none',
   };
 }
@@ -254,8 +254,8 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
 
     // The range behind the hero: far to near, dissolving into the page.
     const range = light
-      ? ['#DCE4F2', '#E2E9F4', '#E8EDF6', '#EEF1F7', '#F3F5F8']
-      : ['#16233D', '#121D33', '#0E1729', '#0B1220', '#080D17'];
+      ? ['#E9E9E9', '#EDEDED', '#F0F0F0', '#F3F3F3', '#F5F5F5']
+      : ['#1C1C1C', '#161616', '#101010', '#0A0A0A', '#050505'];
     range.forEach((c, i) => set(`--range-${i + 1}`, c));
 
     set('--workspace-texture', p.texture);

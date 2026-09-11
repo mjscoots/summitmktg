@@ -137,14 +137,14 @@ export function StreakLeaderboard() {
                 className={cn(
                   "flex flex-col items-center p-3 rounded-xl border transition-all hover:scale-[1.02]",
                   bgClass,
-                  isCurrentUser && "ring-2 ring-primary/50"
+                  isCurrentUser && "ring-2 ring-accent/50"
                 )}
               >
                 <div className="mb-1">{getRankIcon(rank)}</div>
                 <UserAvatar avatarUrl={entry.avatar_url} fullName={entry.full_name} size="md" className="mb-1.5" />
                 <p className={cn(
                   "text-xs font-medium text-center truncate w-full",
-                  isCurrentUser ? "text-primary" : "text-foreground"
+                  isCurrentUser ? "text-accent" : "text-foreground"
                 )}>
                   {streakDisplayName(entry)}
                 </p>
@@ -172,7 +172,7 @@ export function StreakLeaderboard() {
                 onClick={() => setSelectedMember({ id: entry.user_id, user_id: entry.user_id, full_name: entry.full_name, email: '', phone: null, status: 'active', experience: null, direct_manager: null, avatar_url: entry.avatar_url } as TeamMember)}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/50 text-left",
-                  isCurrentUser && "bg-primary/5"
+                  isCurrentUser && "bg-accent/[0.08]"
                 )}
               >
                 <div className="w-6 flex justify-center">
@@ -182,7 +182,7 @@ export function StreakLeaderboard() {
                 <div className="flex-1 min-w-0">
                   <p className={cn(
                     "text-sm font-medium truncate",
-                    isCurrentUser ? "text-primary" : "text-foreground"
+                    isCurrentUser ? "text-accent" : "text-foreground"
                   )}>
                     {streakDisplayName(entry)}
                     {isCurrentUser && <span className="text-xs ml-1 text-muted-foreground">(You)</span>}
