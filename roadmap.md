@@ -12,8 +12,8 @@
 - [x] Verify and append Pass 182 report
 
 ## Pass 185
-- [ ] Replace pixel assembly and burst with 28/56 clipped vector shards
-- [ ] Separate the logo hero and statement into full-screen sections
-- [ ] Update statement, doors, and ticker copy
-- [ ] Remove Who runs it, pay, season, and work sections
+- [x] Replace pixel assembly and burst with 28/56 clipped vector shards
+- [x] Separate the logo hero and statement into full-screen sections
+- [x] Update statement, doors, and ticker copy
+- [x] Remove Who runs it, pay, season, and work sections
 - [ ] Verify and append Pass 185 report

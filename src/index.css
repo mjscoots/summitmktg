@@ -1811,6 +1811,7 @@ body {
 .public-world > header,
 .public-world > main,
 .public-world > footer { position: relative; z-index: 1; }
+.public-world > header.public-nav { position: fixed; }
 
 /* Every section between the hero and the final band is fully opaque, so the
    browser never composites the canvas underneath while the visitor scrolls. */
@@ -2161,7 +2162,15 @@ html[data-appearance='light'] .btn-gradient {
 }
 @keyframes shard-assemble {
   0% { transform: translate(var(--from-x), var(--from-y)) rotate(var(--shard-rotate)); }
-  88% { transform: translate(0, -2px) rotate(0); }
+  91% { transform: translate(0, -2px) rotate(0); }
+  100% { transform: none; }
+}
+.cover-logo[data-phase='assemble'] .cover-shard[data-mountain='true'] {
+  animation-name: shard-assemble-mountain;
+}
+@keyframes shard-assemble-mountain {
+  0% { transform: translate(var(--from-x), var(--from-y)) rotate(var(--shard-rotate)); }
+  87% { transform: translate(0, -2px) rotate(0); }
   100% { transform: none; }
 }
 .cover-logo[data-phase='burst'] .cover-shard {

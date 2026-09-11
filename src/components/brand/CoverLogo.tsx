@@ -70,7 +70,7 @@ function makeShards(count: 28 | 56): Shard[] {
       const vertical = row % 2 === 0 ? -1 : 1;
       const angle = Math.atan2(centreY - (VIEW_Y + VIEW_H / 2), centreX - (VIEW_X + VIEW_W / 2));
       const delay = mountain
-        ? Math.round((index / Math.max(1, count - 1)) * 180)
+        ? Math.round((index / Math.max(1, count - 1)) * 80)
         : Math.round(250 + (centreX - VIEW_X) / VIEW_W * 250);
       shards.push({
         points: `${a.x},${a.y} ${b.x},${b.y} ${c.x},${c.y} ${d.x},${d.y}`,
@@ -81,7 +81,7 @@ function makeShards(count: 28 | 56): Shard[] {
         burstX: `${Math.cos(angle) * (65 + seeded(index, 6) * 35)}vw`,
         burstY: `${Math.sin(angle) * (65 + seeded(index, 7) * 35)}vh`,
         rotation: (8 + seeded(index, 8) * 12) * (index % 2 === 0 ? -1 : 1),
-        duration: mountain ? 520 : 900,
+        duration: mountain ? 620 : 900,
       });
     }
   }
