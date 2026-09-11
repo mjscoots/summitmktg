@@ -4542,3 +4542,83 @@ shell gzip of the entry bundles is 16,404 bytes of JS (from 16,451) and 30,011
 bytes of CSS (from 30,995). No data written, nothing deployed, nothing
 published. No em dash and no emoji in any added line. Baselines: profiles 536,
 chat_messages 716, applications 13, earnings_goals 0.
+
+## Pass 182 - the opening always runs, the calculator comes off, the hero gets quieter
+
+1. The gate is gone. src/components/brand/LogoBurst.tsx no longer defines or
+reads trnty_intro_seen and never writes to sessionStorage; shouldRunIntro now
+returns true unless prefers-reduced-motion is set. Timings are untouched: 500ms
+draw with a 40ms letter stagger, 250ms hold, 800ms burst, 1000ms formation,
+200ms crossfade. Any pointerdown, keydown, wheel or touchstart still jumps
+straight to the settled state, and the settled hero is the real DOM text.
+Two consecutive loads in one browser context at 390, measured over the first
+2.6 seconds of each load: load one, burst canvas present, 153 frames, median
+16.7ms, p95 16.8ms; load two, burst canvas present, 151 frames, median 16.7ms,
+p95 16.8ms. Grep of src for trnty_intro_seen and SESSION_KEY returns nothing.
+
+2. The calculator is off the cover. Removed from src/pages/Index.tsx: the lazy
+EarningsCalculator import, the usePublicCalc hook, the Skeleton and Suspense
+imports, useNavigate, the Button import, the hasPublishedBands flag and the
+gated Estimate your earnings block. The section keeps the id earnings and is now
+only How pay is set, with the four lines unchanged (paid commission on the
+accounts you sell, pay settled on serviced accounts, three tiers Rookie
+Experienced Veteran, housing charged per night at what the room actually costs)
+and the muted line "The full pay scale is published here when it is released."
+No cover link or anchor points at a calculator; "See what you could make" was
+already gone in 181. src/components/EarningsCalculator.tsx, the app page
+/app/estimate-earnings and get_public_calc are untouched.
+
+Cover sections at 390, in order: hero (EVERY SUMMER SALES JOB ENDS IN AUGUST. /
+EXCEPT THIS ONE.), the two doors (Pest, Fiber), Find your door, What the work is,
+Who runs it, How pay is set, How the season works, the final band, footer. Page
+text contains "Estimate your earnings" zero times. Every button and link label
+in main: Get in, Sign in, the Pest door, the Fiber door, Yes, No, This season,
+Next season, Not sure, Book fifteen minutes with Matt, Get in, sign in. The
+qualifier result button reads Get in once the three answers are in.
+
+Colour audit below the hero, computed on every element in every section after
+the first plus the footer. Fixed:
+- ThreeDoorSection "Live" label was text-primary blue, now text-foreground.
+- Index What the work is icons were text-primary blue, now text-text-muted.
+- ReferralLookup match link was text-primary and the fallback link was text-ice,
+  both now inherit white.
+- .public-link was hsl(var(--ice)) light blue, now foreground white with a 3px
+  underline offset, so the link signal is the underline and not a colour.
+- .qual-choice-on was the brand gradient, now a white fill with black text, so
+  Find your door carries the gradient on one element only.
+- .public-world and .public-auth still carried a Pass 116 override of
+  --primary to 15 88% 59%, the old orange, and the light variant carried
+  30 11% 7% with an orange primary-foreground and a cyan glow. Both blocks are
+  removed, so the cover resolves --primary to the V6 blue.
+- .ridgeline-mark set color to hsl(var(--primary)); the mark paints with gradient
+  fills and never currentColor, so the declaration is deleted.
+After the fixes the only non neutral values below the hero are the two greys,
+#A1A4B5 secondary and #777B8D muted, and the brand gradient on exactly two
+elements, one per section: the Book fifteen minutes with Matt button in Who runs
+it and the Get in button in the final band. Zero blue, violet, orange, gold or
+any other hue.
+
+3. The hero. An eyebrow sits above the headline: Archivo 500, computed 12px,
+uppercase, letter spacing 1.68px which is 0.14em, colour rgb(161, 164, 181)
+which is text secondary, reading NOT ON A JOB BOARD. with
+transition: opacity 200ms linear 200ms, so it fades in 200ms after the headline
+settles and is hidden while the burst plays. Line two is wrapped in
+.cover-redact: while the burst runs the wrapper carries data-redact and paints a
+solid gradient rounded rectangle through ::after at 10px radius, inset to the
+line box, measured 350 by 84 at 390, with the gradient text at opacity 0. When
+the hero settles the attribute drops and both the bar and the text cross over a
+500ms linear opacity transition, so the bar dissolves into the gradient text.
+The text node EXCEPT THIS ONE. is always in the DOM, so selection and screen
+readers get the real words at all times. Under prefers-reduced-motion: no burst
+canvas, no data-redact, the bar is display none, headline opacity 1, text
+opacity 1, eyebrow opacity 1 and no transitions. The primary label is Get in in
+the hero, in the final band and in the qualifier result; routes stay
+/apply/rookie and /apply/veteran with the same query parameters.
+
+4. Nothing else. No dependency added, no permission or grant changed, no
+migration run, no data written, nothing deployed, nothing published. No em dash
+and no emoji in any added line. Typecheck clean with tsgo against
+tsconfig.app.json; production build clean in 11.45s; shell gzip of the entry
+bundles is 16,381 bytes of JS (from 16,404) and 30,109 bytes of CSS (from
+30,011). Baselines unchanged: profiles 536, chat_messages 716, applications 13,
+earnings_goals 0.
