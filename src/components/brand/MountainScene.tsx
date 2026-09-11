@@ -281,7 +281,43 @@ function MountainSceneBase({
       haze.addColorStop(1, `rgba(${sky},1)`);
       ctx.fillStyle = haze;
       ctx.fillRect(0, ty + 370 * scale, width, VIEW_H * scale - 370 * scale + 2);
+
+      // Pass 179 - the climb. Under reduced motion the marker sits on the
+      // summit and never moves.
+      const climbValue = climbRef.current;
+      if (typeof climbValue === 'number' && crest.length > 1) {
+        const p = reduceMotion ? 1 : Math.min(1, Math.max(0, climbValue));
+        const point = crest[Math.round(p * (crest.length - 1))];
+        const mxp = tx + px * 1.2 + point.x * scale;
+        const myp = ty + py * 1.2 + point.y * scale;
+        const halo = ctx.createRadialGradient(mxp, myp, 0, mxp, myp, 22);
+        halo.addColorStop(0, 'rgba(180,245,59,0.35)');
+        halo.addColorStop(1, 'rgba(180,245,59,0)');
+        ctx.fillStyle = halo;
+        ctx.fillRect(mxp - 22, myp - 22, 44, 44);
+        ctx.fillStyle = '#B4F53B';
+        ctx.beginPath();
+        ctx.arc(mxp, myp, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Pass 179 - a soft light ripple from a tap on the range.
+      if (!reduceMotion && ripples.length) {
+        ripples = ripples.filter((r) => now - r.start < RIPPLE_MS);
+        for (const r of ripples) {
+          const t = (now - r.start) / RIPPLE_MS;
+          const eased = 1 - Math.pow(1 - t, 3);
+          ctx.globalAlpha = 0.22 * (1 - t);
+          ctx.strokeStyle = '#B4F53B';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, 8 + eased * 180, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      }
     };
+
 
     resize();
 
