@@ -1,0 +1,453 @@
+import { memo, useEffect, useRef } from 'react';
+import { MARK_PATH } from './Wordmark';
+
+/**
+ * Pass 180 - the opening and the sweep. Cover only.
+ *
+ * On the first load of the cover in a session the lockup draws itself in the
+ * middle of the hero, flashes, shatters into thousands of pieces, and those
+ * pieces are pulled into the shape of the real headline before the DOM headline
+ * crossfades in on top. After that the same particle field answers scroll: the
+ * headline tears off the right edge of the page and reassembles on the way back.
+ *
+ * The settled hero is always the real DOM text, so it stays selectable and
+ * readable by a screen reader. Under prefers-reduced-motion, or on any later
+ * load in the session, this component renders nothing and the hero is settled
+ * from the first frame.
+ *
+ * Everything drawn here is transform and opacity work on a canvas: no layout
+ * property is ever animated.
+ */
+
+const SESSION_KEY = 'trnty_intro_seen';
+
+const T_DRAW = 900;
+const T_HOLD = 400;
+const T_FLASH = 240;
+const T_BURST = 1100;
+const T_FORM = 1400;
+const T_CROSS = 200;
+const FONT_TIMEOUT = 2500;
+
+const DRAW_END = T_DRAW + T_HOLD;
+const FLASH_END = DRAW_END + T_FLASH;
+const BURST_END = FLASH_END + T_BURST;
+const FORM_END = BURST_END + T_FORM;
+
+const EMBER = '#F2673A';
+
+/** The spring easing token, as a function. */
+function spring(t: number): number {
+  const c = 1.70158 + 1;
+  const p = t - 1;
+  return 1 + c * p * p * p + 1.70158 * p * p;
+}
+
+function easeOut(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+interface Particle {
+  /** Start (the sampled lockup pixel). */
+  sx: number;
+  sy: number;
+  /** Burst destination. */
+  bx: number;
+  by: number;
+  /** Headline target, or null for an ember with nowhere to go. */
+  tx: number | null;
+  ty: number | null;
+  color: string;
+  /** Per particle wind factors for the sweep. */
+  wx: number;
+  wy: number;
+  seed: number;
+}
+
+export interface LogoBurstProps {
+  /** The real headline, used for the target shape and the crossfade. */
+  headlineRef: React.RefObject<HTMLElement>;
+  /** Scroll progress over the first 70vh, 0 to 1. */
+  progress: number;
+  /** Called with false while the particles stand in for the headline. */
+  onHeadlineVisible?: (visible: boolean) => void;
+  /** Called once the hero is settled, so the rest of it can fade up. */
+  onSettled?: () => void;
+}
+
+export function shouldRunIntro(): boolean {
+  if (typeof window === 'undefined') return false;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  try {
+    return sessionStorage.getItem(SESSION_KEY) !== '1';
+  } catch {
+    return false;
+  }
+}
+
+function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: LogoBurstProps) {
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+
+  useEffect(() => {
+    const host = hostRef.current;
+    const canvas = canvasRef.current;
+    const headline = headlineRef.current;
+    if (!host || !canvas || !headline) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    try {
+      sessionStorage.setItem(SESSION_KEY, '1');
+    } catch {
+      /* a private window simply replays the opening */
+    }
+
+    const phone = window.innerWidth < 700;
+    const step = phone ? 3 : 2;
+    const cap = phone ? 2400 : 7000;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+    let width = host.clientWidth;
+    let height = host.clientHeight;
+    let particles: Particle[] = [];
+    let byColour = new Map<string, Particle[]>();
+    let settled = false;
+    let jumped = false;
+    let frame = 0;
+    let start = 0;
+    let lockupBox = { x: 0, y: 0, w: 0, h: 0 };
+
+    const size = () => {
+      width = Math.max(1, host.clientWidth);
+      height = Math.max(1, host.clientHeight);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    /** Samples a drawn offscreen canvas into a list of coloured points. */
+    const sample = (paint: (c: CanvasRenderingContext2D) => void) => {
+      const off = document.createElement('canvas');
+      off.width = Math.max(1, Math.round(width));
+      off.height = Math.max(1, Math.round(height));
+      const octx = off.getContext('2d');
+      if (!octx) return [] as { x: number; y: number; color: string }[];
+      paint(octx);
+      const data = octx.getImageData(0, 0, off.width, off.height).data;
+      const points: { x: number; y: number; color: string }[] = [];
+      for (let y = 0; y < off.height; y += step) {
+        for (let x = 0; x < off.width; x += step) {
+          const i = (y * off.width + x) * 4;
+          if (data[i + 3] > 128) {
+            points.push({ x, y, color: `rgb(${data[i]},${data[i + 1]},${data[i + 2]})` });
+          }
+        }
+      }
+      return points;
+    };
+
+    const letterColour = getComputedStyle(headline).color || '#F4EFE6';
+    const headlineStyle = getComputedStyle(headline);
+    const serif = `${headlineStyle.fontWeight} ${headlineStyle.fontSize} ${headlineStyle.fontFamily}`;
+    const serifItalic = `italic ${headlineStyle.fontWeight} ${headlineStyle.fontSize} ${headlineStyle.fontFamily}`;
+
+    /** The lockup, centred, at about a fifth of the hero width. */
+    const paintLockup = (c: CanvasRenderingContext2D) => {
+      const markSize = Math.max(48, Math.min(120, width * 0.09));
+      const fontSize = markSize * 1.15;
+      c.font = `400 ${fontSize}px 'Instrument Serif', Georgia, serif`;
+      c.textBaseline = 'alphabetic';
+      const text = 'TRNTY';
+      const tracking = fontSize * 0.12;
+      let textWidth = 0;
+      for (const ch of text) textWidth += c.measureText(ch).width + tracking;
+      const total = markSize + fontSize * 0.5 + textWidth;
+      const left = (width - total) / 2;
+      const baseline = height / 2 + fontSize * 0.36;
+      lockupBox = { x: left, y: baseline - fontSize, w: total, h: fontSize * 1.2 };
+
+      c.save();
+      c.translate(left, baseline - markSize);
+      c.scale(markSize / 64, markSize / 64);
+      c.fillStyle = EMBER;
+      c.fill(new Path2D(MARK_PATH));
+      c.restore();
+
+      c.fillStyle = letterColour;
+      let x = left + markSize + fontSize * 0.5;
+      for (const ch of text) {
+        c.fillText(ch, x, baseline);
+        x += c.measureText(ch).width + tracking;
+      }
+    };
+
+    /** The headline, in the exact box the DOM headline occupies. */
+    const paintHeadline = (c: CanvasRenderingContext2D) => {
+      const rect = headline.getBoundingClientRect();
+      const hostRect = host.getBoundingClientRect();
+      const left = rect.left - hostRect.left;
+      const top = rect.top - hostRect.top;
+      const lines = Array.from(headline.children) as HTMLElement[];
+      c.fillStyle = letterColour;
+      c.textBaseline = 'alphabetic';
+      const fontPx = parseFloat(headlineStyle.fontSize) || 48;
+      const lineHeight = (parseFloat(headlineStyle.lineHeight) || fontPx * 0.92);
+      lines.forEach((line, index) => {
+        c.font = index === 1 ? serifItalic : serif;
+        const y = top + lineHeight * index + fontPx * 0.78;
+        c.fillText(line.textContent || '', left, y);
+      });
+      if (lines.length === 0) {
+        c.font = serif;
+        c.fillText(headline.textContent || '', left, top + fontPx * 0.78);
+      }
+    };
+
+    const build = () => {
+      const source = sample(paintLockup);
+      const targets = sample(paintHeadline);
+      // Even thinning so both fields stay under the cap and stay legible.
+      const thin = <T,>(list: T[], limit: number): T[] => {
+        if (list.length <= limit) return list;
+        const keep: T[] = [];
+        const stride = list.length / limit;
+        for (let i = 0; i < limit; i += 1) keep.push(list[Math.floor(i * stride)]);
+        return keep;
+      };
+      const src = thin(source, cap);
+      const tgt = thin(targets, cap);
+
+      // Grid buckets so target matching stays linear.
+      const cell = 24;
+      const buckets = new Map<string, { x: number; y: number }[]>();
+      for (const t of tgt) {
+        const key = `${Math.floor(t.x / cell)}:${Math.floor(t.y / cell)}`;
+        const list = buckets.get(key);
+        if (list) list.push(t);
+        else buckets.set(key, [t]);
+      }
+      const keys = Array.from(buckets.keys());
+      let keyIndex = 0;
+
+      particles = src.map((p) => {
+        // Nearest unclaimed target: try the bucket over the particle first, then
+        // walk the remaining buckets in order.
+        let claim: { x: number; y: number } | undefined;
+        const own = `${Math.floor(p.x / cell)}:${Math.floor(p.y / cell)}`;
+        const ownList = buckets.get(own);
+        if (ownList && ownList.length) claim = ownList.pop();
+        while (!claim && keyIndex < keys.length) {
+          const list = buckets.get(keys[keyIndex]);
+          if (list && list.length) claim = list.pop();
+          else keyIndex += 1;
+        }
+        const angle = Math.atan2(p.y - height / 2, p.x - width / 2) + (Math.random() - 0.5) * 0.6;
+        const reach = Math.max(width, height) * (0.28 + Math.random() * 0.42);
+        return {
+          sx: p.x,
+          sy: p.y,
+          bx: p.x + Math.cos(angle) * reach,
+          by: p.y + Math.sin(angle) * reach,
+          tx: claim ? claim.x : null,
+          ty: claim ? claim.y : null,
+          color: p.color,
+          wx: 0.6 + Math.random() * 0.8,
+          wy: -120 + Math.random() * 240,
+          seed: Math.random() * Math.PI * 2,
+        };
+      });
+
+      byColour = new Map();
+      for (const p of particles) {
+        const list = byColour.get(p.color);
+        if (list) list.push(p);
+        else byColour.set(p.color, [p]);
+      }
+    };
+
+    const paintField = (positions: (p: Particle) => { x: number; y: number; a: number } | null) => {
+      ctx.clearRect(0, 0, width, height);
+      byColour.forEach((list, colour) => {
+        ctx.fillStyle = colour;
+        let alpha = -1;
+        for (const p of list) {
+          const at = positions(p);
+          if (!at) continue;
+          if (at.a !== alpha) {
+            alpha = at.a;
+            ctx.globalAlpha = alpha;
+          }
+          ctx.fillRect(at.x, at.y, step - 1, step - 1);
+        }
+      });
+      ctx.globalAlpha = 1;
+    };
+
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      onHeadlineVisible?.(true);
+      onSettled?.();
+    };
+
+    const drawOpening = (now: number) => {
+      const t = now - start;
+      if (t < DRAW_END) {
+        // The lockup draws in: the mark fills from base to peak, the letters
+        // rise and fade in behind a clip that opens left to right.
+        ctx.clearRect(0, 0, width, height);
+        const p = Math.min(1, t / T_DRAW);
+        const eased = easeOut(p);
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, p * 1.6);
+        ctx.translate(0, (1 - eased) * 12);
+        ctx.beginPath();
+        ctx.rect(lockupBox.x, lockupBox.y + lockupBox.h * (1 - eased), lockupBox.w, lockupBox.h * eased + 2);
+        ctx.rect(lockupBox.x, lockupBox.y, lockupBox.w * eased, lockupBox.h);
+        ctx.clip();
+        paintLockup(ctx);
+        ctx.restore();
+        return;
+      }
+      if (t < FLASH_END) {
+        ctx.clearRect(0, 0, width, height);
+        paintLockup(ctx);
+        const p = (t - DRAW_END) / T_FLASH;
+        const glow = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, Math.max(width, height) * 0.4);
+        glow.addColorStop(0, 'rgba(245,185,75,1)');
+        glow.addColorStop(1, 'rgba(245,185,75,0)');
+        ctx.globalAlpha = 0.5 * Math.sin(p * Math.PI);
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, width, height);
+        ctx.globalAlpha = 1;
+        return;
+      }
+      if (t < BURST_END) {
+        const p = spring(Math.min(1, (t - FLASH_END) / T_BURST));
+        const spin = p * 0.12;
+        const cos = Math.cos(spin);
+        const sin = Math.sin(spin);
+        paintField((particle) => {
+          const x = particle.sx + (particle.bx - particle.sx) * p - width / 2;
+          const y = particle.sy + (particle.by - particle.sy) * p - height / 2;
+          return { x: width / 2 + x * cos - y * sin, y: height / 2 + x * sin + y * cos, a: 1 };
+        });
+        return;
+      }
+      if (t < FORM_END) {
+        const p = spring(Math.min(1, (t - BURST_END) / T_FORM));
+        paintField((particle) => {
+          if (particle.tx === null || particle.ty === null) {
+            // An ember with nowhere to go drifts up and fades out.
+            return { x: particle.bx, y: particle.by - p * 160, a: Math.max(0, 1 - p) };
+          }
+          return {
+            x: particle.bx + (particle.tx - particle.bx) * p,
+            y: particle.by + (particle.ty - particle.by) * p,
+            a: 1,
+          };
+        });
+        return;
+      }
+      const fade = Math.min(1, (t - FORM_END) / T_CROSS);
+      if (fade === 0) onHeadlineVisible?.(true);
+      paintField((particle) => (particle.tx === null ? null : { x: particle.tx, y: particle.ty as number, a: 1 - fade }));
+      if (fade >= 1) {
+        ctx.clearRect(0, 0, width, height);
+        settle();
+      }
+    };
+
+    /** The sweep: a pure function of scroll progress. */
+    const drawSweep = () => {
+      const p = Math.min(1, Math.max(0, progressRef.current));
+      if (p <= 0.02) {
+        onHeadlineVisible?.(true);
+        ctx.clearRect(0, 0, width, height);
+        return;
+      }
+      onHeadlineVisible?.(false);
+      const wind = Math.pow(p, 1.6) * width * 1.3;
+      const alpha = Math.max(0, 1 - p * p);
+      paintField((particle) => {
+        if (particle.tx === null || particle.ty === null) return null;
+        return {
+          x: particle.tx + wind * particle.wx,
+          y: particle.ty + p * particle.wy + Math.sin(particle.seed + p * 6) * 8,
+          a: alpha,
+        };
+      });
+    };
+
+    const loop = (now: number) => {
+      if (!settled) drawOpening(now);
+      else drawSweep();
+      frame = requestAnimationFrame(loop);
+    };
+
+    const jump = () => {
+      if (jumped) return;
+      jumped = true;
+      settle();
+      ctx.clearRect(0, 0, width, height);
+    };
+
+    const onResize = () => {
+      size();
+      build();
+    };
+
+    const boot = () => {
+      size();
+      build();
+      onHeadlineVisible?.(false);
+      start = performance.now();
+      frame = requestAnimationFrame(loop);
+    };
+
+    let cancelled = false;
+    const fonts = Promise.all([
+      document.fonts?.load("400 64px 'Instrument Serif'"),
+      document.fonts?.load("500 16px 'Geist'"),
+    ]).catch(() => undefined);
+    Promise.race([fonts, new Promise((resolve) => window.setTimeout(resolve, FONT_TIMEOUT))]).then(() => {
+      if (!cancelled) boot();
+    });
+
+    const onHidden = () => {
+      if (document.hidden) cancelAnimationFrame(frame);
+      else frame = requestAnimationFrame(loop);
+    };
+    window.addEventListener('pointerdown', jump, { passive: true });
+    window.addEventListener('keydown', jump);
+    window.addEventListener('wheel', jump, { passive: true });
+    window.addEventListener('touchstart', jump, { passive: true });
+    window.addEventListener('resize', onResize);
+    document.addEventListener('visibilitychange', onHidden);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      window.removeEventListener('pointerdown', jump);
+      window.removeEventListener('keydown', jump);
+      window.removeEventListener('wheel', jump);
+      window.removeEventListener('touchstart', jump);
+      window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onHidden);
+    };
+  }, [headlineRef, onHeadlineVisible, onSettled]);
+
+  return (
+    <div className="logo-burst" ref={hostRef} aria-hidden="true">
+      <canvas ref={canvasRef} />
+    </div>
+  );
+}
+
+export const LogoBurst = memo(LogoBurstBase);
+export default LogoBurst;
