@@ -3,22 +3,21 @@ import { memo, useEffect, useRef } from 'react';
 /**
  * Pass 181 - the opening and the sweep. Cover only.
  *
- * On the first load of the cover in a session TRNTY alone draws itself huge and
+ * On every load of the cover TRNTY alone draws itself huge and
  * centred in the hero, holds, shatters into thousands of pieces, and those
  * pieces are pulled into the shape of the real two line headline before the DOM
  * headline crossfades in on top. After that the same particle field answers scroll: the
  * headline tears off the right edge of the page and reassembles on the way back.
  *
- * The settled hero is always the real DOM text, so it stays selectable and
- * readable by a screen reader. Under prefers-reduced-motion, or on any later
- * load in the session, this component renders nothing and the hero is settled
- * from the first frame.
+ * Pass 182 removes the once per session gate, so the opening runs on every load
+ * of the cover. The settled hero is always the real DOM text, so it stays
+ * selectable and readable by a screen reader. Under prefers-reduced-motion this
+ * component renders nothing and the hero is settled from the first frame, and
+ * any input jumps straight to the settled state.
  *
  * Everything drawn here is transform and opacity work on a canvas: no layout
  * property is ever animated.
  */
-
-const SESSION_KEY = 'trnty_intro_seen';
 
 const T_DRAW = 500;
 const T_HOLD = 250;
@@ -78,12 +77,7 @@ export interface LogoBurstProps {
 
 export function shouldRunIntro(): boolean {
   if (typeof window === 'undefined') return false;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  try {
-    return sessionStorage.getItem(SESSION_KEY) !== '1';
-  } catch {
-    return false;
-  }
+  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: LogoBurstProps) {
@@ -99,12 +93,6 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     if (!host || !canvas || !headline) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
-    try {
-      sessionStorage.setItem(SESSION_KEY, '1');
-    } catch {
-      /* a private window simply replays the opening */
-    }
 
     const phone = window.innerWidth < 700;
     const step = phone ? 3 : 2;

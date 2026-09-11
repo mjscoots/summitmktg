@@ -264,7 +264,7 @@ const Index = () => {
           <div className="relative z-10 mx-auto max-w-xl">
             <p className="text-base text-text-secondary">Applications take a few minutes.</p>
             <Link to="/apply/rookie" className="btn-gradient mt-7 inline-flex items-center justify-center gap-2 px-8">
-              Apply <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             <ReferralLookup />
             <p className="mt-8 text-sm text-text-secondary">

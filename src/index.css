@@ -1906,7 +1906,7 @@ html[data-appearance='light'] .btn-gradient {
 }
 
 /* Links stay plain: the colour is the only signal. */
-.public-link { position: relative; color: hsl(var(--ice)); }
+.public-link { position: relative; color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
 
 /* Find your door */
 .qual-card {
@@ -1932,7 +1932,7 @@ html[data-appearance='light'] .btn-gradient {
     transform var(--motion-base) var(--motion-ease-out);
 }
 .qual-choice-on {
-  background: var(--gradient-brand);
+  background: hsl(var(--foreground));
   color: #000000;
   transform: scale(1.02);
 }
@@ -1960,6 +1960,35 @@ html[data-appearance='light'] .btn-gradient {
   width: 100%;
   height: 100%;
 }
+/* Pass 182: the eyebrow fades in 200ms after the headline settles. */
+.cover-eyebrow {
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 1.25rem;
+  transition: opacity 200ms linear 200ms;
+}
+
+/* Pass 182: line two starts as a solid gradient bar and dissolves into the
+   gradient text over 500ms. The real text is always in the DOM. */
+.cover-redact { position: relative; display: block; }
+.cover-redact > span { transition: opacity 500ms linear; }
+.cover-redact::after {
+  content: '';
+  position: absolute;
+  inset: 0.06em 0 0.1em 0;
+  border-radius: 10px;
+  background: var(--gradient-brand);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms linear;
+}
+.cover-redact[data-redact='true'] > span { opacity: 0; transition: none; }
+.cover-redact[data-redact='true']::after { opacity: 1; transition: none; }
+
 .cover-headline[data-hidden='true'] { opacity: 0; }
 .cover-headline[data-fade='true'] { transition: opacity var(--motion-fast) linear; }
 .cover-opening [data-opening-hidden='true'] { opacity: 0 !important; animation: none !important; }
@@ -1976,4 +2005,7 @@ html[data-appearance='light'] .btn-gradient {
   .cover-headline[data-hidden='true'] { opacity: 1 !important; }
   .cover-opening [data-opening-hidden='true'] { opacity: 1 !important; }
   .cover-opening-in { animation: none !important; }
+  .cover-eyebrow { transition: none !important; }
+  .cover-redact > span { opacity: 1 !important; transition: none !important; }
+  .cover-redact::after { display: none !important; }
 }
