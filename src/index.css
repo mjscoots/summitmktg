@@ -1935,49 +1935,6 @@ html[data-appearance='light'] .btn-gradient {
   100% { transform: rotateX(0deg); opacity: 1; }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   The opening and the sweep
-   ───────────────────────────────────────────────────────────── */
-.logo-burst {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-.logo-burst canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-/* Pass 182: the eyebrow fades in 200ms after the headline settles. */
-.cover-eyebrow {
-  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  margin-bottom: 1.25rem;
-  transition: opacity 200ms linear 200ms;
-}
-
-/* Pass 182: line two starts as a solid gradient bar and dissolves into the
-   gradient text over 500ms. The real text is always in the DOM. */
-.cover-redact { position: relative; display: block; }
-.cover-redact > span { transition: opacity 500ms linear; }
-.cover-redact::after {
-  content: '';
-  position: absolute;
-  inset: 0.06em 0 0.1em 0;
-  border-radius: 10px;
-  background: var(--gradient-brand);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 500ms linear;
-}
-.cover-redact[data-redact='true'] > span { opacity: 0; transition: none; }
-.cover-redact[data-redact='true']::after { opacity: 1; transition: none; }
-
 /* Pass 183: everything under the headline rises 12px once the burst settles,
    one after another on the 60ms stagger. Transform and opacity only. */
 .cover-rise {
@@ -1989,12 +1946,6 @@ html[data-appearance='light'] .btn-gradient {
 }
 .cover-rise[data-in='true'] { opacity: 1; transform: none; }
 
-.cover-headline[data-hidden='true'] { opacity: 0; }
-.cover-headline[data-fade='true'] { transition: opacity var(--motion-fast) linear; }
-
-.cover-opening [data-opening-hidden='true'] { opacity: 0 !important; animation: none !important; }
-.cover-opening-in { animation: wordmark-rise var(--motion-base) var(--motion-ease-out) both; }
-
 @media (prefers-reduced-motion: reduce) {
   .qual-card,
   .qual-choice,
@@ -2002,15 +1953,7 @@ html[data-appearance='light'] .btn-gradient {
   .qual-hold { transform: none; }
   .number-flip { animation-duration: 1ms !important; }
   .ridgeline-mark path { fill-opacity: 1 !important; }
-  .logo-burst { display: none !important; }
-  .cover-headline[data-hidden='true'] { opacity: 1 !important; }
-  .cover-opening [data-opening-hidden='true'] { opacity: 1 !important; }
   .cover-rise { opacity: 1 !important; transform: none !important; transition: none !important; }
-
-  .cover-opening-in { animation: none !important; }
-  .cover-eyebrow { transition: none !important; }
-  .cover-redact > span { opacity: 1 !important; transition: none !important; }
-  .cover-redact::after { display: none !important; }
 }
 
 
@@ -2131,7 +2074,8 @@ html[data-appearance='light'] .btn-gradient {
    gradient underline that draws under the lane name. */
 .public-door { transition: transform var(--motion-base) var(--motion-ease-out), background-color var(--motion-base) var(--motion-ease-out); }
 @media (hover: hover) and (pointer: fine) {
-  .public-door:hover { transform: scale(1.02); background: hsl(var(--surface-elevated)); }
+  /* Pass 184: the scale is gone, the surface change stays. */
+  .public-door:hover { background: hsl(var(--surface-elevated)); }
 }
 .public-door:active { transform: scale(0.98); }
 .door-lane { position: relative; display: inline-block; }
@@ -2170,12 +2114,6 @@ html[data-appearance='light'] .btn-gradient {
 .public-link { transition: opacity 160ms var(--motion-ease-out); }
 .public-link:active { opacity: 0.6; }
 
-/* The eyebrow and the redaction reveal move to the ease out token, and the bar
-   dissolves over 520ms. */
-.cover-eyebrow { transition: opacity 200ms var(--motion-ease-out) 200ms; }
-.cover-redact > span { transition: opacity 520ms var(--motion-ease-out); }
-.cover-redact::after { transition: opacity 520ms var(--motion-ease-out); }
-
 @media (prefers-reduced-motion: reduce) {
   .reveal-clip > *,
   .reveal-cards > * {
@@ -2190,5 +2128,177 @@ html[data-appearance='light'] .btn-gradient {
   .door-lane::after { transition: none !important; }
   .btn-gradient { animation: none !important; transition: none !important; }
   .public-link { transition: none !important; }
-  .section-title { font-variation-settings: 'wght' 800; }
+}
+
+
+/* ━━━ PASS 184: THE CENTRED LOGO AND THE LIGHT WORLD ━━━ */
+
+/* The logo, dead centre of the hero, with the gradient fill and the glow as two
+   layers whose clip and opacity are written straight to the node. */
+.cover-logo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cover-logo canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.cover-logo-art {
+  position: relative;
+  width: 84vw;
+  opacity: 0;
+  transition: opacity 200ms var(--motion-ease-out);
+}
+.cover-logo-art[data-on='true'] { opacity: 1; }
+@media (min-width: 700px) {
+  .cover-logo-art { width: 48vw; }
+}
+.cover-logo-fill {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(100% 0 0 0);
+}
+.cover-logo-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 90vw;
+  height: 90vw;
+  max-width: 900px;
+  max-height: 900px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  background: radial-gradient(circle, rgba(0, 78, 253, 0.9) 0%, rgba(109, 59, 255, 0.5) 45%, rgba(109, 59, 255, 0) 70%);
+}
+
+/* The white swell. One fixed circle, centred on the logo, transform only. */
+.cover-swell {
+  position: fixed;
+  left: var(--swell-x, 50vw);
+  top: var(--swell-y, 50vh);
+  width: 200vmax;
+  height: 200vmax;
+  margin: 0;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  z-index: 25;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0);
+}
+.cover-swell[data-state='out'] { animation: cover-swell-out 900ms var(--motion-ease-out) both; }
+.cover-swell[data-state='in'] { animation: cover-swell-in 500ms var(--motion-ease-out) both; }
+@keyframes cover-swell-out {
+  from { transform: translate(-50%, -50%) scale(0); }
+  to { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes cover-swell-in {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to { transform: translate(-50%, -50%) scale(0); }
+}
+
+/* The hero copy only exists in the light world. */
+.cover-hero-copy {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity var(--motion-base) var(--motion-ease-out), transform var(--motion-base) var(--motion-ease-out);
+}
+.cover-hero-copy[data-in='true'] { opacity: 1; transform: none; pointer-events: auto; }
+.cover-line-blue { color: #004EFD; }
+.cover-line-purple { color: #6D3BFF; }
+
+/* The handwritten line. The clip opens across the glyphs over 1,800ms. */
+.pen-line { display: block; margin: 0 auto; overflow: visible; }
+.pen-line-text {
+  font-family: 'Caveat', 'Kalam', cursive;
+  font-weight: 600;
+  font-size: 64px;
+  fill: #0A0A0F;
+}
+.pen-line-ghost { fill: transparent; }
+.pen-line-wipe {
+  transform-box: fill-box;
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.pen-line[data-writing='true'] .pen-line-wipe {
+  animation: pen-write 1800ms var(--motion-ease-out) both;
+}
+@keyframes pen-write {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.cover-pen {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: 1.2;
+}
+
+/* The one solid purple button. */
+.btn-purple {
+  background: #6D3BFF;
+  color: #FFFFFF;
+  min-height: 48px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: 0;
+  transition: transform 150ms var(--motion-ease-out), opacity 150ms var(--motion-ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-purple:hover { transform: translateY(-2px); }
+}
+.btn-purple:active { transform: scale(0.97); }
+
+/* ── The light world. Everything below the hero once the logo has burst. ── */
+.public-world[data-world='light'] {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 240 13% 96%;
+  --surface: 240 13% 96%;
+  --surface-elevated: 0 0% 100%;
+  --border: 240 15% 91%;
+  --input: 240 15% 91%;
+  --muted: 240 13% 96%;
+  --muted-foreground: 232 10% 48%;
+  --text-secondary: 231 14% 36%;
+  --text-muted: 232 10% 48%;
+  --primary: 223 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 256 100% 61%;
+  --gradient-brand: #6D3BFF;
+  --wordmark-letters: #000000;
+  --wordmark-outline: #000000;
+  color: hsl(var(--foreground));
+  transition: background-color 300ms linear, color 300ms linear;
+}
+.public-world[data-world='light'] .section-title { color: #004EFD; }
+.public-world[data-world='light'] .public-section { background: #FFFFFF; }
+.public-world[data-world='light'] .cover-open::before {
+  background-image: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 28px);
+}
+.public-world[data-world='light'] .cover-scrim { background: rgba(255, 255, 255, 0.45); }
+.public-world[data-world='light'] .cover-progress { background: #6D3BFF; }
+.public-world[data-world='light'] .btn-gradient { background: #6D3BFF; color: #FFFFFF; animation: none; }
+.public-world[data-world='light'] .gradient-text { color: #6D3BFF; -webkit-text-fill-color: #6D3BFF; }
+.public-world[data-world='light'] .proof-underline::after,
+.public-world[data-world='light'] .door-lane::after { background: #6D3BFF; }
+.public-world[data-world='light'] .qual-choice-on { background: #6D3BFF; color: #FFFFFF; }
+.public-world[data-world='light'] .public-link { color: #000000; }
+.public-world[data-world='light'] .cover-ticker-dot { background: #6E7288; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-logo-art { opacity: 1 !important; transition: none !important; }
+  .cover-logo canvas,
+  .cover-swell,
+  .cover-logo-glow { display: none !important; }
+  .cover-hero-copy { opacity: 1 !important; transform: none !important; pointer-events: auto; transition: none !important; }
+  .pen-line-wipe { animation: none !important; transform: scaleX(1) !important; }
+  .btn-purple { transition: none !important; }
 }
