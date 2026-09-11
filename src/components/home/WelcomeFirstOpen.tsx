@@ -74,7 +74,12 @@ export function WelcomeFirstOpen() {
               <p className="text-[15px] font-semibold text-foreground">
                 {i + 1}. {step.title}
               </p>
-              <Button className="mt-3 min-h-11 w-full" onClick={() => { setShow(false); navigate(step.to); }}>
+              {/* One lime action on the screen; the other two steps are outlined. */}
+              <Button
+                variant={i === 0 ? 'default' : 'outline'}
+                className="mt-3 min-h-11 w-full"
+                onClick={() => { setShow(false); navigate(step.to); }}
+              >
                 {step.button}
               </Button>
             </li>
