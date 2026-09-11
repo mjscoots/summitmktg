@@ -191,7 +191,10 @@ export function AskSheet({ watchId }: SheetProps) {
             setOpen(true);
             return;
           }
-          if (entry.intersectionRatio > 0.95) {
+          // Fully in view means the whole element, or the whole viewport when
+          // the element is taller than the screen.
+          const need = Math.min(entry.boundingClientRect.height, window.innerHeight) - 2;
+          if (entry.intersectionRect.height >= need) {
             if (!timer) timer = window.setTimeout(() => setOpen(true), 1500);
           } else {
             window.clearTimeout(timer);
@@ -199,7 +202,7 @@ export function AskSheet({ watchId }: SheetProps) {
           }
         });
       },
-      { threshold: [0, 0.95, 1] },
+      { threshold: [0, 0.5, 0.95, 1] },
     );
     observer.observe(node);
     return () => {
