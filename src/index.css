@@ -1269,13 +1269,6 @@ body {
 
 /* ━━━ Pass 116 - public cover depth and shared login atmosphere. ━━━ */
 @layer components {
-  .public-world,
-  .public-auth {
-    --primary: 15 88% 59%;
-    --primary-foreground: 30 9% 4%;
-    --primary-glow: 15 88% 59%;
-  }
-
   .public-cover, .public-auth, .public-cta { background: hsl(var(--background)); }
   .public-auth { position: relative; isolation: isolate; overflow: hidden; }
 
