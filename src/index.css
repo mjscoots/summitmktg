@@ -1561,7 +1561,6 @@ body {
   0%, 72%, 100% { opacity: 1; filter: drop-shadow(0 0 0 hsl(var(--primary) / 0)); }
   86% { opacity: 1; filter: drop-shadow(0 0 7px hsl(var(--primary) / 0.55)); }
 }
-.ridgeline-mark { color: hsl(var(--primary)); }
 .ridgeline-mark path { stroke-dasharray: 180; stroke-dashoffset: 0; }
 /* Pass 180: the silhouette fills from base to peak behind the drawn outline.
    fill-opacity is the one property here that is not transform or opacity,
