@@ -4051,7 +4051,7 @@ All remaining hits are identifiers, keys, URLs, file names or addresses:
 
 ### Verification
 
-- Added lines contain no em dash and no emoji (checked over the pass diff: 0 and 0).
+- The copy added or renamed in this pass contains no em dash and no emoji. Em dashes do remain in older comment and AI prompt text inside `supabase/functions` (weekly-owner-report, bulk-create-users, extract-leaderboard, submit-vet-lead, validate-signup, daily-accountability-post, redeem-invite, ask-summit, ai-coach, admin-create-user); none of them is user facing product copy and none was touched here.
 - `bun x tsgo --noEmit` clean; `bun x vite build` clean.
 - Shell gzip: entry JS `dist/assets/index-*.js` = 16,516 bytes gzip; entry CSS `dist/assets/index-*.css` = 28,399 bytes gzip.
 - Baselines: profiles 536, chat_messages 715, applications 13 - unchanged. `user_notifications` reads 6445, up from 6375, entirely from the cron writers between Pass 174 and now; this pass wrote no notification.
