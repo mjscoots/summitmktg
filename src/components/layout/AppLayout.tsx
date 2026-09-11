@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -111,13 +111,12 @@ function WorkspaceScopedMain({ children, fullHeight }: { children: ReactNode; fu
   const { activeVertical, epoch } = useWorkspace();
   const location = useLocation();
   const lastIndex = useRef<number>(window.history.state?.idx ?? 0);
-  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
+  const nextIndex = window.history.state?.idx ?? lastIndex.current;
+  const direction = nextIndex < lastIndex.current ? 'back' : 'forward';
 
   useEffect(() => {
-    const nextIndex = window.history.state?.idx ?? lastIndex.current;
-    setDirection(nextIndex < lastIndex.current ? 'back' : 'forward');
     lastIndex.current = nextIndex;
-  }, [location.key]);
+  }, [location.key, nextIndex]);
   return (
     <main
       key={`${activeVertical}:${epoch}`}

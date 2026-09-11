@@ -44,12 +44,12 @@ const Index = () => {
 
   // Slow parallax on the range, off under prefers-reduced-motion.
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const el = document.getElementById('root');
     const target: HTMLElement | Window = el || window;
     const onScroll = () => {
       const y = el ? el.scrollTop : window.scrollY;
-      setOffset(y * 0.15);
+      setOffset(reduceMotion ? 0 : y * 0.15);
       setScrolled(y > 40);
     };
     target.addEventListener('scroll', onScroll, { passive: true });

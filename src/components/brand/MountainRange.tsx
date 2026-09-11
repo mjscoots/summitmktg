@@ -50,8 +50,10 @@ function MountainRangeBase({ className, opacity = 1, animate = false, pointerPar
     const tick = () => {
       x += (targetX - x) * 0.08;
       y += (targetY - y) * 0.08;
-      svg.style.setProperty('--range-pointer-x', x.toFixed(3));
-      svg.style.setProperty('--range-pointer-y', y.toFixed(3));
+      for (let depth = 1; depth <= RIDGES.length; depth += 1) {
+        svg.style.setProperty(`--range-x-${depth}`, `${(x * depth * 1.2).toFixed(3)}px`);
+        svg.style.setProperty(`--range-y-${depth}`, `${(y * depth * 1.2).toFixed(3)}px`);
+      }
       frame = requestAnimationFrame(tick);
     };
     window.addEventListener('pointermove', move, { passive: true });
