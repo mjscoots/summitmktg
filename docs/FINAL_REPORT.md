@@ -4444,3 +4444,181 @@ any added line. Typecheck clean with tsgo against tsconfig.app.json; production
 build clean; shell gzip of the entry bundles is 16,445 bytes of JS and 30,940
 bytes of CSS. Baselines unchanged: profiles 536, chat_messages 715,
 applications 13, earnings_goals 0.
+
+## Pass 181 - black, blue and violet, reduced and recoloured
+
+Palette V6 replaced every token value in src/index.css and in
+WorkspaceThemeProvider while keeping every token name: background #000000,
+surface #07070A, raised #0E0E14, hairline #1A1A24 and #262634, text #FFFFFF,
+secondary #A0A3B5, muted #767A8C, blue #3A8DFF, violet #B69CFF, brand gradient
+linear-gradient(135deg, #3A8DFF, #7C6BFF, #B69CFF). Warning #F2A900 and
+destructive #FF5A5F kept. Light mode is white, #F5F5F8, #E4E4EC, black text,
+blue #1F5EFF, black primary fill, no gradient. No card borders and no shadows
+(--shadow tokens resolve to transparent). Page texture is two repeating linear
+gradients at 3 percent white every 56px on the body, with 45 degree hairlines at
+2 percent inside the hero and the final band only. Chat own bubble stays
+--bubble-blue 223 67% 51%, which is #2F5FD6 with white text.
+
+Type is one family, Archivo 400/500/600/800 from Google Fonts with preconnect
+and display swap; Instrument Serif, Geist and the self hosted Source Serif
+imports are gone. Body is 15px on phone and 16px on desktop with a 60ch measure,
+labels 12px 500 uppercase at 0.08em, cover headline 800 uppercase
+clamp(2.75rem, 9vw, 7rem) at line height 0.95 and -0.02em, section titles 800
+clamp(1.75rem, 4.5vw, 3.25rem).
+
+Logo: every Wordmark variant (hero, heroMono, heroFiber, heroLife, full, fullV2,
+stacked, compact, compactPlain) now renders TRNTY alone in Archivo 800 at 0.04em
+tracking; the TRINITY SALES line and the old peak lockup are gone. The mark
+variant and RidgelineMark draw one isosceles triangle, base 1.0 and height 0.82
+of the box, filled blue at the base into violet at the apex, no stroke;
+RidgelineMark keeps its name and props and strokes the two sides before it
+fills. Icons regenerated from that triangle at 62 percent of the canvas on
+black: favicon.svg, favicon.png, apple-touch-icon.png, icon-192.png,
+icon-512.png, icon-512-maskable.png (44 percent for the safe zone) and
+splash-1170x2532.png. manifest theme and background colours are now #000000.
+
+Headline lines, verbatim:
+EVERY SUMMER SALES JOB ENDS IN AUGUST.
+EXCEPT THIS ONE.
+Support line: Pest control in season. Fiber internet after it. One team,
+selling all year. Actions are one gradient Apply and one plain Sign in.
+
+Removed and deleted: src/components/recruiting/KnockDoor.tsx and
+src/components/recruiting/YearStrip.tsx (no remaining imports). Removed from the
+cover: the sticky section nav, the pinned doors scroll section, the magnetic
+button, the card spotlight, the link underline grow and wordmark sweep hovers,
+the climb marker and tap ripple in MountainScene, the count up on the
+calculator, the hero line "Pest control now, Fiber internet in the off-season",
+the hero link "See what you could make", and the wordmark in the final band and
+the footer. The five season steps are Apply, Train, Sell, Settle up, Roll into
+fiber, the first four carrying the existing step copy.
+
+Opening: 500ms draw with a 40ms letter stagger, 250ms hold, 800ms burst, 1000ms
+formation, 200ms crossfade, about 2.75 seconds; TRNTY sampled alone centred at
+clamp(4rem, 22vw, 14rem); white particles for line one and alternating blue and
+violet for line two; the DOM headline hands off at p 0.05 and the wind runs over
+the first 60vh. Scene: black sky top to bottom with no colour shift, ridges
+#1C1C1C, #161616, #101010, #0A0A0A, #050505, one radial glow behind the tallest
+peak blending blue at the base into violet at the top breathing 6 to 10 percent
+on a 12 second loop, particles 40 on phone and 90 on desktop at 10 percent white
+and 8 percent violet, three neutral grey mist bands, and each ridge drifting 6
+to 14px on its own 60 to 120 second loop (far layers slowest).
+
+Verified in the browser. Cover sections at 390 and 1280 in order: hero, the
+three doors (Pest live, Fiber off season lane, Life insurance is coming), Find
+your door, What the work is, Who runs it, Estimate your earnings, How the season
+works, the final apply band, footer. Centring: the headline sits 20px from each
+edge at 390 and 192px at 1280 with text-align centre, so nothing hangs off the
+left. Elements computing position sticky or scroll snap inside main: 0. Grep of
+src/index.css for position: sticky, scroll-snap, doors-pin, card-spotlight,
+magnetic, knock- and year-track: no matches. Frame timings at 390: burst median
+16.7ms and p95 16.8ms over 148 frames; scroll median 16.7ms and p95 16.7ms over
+180 frames. Headline opacity 1 at the top and 0 after one viewport of scroll.
+Under prefers-reduced-motion no burst canvas mounts and the headline renders at
+opacity 1.
+
+Database: get_public_managers() is security definer, read only, and returns
+first_name, office_name, manager_intro and pillar_token for profiles with a
+pillar slug, not archived, accepting new reps, a non empty intro and a live
+pillar link. A migration revoked execute from authenticated and from PUBLIC and
+granted it to anon only. Called with the anon key it returns [], zero rows, with
+no rollback needed. get_public_setting now also answers owner_photo and
+owner_calendly; the Calendly setting is read only with the default
+https://calendly.com/mathewjoyce and nothing was inserted.
+
+Contrast, computed on the stated pairs: blue on black 6.4, violet on black 9.2,
+black on blue 6.4, black on the gradient midpoint 5.4, white on the own bubble
+5.6, muted on black 4.9, light blue on white 5.1.
+
+Remaining hardcoded colour hits and why they stay: the gold #D4AF37 in
+BadgeChip, BadgeStrip and RankInsignia is the owner God Mode badge identity;
+the Command Center files (CommandFunnel, RegionPace, RegionSheet, SessionPrep)
+carry their own fixed dark chart palette and #E3C275; MountainScene holds the
+five ridge hexes because a canvas cannot read tokens per frame. No #F2673A,
+#F5B94B, #B8421A or #B23E12 remains anywhere in src.
+
+Typecheck clean with tsgo against tsconfig.app.json; production build clean;
+shell gzip of the entry bundles is 16,404 bytes of JS (from 16,451) and 30,011
+bytes of CSS (from 30,995). No data written, nothing deployed, nothing
+published. No em dash and no emoji in any added line. Baselines: profiles 536,
+chat_messages 716, applications 13, earnings_goals 0.
+
+## Pass 182 - the opening always runs, the calculator comes off, the hero gets quieter
+
+1. The gate is gone. src/components/brand/LogoBurst.tsx no longer defines or
+reads trnty_intro_seen and never writes to sessionStorage; shouldRunIntro now
+returns true unless prefers-reduced-motion is set. Timings are untouched: 500ms
+draw with a 40ms letter stagger, 250ms hold, 800ms burst, 1000ms formation,
+200ms crossfade. Any pointerdown, keydown, wheel or touchstart still jumps
+straight to the settled state, and the settled hero is the real DOM text.
+Two consecutive loads in one browser context at 390, measured over the first
+2.6 seconds of each load: load one, burst canvas present, 153 frames, median
+16.7ms, p95 16.8ms; load two, burst canvas present, 151 frames, median 16.7ms,
+p95 16.8ms. Grep of src for trnty_intro_seen and SESSION_KEY returns nothing.
+
+2. The calculator is off the cover. Removed from src/pages/Index.tsx: the lazy
+EarningsCalculator import, the usePublicCalc hook, the Skeleton and Suspense
+imports, useNavigate, the Button import, the hasPublishedBands flag and the
+gated Estimate your earnings block. The section keeps the id earnings and is now
+only How pay is set, with the four lines unchanged (paid commission on the
+accounts you sell, pay settled on serviced accounts, three tiers Rookie
+Experienced Veteran, housing charged per night at what the room actually costs)
+and the muted line "The full pay scale is published here when it is released."
+No cover link or anchor points at a calculator; "See what you could make" was
+already gone in 181. src/components/EarningsCalculator.tsx, the app page
+/app/estimate-earnings and get_public_calc are untouched.
+
+Cover sections at 390, in order: hero (EVERY SUMMER SALES JOB ENDS IN AUGUST. /
+EXCEPT THIS ONE.), the two doors (Pest, Fiber), Find your door, What the work is,
+Who runs it, How pay is set, How the season works, the final band, footer. Page
+text contains "Estimate your earnings" zero times. Every button and link label
+in main: Get in, Sign in, the Pest door, the Fiber door, Yes, No, This season,
+Next season, Not sure, Book fifteen minutes with Matt, Get in, sign in. The
+qualifier result button reads Get in once the three answers are in.
+
+Colour audit below the hero, computed on every element in every section after
+the first plus the footer. Fixed:
+- ThreeDoorSection "Live" label was text-primary blue, now text-foreground.
+- Index What the work is icons were text-primary blue, now text-text-muted.
+- ReferralLookup match link was text-primary and the fallback link was text-ice,
+  both now inherit white.
+- .public-link was hsl(var(--ice)) light blue, now foreground white with a 3px
+  underline offset, so the link signal is the underline and not a colour.
+- .qual-choice-on was the brand gradient, now a white fill with black text, so
+  Find your door carries the gradient on one element only.
+- .public-world and .public-auth still carried a Pass 116 override of
+  --primary to 15 88% 59%, the old orange, and the light variant carried
+  30 11% 7% with an orange primary-foreground and a cyan glow. Both blocks are
+  removed, so the cover resolves --primary to the V6 blue.
+- .ridgeline-mark set color to hsl(var(--primary)); the mark paints with gradient
+  fills and never currentColor, so the declaration is deleted.
+After the fixes the only non neutral values below the hero are the two greys,
+#A1A4B5 secondary and #777B8D muted, and the brand gradient on exactly two
+elements, one per section: the Book fifteen minutes with Matt button in Who runs
+it and the Get in button in the final band. Zero blue, violet, orange, gold or
+any other hue.
+
+3. The hero. An eyebrow sits above the headline: Archivo 500, computed 12px,
+uppercase, letter spacing 1.68px which is 0.14em, colour rgb(161, 164, 181)
+which is text secondary, reading NOT ON A JOB BOARD. with
+transition: opacity 200ms linear 200ms, so it fades in 200ms after the headline
+settles and is hidden while the burst plays. Line two is wrapped in
+.cover-redact: while the burst runs the wrapper carries data-redact and paints a
+solid gradient rounded rectangle through ::after at 10px radius, inset to the
+line box, measured 350 by 84 at 390, with the gradient text at opacity 0. When
+the hero settles the attribute drops and both the bar and the text cross over a
+500ms linear opacity transition, so the bar dissolves into the gradient text.
+The text node EXCEPT THIS ONE. is always in the DOM, so selection and screen
+readers get the real words at all times. Under prefers-reduced-motion: no burst
+canvas, no data-redact, the bar is display none, headline opacity 1, text
+opacity 1, eyebrow opacity 1 and no transitions. The primary label is Get in in
+the hero, in the final band and in the qualifier result; routes stay
+/apply/rookie and /apply/veteran with the same query parameters.
+
+4. Nothing else. No dependency added, no permission or grant changed, no
+migration run, no data written, nothing deployed, nothing published. No em dash
+and no emoji in any added line. Typecheck clean with tsgo against
+tsconfig.app.json; production build clean in 11.45s; shell gzip of the entry
+bundles is 16,381 bytes of JS (from 16,404) and 30,109 bytes of CSS (from
+30,011). Baselines unchanged: profiles 536, chat_messages 716, applications 13,
+earnings_goals 0.

@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
  *
  * One input under the final Apply band. After three characters and a 300ms
  * pause the text is checked against the existing public pillar_link_lookup. A
- * match shows the pillar first name and a lime line that routes to that
+ * match shows the pillar first name and a plain line that routes to that
  * existing link; no match simply carries the text into the application's
  * referral field. Nothing is written and no new function is added.
  */
@@ -61,14 +61,14 @@ export function ReferralLookup() {
         {match ? (
           <Link
             to={`/p/${encodeURIComponent(match.token)}`}
-            className="public-link inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary"
+            className="public-link inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold"
           >
             Apply with {match.name} <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         ) : text.trim().length >= 3 ? (
           <Link
             to={`/apply/rookie${referral ? `?${referral}` : ''}`}
-            className="public-link inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-ice"
+            className="public-link inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold"
           >
             Carry that into your application <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>

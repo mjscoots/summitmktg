@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
 
 /**
  * Pass 179 - find your door.
@@ -100,12 +100,13 @@ export function FindYourDoor() {
               {veteran ? 'Vet' : 'Rookie'}, {lane}, {START_WORDS[start as Start]}
               {market.trim() ? `, ${market.trim()}` : ''}. Your application takes about four minutes.
             </p>
-            <Button asChild className="mt-4 min-h-12 w-full font-bold">
-              <Link to={`${path}?${params.toString()}`}>
-                {veteran ? 'Start the vet application' : 'Start the rookie application'}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </Button>
+            <Link
+              to={`${path}?${params.toString()}`}
+              className="btn-gradient mt-4 inline-flex w-full items-center justify-center gap-2 px-6 font-bold"
+            >
+              Get in
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
         )}
       </div>

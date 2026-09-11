@@ -1,14 +1,11 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight, DoorOpen, Handshake, Wallet } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { MountainScene } from "@/components/brand/MountainScene";
 import { PublicProofStrip } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
-import { usePublicCalc } from "@/hooks/usePublicCalc";
-import { Button } from "@/components/ui/button";
 import { COVER_STATS } from "@/lib/coverStats";
 import { RidgelineMark } from '@/components/brand/RidgelineMark';
 import { usePublicMotion } from '@/hooks/usePublicMotion';
@@ -17,8 +14,6 @@ import { FindYourDoor } from '@/components/recruiting/FindYourDoor';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { WhoRunsIt } from '@/components/recruiting/WhoRunsIt';
 import { LogoBurst, shouldRunIntro } from '@/components/brand/LogoBurst';
-
-const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
 const WHAT_WE_DO = [
   { icon: DoorOpen, title: "Knock", line: "You work a set area with a script you have practised." },
@@ -49,8 +44,6 @@ const PAY_LINES = [
  * There is no sticky section, no scroll snap and one rAF scroll loop.
  */
 const Index = () => {
-  const navigate = useNavigate();
-  const calc = usePublicCalc();
   const media = useCoverMedia();
   const [scrolled, setScrolled] = useState(false);
   const [sceneOn, setSceneOn] = useState(true);
@@ -66,8 +59,6 @@ const Index = () => {
   const onHeadlineVisible = useCallback((visible: boolean) => setHeadlineVisible(visible), []);
   const onSettled = useCallback(() => setSettled(true), []);
   usePublicMotion();
-
-  const hasPublishedBands = Boolean(calc?.pay_scale?.bands?.length);
 
   // One passive scroll listener, one rAF, two reads: how far down the page we
   // are and how far through the first 60vh.
@@ -107,7 +98,7 @@ const Index = () => {
     });
     nodes.forEach((node) => observer.observe(node));
     return () => observer.disconnect();
-  }, [hasPublishedBands]);
+  }, []);
 
   return (
     <div className="gold-world public-world relative flex min-h-screen flex-col">
@@ -156,6 +147,13 @@ const Index = () => {
             />
           )}
           <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-4xl flex-col items-center justify-center py-20 text-center">
+            <p
+              data-opening-hidden={intro && !settled ? 'true' : undefined}
+              className="cover-eyebrow text-text-secondary"
+            >
+              NOT ON A JOB BOARD.
+            </p>
+
             <h1
               ref={headlineRef}
               className="cover-headline text-foreground"
@@ -164,7 +162,9 @@ const Index = () => {
               style={intro ? undefined : { opacity: Math.max(0, 1 - heroProgress * heroProgress) }}
             >
               <span className="block">EVERY SUMMER SALES JOB ENDS IN AUGUST.</span>
-              <span className="gradient-text block">EXCEPT THIS ONE.</span>
+              <span className="cover-redact block" data-redact={intro && !settled ? 'true' : undefined}>
+                <span className="gradient-text">EXCEPT THIS ONE.</span>
+              </span>
             </h1>
 
             <p
@@ -179,7 +179,7 @@ const Index = () => {
               className="cover-actions mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:flex-row sm:justify-center"
             >
               <Link to="/apply/rookie" className="btn-gradient inline-flex w-full items-center justify-center gap-2 px-8 sm:w-auto">
-                Apply <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link to="/login" className="public-link inline-flex min-h-12 items-center px-3 text-sm font-semibold">
                 Sign in
@@ -211,7 +211,7 @@ const Index = () => {
             {WHAT_WE_DO.map((c, index) => (
               <article key={c.title} className="public-process">
                 <div className="mb-5 flex items-center justify-center gap-3">
-                  <c.icon className="h-5 w-5 text-primary" strokeWidth={1.5} aria-hidden="true" />
+                  <c.icon className="h-5 w-5 text-text-muted" strokeWidth={1.5} aria-hidden="true" />
                   <span className="text-xs tabular-nums text-text-muted">0{index + 1}</span>
                 </div>
                 <h3 className="text-lg font-bold text-foreground">{c.title}</h3>
@@ -223,36 +223,18 @@ const Index = () => {
 
         <WhoRunsIt />
 
-        {/* How pay is set. The calculator lives here and turns on when a pay
-            scale is published. */}
+        {/* How pay is set. Four plain lines and the release note. */}
         <section id="earnings" className="public-section public-reveal scroll-mt-20 px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
           <div className="mx-auto max-w-3xl">
-            <h2 className="section-title text-foreground">
-              {hasPublishedBands ? 'Estimate your earnings' : 'How pay is set'}
-            </h2>
-            {hasPublishedBands ? (
-              <>
-                <p className="mt-2 text-sm text-text-secondary">
-                  Set the accounts and the weeks. The pay scale does the rest.
-                </p>
-                <div className="mt-8 text-left">
-                  <Suspense fallback={<Skeleton className="h-64 w-full rounded-xl" />}>
-                    <EarningsCalculator calcData={calc} onApplyClick={() => navigate('/apply/rookie')} />
-                  </Suspense>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="cover-measure mt-8 space-y-3">
-                  {PAY_LINES.map((line) => (
-                    <p key={line} className="text-base text-text-secondary">{line}</p>
-                  ))}
-                </div>
-                <p className="mt-8 text-sm text-text-muted">
-                  The full pay scale is published here when it is released.
-                </p>
-              </>
-            )}
+            <h2 className="section-title text-foreground">How pay is set</h2>
+            <div className="cover-measure mt-8 space-y-3">
+              {PAY_LINES.map((line) => (
+                <p key={line} className="text-base text-text-secondary">{line}</p>
+              ))}
+            </div>
+            <p className="mt-8 text-sm text-text-muted">
+              The full pay scale is published here when it is released.
+            </p>
           </div>
         </section>
 
@@ -282,7 +264,7 @@ const Index = () => {
           <div className="relative z-10 mx-auto max-w-xl">
             <p className="text-base text-text-secondary">Applications take a few minutes.</p>
             <Link to="/apply/rookie" className="btn-gradient mt-7 inline-flex items-center justify-center gap-2 px-8">
-              Apply <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             <ReferralLookup />
             <p className="mt-8 text-sm text-text-secondary">

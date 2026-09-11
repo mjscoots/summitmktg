@@ -10,7 +10,7 @@ export default function ThreeDoorSection() {
       <div className="mx-auto max-w-4xl">
         <div className="grid gap-6 md:grid-cols-2 md:gap-8">
           <Link to="/industries/pest" className="public-door block min-h-44 overflow-hidden rounded-xl bg-card p-6">
-            <p className="cover-label text-primary">Live</p>
+            <p className="cover-label text-foreground">Live</p>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground">Pest</h2>
             <p className="mt-4 text-text-secondary">The summer lane.</p>
           </Link>
