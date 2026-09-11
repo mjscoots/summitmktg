@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Geist', 'DM Sans', 'system-ui', 'sans-serif'],
+        display: ['Instrument Serif', 'Geist', 'Georgia', 'serif'],
       },
       letterSpacing: {
         micro: '0.14em',
