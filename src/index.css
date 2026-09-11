@@ -1611,12 +1611,11 @@ body {
   animation: headline-wipe var(--motion-slow) var(--motion-ease-out) 520ms forwards;
 }
 .cover-headline-line:nth-child(2) { animation-delay: 640ms; }
+/* Pass 183: the hero support and actions are raised by the opening, not by a
+   blind delay, so they cannot be left invisible if the burst is skipped. */
 .cover-support,
-.cover-actions {
-  opacity: 0;
-  animation: wordmark-rise var(--motion-base) var(--motion-ease-out) 920ms forwards;
-}
-.cover-actions { animation-delay: 980ms; }
+.cover-actions { opacity: 1; }
+
 
 @keyframes mountain-settle {
   from { opacity: 0; transform: translateY(24px); }
