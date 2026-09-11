@@ -1919,10 +1919,7 @@ html[data-appearance='light'] .btn-gradient {
 .cover-rise[data-in='true'] { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .qual-card,
-  .qual-choice,
   .btn-gradient { transition: none !important; }
-  .qual-hold { transform: none; }
   .number-flip { animation-duration: 1ms !important; }
   .ridgeline-mark path { fill-opacity: 1 !important; }
   .cover-rise { opacity: 1 !important; transform: none !important; transition: none !important; }
