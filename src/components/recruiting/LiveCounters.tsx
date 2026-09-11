@@ -19,8 +19,14 @@ function ProofNumber({ value }: { value: number }) {
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
-  return <span ref={ref}>{visible ? <CountUp value={value} duration={900} /> : '0'}</span>;
+  // Pass 183: the gradient underline draws from the left as the count lands.
+  return (
+    <span ref={ref} className="proof-underline" data-drawn={visible ? 'true' : undefined}>
+      {visible ? <CountUp value={value} duration={900} /> : '0'}
+    </span>
+  );
 }
+
 
 interface LiveCountersProps {
   /** 'inline' for the cover hero, 'section' for the recruiting page */

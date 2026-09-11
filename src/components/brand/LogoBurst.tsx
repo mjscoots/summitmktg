@@ -1,22 +1,25 @@
 import { memo, useEffect, useRef } from 'react';
+import { LETTERS_PATH, LOGO_ASPECT, LOGO_BLUE, MOUNTAIN_PATH } from './logoPaths';
 
 /**
- * Pass 181 - the opening and the sweep. Cover only.
+ * Pass 183 - the opening, the living headline and the sweep. Cover only.
  *
- * On every load of the cover TRNTY alone draws itself huge and
- * centred in the hero, holds, shatters into thousands of pieces, and those
- * pieces are pulled into the shape of the real two line headline before the DOM
- * headline crossfades in on top. After that the same particle field answers scroll: the
- * headline tears off the right edge of the page and reassembles on the way back.
+ * On every load of the cover the real logo draws itself centred in the hero,
+ * holds, shatters into thousands of pieces, and those pieces are pulled into the
+ * shape of the two line headline before the DOM headline crossfades in on top.
+ * The letter pieces are white and the mountain pieces are the logo blue, so the
+ * shatter reads as the logo coming apart.
  *
- * Pass 182 removes the once per session gate, so the opening runs on every load
- * of the cover. The settled hero is always the real DOM text, so it stays
- * selectable and readable by a screen reader. Under prefers-reduced-motion this
- * component renders nothing and the hero is settled from the first frame, and
- * any input jumps straight to the settled state.
+ * Once it settles a sparse residual field stays inside the glyph shapes, so the
+ * headline is never completely still, and it answers a pointer or a touch by
+ * pushing away and springing back. On scroll the same field answers the sweep:
+ * the headline tears off the right edge and reassembles on the way back, with
+ * the DOM text and the field crossfading between p 0.04 and p 0.12.
  *
- * Everything drawn here is transform and opacity work on a canvas: no layout
- * property is ever animated.
+ * Everything drawn here is transform and opacity work on one canvas. No layout
+ * property is ever animated, the device pixel ratio is capped at 1.5, and the
+ * loop stops while the tab is hidden. Under prefers-reduced-motion this
+ * component renders nothing.
  */
 
 const T_DRAW = 500;
@@ -30,11 +33,28 @@ const DRAW_END = T_DRAW + T_HOLD;
 const BURST_END = DRAW_END + T_BURST;
 const FORM_END = BURST_END + T_FORM;
 
+/** The sweep crossfade window, as scroll progress. */
+const SWEEP_IN = 0.04;
+const SWEEP_FULL = 0.12;
+
 /** The second headline line settles as the gradient: blue into violet. */
 const BLUE = '#3A8DFF';
 const VIOLET = '#B69CFF';
+const WHITE = '#FFFFFF';
 /** Painted into the target sample so line two can be recoloured on pairing. */
 const LINE_TWO_KEY = 'rgb(58,141,255)';
+/** Painted into the lockup sample so mountain pixels stay the logo blue. */
+const MOUNTAIN_KEY = 'rgb(0,78,253)';
+
+/** The logo box, as a share of the hero width. */
+const LOGO_WIDTH_PHONE = 0.78;
+const LOGO_WIDTH_DESKTOP = 0.46;
+
+/** The living headline field. */
+const LIVING_PHONE = 160;
+const LIVING_DESKTOP = 420;
+const PUSH_RADIUS = 90;
+const PUSH_RETURN = 400;
 
 /** The spring easing token, as a function. */
 function spring(t: number): number {
@@ -48,9 +68,10 @@ function easeOut(t: number): number {
 }
 
 interface Particle {
-  /** Start (the sampled lockup pixel). */
+  /** Start (the sampled logo pixel) and the colour it starts as. */
   sx: number;
   sy: number;
+  scolor: string;
   /** Burst destination. */
   bx: number;
   by: number;
@@ -62,6 +83,18 @@ interface Particle {
   wx: number;
   wy: number;
   seed: number;
+}
+
+interface Living {
+  x: number;
+  y: number;
+  color: string;
+  alpha: number;
+  seed: number;
+  amp: number;
+  /** Current push offset, springing back to zero. */
+  ox: number;
+  oy: number;
 }
 
 export interface LogoBurstProps {
@@ -98,21 +131,33 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     const step = phone ? 3 : 2;
     const cap = phone ? 2400 : 7000;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const letterPath = new Path2D(LETTERS_PATH);
+    const mountainPath = new Path2D(MOUNTAIN_PATH);
 
     let width = host.clientWidth;
     let height = host.clientHeight;
     let particles: Particle[] = [];
-    let byColour = new Map<string, Particle[]>();
+    let sourceGroups = new Map<string, Particle[]>();
+    let targetGroups = new Map<string, Particle[]>();
+    let living: Living[] = [];
     let settled = false;
     let jumped = false;
     let frame = 0;
     let start = 0;
     let lockupBox = { x: 0, y: 0, w: 0, h: 0 };
     let headlineShown = true;
+    let headlineFade = -1;
     const showHeadline = (visible: boolean) => {
       if (visible === headlineShown) return;
       headlineShown = visible;
       onHeadlineVisible?.(visible);
+    };
+    /** The scroll crossfade is written straight to the node, not through state. */
+    const fadeHeadline = (value: number) => {
+      const next = Math.round(value * 100) / 100;
+      if (next === headlineFade) return;
+      headlineFade = next;
+      headline.style.opacity = next >= 1 ? '' : String(next);
     };
 
     const size = () => {
@@ -147,62 +192,103 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     };
 
     const headlineStyle = getComputedStyle(headline);
-    const letterColour = '#FFFFFF';
     const headlineFont = `${headlineStyle.fontWeight} ${headlineStyle.fontSize} ${headlineStyle.fontFamily}`;
 
     /**
-     * TRNTY alone, centred, at clamp(4rem, 22vw, 14rem) so it fills a phone
-     * screen. No mark: the letters and the peak never appear side by side.
+     * The real logo, centred: 78vw wide on a phone and 46vw on desktop, at the
+     * traced aspect of 1625 by 281. The letters paint white and the mountain
+     * paints the logo blue, so the sample carries both colours.
      */
     const paintLockup = (c: CanvasRenderingContext2D) => {
-      const fontSize = Math.max(64, Math.min(224, width * 0.22));
-      c.font = `800 ${fontSize}px 'Archivo', system-ui, sans-serif`;
-      c.textBaseline = 'alphabetic';
-      const text = 'TRNTY';
-      const tracking = fontSize * 0.04;
-      let textWidth = 0;
-      for (const ch of text) textWidth += c.measureText(ch).width + tracking;
-      const left = (width - textWidth) / 2;
-      const baseline = height / 2 + fontSize * 0.36;
-      lockupBox = { x: left, y: baseline - fontSize, w: textWidth, h: fontSize * 1.2 };
-
-      c.fillStyle = letterColour;
-      let x = left;
-      for (const ch of text) {
-        c.fillText(ch, x, baseline);
-        x += c.measureText(ch).width + tracking;
-      }
+      const logoW = width * (phone ? LOGO_WIDTH_PHONE : LOGO_WIDTH_DESKTOP);
+      const logoH = logoW / LOGO_ASPECT;
+      const scale = logoW / 1625;
+      lockupBox = { x: (width - logoW) / 2, y: (height - logoH) / 2, w: logoW, h: logoH };
+      c.save();
+      c.translate(lockupBox.x, lockupBox.y);
+      c.scale(scale, scale);
+      c.translate(-171, -282);
+      c.fillStyle = WHITE;
+      c.fill(letterPath, 'evenodd');
+      c.fillStyle = LOGO_BLUE;
+      c.fill(mountainPath, 'evenodd');
+      c.restore();
     };
 
-    /** The headline, in the exact box the DOM headline occupies. */
+    /**
+     * The headline, painted onto the exact visual lines the DOM lays out.
+     *
+     * A canvas cannot wrap text, and the headline wraps on a phone, so each
+     * line is read back from the DOM with a Range: every character's client
+     * rect is measured and characters sharing a rect top belong to the same
+     * visual line. Each visual line is then painted at that line's own left
+     * edge and baseline, in the same computed font, so every sampled point sits
+     * on a real headline glyph pixel rather than an estimate.
+     */
     const paintHeadline = (c: CanvasRenderingContext2D) => {
-      const rect = headline.getBoundingClientRect();
       const hostRect = host.getBoundingClientRect();
-      const left = rect.left - hostRect.left;
-      const top = rect.top - hostRect.top;
-      const lines = Array.from(headline.children) as HTMLElement[];
-      c.fillStyle = letterColour;
-      c.textBaseline = 'alphabetic';
+      const spans = Array.from(headline.children) as HTMLElement[];
+      const nodes = spans.length > 0 ? spans : [headline];
       const fontPx = parseFloat(headlineStyle.fontSize) || 48;
-      const lineHeight = (parseFloat(headlineStyle.lineHeight) || fontPx * 0.92);
       c.font = headlineFont;
-      lines.forEach((line, index) => {
+      c.textBaseline = 'alphabetic';
+
+      nodes.forEach((node, spanIndex) => {
         // Line two is painted in flat blue purely as a key: on pairing those
         // points alternate blue and violet so the settled field reads as the
         // gradient.
-        c.fillStyle = index === 1 ? BLUE : letterColour;
-        const y = top + lineHeight * index + fontPx * 0.78;
-        c.fillText(line.textContent || '', left, y);
+        c.fillStyle = spanIndex === 1 ? BLUE : WHITE;
+        const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+        let text = walker.nextNode() as Text | null;
+        while (text) {
+          const value = text.data;
+          const range = document.createRange();
+          let lineTop = Number.NaN;
+          let lineLeft = 0;
+          let lineBottom = 0;
+          let buffer = '';
+          const flush = () => {
+            if (!buffer.trim()) return;
+            c.fillText(buffer, lineLeft - hostRect.left, lineBottom - hostRect.top - (lineBottom - lineTop - fontPx) / 2);
+            buffer = '';
+          };
+          for (let i = 0; i < value.length; i += 1) {
+            range.setStart(text, i);
+            range.setEnd(text, i + 1);
+            const rect = range.getBoundingClientRect();
+            if (rect.width === 0 && rect.height === 0) {
+              buffer += value[i];
+              continue;
+            }
+            if (Number.isNaN(lineTop) || Math.abs(rect.top - lineTop) > 2) {
+              flush();
+              lineTop = rect.top;
+              lineBottom = rect.bottom;
+              lineLeft = rect.left;
+            }
+            buffer += value[i];
+          }
+          flush();
+          text = walker.nextNode() as Text | null;
+        }
       });
-      if (lines.length === 0) {
-        c.fillStyle = letterColour;
-        c.fillText(headline.textContent || '', left, top + fontPx * 0.78);
+    };
+
+
+    const group = (list: Particle[], key: (p: Particle) => string) => {
+      const map = new Map<string, Particle[]>();
+      for (const p of list) {
+        const k = key(p);
+        const bucket = map.get(k);
+        if (bucket) bucket.push(p);
+        else map.set(k, [p]);
       }
+      return map;
     };
 
     const build = () => {
-      // The lockup is sampled finer than the headline so the field is dense
-      // enough to read as text once it settles.
+      // The logo is sampled finer than the headline so the field is dense enough
+      // to read as text once it settles.
       const source = sample(paintLockup, Math.max(1, step - 1));
       const targets = sample(paintHeadline);
       // Even thinning so both fields stay under the cap and stay legible.
@@ -215,8 +301,8 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
       };
       // Both fields are thinned to the same count and sorted into grid cells,
       // then paired index by index. That is a linear pass after the sort, so
-      // there is no O(n squared) nearest neighbour loop, and every particle
-      // ends on a real headline pixel.
+      // there is no nearest neighbour loop, and every particle ends on a real
+      // headline pixel.
       const cell = 12;
       const order = (pt: { x: number; y: number }) => Math.floor(pt.y / cell) * 10000 + Math.floor(pt.x / cell);
       const count = Math.min(source.length, targets.length, cap);
@@ -230,6 +316,7 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
         return {
           sx: p.x,
           sy: p.y,
+          scolor: p.color === MOUNTAIN_KEY ? LOGO_BLUE : WHITE,
           bx: p.x + Math.cos(angle) * reach,
           by: p.y + Math.sin(angle) * reach,
           tx: claim ? claim.x : null,
@@ -239,25 +326,43 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
               ? index % 2 === 0
                 ? BLUE
                 : VIOLET
-              : letterColour
-            : letterColour,
+              : WHITE
+            : WHITE,
           wx: 0.6 + Math.random() * 0.8,
           wy: -120 + Math.random() * 240,
           seed: Math.random() * Math.PI * 2,
         };
       });
 
-      byColour = new Map();
-      for (const p of particles) {
-        const list = byColour.get(p.color);
-        if (list) list.push(p);
-        else byColour.set(p.color, [p]);
+      sourceGroups = group(particles, (p) => p.scolor);
+      targetGroups = group(particles, (p) => p.color);
+
+      // The living field: a sparse subset of the settled headline pixels.
+      const landed = particles.filter((p) => p.tx !== null && p.ty !== null);
+      const livingCount = Math.min(landed.length, phone ? LIVING_PHONE : LIVING_DESKTOP);
+      const stride = landed.length / Math.max(1, livingCount);
+      living = [];
+      for (let i = 0; i < livingCount; i += 1) {
+        const p = landed[Math.floor(i * stride)];
+        living.push({
+          x: p.tx as number,
+          y: p.ty as number,
+          color: i % 3 === 0 ? VIOLET : WHITE,
+          alpha: 0.1 + (i % 5) * 0.01,
+          seed: Math.random() * Math.PI * 2,
+          amp: 1 + Math.random(),
+          ox: 0,
+          oy: 0,
+        });
       }
     };
 
-    const paintField = (positions: (p: Particle) => { x: number; y: number; a: number } | null) => {
+    const paintField = (
+      groups: Map<string, Particle[]>,
+      positions: (p: Particle) => { x: number; y: number; a: number } | null
+    ) => {
       ctx.clearRect(0, 0, width, height);
-      byColour.forEach((list, colour) => {
+      groups.forEach((list, colour) => {
         ctx.fillStyle = colour;
         let alpha = -1;
         for (const p of list) {
@@ -277,14 +382,15 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
       if (settled) return;
       settled = true;
       showHeadline(true);
+      fadeHeadline(1);
       onSettled?.();
     };
 
     const drawOpening = (now: number) => {
       const t = now - start;
       if (t < DRAW_END) {
-        // The lockup draws in: the mark fills from base to peak, the letters
-        // rise and fade in behind a clip that opens left to right.
+        // The logo draws in behind a clip that opens from the base and from the
+        // left at the same time, so the mountain fills as the letters arrive.
         ctx.clearRect(0, 0, width, height);
         const p = Math.min(1, t / T_DRAW);
         const eased = easeOut(p);
@@ -304,7 +410,7 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
         const spin = p * 0.12;
         const cos = Math.cos(spin);
         const sin = Math.sin(spin);
-        paintField((particle) => {
+        paintField(sourceGroups, (particle) => {
           const x = particle.sx + (particle.bx - particle.sx) * p - width / 2;
           const y = particle.sy + (particle.by - particle.sy) * p - height / 2;
           return { x: width / 2 + x * cos - y * sin, y: height / 2 + x * sin + y * cos, a: 1 };
@@ -313,7 +419,7 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
       }
       if (t < FORM_END) {
         const p = spring(Math.min(1, (t - BURST_END) / T_FORM));
-        paintField((particle) => {
+        paintField(targetGroups, (particle) => {
           if (particle.tx === null || particle.ty === null) {
             // An ember with nowhere to go drifts up and fades out.
             return { x: particle.bx, y: particle.by - p * 160, a: Math.max(0, 1 - p) };
@@ -326,29 +432,62 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
         });
         return;
       }
-      const fade = Math.min(1, (t - FORM_END) / T_CROSS);
+      const fade = easeOut(Math.min(1, (t - FORM_END) / T_CROSS));
       if (fade > 0) showHeadline(true);
-      paintField((particle) => (particle.tx === null ? null : { x: particle.tx, y: particle.ty as number, a: 1 - fade }));
+      paintField(targetGroups, (particle) =>
+        particle.tx === null ? null : { x: particle.tx, y: particle.ty as number, a: 1 - fade }
+      );
       if (fade >= 1) {
         ctx.clearRect(0, 0, width, height);
         settle();
       }
     };
 
-    /** The sweep: a pure function of scroll progress. */
+    /** Pointer or touch position in canvas space, or null. */
+    let touchX = -1;
+    let touchY = -1;
+    let lastNow = 0;
+
+    /** The living headline: never quite still, and it answers a finger. */
+    const drawLiving = (now: number) => {
+      const delta = lastNow ? Math.min(64, now - lastNow) : 16;
+      lastNow = now;
+      const decay = Math.pow(0.001, delta / PUSH_RETURN);
+      ctx.clearRect(0, 0, width, height);
+      let colour = '';
+      for (const p of living) {
+        if (touchX >= 0) {
+          const dx = p.x - touchX;
+          const dy = p.y - touchY;
+          const dist = Math.hypot(dx, dy);
+          if (dist < PUSH_RADIUS && dist > 0.01) {
+            const force = (1 - dist / PUSH_RADIUS) * 26;
+            p.ox = (dx / dist) * force;
+            p.oy = (dy / dist) * force;
+          }
+        }
+        p.ox *= decay;
+        p.oy *= decay;
+        if (p.color !== colour) {
+          colour = p.color;
+          ctx.fillStyle = colour;
+        }
+        ctx.globalAlpha = p.alpha;
+        const drift = Math.sin(now / 2600 + p.seed) * p.amp;
+        ctx.fillRect(p.x + p.ox, p.y + drift + p.oy, 1, 1);
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    /** The sweep: a pure function of scroll progress, and reversible. */
     const drawSweep = () => {
       const p = Math.min(1, Math.max(0, progressRef.current));
-      if (p <= 0.05) {
-        if (!headlineShown) {
-          showHeadline(true);
-          ctx.clearRect(0, 0, width, height);
-        }
-        return;
-      }
-      showHeadline(false);
+      const cross = Math.min(1, Math.max(0, (p - SWEEP_IN) / (SWEEP_FULL - SWEEP_IN)));
+      fadeHeadline(1 - cross);
+      if (cross <= 0) return false;
       const wind = Math.pow(p, 1.6) * width * 1.3;
-      const alpha = Math.max(0, 1 - p * p);
-      paintField((particle) => {
+      const alpha = Math.max(0, (1 - p * p) * cross);
+      paintField(targetGroups, (particle) => {
         if (particle.tx === null || particle.ty === null) return null;
         return {
           x: particle.tx + wind * particle.wx,
@@ -356,11 +495,12 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
           a: alpha,
         };
       });
+      return true;
     };
 
     const loop = (now: number) => {
       if (!settled) drawOpening(now);
-      else drawSweep();
+      else if (!drawSweep()) drawLiving(now);
       frame = requestAnimationFrame(loop);
     };
 
@@ -397,20 +537,40 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
       if (document.hidden) cancelAnimationFrame(frame);
       else frame = requestAnimationFrame(loop);
     };
+    const track = (event: PointerEvent | TouchEvent) => {
+      const rect = host.getBoundingClientRect();
+      const point = 'touches' in event ? event.touches[0] : event;
+      if (!point) return;
+      touchX = point.clientX - rect.left;
+      touchY = point.clientY - rect.top;
+    };
+    const untrack = () => {
+      touchX = -1;
+      touchY = -1;
+    };
     window.addEventListener('pointerdown', jump, { passive: true });
     window.addEventListener('keydown', jump);
     window.addEventListener('wheel', jump, { passive: true });
     window.addEventListener('touchstart', jump, { passive: true });
+    window.addEventListener('pointermove', track, { passive: true });
+    window.addEventListener('touchmove', track, { passive: true });
+    window.addEventListener('pointerleave', untrack);
+    window.addEventListener('touchend', untrack);
     window.addEventListener('resize', onResize);
     document.addEventListener('visibilitychange', onHidden);
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(frame);
+      headline.style.opacity = '';
       window.removeEventListener('pointerdown', jump);
       window.removeEventListener('keydown', jump);
       window.removeEventListener('wheel', jump);
       window.removeEventListener('touchstart', jump);
+      window.removeEventListener('pointermove', track);
+      window.removeEventListener('touchmove', track);
+      window.removeEventListener('pointerleave', untrack);
+      window.removeEventListener('touchend', untrack);
       window.removeEventListener('resize', onResize);
       document.removeEventListener('visibilitychange', onHidden);
     };

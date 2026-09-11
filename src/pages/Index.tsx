@@ -2,10 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, DoorOpen, Handshake, Wallet } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { MountainScene } from "@/components/brand/MountainScene";
+import { MountainScene, requestTiltPermission } from "@/components/brand/MountainScene";
 import { PublicProofStrip } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
+import { CoverTicker } from "@/components/recruiting/CoverTicker";
 import { COVER_STATS } from "@/lib/coverStats";
 import { RidgelineMark } from '@/components/brand/RidgelineMark';
 import { usePublicMotion } from '@/hooks/usePublicMotion';
@@ -39,9 +40,11 @@ const PAY_LINES = [
 /**
  * Public front door for Trinity Sales.
  *
- * Pass 181 centres the whole cover, cuts the interaction back to the opening and
- * the qualifier, and puts the range behind the hero and the final band only.
- * There is no sticky section, no scroll snap and one rAF scroll loop.
+ * Pass 183 keeps the centred cover and brings every animation on it to one
+ * standard. One rAF loop reads the scroll and writes three things: whether the
+ * nav is scrolled, the hero progress that drives the headline sweep, and the
+ * progress hairline plus the final band's own progress, which lifts the scene
+ * glow. The opening runs on every load with motion allowed.
  */
 const Index = () => {
   const media = useCoverMedia();
@@ -49,19 +52,30 @@ const Index = () => {
   const [sceneOn, setSceneOn] = useState(true);
   const heroRef = useRef<HTMLElement | null>(null);
   const bandRef = useRef<HTMLElement | null>(null);
-  // The opening runs once per session and only with motion allowed.
+  const progressRef = useRef<HTMLDivElement | null>(null);
   const headlineRef = useRef<HTMLHeadingElement | null>(null);
   const [intro] = useState(() => shouldRunIntro());
   const [headlineVisible, setHeadlineVisible] = useState(true);
   const [settled, setSettled] = useState(() => !intro);
   // Scroll progress over the first 60vh, which drives the headline sweep.
   const [heroProgress, setHeroProgress] = useState(0);
+  // The final band's own progress, which lifts the scene glow from 8 to 14 percent.
+  const [bandProgress, setBandProgress] = useState(0);
+  const tiltAsked = useRef(false);
   const onHeadlineVisible = useCallback((visible: boolean) => setHeadlineVisible(visible), []);
   const onSettled = useCallback(() => setSettled(true), []);
   usePublicMotion();
 
-  // One passive scroll listener, one rAF, two reads: how far down the page we
-  // are and how far through the first 60vh.
+  // iOS only hands over device orientation from inside a gesture, and the grant
+  // does not survive the session. It is asked for once, on the first tap of the
+  // primary button; a refusal simply leaves the scene's own drift running.
+  const onPrimaryTap = useCallback(() => {
+    if (tiltAsked.current) return;
+    tiltAsked.current = true;
+    void requestTiltPermission();
+  }, []);
+
+  // One passive scroll listener, one rAF, and the reads the whole cover needs.
   useEffect(() => {
     const el = document.getElementById('root');
     const target: HTMLElement | Window = el || window;
@@ -71,6 +85,17 @@ const Index = () => {
       const y = el ? el.scrollTop : window.scrollY;
       setScrolled(y > 40);
       setHeroProgress(Math.min(1, Math.max(0, y / (window.innerHeight * 0.6))));
+
+      const scroller = el || document.documentElement;
+      const span = Math.max(1, scroller.scrollHeight - window.innerHeight);
+      progressRef.current?.style.setProperty('--cover-progress', String(Math.min(1, y / span)));
+
+      const band = bandRef.current;
+      if (band) {
+        const rect = band.getBoundingClientRect();
+        const travel = Math.max(1, window.innerHeight + rect.height);
+        setBandProgress(Math.min(1, Math.max(0, (window.innerHeight - rect.top) / travel)));
+      }
     };
     const onScroll = () => {
       if (frame) return;
@@ -110,13 +135,15 @@ const Index = () => {
           <img className="cover-media" src={media.image} alt="" />
         ) : null}
         {(media.video || media.image) && <div className="cover-scrim" />}
-        {sceneOn && <MountainScene pointerParallax />}
+        {sceneOn && <MountainScene pointerParallax glowBoost={bandProgress} />}
       </div>
+
+      <div className="cover-progress" ref={progressRef} aria-hidden="true" />
 
       <header className={`public-nav sticky top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
         <nav className="mx-auto flex max-w-6xl flex-col items-center gap-1 px-5 py-3 sm:flex-row sm:justify-between sm:px-6">
           <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
-            <Wordmark variant="compact" height={24} />
+            <Wordmark variant="compact" height={34} className="h-7 w-auto sm:h-[34px]" />
           </Link>
           <div className="flex items-center gap-0.5 sm:gap-2">
             <Link to="/industries/pest" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary sm:px-3">
@@ -148,8 +175,9 @@ const Index = () => {
           )}
           <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-4xl flex-col items-center justify-center py-20 text-center">
             <p
-              data-opening-hidden={intro && !settled ? 'true' : undefined}
-              className="cover-eyebrow text-text-secondary"
+              className="cover-eyebrow cover-rise text-text-secondary"
+              data-in={settled ? 'true' : undefined}
+              style={{ '--rise': 0 } as React.CSSProperties}
             >
               NOT ON A JOB BOARD.
             </p>
@@ -168,17 +196,23 @@ const Index = () => {
             </h1>
 
             <p
-              data-opening-hidden={intro && !settled ? 'true' : undefined}
-              className="cover-support cover-measure mt-6 text-base leading-relaxed text-text-secondary sm:text-lg"
+              className="cover-support cover-rise cover-measure mt-6 text-base leading-relaxed text-text-secondary sm:text-lg"
+              data-in={settled ? 'true' : undefined}
+              style={{ '--rise': 1 } as React.CSSProperties}
             >
               Pest control in season. Fiber internet after it. One team, selling all year.
             </p>
 
             <div
-              data-opening-hidden={intro && !settled ? 'true' : undefined}
-              className="cover-actions mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:flex-row sm:justify-center"
+              className="cover-actions cover-rise mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:flex-row sm:justify-center"
+              data-in={settled ? 'true' : undefined}
+              style={{ '--rise': 2 } as React.CSSProperties}
             >
-              <Link to="/apply/rookie" className="btn-gradient inline-flex w-full items-center justify-center gap-2 px-8 sm:w-auto">
+              <Link
+                to="/apply/rookie"
+                onClick={onPrimaryTap}
+                className="btn-gradient inline-flex w-full items-center justify-center gap-2 px-8 sm:w-auto"
+              >
                 Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link to="/login" className="public-link inline-flex min-h-12 items-center px-3 text-sm font-semibold">
@@ -187,27 +221,36 @@ const Index = () => {
             </div>
 
             {COVER_STATS && (
-              <div data-opening-hidden={intro && !settled ? 'true' : undefined} className="mt-10 w-full">
+              <div
+                className="cover-rise mt-10 w-full"
+                data-in={settled ? 'true' : undefined}
+                style={{ '--rise': 3 } as React.CSSProperties}
+              >
                 <PublicProofStrip />
               </div>
             )}
           </div>
         </section>
 
+        {/* The ticker band: offices, the live counters and the lanes. */}
+        <CoverTicker />
+
         <ThreeDoorSection />
 
         {/* Find your door: three taps to the right application */}
-        <section id="find" className="public-section public-reveal px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
-          <h2 className="section-title mx-auto max-w-4xl text-foreground">Find your door</h2>
+        <section id="find" className="public-section px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
+          <h2 className="section-title mx-auto max-w-4xl text-foreground">
+            <span className="reveal-clip"><span>Find your door</span></span>
+          </h2>
           <div className="mt-10">
             <FindYourDoor />
           </div>
         </section>
 
         {/* What the work is */}
-        <section id="work" className="public-section public-reveal px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
+        <section id="work" className="public-section px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
           <h2 className="sr-only">What the work is</h2>
-          <div className="mx-auto grid max-w-5xl gap-10 md:grid-cols-3 md:gap-12">
+          <div className="reveal-cards mx-auto grid max-w-5xl gap-10 md:grid-cols-3 md:gap-12">
             {WHAT_WE_DO.map((c, index) => (
               <article key={c.title} className="public-process">
                 <div className="mb-5 flex items-center justify-center gap-3">
@@ -224,25 +267,34 @@ const Index = () => {
         <WhoRunsIt />
 
         {/* How pay is set. Four plain lines and the release note. */}
-        <section id="earnings" className="public-section public-reveal scroll-mt-20 px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
+        <section id="earnings" className="public-section scroll-mt-20 px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
           <div className="mx-auto max-w-3xl">
-            <h2 className="section-title text-foreground">How pay is set</h2>
+            <h2 className="section-title text-foreground">
+              <span className="reveal-clip"><span>How pay is set</span></span>
+            </h2>
             <div className="cover-measure mt-8 space-y-3">
-              {PAY_LINES.map((line) => (
-                <p key={line} className="text-base text-text-secondary">{line}</p>
+              {PAY_LINES.map((line, index) => (
+                <p key={line} className="reveal-clip text-base text-text-secondary" style={{ '--line': index + 1 } as React.CSSProperties}>
+                  <span>{line}</span>
+                </p>
               ))}
             </div>
-            <p className="mt-8 text-sm text-text-muted">
-              The full pay scale is published here when it is released.
+            <p
+              className="reveal-clip mt-8 text-sm text-text-muted"
+              style={{ '--line': PAY_LINES.length + 1 } as React.CSSProperties}
+            >
+              <span>The full pay scale is published here when it is released.</span>
             </p>
           </div>
         </section>
 
         {/* How the season works: five plain steps */}
-        <section id="season" className="public-section public-reveal px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
+        <section id="season" className="public-section px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
           <div className="mx-auto max-w-4xl">
-            <h2 className="section-title text-foreground">How the season works</h2>
-            <ol className="mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+            <h2 className="section-title text-foreground">
+              <span className="reveal-clip"><span>How the season works</span></span>
+            </h2>
+            <ol className="reveal-cards mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
               {SEASON_STEPS.map((step, index) => (
                 <li key={step.word}>
                   <p className="cover-label text-text-muted">0{index + 1}</p>
@@ -263,7 +315,11 @@ const Index = () => {
         >
           <div className="relative z-10 mx-auto max-w-xl">
             <p className="text-base text-text-secondary">Applications take a few minutes.</p>
-            <Link to="/apply/rookie" className="btn-gradient mt-7 inline-flex items-center justify-center gap-2 px-8">
+            <Link
+              to="/apply/rookie"
+              onClick={onPrimaryTap}
+              className="btn-gradient mt-7 inline-flex items-center justify-center gap-2 px-8"
+            >
               Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             <ReferralLookup />

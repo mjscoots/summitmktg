@@ -2,18 +2,22 @@ import { memo, useEffect, useRef } from 'react';
 import { RIDGES } from './MountainRange';
 
 /**
- * Pass 181 - the calm range.
+ * Pass 183 - the calm range, retuned.
  *
  * A canvas scene for the public cover only. It reuses the five ridgeline paths
  * from MountainRange (Path2D on the same 1440 x 600 box) and draws them in the
  * --range-1 to --range-5 colours read straight off the document, so the scene
  * follows the palette and the appearance with no second source of truth.
  *
- * The sky no longer shifts colour: it stays the page background top to bottom.
- * Behind the tallest peak sits one soft radial glow that blends blue into
- * violet and breathes between 6 and 10 percent on a twelve second loop. Each
- * ridge drifts horizontally on its own slow loop, so the range moves without
- * any scroll. Three neutral mist bands and a sparse rising particle field stay.
+ * Pass 183 brings the scene to the one motion standard:
+ * - every ridge drift is a sine of absolute time, so no loop ever restarts and
+ *   nothing jumps at the seam,
+ * - the glow behind the tallest peak breathes on an eased sine between 6 and 10
+ *   percent, and brightens toward 14 percent as the final band arrives,
+ * - particles respawn at zero alpha and fade in over 600ms, so nothing pops,
+ * - the layers tilt to the pointer on desktop and to device orientation on a
+ *   phone, three depths, 12px at the nearest layer, lerped at 0.08, on top of
+ *   the self drift so the hero is never still before any grant.
  *
  * Cost control: device pixel ratio is capped at 1.5, the loop pauses when the
  * tab is hidden or the canvas leaves the viewport, and under
@@ -32,6 +36,11 @@ const DRIFT = [
   { amp: 14, period: 60000 },
 ];
 
+/** The nearest layer never moves more than this far for a tilt. */
+const TILT_MAX = 12;
+/** Respawned particles fade in over this long. */
+const PARTICLE_FADE = 600;
+
 interface Particle {
   x: number;
   y: number;
@@ -40,18 +49,45 @@ interface Particle {
   drift: number;
   depth: number;
   violet: boolean;
+  /** Milliseconds lived since the last respawn, for the fade in. */
+  life: number;
 }
 
 interface MountainSceneProps {
   className?: string;
   /** Kept for compatibility. The sky no longer shifts with the scroll. */
   day?: number;
-  /** Desktop pointer parallax. Never runs on touch or reduced motion. */
+  /** Desktop pointer parallax. Never runs on reduced motion. */
   pointerParallax?: boolean;
+  /** 0 to 1 as the final band arrives: the glow brightens from 8 to 14 percent. */
+  glowBoost?: number;
 }
 
-function MountainSceneBase({ className, pointerParallax = true }: MountainSceneProps) {
+/**
+ * iOS only gives device orientation after a user gesture asks for it, and the
+ * grant does not survive the session. This is called inside the first tap of the
+ * primary button; a refusal simply leaves the self drift running.
+ */
+export async function requestTiltPermission(): Promise<boolean> {
+  const api = (window as unknown as {
+    DeviceOrientationEvent?: { requestPermission?: () => Promise<string> };
+  }).DeviceOrientationEvent;
+  if (!api?.requestPermission) return true;
+  try {
+    return (await api.requestPermission()) === 'granted';
+  } catch {
+    return false;
+  }
+}
+
+function easeInOut(t: number): number {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0 }: MountainSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const boostRef = useRef(glowBoost);
+  boostRef.current = glowBoost;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -106,6 +142,7 @@ function MountainSceneBase({ className, pointerParallax = true }: MountainSceneP
         drift: (Math.random() - 0.5) * 5,
         depth: 1 + (i % 3),
         violet: i % 2 === 0,
+        life: PARTICLE_FADE,
       }));
 
       mist = [0, 1, 2].map((i) => {
@@ -136,35 +173,52 @@ function MountainSceneBase({ className, pointerParallax = true }: MountainSceneP
       targetX = (event.clientX / window.innerWidth - 0.5) * 2;
       targetY = (event.clientY / window.innerHeight - 0.5) * 2;
     };
+    /** gamma is the left to right tilt, beta the front to back one. */
+    const onOrient = (event: DeviceOrientationEvent) => {
+      const clamp = (value: number) => Math.max(-1, Math.min(1, value));
+      targetX = clamp((event.gamma || 0) / 30);
+      targetY = clamp(((event.beta || 0) - 45) / 30);
+    };
 
+    let lastNow = 0;
     const draw = (now: number) => {
+      const delta = lastNow ? Math.min(64, now - lastNow) : 16;
+      lastNow = now;
       px += (targetX - px) * 0.08;
       py += (targetY - py) * 0.08;
 
       ctx.fillStyle = sky;
       ctx.fillRect(0, 0, width, height);
 
-      // The glow, breathing between 6 and 10 percent over twelve seconds.
+      // The glow: an eased breath between 6 and 10 percent over twelve seconds,
+      // lifted toward 14 percent as the final band arrives.
       if (glow) {
-        const breathe = reduceMotion ? 0.08 : 0.08 + 0.02 * Math.sin((now / 12000) * Math.PI * 2);
+        const boost = Math.max(0, Math.min(1, boostRef.current));
+        const base = 0.08 + boost * 0.06;
+        const breath = easeInOut((Math.sin((now / 12000) * Math.PI * 2) + 1) / 2);
+        const breathe = reduceMotion ? base : base - 0.02 + breath * 0.04;
         ctx.globalAlpha = breathe;
         ctx.fillStyle = glow;
         ctx.fillRect(0, 0, width, height);
         ctx.globalAlpha = 1;
       }
 
-      // Particles above the range.
+      // Particles above the range. A respawn starts at zero alpha and fades in
+      // over 600ms, so nothing ever pops into frame.
       if (!reduceMotion) {
         for (const p of particles) {
+          p.life += delta;
           p.y -= p.speed / 60;
           p.x += p.drift / 60;
           if (p.y < -4) {
             p.y = height * 0.75;
             p.x = Math.random() * width;
+            p.life = 0;
           }
           if (p.x < -4) p.x = width + 4;
           if (p.x > width + 4) p.x = -4;
-          ctx.globalAlpha = p.violet ? 0.08 : 0.1;
+          const fade = Math.min(1, p.life / PARTICLE_FADE);
+          ctx.globalAlpha = (p.violet ? 0.08 : 0.1) * fade;
           ctx.fillStyle = p.violet ? '#B69CFF' : '#FFFFFF';
           ctx.beginPath();
           ctx.arc(p.x + px * p.depth * 3, p.y + py * p.depth * 3, p.r, 0, Math.PI * 2);
@@ -174,13 +228,15 @@ function MountainSceneBase({ className, pointerParallax = true }: MountainSceneP
       }
 
       // Ridges far to near, each with a mist band above the next one. Every
-      // layer also drifts horizontally on its own slow loop.
+      // layer drifts on a sine of absolute time, so the loop is seamless, and
+      // tilts with the pointer or the device at its own depth.
       for (let i = 0; i < paths.length; i += 1) {
         const depth = i + 1;
         const { amp, period } = DRIFT[i];
         const self = reduceMotion ? 0 : Math.sin((now / period) * Math.PI * 2) * amp;
+        const lean = reduceMotion ? 0 : (depth / paths.length) * TILT_MAX;
         ctx.save();
-        ctx.translate(tx + px * depth * 1.2 + self, ty + py * depth * 1.2);
+        ctx.translate(tx + px * lean + self, ty + py * lean);
         ctx.scale(scale, scale);
         ctx.fillStyle = ranges[i];
         ctx.fill(paths[i]);
@@ -251,6 +307,9 @@ function MountainSceneBase({ className, pointerParallax = true }: MountainSceneP
     const onResize = () => resize();
     window.addEventListener('resize', onResize);
     if (pointerParallax && !coarse) window.addEventListener('pointermove', onPointer, { passive: true });
+    // On a phone the same three depths follow the gyroscope. Android delivers
+    // these events with no prompt; on iOS they stay silent until the grant.
+    if (coarse) window.addEventListener('deviceorientation', onOrient);
     play();
 
     return () => {
@@ -259,6 +318,7 @@ function MountainSceneBase({ className, pointerParallax = true }: MountainSceneP
       document.removeEventListener('visibilitychange', sync);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('deviceorientation', onOrient);
     };
   }, [pointerParallax]);
 
