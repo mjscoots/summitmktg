@@ -4233,3 +4233,91 @@ the Pass 177 count up. Body copy stays 16 to 18px with a 60ch measure.
 - Fonts load from Google Fonts with `display=swap` on both stylesheet links.
 - Baselines unchanged: profiles 536, chat_messages 715, applications 13.
 - No copy changes, no permission changes, no data writes, no live function calls, no forms submitted, site not published.
+
+## Pass 179 - interaction
+
+No new npm dependencies. No data writes, no deployments, site not published.
+
+### 1. Knock (src/components/recruiting/KnockDoor.tsx, src/index.css)
+CSS door beside the headline on desktop, below it at 390. One accessible button
+labelled Knock takes pointer, touch, Enter and Space. Fixed sequence, verbatim:
+
+- Knock one. Every account starts here.
+- Knock two. Most people say no. You keep going.
+- Knock three. Someone says yes.
+- Knock four. Log it the same day.
+- Knock five. Now do it again.
+- Ready to knock for real
+
+Swing: rotateY -62deg over 520ms with the spring easing token. Warm light is an
+opacity fade on a radial gradient (520ms, out). Counter reads Knocks: n. After
+the fifth knock the door stays open and the Apply button sits in the doorway.
+Verified at 390 and 1280: five clicks reach the final line, counter 5, one Apply
+link inside the door.
+
+### 2. Your year (src/components/recruiting/YearStrip.tsx)
+Replaces the static season list. Twelve months in a track with a lime marker.
+Drag with the pointer, tap a month, or focus the slider (role slider, aria
+valuetext the month) and use the arrow keys. Card copy is the existing season
+step copy placed by month: Apply (Jan, Feb), Train (Mar), Sell the season
+(Apr to Aug), Settle up (Sep), Off season (Oct to Dec), plus one line
+Live lane: {Pest|Fiber}. Life is coming.
+While held the cover sky scalar follows the month (winter dark, summer bright)
+and returns to the scroll value on release or after 900ms for a tap or key.
+Verified: arrow key moved Apr to May and the card read Sell the season; tapping
+Oct read Off season with Live lane: Fiber. Life is coming.
+
+### 3. Find your door (src/components/recruiting/FindYourDoor.tsx)
+Three steps, 48px choices. Sold door to door before yes or no; start this
+season, next season or not sure; free text market. Routing: yes goes to
+/apply/veteran, no goes to /apply/rookie; this season carries vertical=Pest,
+next season or not sure carries vertical=Fiber; market and start ride along.
+Verified route at 390 and 1280:
+/apply/veteran?vertical=Pest&market=Boise%2C+ID&start=this
+Summary line read: Vet, Pest, this season, Boise, ID. Your application takes
+about four minutes.
+Prefill (src/pages/RookieApplication.tsx, src/pages/VetApplication.tsx): the vet
+form opened with Boise, ID in City, State; the rookie form opened with Provo, UT
+and jordan from ?market= and ?referral=. No new fields and no new writes.
+
+### 4. Know someone here (src/components/recruiting/ReferralLookup.tsx)
+One input, Who told you about Trinity, under the final band. After three
+characters and a 300ms pause the text is read through the existing read only
+pillar_link_lookup RPC. A match shows Apply with {first name} linking to
+/p/{token}. No match shows Carry that into your application, verified as
+/apply/rookie?referral=jordan at a 44px target.
+
+### 5. The climb (src/components/brand/MountainScene.tsx)
+A lime marker rides the crest of the far ridge, driven by scroll, reaching the
+summit as the final Apply band enters view. Taps on the range send a light
+ripple (700ms, cubic ease out), and taps on links, buttons and inputs are
+ignored. Under reduced motion the marker is fixed at the summit and the ripple
+never runs.
+
+### 6. App interactions
+- src/components/home/HomeNumber.tsx: tapping the number flips between this week
+  and this season using the values the same read already returns. The flip is a
+  rotateX plus opacity at 280ms with the out token.
+- src/pages/app/ProgressPage.tsx, src/components/badges/BadgeStrip.tsx: badges
+  are buttons that open a bottom sheet with the existing badge description.
+- src/components/home/GoalRing.tsx: press and drag around the ring sets the
+  weekly goal, the figure moving with the finger, and Save confirms. It writes
+  through the existing path this ring already used (profiles.weekly_goal); the
+  earnings_goals editor on Estimate earnings is untouched, which is why
+  earnings_goals stays at 0.
+
+### Reduced motion
+Checked at 390 with reduced motion forced: every transition and animation added
+in this pass resolves to none or 1ms, the door sits open, the qualifier cards do
+not slide, and all five interactions still complete. No pointer parallax on
+touch.
+
+### Verification
+- Typecheck: tsgo --noEmit -p tsconfig.app.json clean.
+- Production build: clean, build log reads build OK.
+- Shell gzip: entry JS 16,451 bytes, entry CSS 30,995 bytes.
+- No em dash and no emoji in any added line (grep returned nothing).
+- Baselines: profiles 536, chat_messages 715, applications 13,
+  earnings_goals 0. Read only, no writes, no live function calls, no forms
+  submitted.
+- Site not published.
