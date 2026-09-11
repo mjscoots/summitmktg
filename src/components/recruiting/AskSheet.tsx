@@ -185,7 +185,8 @@ export function AskSheet({ watchId }: SheetProps) {
       (entries) => {
         entries.forEach((entry) => {
           if (closedRef.current) return;
-          const past = entry.boundingClientRect.bottom < 0;
+          // Scrolled past: the statement has mostly left the top of the screen.
+          const past = entry.boundingClientRect.bottom < window.innerHeight * 0.5;
           if (past) {
             window.clearTimeout(timer);
             setOpen(true);
