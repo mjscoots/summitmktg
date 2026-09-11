@@ -4053,7 +4053,7 @@ All remaining hits are identifiers, keys, URLs, file names or addresses:
 
 - Added lines contain no em dash and no emoji (checked over the pass diff: 0 and 0).
 - `bun x tsgo --noEmit` clean; `bun x vite build` clean.
-- Shell gzip: entry JS `dist/assets/index-*.js` = 16,524 bytes gzip; entry CSS `dist/assets/index-*.css` = 28,390 bytes gzip.
+- Shell gzip: entry JS `dist/assets/index-*.js` = 16,516 bytes gzip; entry CSS `dist/assets/index-*.css` = 28,399 bytes gzip.
 - Baselines: profiles 536, chat_messages 715, applications 13 - unchanged. `user_notifications` reads 6445, up from 6375, entirely from the cron writers between Pass 174 and now; this pass wrote no notification.
 - One accidental data write happened and was rolled back: opening `/app` in the verification browser as the owner rendered the Pass 172 first open screen, which stamped `profiles.first_open_at` for that one account. It was set back to NULL in a migration, so the welcome screen behaves as it did before this pass. No other row was written. No form was submitted and no live function was called.
 - The site was not published.
