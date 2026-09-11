@@ -55,6 +55,20 @@ const RookieApplication = () => {
     referralName: false,
   });
 
+  // Pass 179: the cover qualifier carries the market and the referral name in
+  // the query, so the form opens with them already filled in.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const market = (params.get('market') || '').slice(0, 80);
+    const referral = (params.get('referral') || '').slice(0, 80);
+    if (!market && !referral) return;
+    setFormData((prev) => ({
+      ...prev,
+      cityState: prev.cityState || market,
+      referralName: prev.referralName || referral,
+    }));
+  }, []);
+
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);

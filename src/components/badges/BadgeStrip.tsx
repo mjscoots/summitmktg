@@ -31,8 +31,20 @@ export function BadgeStrip({
   );
 }
 
-/** Full badge shelf for profiles / scorecards. */
-export function BadgeShelf({ userId, className }: { userId: string; className?: string }) {
+/**
+ * Full badge shelf for profiles / scorecards. Pass 179: when `onSelect` is
+ * given each badge is a button that hands its record back, so Progress can show
+ * how it is earned from the existing description.
+ */
+export function BadgeShelf({
+  userId,
+  className,
+  onSelect,
+}: {
+  userId: string;
+  className?: string;
+  onSelect?: (badge: ReturnType<typeof useUserBadges>[number]) => void;
+}) {
   const badges = useUserBadges(userId);
   if (!badges.length) return null;
 
@@ -40,7 +52,18 @@ export function BadgeShelf({ userId, className }: { userId: string; className?: 
     <div className={cn('flex flex-wrap gap-1.5', className)}>
       {badges.map((b, index) => (
         <span key={b.badge_key} className="badge-pop" style={{ animationDelay: `calc(${index} * var(--motion-stagger))` }}>
-          <BadgeChip badge={b} size="sm" showLabel />
+          {onSelect ? (
+            <button
+              type="button"
+              onClick={() => onSelect(b)}
+              className="inline-flex min-h-11 items-center"
+              aria-label={`${b.name}, how to earn it`}
+            >
+              <BadgeChip badge={b} size="sm" showLabel />
+            </button>
+          ) : (
+            <BadgeChip badge={b} size="sm" showLabel />
+          )}
         </span>
       ))}
     </div>

@@ -13,6 +13,10 @@ import { COVER_STATS } from "@/lib/coverStats";
 import { RidgelineMark } from '@/components/brand/RidgelineMark';
 import { usePublicMotion } from '@/hooks/usePublicMotion';
 import { useCoverMedia } from '@/hooks/useCoverMedia';
+import { KnockDoor } from '@/components/recruiting/KnockDoor';
+import { FindYourDoor } from '@/components/recruiting/FindYourDoor';
+import { YearStrip } from '@/components/recruiting/YearStrip';
+import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
@@ -20,13 +24,6 @@ const WHAT_WE_DO = [
   { icon: DoorOpen, title: "Knock", line: "You work a set area with a script you have practised." },
   { icon: Handshake, title: "Close", line: "You sign the account at the door and log it the same day." },
   { icon: Wallet, title: "Get paid", line: "You are paid on what you close, not on hours." },
-];
-
-const SEASON_STEPS = [
-  { title: "Apply", line: "A short form, then a call with a manager." },
-  { title: "Train", line: "Scripts, product and practice before you knock." },
-  { title: "Sell the season", line: "You work an area with your team through the summer." },
-  { title: "Settle up", line: "Your pay follows the scale you reached." },
 ];
 
 /**
@@ -43,6 +40,8 @@ const Index = () => {
   const [scrolled, setScrolled] = useState(false);
   const [pastHero, setPastHero] = useState(false);
   const [day, setDay] = useState(0.35);
+  const [dayHold, setDayHold] = useState<number | null>(null);
+  const [climb, setClimb] = useState(0);
   const [active, setActive] = useState('work');
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
   const navRef = useRef<HTMLDivElement | null>(null);
@@ -64,6 +63,13 @@ const Index = () => {
       setScrolled(y > 40);
       setPastHero(y > window.innerHeight * 0.7);
       setDay(reduceMotion ? 0.35 : 0.35 + progress * 0.65);
+      // The climb reaches the summit as the final Apply band comes into view.
+      const apply = document.getElementById('apply');
+      if (apply) {
+        const top = apply.getBoundingClientRect().top + y;
+        const span = Math.max(1, top - window.innerHeight * 0.6);
+        setClimb(Math.min(1, Math.max(0, y / span)));
+      }
     };
     onScroll();
     target.addEventListener('scroll', onScroll, { passive: true });
@@ -117,7 +123,7 @@ const Index = () => {
           <img className="cover-media" src={media.image} alt="" />
         ) : null}
         {(media.video || media.image) && <div className="cover-scrim" />}
-        <MountainScene day={day} pointerParallax />
+        <MountainScene day={dayHold ?? day} climb={climb} ripple pointerParallax />
       </div>
 
       <header className={`public-nav sticky top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
@@ -167,7 +173,7 @@ const Index = () => {
         <section className="public-cover relative isolate px-5 sm:px-6">
           <div className="relative z-10 mx-auto flex min-h-[calc(100svh-69px)] max-w-6xl flex-col justify-between pb-16 pt-10 sm:pb-20 md:pb-24">
             <Wordmark variant="hero" height={72} animate />
-            <div>
+            <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-14">
               <div className="max-w-4xl">
                 <h1 className="cover-headline font-display font-bold text-foreground">
                   <span className="cover-headline-line">Financial freedom.</span>
@@ -177,7 +183,7 @@ const Index = () => {
                 <p className="cover-support mt-6 max-w-[60ch] text-base leading-relaxed text-text-secondary sm:text-lg">
                   A performance-based path through sales, training, and team leadership.
                 </p>
-              </div>
+
 
               {/* Space for both actions is reserved so the late pay scale read
                   cannot shift the hero. */}
@@ -199,11 +205,24 @@ const Index = () => {
               <p className="mt-5 text-sm text-text-muted">
                 Pest control now · Fiber internet in the off-season
               </p>
+              </div>
+
+              <KnockDoor />
             </div>
           </div>
         </section>
 
         <ThreeDoorSection />
+
+        {/* Find your door: three taps to the right application */}
+        <section id="find" className="public-section public-reveal px-5 py-16 sm:px-6 md:py-24" data-reveal>
+          <h2 className="section-title mx-auto max-w-6xl font-display font-bold tracking-tight text-foreground">
+            Find your door
+          </h2>
+          <div className="mt-10">
+            <FindYourDoor />
+          </div>
+        </section>
 
         {/* What the work is */}
         <section id="work" className="public-section public-reveal px-5 py-16 sm:px-6 md:py-24" data-reveal>
@@ -247,15 +266,9 @@ const Index = () => {
             <h2 className="section-title font-display font-bold tracking-tight text-foreground">
               How the season works
             </h2>
-            <ol className="mt-10">
-              {SEASON_STEPS.map((s, i) => (
-                <li key={s.title} className="card-spotlight grid gap-2 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-5">
-                  <span className="text-xs tabular-nums text-primary">0{i + 1}</span>
-                  <h3 className="text-lg font-bold text-foreground">{s.title}</h3>
-                  <p className="max-w-[60ch] text-sm text-text-secondary">{s.line}</p>
-                </li>
-              ))}
-            </ol>
+            <div className="mt-10">
+              <YearStrip onDay={setDayHold} />
+            </div>
           </div>
         </section>
 
@@ -267,6 +280,7 @@ const Index = () => {
             <Button asChild className="magnetic mt-7 min-h-12 px-8 font-bold">
               <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
             </Button>
+            <ReferralLookup />
             <p className="mt-8 text-sm text-text-secondary">
               Already on the team,{' '}
               <Link to="/login" className="public-link inline-flex min-h-11 items-center font-semibold text-ice">

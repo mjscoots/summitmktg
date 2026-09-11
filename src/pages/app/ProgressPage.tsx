@@ -9,11 +9,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMyPoints } from '@/hooks/useMyPoints';
 import { supabase } from '@/integrations/supabase/client';
 import { CountUp } from '@/components/shared/CountUp';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import type { UserBadge } from '@/hooks/useBadges';
 
 export default function ProgressPage() {
   const { user } = useAuth();
   const { data, isLoading } = useMyPoints();
   const [rank, setRank] = useState<number | null>(null);
+  const [badge, setBadge] = useState<UserBadge | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -53,7 +56,7 @@ export default function ProgressPage() {
           <section className="grid gap-8 md:grid-cols-2" aria-label="Recognition">
             <div>
               <h2 className="mb-3 text-[15px] font-semibold text-foreground">Badges</h2>
-              <BadgeShelf userId={user.id} />
+              <BadgeShelf userId={user.id} onSelect={setBadge} />
             </div>
             <TrophyCase userId={user.id} />
           </section>
@@ -63,6 +66,17 @@ export default function ProgressPage() {
           <h2 className="mb-4 text-[20px] font-semibold text-foreground">To do</h2>
           <TodoList />
         </section>
+
+        <Sheet open={Boolean(badge)} onOpenChange={(open) => !open && setBadge(null)}>
+          <SheetContent side="bottom" className="pb-8">
+            <SheetHeader>
+              <SheetTitle>{badge?.name}</SheetTitle>
+            </SheetHeader>
+            <p className="mt-3 text-[15px] text-muted-foreground">
+              {badge?.description || 'No description saved for this one yet.'}
+            </p>
+          </SheetContent>
+        </Sheet>
       </main>
     </AppLayout>
   );

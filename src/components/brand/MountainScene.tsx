@@ -69,12 +69,28 @@ interface MountainSceneProps {
   day?: number;
   /** Desktop pointer parallax. Never runs on touch or reduced motion. */
   pointerParallax?: boolean;
+  /**
+   * Pass 179 - the climb. 0 puts the lime marker at the left foot of the far
+   * ridge, 1 puts it on the summit. Undefined hides the marker.
+   */
+  climb?: number;
+  /** Pass 179 - a soft light ripple from a tap on the range. */
+  ripple?: boolean;
 }
 
-function MountainSceneBase({ className, day = 0.35, pointerParallax = true }: MountainSceneProps) {
+function MountainSceneBase({
+  className,
+  day = 0.35,
+  pointerParallax = true,
+  climb,
+  ripple = false,
+}: MountainSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dayRef = useRef(day);
   dayRef.current = day;
+  const climbRef = useRef(climb);
+  climbRef.current = climb;
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -85,6 +101,39 @@ function MountainSceneBase({ className, day = 0.35, pointerParallax = true }: Mo
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const coarse = window.matchMedia('(hover: none)').matches;
     const paths = RIDGES.map((d) => new Path2D(d));
+
+    // The crest of the far ridge, sampled once in view units so the climb
+    // marker can ride it. The samples run from the left foot to the summit.
+    const crest: { x: number; y: number }[] = [];
+    try {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '0');
+      svg.setAttribute('height', '0');
+      svg.style.position = 'absolute';
+      svg.style.opacity = '0';
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', RIDGES[0]);
+      svg.appendChild(path);
+      document.body.appendChild(svg);
+      const total = path.getTotalLength();
+      for (let i = 0; i <= 240; i += 1) {
+        const point = path.getPointAtLength((total * i) / 240);
+        if (point.y < 330 && point.x >= -20 && point.x <= 730) crest.push({ x: point.x, y: point.y });
+      }
+      document.body.removeChild(svg);
+      crest.sort((a, b) => a.x - b.x);
+    } catch {
+      /* the marker simply does not render */
+    }
+
+    interface Ripple {
+      x: number;
+      y: number;
+      start: number;
+    }
+    let ripples: Ripple[] = [];
+    const RIPPLE_MS = 700;
+
 
     let width = 0;
     let height = 0;
@@ -232,7 +281,43 @@ function MountainSceneBase({ className, day = 0.35, pointerParallax = true }: Mo
       haze.addColorStop(1, `rgba(${sky},1)`);
       ctx.fillStyle = haze;
       ctx.fillRect(0, ty + 370 * scale, width, VIEW_H * scale - 370 * scale + 2);
+
+      // Pass 179 - the climb. Under reduced motion the marker sits on the
+      // summit and never moves.
+      const climbValue = climbRef.current;
+      if (typeof climbValue === 'number' && crest.length > 1) {
+        const p = reduceMotion ? 1 : Math.min(1, Math.max(0, climbValue));
+        const point = crest[Math.round(p * (crest.length - 1))];
+        const mxp = tx + px * 1.2 + point.x * scale;
+        const myp = ty + py * 1.2 + point.y * scale;
+        const halo = ctx.createRadialGradient(mxp, myp, 0, mxp, myp, 22);
+        halo.addColorStop(0, 'rgba(180,245,59,0.35)');
+        halo.addColorStop(1, 'rgba(180,245,59,0)');
+        ctx.fillStyle = halo;
+        ctx.fillRect(mxp - 22, myp - 22, 44, 44);
+        ctx.fillStyle = '#B4F53B';
+        ctx.beginPath();
+        ctx.arc(mxp, myp, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Pass 179 - a soft light ripple from a tap on the range.
+      if (!reduceMotion && ripples.length) {
+        ripples = ripples.filter((r) => now - r.start < RIPPLE_MS);
+        for (const r of ripples) {
+          const t = (now - r.start) / RIPPLE_MS;
+          const eased = 1 - Math.pow(1 - t, 3);
+          ctx.globalAlpha = 0.22 * (1 - t);
+          ctx.strokeStyle = '#B4F53B';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, 8 + eased * 180, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+      }
     };
+
 
     resize();
 
@@ -277,6 +362,20 @@ function MountainSceneBase({ className, day = 0.35, pointerParallax = true }: Mo
     const onResize = () => resize();
     window.addEventListener('resize', onResize);
     if (pointerParallax && !coarse) window.addEventListener('pointermove', onPointer, { passive: true });
+
+    // A tap on the range sends a ripple. Taps on anything the visitor can use
+    // are left alone, so the ripple never competes with a button or a link.
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('a, button, input, textarea, select, [role="button"]')) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+      ripples.push({ x, y, start: performance.now() });
+      if (ripples.length > 4) ripples.shift();
+    };
+    if (ripple) window.addEventListener('pointerdown', onDown, { passive: true });
     play();
 
     return () => {
@@ -285,8 +384,10 @@ function MountainSceneBase({ className, day = 0.35, pointerParallax = true }: Mo
       document.removeEventListener('visibilitychange', sync);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('pointerdown', onDown);
     };
-  }, [pointerParallax]);
+  }, [pointerParallax, ripple]);
+
 
   return <canvas ref={canvasRef} aria-hidden="true" className={className} style={{ display: 'block', width: '100%', height: '100%' }} />;
 }
