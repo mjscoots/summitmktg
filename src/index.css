@@ -2293,7 +2293,6 @@ html[data-appearance='light'] .btn-gradient {
 .public-world[data-world='light'] .gradient-text { color: #6D3BFF; -webkit-text-fill-color: #6D3BFF; }
 .public-world[data-world='light'] .proof-underline::after,
 .public-world[data-world='light'] .door-lane::after { background: #6D3BFF; }
-.public-world[data-world='light'] .qual-choice-on { background: #6D3BFF; color: #FFFFFF; }
 .public-world[data-world='light'] .public-link { color: #000000; }
 .public-world[data-world='light'] .cover-ticker-dot { background: #6E7288; }
 

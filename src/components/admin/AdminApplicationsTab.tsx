@@ -21,6 +21,9 @@ interface Application {
   source_type: string | null;
   previous_company: string | null;
   years_experience: number | null;
+  interested_in: string[] | null;
+  sales_style: string | null;
+  earnings_goal: string | null;
   application_type: string;
   status: string;
   notes: string | null;
@@ -142,6 +145,9 @@ export default function AdminApplicationsTab() {
       `Email: ${app.email}`,
       `Location: ${app.city_state}`,
       `Referral: ${app.referral_source}`,
+      app.interested_in?.length ? `Interested in: ${app.interested_in.join(', ')}` : '',
+      app.sales_style ? `In person or remote: ${app.sales_style}` : '',
+      app.earnings_goal ? `Earnings goal: ${app.earnings_goal}` : '',
       app.notes ? `Notes: ${app.notes}` : '',
     ].filter(Boolean).join('\n');
     await navigator.clipboard.writeText(lines);
@@ -289,6 +295,9 @@ export default function AdminApplicationsTab() {
                     </div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground/60 mt-1">
                       {app.referral_source && <span>Who told them about Trinity: {app.referral_source}</span>}
+                      {app.interested_in?.length ? <span>Interested in: {app.interested_in.join(', ')}</span> : null}
+                      {app.sales_style && <span>In person or remote: {app.sales_style}</span>}
+                      {app.earnings_goal && <span>Earnings goal: {app.earnings_goal}</span>}
                       {app.source_type && <span>Source: {app.source_type}</span>}
                       {typeFilter === 'veteran' && app.previous_company && <span>Prev: {app.previous_company}</span>}
                       {typeFilter === 'veteran' && app.years_experience != null && <span>Rev: {app.years_experience}</span>}
