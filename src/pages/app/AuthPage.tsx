@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Wordmark } from '@/components/brand/Wordmark';
+import { MountainRange } from '@/components/brand/MountainRange';
 import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -70,6 +71,10 @@ const AuthPage = () => {
 
   return (
     <div className="gold-world public-auth min-h-screen flex items-center justify-center px-5 py-10 sm:px-6 sm:py-12">
+      {/* The range sits behind the sign in card, bottom aligned. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-1/2" aria-hidden="true">
+        <MountainRange />
+      </div>
       <main className="relative z-10 w-full max-w-md animate-fade-in">
         <button
           onClick={() => navigate("/")}
@@ -81,14 +86,14 @@ const AuthPage = () => {
 
         {/* Header */}
         <div className="text-center mb-7">
-          <div className="mx-auto mb-5 w-full max-w-[280px]">
-            <Wordmark variant="heroMono" height={96} className="mx-auto h-auto w-full max-w-[280px]" />
+          <div className="mx-auto mb-5 flex w-full max-w-[280px] justify-center">
+            <Wordmark variant="heroMono" height={84} />
           </div>
-          <h1 className="font-display text-2xl font-extrabold tracking-[-0.01em] text-foreground mb-1">
+          <h1 className="font-display text-2xl font-bold tracking-[-0.02em] text-foreground mb-1">
             Welcome back
           </h1>
           <p className="text-muted-foreground text-sm">
-            Sign in to Summit.
+            Sign in to Trinity.
           </p>
         </div>
 

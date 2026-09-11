@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Montserrat', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         micro: '0.14em',
@@ -55,6 +55,8 @@ export default {
           elevated: "hsl(var(--surface-elevated))",
         },
         "secondary-label": "hsl(var(--secondary-label, var(--muted-foreground)))",
+        // Blue secondary: links, active secondary controls, unread dots.
+        ice: "hsl(var(--ice))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",

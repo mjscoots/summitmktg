@@ -741,7 +741,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   return (
     <div
-      className={cn('h-full min-h-0 flex flex-col overflow-hidden relative', skin.className)}
+      className={cn('h-full min-h-0 flex flex-col overflow-hidden relative isolate', skin.className)}
       style={{ height: '100%', maxHeight: '100%', ...skin.style }}
       onDragEnter={(e: DragEvent) => { e.preventDefault(); e.stopPropagation(); dragCounter.current++; setIsDragging(true); }}
       onDragOver={(e: DragEvent) => { e.preventDefault(); e.stopPropagation(); }}
@@ -758,6 +758,8 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
         }
       }}
     >
+      {/* The Trinity wallpaper shows the range at 20 percent; the other two hide it. */}
+      <MountainRange className="chat-range" />
       {/* Drag overlay */}
       {isDragging && (
         <div className="absolute inset-0 z-50 bg-primary/10 backdrop-blur-sm border-2 border-dashed border-primary/40 rounded-xl flex items-center justify-center">

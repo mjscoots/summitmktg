@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Type faces are self-hosted (@fontsource) and imported in src/main.tsx. */
+/* Display face Space Grotesk and body Inter load from Google Fonts in index.html
+   with display swap; Inter is also self-hosted through @fontsource. */
 
 html, body, #root {
   overflow-x: hidden;
@@ -12,40 +13,40 @@ html, body, #root {
 @layer base {
   :root {
     /* ━━━ MONO SYSTEM - near-black surfaces, bright white outlines ━━━ */
-    --background: 220 22% 6%;
-    --foreground: 213 20% 97%;
+    --background: 220 39% 5%;
+    --foreground: 210 44% 96%;
 
-    --card: 220 21% 9%;
-    --card-foreground: 213 20% 97%;
+    --card: 219 35% 8%;
+    --card-foreground: 210 44% 96%;
 
-    --popover: 220 21% 9%;
-    --popover-foreground: 213 20% 97%;
+    --popover: 219 35% 8%;
+    --popover-foreground: 210 44% 96%;
 
     /* Primary action is white on near-black */
-    --primary: 213 20% 97%;
-    --primary-foreground: 220 22% 6%;
+    --primary: 81 90% 60%;
+    --primary-foreground: 220 39% 5%;
 
-    --secondary: 221 21% 13%;
-    --secondary-foreground: 213 20% 97%;
+    --secondary: 218 33% 11%;
+    --secondary-foreground: 210 44% 96%;
 
-    --muted: 221 21% 13%;
-    --muted-foreground: 217 10% 54%;
+    --muted: 218 33% 11%;
+    --muted-foreground: 215 12% 49%;
 
-    --accent: 213 20% 97%;
-    --accent-foreground: 220 22% 6%;
+    --accent: 81 90% 60%;
+    --accent-foreground: 220 39% 5%;
 
     --destructive: 358 100% 68%;
-    --destructive-foreground: 220 22% 6%;
+    --destructive-foreground: 220 39% 5%;
 
-    --success: 158 70% 55%;
-    --success-foreground: 220 22% 6%;
+    --success: 81 90% 60%;
+    --success-foreground: 220 39% 5%;
 
-    --warning: 41 100% 48%;
-    --warning-foreground: 220 22% 6%;
+    --warning: 42 100% 47%;
+    --warning-foreground: 220 39% 5%;
 
-    --border: 220 18% 18%;
-    --input: 221 21% 13%;
-    --ring: 197 100% 68%;
+    --border: 215 27% 16%;
+    --input: 218 33% 11%;
+    --ring: 221 100% 62%;
 
     /* Radius, elevation, motion */
     --radius: 0.75rem;
@@ -58,43 +59,43 @@ html, body, #root {
     --motion-ease: cubic-bezier(0.2, 0, 0, 1);
 
     /* ━━━ SURFACE LAYERS ━━━ */
-    --surface: 220 21% 9%;
-    --surface-elevated: 221 21% 13%;
-    --surface-sunken: 220 24% 5%;
+    --surface: 219 35% 8%;
+    --surface-elevated: 218 33% 11%;
+    --surface-sunken: 222 40% 4%;
 
     /* ━━━ BORDER LAYERS ━━━ */
-    --border-subtle: 220 18% 18%;
-    --border-strong: 220 17% 24%;
+    --border-subtle: 215 27% 16%;
+    --border-strong: 216 25% 22%;
 
     /* ━━━ TEXT HIERARCHY ━━━ */
-    --text-primary: 213 20% 97%;
-    --text-secondary: 218 15% 75%;
-    --text-muted: 217 10% 54%;
+    --text-primary: 210 44% 96%;
+    --text-secondary: 216 18% 71%;
+    --text-muted: 215 12% 49%;
 
     /* ━━━ ICE ACCENT - links, focus, active tab, progress only ━━━ */
-    --ice: 197 100% 68%;
-    --primary-soft: 197 100% 68% / 0.12;
+    --ice: 221 100% 62%;
+    --primary-soft: 221 100% 62% / 0.12;
     --primary-muted: 200 60% 76%;
-    --primary-glow: 197 100% 68%;
-    --primary-deep: 213 20% 97%;
+    --primary-glow: 221 100% 62%;
+    --primary-deep: 210 44% 96%;
 
     /* Workspace identity accent - wordmark, active tab, focus ring */
-    --workspace-accent: 197 100% 68%;
+    --workspace-accent: 221 100% 62%;
 
     /* Fiber mint, for the rollover card shown inside other workspaces */
-    --fiber-mint: 158 70% 55%;
+    --fiber-mint: 81 90% 60%;
 
 
     /* Role accents follow the one accent */
-    --rookie-accent: 197 100% 68%;
-    --rookie-glow: 197 100% 68%;
-    --manager-accent: 197 100% 68%;
-    --manager-glow: 197 100% 68%;
+    --rookie-accent: 221 100% 62%;
+    --rookie-glow: 221 100% 62%;
+    --manager-accent: 221 100% 62%;
+    --manager-glow: 221 100% 62%;
 
     /* Surfaces kept flat where glass tokens are still referenced */
-    --glass-bg: 220 21% 9%;
-    --glass-border: 220 18% 18%;
-    --glass-glow: 197 100% 68% / 0;
+    --glass-bg: 219 35% 8%;
+    --glass-border: 215 27% 16%;
+    --glass-glow: 221 100% 62% / 0;
 
     /* No gradients and no glow in Mono: these resolve to flat surfaces. */
     --gradient-ice: hsl(var(--ice));
@@ -105,29 +106,29 @@ html, body, #root {
     --glow-ice: none;
 
     /* Sidebar */
-    --sidebar-background: 220 24% 5%;
-    --sidebar-foreground: 218 15% 75%;
-    --sidebar-primary: 197 100% 68%;
-    --sidebar-primary-foreground: 220 22% 6%;
-    --sidebar-accent: 221 21% 13%;
-    --sidebar-accent-foreground: 213 20% 97%;
-    --sidebar-border: 220 18% 18%;
-    --sidebar-ring: 197 100% 68%;
+    --sidebar-background: 222 40% 4%;
+    --sidebar-foreground: 216 18% 71%;
+    --sidebar-primary: 221 100% 62%;
+    --sidebar-primary-foreground: 220 39% 5%;
+    --sidebar-accent: 218 33% 11%;
+    --sidebar-accent-foreground: 210 44% 96%;
+    --sidebar-border: 215 27% 16%;
+    --sidebar-ring: 221 100% 62%;
 
   }
 
   /* Rookie and manager themes share the one ice accent */
   .theme-rookie,
   .theme-manager {
-    --primary: 197 100% 68%;
-    --accent: 197 100% 68%;
-    --ring: 197 100% 68%;
+    --primary: 81 90% 60%;
+    --accent: 81 90% 60%;
+    --ring: 221 100% 62%;
   }
 
   .dark,
   .light {
-    --background: 220 22% 6%;
-    --foreground: 213 20% 97%;
+    --background: 220 39% 5%;
+    --foreground: 210 44% 96%;
   }
 
   /* ━━━ LIGHT APPEARANCE - the same Mono system in daylight values.
@@ -137,62 +138,62 @@ html, body, #root {
   html[data-appearance='light'] .light,
   html[data-appearance='light'] .dark,
   html[data-appearance='light'] .gold-world {
-    --background: 220 20% 97%;
-    --foreground: 220 22% 6%;
+    --background: 0 0% 100%;
+    --foreground: 221 44% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 22% 6%;
+    --card-foreground: 221 44% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 22% 6%;
+    --popover-foreground: 221 44% 7%;
 
-    --primary: 220 22% 6%;
-    --primary-foreground: 0 0% 100%;
-    --accent: 220 22% 6%;
-    --accent-foreground: 0 0% 100%;
+    --primary: 221 44% 7%;
+    --primary-foreground: 81 90% 60%;
+    --accent: 221 44% 7%;
+    --accent-foreground: 81 90% 60%;
 
-    --secondary: 220 20% 94%;
-    --secondary-foreground: 220 22% 6%;
-    --muted: 220 20% 94%;
-    --muted-foreground: 218 11% 44%;
+    --secondary: 216 26% 96%;
+    --secondary-foreground: 221 44% 7%;
+    --muted: 216 26% 96%;
+    --muted-foreground: 218 11% 54%;
 
     --destructive: 358 72% 48%;
     --destructive-foreground: 0 0% 100%;
-    --success: 158 62% 34%;
+    --success: 81 70% 34%;
     --success-foreground: 0 0% 100%;
-    --warning: 33 92% 38%;
+    --warning: 38 95% 40%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 218 15% 88%;
+    --border: 216 21% 91%;
     --input: 0 0% 100%;
-    --ring: 199 92% 38%;
+    --ring: 223 100% 56%;
 
     --shadow-lift: 0 1px 2px rgba(16, 24, 40, 0.08);
 
     --surface: 0 0% 100%;
     --surface-elevated: 0 0% 100%;
-    --surface-sunken: 220 20% 94%;
-    --border-subtle: 218 15% 91%;
-    --border-strong: 216 15% 80%;
+    --surface-sunken: 216 26% 96%;
+    --border-subtle: 216 21% 91%;
+    --border-strong: 216 21% 85%;
 
-    --text-primary: 220 22% 6%;
-    --text-secondary: 219 13% 30%;
-    --text-muted: 218 11% 44%;
+    --text-primary: 221 44% 7%;
+    --text-secondary: 218 15% 35%;
+    --text-muted: 218 11% 54%;
 
-    --ice: 199 92% 38%;
-    --primary-soft: 199 92% 38% / 0.1;
+    --ice: 223 100% 56%;
+    --primary-soft: 223 100% 56% / 0.1;
     --primary-muted: 200 45% 34%;
-    --primary-glow: 199 92% 38%;
-    --primary-deep: 220 22% 6%;
-    --workspace-accent: 199 92% 38%;
-    --fiber-mint: 158 62% 34%;
+    --primary-glow: 223 100% 56%;
+    --primary-deep: 221 44% 7%;
+    --workspace-accent: 223 100% 56%;
+    --fiber-mint: 81 70% 34%;
 
-    --rookie-accent: 199 92% 38%;
-    --rookie-glow: 199 92% 38%;
-    --manager-accent: 199 92% 38%;
-    --manager-glow: 199 92% 38%;
+    --rookie-accent: 223 100% 56%;
+    --rookie-glow: 223 100% 56%;
+    --manager-accent: 223 100% 56%;
+    --manager-glow: 223 100% 56%;
 
     --glass-bg: 0 0% 100%;
-    --glass-border: 218 15% 88%;
+    --glass-border: 216 21% 91%;
 
     --gradient-ice: hsl(var(--ice));
     --gradient-hero: hsl(var(--surface));
@@ -201,67 +202,67 @@ html, body, #root {
     --gradient-surface: hsl(var(--surface));
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 219 13% 30%;
-    --sidebar-primary: 199 92% 38%;
+    --sidebar-foreground: 218 15% 35%;
+    --sidebar-primary: 223 100% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 94%;
-    --sidebar-accent-foreground: 220 22% 6%;
-    --sidebar-border: 218 15% 91%;
-    --sidebar-ring: 199 92% 38%;
+    --sidebar-accent: 216 26% 96%;
+    --sidebar-accent-foreground: 221 44% 7%;
+    --sidebar-border: 216 21% 91%;
+    --sidebar-ring: 223 100% 56%;
 
     --wordmark-bg: #FFFFFF;
-    --wordmark-accent: #0B7FB0;
-    --wordmark-outline: #0B0D12;
-    --wordmark-letters: #0B0D12;
+    --wordmark-accent: #7BAF12;
+    --wordmark-outline: #0A0F1A;
+    --wordmark-letters: #0A0F1A;
   }
 
 
   /* ━━━ PUBLIC WORLD - outward-facing pages (cover, recruiting, applications).
      The same Mono palette; the public site stays dark. ━━━ */
   .gold-world {
-    --background: 220 22% 6%;
-    --foreground: 213 20% 97%;
+    --background: 220 39% 5%;
+    --foreground: 210 44% 96%;
 
-    --card: 220 21% 9%;
-    --card-foreground: 213 20% 97%;
-    --popover: 220 21% 9%;
-    --popover-foreground: 213 20% 97%;
+    --card: 219 35% 8%;
+    --card-foreground: 210 44% 96%;
+    --popover: 219 35% 8%;
+    --popover-foreground: 210 44% 96%;
 
-    --primary: 213 20% 97%;
-    --primary-foreground: 220 22% 6%;
-    --accent: 213 20% 97%;
-    --accent-foreground: 220 22% 6%;
-    --ring: 197 100% 68%;
+    --primary: 81 90% 60%;
+    --primary-foreground: 220 39% 5%;
+    --accent: 81 90% 60%;
+    --accent-foreground: 220 39% 5%;
+    --ring: 221 100% 62%;
 
-    --secondary: 221 21% 13%;
-    --secondary-foreground: 213 20% 97%;
-    --muted: 221 21% 13%;
-    --muted-foreground: 217 10% 54%;
+    --secondary: 218 33% 11%;
+    --secondary-foreground: 210 44% 96%;
+    --muted: 218 33% 11%;
+    --muted-foreground: 215 12% 49%;
 
-    --success: 158 70% 55%;
-    --success-foreground: 220 22% 6%;
+    --success: 81 90% 60%;
+    --success-foreground: 220 39% 5%;
 
-    --border: 220 18% 18%;
-    --input: 221 21% 13%;
+    --border: 215 27% 16%;
+    --input: 218 33% 11%;
 
-    --surface: 220 21% 9%;
-    --surface-elevated: 221 21% 13%;
-    --surface-sunken: 220 24% 4%;
-    --border-subtle: 220 18% 18%;
-    --border-strong: 220 17% 24%;
+    --surface: 219 35% 8%;
+    --surface-elevated: 218 33% 11%;
+    --surface-sunken: 222 40% 4%;
+    --border-subtle: 215 27% 16%;
+    --border-strong: 216 25% 22%;
 
-    --text-primary: 213 20% 97%;
-    --text-secondary: 218 15% 75%;
-    --text-muted: 217 10% 54%;
+    --text-primary: 210 44% 96%;
+    --text-secondary: 216 18% 71%;
+    --text-muted: 215 12% 49%;
 
-    --primary-soft: 197 100% 68% / 0.12;
+    --primary-soft: 221 100% 62% / 0.12;
     --primary-muted: 200 60% 76%;
-    --primary-glow: 197 100% 68%;
-    --primary-deep: 213 20% 97%;
+    --primary-glow: 221 100% 62%;
+    --primary-deep: 210 44% 96%;
 
-    --glass-bg: 220 21% 9%;
-    --glass-border: 220 18% 18%;
-    --glass-glow: 197 100% 68% / 0;
+    --glass-bg: 219 35% 8%;
+    --glass-border: 215 27% 16%;
+    --glass-glow: 221 100% 62% / 0;
 
     --gradient-primary: hsl(var(--primary));
     --gradient-gold: hsl(var(--primary));
@@ -307,8 +308,8 @@ html, body, #root {
     color: hsl(var(--text-primary));
   }
 
-  h1 { font-family: 'Montserrat', 'Inter', system-ui, sans-serif; font-weight: 800; font-size: 2rem; line-height: 1.12; }
-  h2 { font-family: 'Montserrat', 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 1.5rem; line-height: 1.2; }
+  h1 { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-weight: 800; font-size: 2rem; line-height: 1.12; }
+  h2 { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 1.5rem; line-height: 1.2; }
   h3 { font-size: 1.25rem; line-height: 1.3; font-weight: 600; }
   h4 { font-size: 1rem; line-height: 1.35; font-weight: 600; }
   @media (min-width: 768px) {
@@ -327,7 +328,7 @@ html, body, #root {
   /* Scrollbar styling - thin, dark, blue thumb */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(216 89% 53% / 0.28) transparent;
+    scrollbar-color: hsl(221 100% 62% / 0.28) transparent;
   }
   *::-webkit-scrollbar {
     width: 8px;
@@ -343,7 +344,7 @@ html, body, #root {
     background-clip: content-box;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: hsl(216 89% 53% / 0.55);
+    background: hsl(221 100% 62% / 0.55);
     background-clip: content-box;
   }
 }
@@ -362,7 +363,7 @@ html, body, #root {
   }
 
   .font-chat-display {
-    font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     letter-spacing: -0.01em;
   }
 
@@ -452,10 +453,30 @@ html, body, #root {
 
 /* ━━━ WORDMARK DEFAULTS - public site and login ━━━ */
 :root {
-  --wordmark-bg: #0B0D12;
-  --wordmark-accent: #5AD1FF;
+  --wordmark-bg: #070A10;
+  --wordmark-accent: #B4F53B;
   --wordmark-outline: #FFFFFF;
   --wordmark-letters: #FFFFFF;
+
+  /* The range, far to near, on the dark base. */
+  --range-1: #16233D;
+  --range-2: #121D33;
+  --range-3: #0E1729;
+  --range-4: #0B1220;
+  --range-5: #080D17;
+}
+
+html[data-appearance='light'] {
+  --wordmark-bg: #FFFFFF;
+  --wordmark-accent: #7BAF12;
+  --wordmark-outline: #0A0F1A;
+  --wordmark-letters: #0A0F1A;
+
+  --range-1: #DCE4F2;
+  --range-2: #E2E9F4;
+  --range-3: #E8EDF6;
+  --range-4: #EEF1F7;
+  --range-5: #F3F5F8;
 }
 
 
@@ -972,15 +993,15 @@ body {
     border-radius: var(--radius);
   }
 
-  /* Numbers use Montserrat, tabular */
+  /* Numbers use the display face, tabular */
   .stat-num,
   .stat-value {
-    font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     font-variant-numeric: tabular-nums;
   }
 
   .font-display {
-    font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   }
 
   /* Mono removes the shine sweep: the class is kept as a no-op. */
@@ -1215,9 +1236,9 @@ body {
 @layer components {
   .public-world,
   .public-auth {
-    --primary: 197 100% 68%;
-    --primary-foreground: 220 24% 5%;
-    --primary-glow: 197 100% 68%;
+    --primary: 81 90% 60%;
+    --primary-foreground: 220 39% 5%;
+    --primary-glow: 221 100% 62%;
   }
 
   .public-cover, .public-auth, .public-cta { background: hsl(var(--background)); }
@@ -1279,8 +1300,8 @@ body {
    ───────────────────────────────────────────────────────────── */
 html[data-appearance='light'] .public-world,
 html[data-appearance='light'] .public-auth {
-  --primary: 199 92% 34%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 221 44% 7%;
+  --primary-foreground: 81 90% 60%;
   --primary-glow: 199 92% 38%;
 }
 
@@ -1306,13 +1327,19 @@ html[data-appearance='light'] .public-auth {
    ───────────────────────────────────────────────────────────── */
 /* Plain CSS, not a Tailwind layer: wallpaper classes are composed at runtime. */
   .chat-surface { position: relative; background: hsl(var(--background)); }
+  /* Trinity: the range behind the room at 20 percent. Night: flat. Photo: the
+     person's own image, set on the element by the chat surface. */
   .chat-surface-summit { background: hsl(var(--background)); }
+  .chat-surface-summit > .chat-range { opacity: 0.2; }
   .chat-surface-night { background: hsl(var(--surface-sunken)); }
-  .chat-surface-slate { background: hsl(var(--surface)); }
-  .chat-surface-forest { background: hsl(var(--surface-elevated)); }
-  .chat-surface-sand { background: hsl(var(--surface)); }
-  .chat-surface-ice { background: hsl(var(--surface-elevated)); }
   .chat-surface-photo { background: hsl(var(--surface)); }
+  .chat-range {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 46%;
+    pointer-events: none;
+    opacity: 0;
+  }
   .chat-text { font-size: var(--chat-text, 15px); }
 
 @layer utilities {
