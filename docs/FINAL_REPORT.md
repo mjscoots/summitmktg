@@ -4321,3 +4321,126 @@ touch.
   earnings_goals 0. Read only, no writes, no live function calls, no forms
   submitted.
 - Site not published.
+
+## Pass 180 - palette V5, type, logo, the opening and the sweep
+
+### Palette V5, warm ink and ember
+Every token name is unchanged; only values moved. Dark: background 30 9% 4%
+(#0C0B0A), surface 30 11% 7% (#141210), surface elevated 30 12% 10% (#1C1916),
+border 30 11% 15% (#2A2622), border strong 30 9% 21% (#3A3530), text
+39 39% 93% (#F4EFE6), secondary 37 13% 66% (#B3AA9C), muted 33 8% 50% (#8A8176).
+One accent, ember 15 88% 59% (#F2673A), carries primary, ring, ice, workspace
+accent, rookie and manager accents, progress, the goal ring, the You row, unread
+dots, the climb marker, the year strip marker, the qualifier selections and the
+door handle. Own chat bubble 15 75% 41% (#B8421A) on text 39 39% 93%. Warning
+42 100% 47% and destructive 358 100% 68% are untouched. Light: background
+38 41% 95%, surface 36 32% 91%, surface elevated 0 0% 100%, border 37 24% 85%,
+text 30 11% 7%, secondary 34 8% 33%, muted 33 9% 40%, accent 17 82% 38%,
+primary fill 30 11% 7% with a 38 41% 95% label. Dawn gold #F5B94B appears only
+inside the canvas scene and the opening flash, never in the interface.
+
+Contrast, restated: ember on background 6.35, ink on ember 6.35, text on surface
+16.32, secondary on surface 8.14, muted on background 5.13, text on own bubble
+4.78, light accent on paper 5.29, light muted on paper 5.03.
+
+Old brand literals removed. Remaining raw colour values, with reasons:
+- src/components/brand/Wordmark.tsx, RidgelineMark.tsx: #F2673A as the fallback
+  for var(--wordmark-accent), needed before a theme is applied.
+- src/components/brand/MountainScene.tsx, LogoBurst.tsx: canvas fills. A canvas
+  cannot read a CSS token per frame without a style read, so the ridge, ember
+  and dawn gold values are literals in one place each.
+- src/components/workspace/WorkspaceThemeProvider.tsx and the :root blocks in
+  index.css: these are the token definitions themselves.
+- src/components/ErrorBoundary.tsx: renders before the themed app mounts, so it
+  carries the four palette values inline (now warm ink and ember).
+- src/components/command/tokens.tsx: the private Operator Command Center keeps
+  its own gold scheme, outside this pass.
+
+### Type
+Instrument Serif (Regular and Italic) and Geist (400, 500, 600) both returned
+faces from Google Fonts, so Geist is in use and DM Sans stays only as a
+fallback. Space Grotesk, the Inter link and the fontsource Inter imports are
+gone. Verified in the browser: body font-family resolves to
+`Geist, "DM Sans", system-ui, sans-serif`; the cover headline resolves to
+`"Instrument Serif", Geist, Georgia, serif` at clamp(3.25rem, 10vw, 8rem),
+line height 0.92, letter spacing -0.02em, with the second line in italic.
+Section titles and the cover big numbers use the same serif. App headings stay
+Geist 600; the serif appears in the app only on the login headline and the Home
+hero greeting. Body is 15px on phone and 16px from 768px up.
+
+### Logo
+Wordmark TRNTY in Instrument Serif Regular, capitals, 0.12em tracking, text
+colour on dark and ink on light. The lockup puts the mark at cap height to the
+left of the T with a 0.5em gap and TRINITY SALES underneath in Geist 500 at 10
+to 11px, 0.3em tracking, ember on dark and #B23E12 on light. The mark is a solid
+three peak silhouette, centre peak tallest, outer peaks at 70 and 60 percent of
+its height, flat base, corners softened, filled ember. Every variant and prop
+name on Wordmark.tsx and RidgelineMark.tsx is unchanged, so all imports still
+resolve. Regenerated as PNG from the new mark: favicon.png, apple-touch-icon.png
+(180), icon-192, icon-512, icon-512-maskable (20 percent safe padding) and
+splash-1170x2532; favicon.svg was rewritten by hand. The manifest and the
+theme-color meta now read #0C0B0A and #F7F3EC.
+
+### The opening (src/components/brand/LogoBurst.tsx, cover only)
+Runs once per session (sessionStorage key trnty_intro_seen) and never under
+prefers-reduced-motion. Both faces are awaited with document.fonts.load, with a
+2500ms timeout after which the sequence runs on the fallback faces. Sequence and
+timings: lockup draws in 900ms (mark fills base to peak, letters rise 12px and
+fade), hold 400ms, peak flash 240ms, shatter 1100ms with the spring easing and a
+slight field spin, pull to the headline targets 1400ms with the spring easing,
+then a 200ms crossfade to the real DOM headline, with the top left lockup, the
+support line and the Apply row fading up behind it. Total 4.24s of animation;
+measured settled at about 4.5s from navigation, including font load.
+
+Sampling: the lockup and the headline are each drawn to an offscreen canvas at
+their exact on screen size and position and read with getImageData. Grain is
+3px on phone and 2px on desktop for the target field and one step finer for the
+lockup, capped at 2400 particles on phone and 7000 on desktop. Each particle
+keeps the colour it was sampled from, ember for the mark and text colour for the
+letters. Matching sorts both fields into 12px grid cells and pairs them index by
+index, so it is a linear pass after the sort with no O(n squared) loop; a
+particle without a target drifts up and fades like an ember. Drawing is batched
+per colour per frame, the device pixel ratio is capped at 1.5, and the loop
+pauses when the tab is hidden. Any pointerdown, keydown, wheel or touchstart
+jumps straight to the settled state. The settled hero is the real DOM headline,
+selectable and read by a screen reader.
+
+Frame cost measured over 55 frames during the burst: 390 median 16.7ms, p95
+17.2ms; 1280 median 17.2ms, p95 22.4ms. Those are frame intervals on a headless
+60Hz clock rather than callback cost, so the canvas is holding the frame budget
+at both widths with the occasional dropped frame at 1280.
+
+### The sweep
+After the opening the field is a pure function of scroll progress p over the
+first 70vh: x is displaced by p to the power 1.6 times 1.3 viewport widths times
+a per particle factor of 0.6 to 1.4, y by p times a per particle value of -120
+to 120px plus a small sine turbulence, alpha 1 minus p squared. Verified at both
+widths: at p 0 the DOM headline is shown (data-hidden false), at p 0.5 and p 1
+the DOM headline is hidden and the field is torn off the right edge, and
+scrolling back to p 0 restores it. On a later visit in the same session and
+under reduced motion no canvas is mounted and the DOM headline simply fades over
+the same range.
+
+### Reduced motion and later visits
+With prefers-reduced-motion: reduce the cover renders settled on the first
+frame: no .logo-burst node exists, the headline opacity reads 1, the mark fill
+and every added keyframe resolve to no animation, and the pointer parallax never
+runs on touch. Verified in a reduced-motion context at 390.
+
+### Mountain scene
+Ridges far to near on dark: #2A231E, #221C18, #1A1512, #14100E, #0F0C0A, with a
+warm one step lift at time of day 1; light ridges run #E6DED2 to #F7F3EC. The
+light band behind the peak is dawn gold #F5B94B falling to ember, the particles
+are warm embers, and the horizon line, climb marker and tap ripple are ember.
+Mist is warm tinted. The Pass 178 and 179 lifecycle, parallax, climb marker and
+ripple behaviour are unchanged.
+
+### Checks
+Cover verified at 390 and 1280: settled hero reads the serif headline with the
+italic second line, ember Apply, the lockup with the solid mark, and the knock
+door in place. Login verified at 1280. No copy changed, no permissions changed,
+no data written, nothing deployed, nothing published. No em dash and no emoji in
+any added line. Typecheck clean with tsgo against tsconfig.app.json; production
+build clean; shell gzip of the entry bundles is 16,445 bytes of JS and 30,940
+bytes of CSS. Baselines unchanged: profiles 536, chat_messages 715,
+applications 13, earnings_goals 0.
