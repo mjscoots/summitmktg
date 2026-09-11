@@ -1900,3 +1900,219 @@ html[data-appearance='light'] .public-auth {
   .section-nav-underline { transition: none !important; }
   .wordmark-sweep:hover text { animation: none !important; }
 }
+
+/* ============================================================
+   Pass 179 - interaction
+   ============================================================ */
+
+/* The knock door in the hero */
+.knock-wrap {
+  width: 100%;
+  max-width: 260px;
+}
+
+.knock-door {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 300px;
+  perspective: 900px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.knock-frame {
+  position: absolute;
+  inset: 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  background: hsl(var(--card));
+}
+
+.knock-light {
+  position: absolute;
+  inset: 6px;
+  border-radius: 2px;
+  opacity: 0;
+  background: radial-gradient(circle at 30% 55%, rgba(255, 226, 170, 0.42), rgba(255, 226, 170, 0) 70%);
+  transition: opacity var(--motion-slow, 520ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.knock-panel {
+  position: absolute;
+  inset: 6px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 2px;
+  background: hsl(var(--elevated, var(--card)));
+  transform-origin: left center;
+  transform: rotateY(0deg);
+  transition: transform var(--motion-slow, 520ms) var(--motion-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+.knock-handle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 999px;
+  background: hsl(var(--primary));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .knock-door:hover .knock-panel {
+    transform: rotateY(-2deg);
+  }
+  .knock-door.knock-open:hover .knock-panel {
+    transform: rotateY(-64deg);
+  }
+}
+
+.knock-door.knock-open .knock-panel {
+  transform: rotateY(-62deg);
+}
+
+.knock-door.knock-open .knock-light {
+  opacity: 1;
+}
+
+.knock-words {
+  min-height: 96px;
+  margin-top: 1rem;
+}
+
+.knock-line {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: hsl(var(--foreground));
+  animation: fade-in var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
+
+/* Find your door */
+.qual-card {
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+  transition: opacity var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1)),
+    transform var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.qual-hold {
+  opacity: 0.55;
+  transform: translateX(24px);
+}
+
+.qual-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.qual-choice {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  width: 100%;
+  padding: 0 1rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: hsl(var(--foreground));
+  background: transparent;
+  transition: background-color var(--motion-base, 280ms) var(--motion-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+    transform var(--motion-base, 280ms) var(--motion-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+.qual-choice-on {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+  transform: scale(1.02);
+}
+
+/* Your year */
+.year-track {
+  position: relative;
+  padding: 1.75rem 0 0;
+  touch-action: pan-y;
+}
+
+.year-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 1.25rem;
+  height: 2px;
+  background: hsl(var(--border));
+}
+
+.year-marker {
+  position: absolute;
+  top: 1.25rem;
+  width: 12px;
+  height: 12px;
+  margin: -5px 0 0 -6px;
+  border-radius: 999px;
+  background: hsl(var(--primary));
+  transition: left var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.year-months {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.year-month {
+  min-height: 44px;
+  font-size: 0.6875rem;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  border: 0;
+}
+
+.year-month-on {
+  color: hsl(var(--primary));
+  font-weight: 700;
+}
+
+.year-card {
+  border: 1px solid hsl(var(--border));
+  border-radius: 4px;
+}
+
+/* Home number flip */
+.number-flip {
+  animation: number-flip var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
+
+@keyframes number-flip {
+  0% {
+    transform: rotateX(70deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .knock-panel,
+  .knock-light,
+  .qual-card,
+  .qual-choice,
+  .year-marker {
+    transition: none !important;
+  }
+  .knock-door.knock-open .knock-panel,
+  .knock-door:hover .knock-panel {
+    transform: rotateY(-62deg);
+  }
+  .knock-line,
+  .number-flip {
+    animation-duration: 1ms !important;
+  }
+  .qual-hold {
+    transform: none;
+  }
+}
