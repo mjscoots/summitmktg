@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Pass 180: display face Instrument Serif (Regular and Italic) and body face
-   Geist (400, 500, 600) load from Google Fonts in index.html with display swap
-   and a system fallback. Palette V5 is warm ink with one ember accent. */
+/* Pass 181: one family, Archivo (400, 500, 600, 800), loads from Google Fonts
+   in index.html with display swap and a system fallback. Palette V6 is black
+   with a blue to violet gradient. */
 
 html, body, #root {
   overflow-x: hidden;
@@ -13,47 +13,50 @@ html, body, #root {
 
 @layer base {
   :root {
-    /* ━━━ MONO SYSTEM - near-black surfaces, bright white outlines ━━━ */
-    --background: 30 9% 4%;
-    --foreground: 39 39% 93%;
+    /* ━━━ PALETTE V6 - black, blue and violet ━━━
+       #000000 base, #07070A surface, #0E0E14 raised, #1A1A24 hairline,
+       #262634 strong hairline, #FFFFFF text, #A0A3B5 secondary,
+       #767A8C muted, blue #3A8DFF and violet #B69CFF. */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 30 11% 7%;
-    --card-foreground: 39 39% 93%;
+    --card: 240 18% 3%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 30 11% 7%;
-    --popover-foreground: 39 39% 93%;
+    --popover: 240 18% 7%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary action is white on near-black */
-    --primary: 15 88% 59%;
-    --primary-foreground: 30 9% 4%;
+    /* Primary action is the blue to violet gradient with a black label. */
+    --primary: 215 100% 61%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 30 12% 10%;
-    --secondary-foreground: 39 39% 93%;
+    --secondary: 240 18% 7%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 30 12% 10%;
-    --muted-foreground: 33 8% 50%;
+    --muted: 240 18% 7%;
+    --muted-foreground: 229 9% 51%;
 
-    --accent: 15 88% 59%;
-    --accent-foreground: 30 9% 4%;
+    --accent: 256 100% 81%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 358 100% 68%;
-    --destructive-foreground: 30 9% 4%;
+    --destructive-foreground: 0 0% 0%;
 
-    --success: 15 88% 59%;
-    --success-foreground: 30 9% 4%;
+    --success: 215 100% 61%;
+    --success-foreground: 0 0% 0%;
 
     --warning: 42 100% 47%;
-    --warning-foreground: 30 9% 4%;
+    --warning-foreground: 0 0% 0%;
 
-    --border: 30 11% 15%;
-    --input: 30 12% 10%;
-    --ring: 15 88% 59%;
+    --border: 240 16% 12%;
+    --input: 240 18% 7%;
+    --ring: 215 100% 61%;
 
     /* Radius, elevation, motion */
     --radius: 0.75rem;
     --radius-sm: 0.625rem;
     --shadow: 0 0 0 0 transparent;
-    --shadow-lift: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-lift: 0 0 0 0 transparent;
     --motion-fast: 160ms;
     --motion-base: 280ms;
     --motion-slow: 520ms;
@@ -65,215 +68,220 @@ html, body, #root {
     --motion-ease: var(--motion-ease-out);
 
     /* ━━━ SURFACE LAYERS ━━━ */
-    --surface: 30 11% 7%;
-    --surface-elevated: 30 12% 10%;
-    --surface-sunken: 30 10% 3%;
+    --surface: 240 18% 3%;
+    --surface-elevated: 240 18% 7%;
+    --surface-sunken: 0 0% 0%;
 
     /* ━━━ BORDER LAYERS ━━━ */
-    --border-subtle: 30 11% 15%;
-    --border-strong: 30 9% 21%;
+    --border-subtle: 240 16% 12%;
+    --border-strong: 240 16% 18%;
 
     /* ━━━ TEXT HIERARCHY ━━━ */
-    --text-primary: 39 39% 93%;
-    --text-secondary: 37 13% 66%;
-    --text-muted: 33 8% 50%;
+    --text-primary: 0 0% 100%;
+    --text-secondary: 231 12% 67%;
+    --text-muted: 229 9% 51%;
 
-    /* ━━━ ICE ACCENT - links, focus, active tab, progress only ━━━ */
-    --ice: 15 88% 59%;
-    --bubble-blue: 15 75% 41%;
-    --primary-soft: 15 88% 59% / 0.12;
-    --primary-muted: 37 13% 66%;
-    --primary-glow: 15 88% 59%;
-    --primary-deep: 39 39% 93%;
+    /* ━━━ BLUE ACCENT - links, focus, active tab, progress ━━━ */
+    --ice: 215 100% 61%;
+    --violet: 256 100% 81%;
+    --bubble-blue: 223 67% 51%;
+    --primary-soft: 215 100% 61% / 0.12;
+    --primary-muted: 231 12% 67%;
+    --primary-glow: 215 100% 61%;
+    --primary-deep: 0 0% 100%;
 
     /* Workspace identity accent - wordmark, active tab, focus ring */
-    --workspace-accent: 15 88% 59%;
+    --workspace-accent: 215 100% 61%;
 
-    /* Fiber mint, for the rollover card shown inside other workspaces */
-    --fiber-mint: 15 88% 59%;
+    /* Fiber accent, for the rollover card shown inside other workspaces */
+    --fiber-mint: 215 100% 61%;
 
 
     /* Role accents follow the one accent */
-    --rookie-accent: 15 88% 59%;
-    --rookie-glow: 15 88% 59%;
-    --manager-accent: 15 88% 59%;
-    --manager-glow: 15 88% 59%;
+    --rookie-accent: 215 100% 61%;
+    --rookie-glow: 215 100% 61%;
+    --manager-accent: 215 100% 61%;
+    --manager-glow: 215 100% 61%;
 
     /* Surfaces kept flat where glass tokens are still referenced */
-    --glass-bg: 30 11% 7%;
-    --glass-border: 30 11% 15%;
-    --glass-glow: 15 88% 59% / 0;
+    --glass-bg: 240 18% 3%;
+    --glass-border: 240 16% 12%;
+    --glass-glow: 215 100% 61% / 0;
 
-    /* No gradients and no glow in Mono: these resolve to flat surfaces. */
+    /* The one gradient in the system: blue to violet, never a third hue. */
+    --gradient-brand: linear-gradient(135deg, #3A8DFF 0%, #7C6BFF 52%, #B69CFF 100%);
     --gradient-ice: hsl(var(--ice));
     --gradient-hero: hsl(var(--surface));
-    --gradient-primary: hsl(var(--primary));
-    --gradient-gold: hsl(var(--primary));
+    --gradient-primary: var(--gradient-brand);
+    --gradient-gold: var(--gradient-brand);
     --gradient-surface: hsl(var(--surface));
     --glow-ice: none;
 
     /* Sidebar */
-    --sidebar-background: 30 10% 3%;
-    --sidebar-foreground: 37 13% 66%;
-    --sidebar-primary: 15 88% 59%;
-    --sidebar-primary-foreground: 30 9% 4%;
-    --sidebar-accent: 30 12% 10%;
-    --sidebar-accent-foreground: 39 39% 93%;
-    --sidebar-border: 30 11% 15%;
-    --sidebar-ring: 15 88% 59%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 231 12% 67%;
+    --sidebar-primary: 215 100% 61%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 240 18% 7%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 240 16% 12%;
+    --sidebar-ring: 215 100% 61%;
 
   }
 
-  /* Rookie and manager themes share the one ice accent */
+  /* Rookie and manager themes share the one blue accent */
   .theme-rookie,
   .theme-manager {
-    --primary: 15 88% 59%;
-    --accent: 15 88% 59%;
-    --ring: 15 88% 59%;
+    --primary: 215 100% 61%;
+    --accent: 256 100% 81%;
+    --ring: 215 100% 61%;
   }
 
   .dark,
   .light {
-    --background: 30 9% 4%;
-    --foreground: 39 39% 93%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
   }
 
-  /* ━━━ LIGHT APPEARANCE - the same Mono system in daylight values.
-     Applied whenever the resolved mode is light, which is the phone
-     setting by default and the rep's override when they pin one. ━━━ */
+  /* ━━━ LIGHT APPEARANCE - the Life workspace and an explicit light choice.
+     White base, black primary, one blue accent, no gradient. ━━━ */
   html[data-appearance='light'],
   html[data-appearance='light'] .light,
   html[data-appearance='light'] .dark,
   html[data-appearance='light'] .gold-world {
-    --background: 38 41% 95%;
-    --foreground: 30 11% 7%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 30 11% 7%;
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 30 11% 7%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 30 11% 7%;
-    --primary-foreground: 38 41% 95%;
-    --accent: 30 11% 7%;
-    --accent-foreground: 38 41% 95%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 223 100% 56%;
+    --accent-foreground: 0 0% 100%;
 
-    --secondary: 36 32% 91%;
-    --secondary-foreground: 30 11% 7%;
-    --muted: 36 32% 91%;
-    --muted-foreground: 33 9% 40%;
+    --secondary: 240 18% 97%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 240 18% 97%;
+    --muted-foreground: 231 11% 48%;
 
     --destructive: 358 72% 48%;
-    --destructive-foreground: 38 41% 95%;
-    --success: 17 82% 38%;
-    --success-foreground: 38 41% 95%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 223 100% 56%;
+    --success-foreground: 0 0% 100%;
     --warning: 38 95% 40%;
-    --warning-foreground: 38 41% 95%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 37 24% 85%;
+    --border: 240 17% 91%;
     --input: 0 0% 100%;
-    --ring: 17 82% 38%;
+    --ring: 223 100% 56%;
 
-    --shadow-lift: 0 1px 2px rgba(20, 18, 16, 0.08);
+    --shadow-lift: 0 0 0 0 transparent;
 
-    --surface: 36 32% 91%;
+    --surface: 240 18% 97%;
     --surface-elevated: 0 0% 100%;
-    --surface-sunken: 36 32% 91%;
-    --border-subtle: 37 24% 85%;
-    --border-strong: 37 24% 80%;
+    --surface-sunken: 240 18% 97%;
+    --border-subtle: 240 17% 91%;
+    --border-strong: 240 17% 87%;
 
-    --text-primary: 30 11% 7%;
-    --text-secondary: 34 8% 33%;
-    --text-muted: 33 9% 40%;
+    --text-primary: 0 0% 0%;
+    --text-secondary: 231 14% 36%;
+    --text-muted: 231 11% 48%;
 
-    --ice: 17 82% 38%;
-    --bubble-blue: 15 75% 41%;
-    --primary-soft: 17 82% 38% / 0.1;
-    --primary-muted: 34 8% 33%;
-    --primary-glow: 17 82% 38%;
-    --primary-deep: 30 11% 7%;
-    --workspace-accent: 17 82% 38%;
-    --fiber-mint: 17 82% 38%;
+    --ice: 223 100% 56%;
+    --violet: 223 100% 56%;
+    --bubble-blue: 223 100% 56%;
+    --primary-soft: 223 100% 56% / 0.1;
+    --primary-muted: 231 14% 36%;
+    --primary-glow: 223 100% 56%;
+    --primary-deep: 0 0% 0%;
+    --workspace-accent: 223 100% 56%;
+    --fiber-mint: 223 100% 56%;
 
-    --rookie-accent: 17 82% 38%;
-    --rookie-glow: 17 82% 38%;
-    --manager-accent: 17 82% 38%;
-    --manager-glow: 17 82% 38%;
+    --rookie-accent: 223 100% 56%;
+    --rookie-glow: 223 100% 56%;
+    --manager-accent: 223 100% 56%;
+    --manager-glow: 223 100% 56%;
 
     --glass-bg: 0 0% 100%;
-    --glass-border: 37 24% 85%;
+    --glass-border: 240 17% 91%;
 
+    /* No gradient in light mode. */
+    --gradient-brand: hsl(var(--primary));
     --gradient-ice: hsl(var(--ice));
     --gradient-hero: hsl(var(--surface));
     --gradient-primary: hsl(var(--primary));
     --gradient-gold: hsl(var(--primary));
     --gradient-surface: hsl(var(--surface));
 
-    --sidebar-background: 38 41% 95%;
-    --sidebar-foreground: 34 8% 33%;
-    --sidebar-primary: 17 82% 38%;
-    --sidebar-primary-foreground: 38 41% 95%;
-    --sidebar-accent: 36 32% 91%;
-    --sidebar-accent-foreground: 30 11% 7%;
-    --sidebar-border: 37 24% 85%;
-    --sidebar-ring: 17 82% 38%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 231 14% 36%;
+    --sidebar-primary: 223 100% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 18% 97%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 240 17% 91%;
+    --sidebar-ring: 223 100% 56%;
 
-    --wordmark-bg: #F7F3EC;
-    --wordmark-accent: #B23E12;
-    --wordmark-outline: #141210;
-    --wordmark-letters: #141210;
+    --wordmark-bg: #FFFFFF;
+    --wordmark-accent: #1F5EFF;
+    --wordmark-outline: #000000;
+    --wordmark-letters: #000000;
   }
 
 
   /* ━━━ PUBLIC WORLD - outward-facing pages (cover, recruiting, applications).
-     The same Mono palette; the public site stays dark. ━━━ */
+     The same palette; the public site stays dark. ━━━ */
   .gold-world {
-    --background: 30 9% 4%;
-    --foreground: 39 39% 93%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 30 11% 7%;
-    --card-foreground: 39 39% 93%;
-    --popover: 30 11% 7%;
-    --popover-foreground: 39 39% 93%;
+    --card: 240 18% 3%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 18% 7%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 15 88% 59%;
-    --primary-foreground: 30 9% 4%;
-    --accent: 15 88% 59%;
-    --accent-foreground: 30 9% 4%;
-    --ring: 15 88% 59%;
+    --primary: 215 100% 61%;
+    --primary-foreground: 0 0% 0%;
+    --accent: 256 100% 81%;
+    --accent-foreground: 0 0% 0%;
+    --ring: 215 100% 61%;
 
-    --secondary: 30 12% 10%;
-    --secondary-foreground: 39 39% 93%;
-    --muted: 30 12% 10%;
-    --muted-foreground: 33 8% 50%;
+    --secondary: 240 18% 7%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 18% 7%;
+    --muted-foreground: 229 9% 51%;
 
-    --success: 15 88% 59%;
-    --success-foreground: 30 9% 4%;
+    --success: 215 100% 61%;
+    --success-foreground: 0 0% 0%;
 
-    --border: 30 11% 15%;
-    --input: 30 12% 10%;
+    --border: 240 16% 12%;
+    --input: 240 18% 7%;
 
-    --surface: 30 11% 7%;
-    --surface-elevated: 30 12% 10%;
-    --surface-sunken: 30 10% 3%;
-    --border-subtle: 30 11% 15%;
-    --border-strong: 30 9% 21%;
+    --surface: 240 18% 3%;
+    --surface-elevated: 240 18% 7%;
+    --surface-sunken: 0 0% 0%;
+    --border-subtle: 240 16% 12%;
+    --border-strong: 240 16% 18%;
 
-    --text-primary: 39 39% 93%;
-    --text-secondary: 37 13% 66%;
-    --text-muted: 33 8% 50%;
+    --text-primary: 0 0% 100%;
+    --text-secondary: 231 12% 67%;
+    --text-muted: 229 9% 51%;
 
-    --primary-soft: 15 88% 59% / 0.12;
-    --primary-muted: 37 13% 66%;
-    --primary-glow: 15 88% 59%;
-    --primary-deep: 39 39% 93%;
+    --primary-soft: 215 100% 61% / 0.12;
+    --primary-muted: 231 12% 67%;
+    --primary-glow: 215 100% 61%;
+    --primary-deep: 0 0% 100%;
 
-    --glass-bg: 30 11% 7%;
-    --glass-border: 30 11% 15%;
-    --glass-glow: 15 88% 59% / 0;
+    --glass-bg: 240 18% 3%;
+    --glass-border: 240 16% 12%;
+    --glass-glow: 215 100% 61% / 0;
 
-    --gradient-primary: hsl(var(--primary));
-    --gradient-gold: hsl(var(--primary));
+    --gradient-brand: linear-gradient(135deg, #3A8DFF 0%, #7C6BFF 52%, #B69CFF 100%);
+    --gradient-primary: var(--gradient-brand);
+    --gradient-gold: var(--gradient-brand);
     --gradient-surface: hsl(var(--surface));
   }
 
@@ -294,7 +302,7 @@ html, body, #root {
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
     font-size: 15px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -302,6 +310,23 @@ html, body, #root {
     min-height: 100vh;
     min-height: 100dvh;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    /* Pass 181: the hairline grid. Two repeating linear gradients on the body
+       background, so the texture costs no extra element and no paint work
+       beyond the background itself. */
+    background-image:
+      repeating-linear-gradient(to right, hsl(0 0% 100% / 0.03) 0 1px, transparent 1px 56px),
+      repeating-linear-gradient(to bottom, hsl(0 0% 100% / 0.03) 0 1px, transparent 1px 56px);
+    background-attachment: fixed;
+  }
+
+  @media (min-width: 768px) {
+    body { font-size: 16px; }
+  }
+
+  html[data-appearance='light'] body {
+    background-image:
+      repeating-linear-gradient(to right, hsl(0 0% 0% / 0.03) 0 1px, transparent 1px 56px),
+      repeating-linear-gradient(to bottom, hsl(0 0% 0% / 0.03) 0 1px, transparent 1px 56px);
   }
 
   #root {
@@ -316,8 +341,8 @@ html, body, #root {
     color: hsl(var(--text-primary));
   }
 
-  h1 { font-family: 'Geist', 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 2rem; line-height: 1.12; }
-  h2 { font-family: 'Geist', 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 1.5rem; line-height: 1.2; }
+  h1 { font-weight: 600; font-size: 2rem; line-height: 1.12; }
+  h2 { font-weight: 600; font-size: 1.5rem; line-height: 1.2; }
   h3 { font-size: 1.25rem; line-height: 1.3; font-weight: 600; }
   h4 { font-size: 1rem; line-height: 1.35; font-weight: 600; }
   @media (min-width: 768px) {
@@ -336,7 +361,7 @@ html, body, #root {
   /* Scrollbar styling - thin, dark, blue thumb */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(15 88% 59% / 0.28) transparent;
+    scrollbar-color: hsl(var(--ice) / 0.28) transparent;
   }
   *::-webkit-scrollbar {
     width: 8px;
@@ -346,13 +371,13 @@ html, body, #root {
     background: transparent;
   }
   *::-webkit-scrollbar-thumb {
-    background: hsl(216 50% 40% / 0.35);
+    background: hsl(var(--ice) / 0.3);
     border-radius: 9999px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: hsl(15 88% 59% / 0.55);
+    background: hsl(var(--ice) / 0.55);
     background-clip: content-box;
   }
 }
@@ -371,7 +396,7 @@ html, body, #root {
   }
 
   .font-chat-display {
-    font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.01em;
   }
 
@@ -461,30 +486,30 @@ html, body, #root {
 
 /* ━━━ WORDMARK DEFAULTS - public site and login ━━━ */
 :root {
-  --wordmark-bg: #0C0B0A;
-  --wordmark-accent: #F2673A;
-  --wordmark-outline: #F4EFE6;
-  --wordmark-letters: #F4EFE6;
+  --wordmark-bg: #000000;
+  --wordmark-accent: #3A8DFF;
+  --wordmark-outline: #FFFFFF;
+  --wordmark-letters: #FFFFFF;
 
-  /* The range, far to near, on the warm ink base. */
-  --range-1: #2A231E;
-  --range-2: #221C18;
-  --range-3: #1A1512;
-  --range-4: #14100E;
-  --range-5: #0F0C0A;
+  /* The range, far to near, on black. */
+  --range-1: #1C1C1C;
+  --range-2: #161616;
+  --range-3: #101010;
+  --range-4: #0A0A0A;
+  --range-5: #050505;
 }
 
 html[data-appearance='light'] {
-  --wordmark-bg: #F7F3EC;
-  --wordmark-accent: #B23E12;
-  --wordmark-outline: #141210;
-  --wordmark-letters: #141210;
+  --wordmark-bg: #FFFFFF;
+  --wordmark-accent: #1F5EFF;
+  --wordmark-outline: #000000;
+  --wordmark-letters: #000000;
 
-  --range-1: #E6DED2;
-  --range-2: #EAE3D8;
-  --range-3: #EEE8DE;
-  --range-4: #F2EEE5;
-  --range-5: #F7F3EC;
+  --range-1: #E9E9E9;
+  --range-2: #EDEDED;
+  --range-3: #F0F0F0;
+  --range-4: #F3F3F3;
+  --range-5: #F5F5F5;
 }
 
 
@@ -1004,13 +1029,13 @@ body {
   /* Numbers use the display face, tabular */
   .stat-num,
   .stat-value {
-    font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
     font-variant-numeric: tabular-nums;
   }
 
   .font-display {
-    font-family: 'Instrument Serif', 'Geist', Georgia, serif;
-    font-weight: 400;
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    font-weight: 800;
     letter-spacing: -0.02em;
   }
 
@@ -1636,10 +1661,10 @@ html[data-appearance='light'] .public-auth {
 
 .public-reveal > * {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(12px);
 }
 .public-reveal[data-visible='true'] > * {
-  animation: public-reveal var(--motion-slow) var(--motion-ease-out) forwards;
+  animation: public-reveal var(--motion-base) var(--motion-ease-out) forwards;
 }
 .public-reveal[data-visible='true'] > *:nth-child(2) { animation-delay: var(--motion-stagger); }
 .public-reveal[data-visible='true'] > *:nth-child(3) { animation-delay: calc(var(--motion-stagger) * 2); }
@@ -1774,7 +1799,7 @@ html[data-appearance='light'] .public-auth {
 }
 
 
-/* ━━━ PASS 178: CINEMATIC COVER ━━━ */
+/* ━━━ PASS 181: THE CENTRED COVER ━━━ */
 .cover-scene {
   position: fixed;
   inset: 0;
@@ -1792,351 +1817,137 @@ html[data-appearance='light'] .public-auth {
 .cover-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(12, 11, 10, 0.4);
+  background: rgba(0, 0, 0, 0.45);
 }
 .public-world > header,
 .public-world > main,
 .public-world > footer { position: relative; z-index: 1; }
 
-/* Sections ride over the range on their own near opaque surfaces. */
-.public-section { background: hsl(var(--surface) / 0.92); }
+/* Every section between the hero and the final band is fully opaque, so the
+   browser never composites the canvas underneath while the visitor scrolls. */
+.public-section { background: hsl(var(--background)); }
 
+/* The hero and the final band show the scene through, and carry a second
+   texture layer of 45 degree hairlines. */
+.cover-open {
+  background: transparent;
+  position: relative;
+}
+.cover-open::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(45deg, hsl(0 0% 100% / 0.02) 0 1px, transparent 1px 28px);
+}
+
+/* Type */
 .cover-headline {
-  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
-  font-weight: 400;
-  font-size: clamp(3.25rem, 10vw, 8rem);
-  line-height: 0.92;
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: clamp(2.75rem, 9vw, 7rem);
+  line-height: 0.95;
   letter-spacing: -0.02em;
 }
-.cover-headline-line:nth-child(2) { font-style: italic; }
 .section-title {
-  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
-  font-weight: 400;
-  font-size: clamp(2rem, 5vw, 4rem);
-  line-height: 1.04;
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.75rem, 4.5vw, 3.25rem);
+  line-height: 1.05;
   letter-spacing: -0.02em;
 }
 .cover-bignum {
-  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
-  font-weight: 400;
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 7vw, 5rem);
   line-height: 1;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
-
-/* Sticky section nav, desktop only. */
-.section-nav { display: none; }
-@media (min-width: 1024px) {
-  .section-nav {
-    display: block;
-    border-top: 1px solid hsl(var(--border));
-    background: hsl(var(--background) / 0.85);
-    backdrop-filter: blur(16px);
-  }
-  .section-nav > div { position: relative; }
-  .section-nav-underline {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    background: hsl(var(--primary));
-    transition: transform var(--motion-base) var(--motion-ease-out), width var(--motion-base) var(--motion-ease-out);
-  }
+.cover-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.cover-measure {
+  max-width: 60ch;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* The pinned doors moment, desktop only. */
-.doors-pin {
-  height: 200vh;
-  padding-top: 0;
-  padding-bottom: 0;
+/* The one gradient, as text and as a fill. */
+.gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
-.doors-sticky {
-  position: sticky;
-  top: 0;
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-  align-items: center;
-}
-.doors-pin .door-slide {
-  opacity: var(--p, 1);
-  transform: translateX(calc((1 - var(--p, 1)) * 40vw));
-}
-.doors-pin .door-slide-1 { --p: var(--door-p-1, 0); }
-.doors-pin .door-slide-2 { --p: var(--door-p-2, 0); }
-.doors-pin .door-slide-3 { --p: var(--door-p-3, 0); }
-
-/* Pointer spotlight inside cards, desktop only. */
-@media (hover: hover) and (pointer: fine) {
-  .card-spotlight { position: relative; }
-  .card-spotlight::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity var(--motion-base) var(--motion-ease-out);
-    background: radial-gradient(220px circle at var(--sx, 50%) var(--sy, 50%), hsl(var(--primary) / 0.06), transparent 70%);
-  }
-  .card-spotlight:hover::after { opacity: 1; }
-  .magnetic {
-    transform: translate(var(--mx, 0px), var(--my, 0px));
-    transition: transform var(--motion-base) var(--motion-spring);
-  }
-  .wordmark-sweep:hover text { animation: letter-sweep var(--motion-base) var(--motion-ease-out) both; }
-  .wordmark-sweep:hover text:nth-of-type(2) { animation-delay: var(--motion-stagger); }
-  .wordmark-sweep:hover text:nth-of-type(3) { animation-delay: calc(var(--motion-stagger) * 2); }
-  .wordmark-sweep:hover text:nth-of-type(4) { animation-delay: calc(var(--motion-stagger) * 3); }
-  .wordmark-sweep:hover text:nth-of-type(5) { animation-delay: calc(var(--motion-stagger) * 4); }
-}
-@keyframes letter-sweep { 50% { opacity: 0.5; } }
-
-/* Links: the underline grows from the left. */
-.public-link { position: relative; }
-.public-link::after {
-  content: '';
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.55rem;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--motion-base) var(--motion-ease-out);
-}
-.public-link:hover::after { transform: scaleX(1); }
-
-@media (prefers-reduced-motion: reduce) {
-  .doors-pin { height: auto; }
-  .doors-sticky { position: static; min-height: 0; }
-  .doors-pin .door-slide { opacity: 1 !important; transform: none !important; }
-  .magnetic { transform: none !important; transition: none !important; }
-  .card-spotlight::after { display: none !important; }
-  .public-link::after { transition: none !important; }
-  .section-nav-underline { transition: none !important; }
-  .wordmark-sweep:hover text { animation: none !important; }
-}
-
-/* ============================================================
-   Pass 179 - interaction
-   ============================================================ */
-
-/* The knock door in the hero */
-.knock-wrap {
-  width: 100%;
-  max-width: 260px;
-}
-
-.knock-door {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 300px;
-  perspective: 900px;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-}
-
-.knock-frame {
-  position: absolute;
-  inset: 0;
-  border: 1px solid hsl(var(--border));
-  border-radius: 4px;
-  background: hsl(var(--card));
-}
-
-.knock-light {
-  position: absolute;
-  inset: 6px;
-  border-radius: 2px;
-  opacity: 0;
-  background: radial-gradient(circle at 30% 55%, rgba(255, 226, 170, 0.42), rgba(255, 226, 170, 0) 70%);
-  transition: opacity var(--motion-slow, 520ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1));
-}
-
-.knock-panel {
-  position: absolute;
-  inset: 6px;
-  border: 1px solid hsl(var(--border));
-  border-radius: 2px;
-  background: hsl(var(--elevated, var(--card)));
-  transform-origin: left center;
-  transform: rotateY(0deg);
-  transition: transform var(--motion-slow, 520ms) var(--motion-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
-}
-
-.knock-handle {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  width: 10px;
-  height: 10px;
-  margin-top: -5px;
-  border-radius: 999px;
-  background: hsl(var(--primary));
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .knock-door:hover .knock-panel {
-    transform: rotateY(-2deg);
-  }
-  .knock-door.knock-open:hover .knock-panel {
-    transform: rotateY(-64deg);
-  }
-}
-
-.knock-door.knock-open .knock-panel {
-  transform: rotateY(-62deg);
-}
-
-.knock-door.knock-open .knock-light {
-  opacity: 1;
-}
-
-.knock-words {
-  min-height: 96px;
-  margin-top: 1rem;
-}
-
-.knock-line {
-  font-size: 0.9375rem;
-  line-height: 1.5;
+html[data-appearance='light'] .gradient-text {
   color: hsl(var(--foreground));
-  animation: fade-in var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1)) both;
+  -webkit-text-fill-color: hsl(var(--foreground));
 }
+.btn-gradient {
+  background: var(--gradient-brand);
+  color: #000000;
+  min-height: 48px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: 0;
+  transition: transform var(--motion-fast) var(--motion-ease-out), opacity var(--motion-fast) linear;
+}
+.btn-gradient:hover { opacity: 0.92; }
+.btn-gradient:active { transform: scale(0.985); }
+html[data-appearance='light'] .btn-gradient {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+/* Links stay plain: the colour is the only signal. */
+.public-link { position: relative; color: hsl(var(--ice)); }
 
 /* Find your door */
 .qual-card {
-  border: 1px solid hsl(var(--border));
-  border-radius: 4px;
-  transition: opacity var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1)),
-    transform var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1));
+  border-radius: 12px;
+  transition: opacity var(--motion-base) var(--motion-ease-out),
+    transform var(--motion-base) var(--motion-ease-out);
 }
-
-.qual-hold {
-  opacity: 0.55;
-  transform: translateX(24px);
-}
-
-.qual-in {
-  opacity: 1;
-  transform: translateX(0);
-}
-
+.qual-hold { opacity: 0.55; transform: translateY(12px); }
+.qual-in { opacity: 1; transform: translateY(0); }
 .qual-choice {
   display: flex;
   align-items: center;
+  justify-content: center;
   min-height: 48px;
   width: 100%;
   padding: 0 1rem;
-  border: 1px solid hsl(var(--border));
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 0.9375rem;
   color: hsl(var(--foreground));
-  background: transparent;
-  transition: background-color var(--motion-base, 280ms) var(--motion-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
-    transform var(--motion-base, 280ms) var(--motion-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
-}
-
-.qual-choice-on {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border-color: hsl(var(--primary));
-  transform: scale(1.02);
-}
-
-/* Your year */
-.year-track {
-  position: relative;
-  padding: 1.75rem 0 0;
-  touch-action: pan-y;
-}
-
-.year-rail {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 1.25rem;
-  height: 2px;
-  background: hsl(var(--border));
-}
-
-.year-marker {
-  position: absolute;
-  top: 1.25rem;
-  width: 12px;
-  height: 12px;
-  margin: -5px 0 0 -6px;
-  border-radius: 999px;
-  background: hsl(var(--primary));
-  transition: left var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1));
-}
-
-.year-months {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-}
-
-.year-month {
-  min-height: 44px;
-  font-size: 0.6875rem;
-  color: hsl(var(--muted-foreground));
-  background: transparent;
+  background: hsl(var(--surface-elevated));
   border: 0;
+  transition: background-color var(--motion-base) var(--motion-ease-out),
+    transform var(--motion-base) var(--motion-ease-out);
 }
-
-.year-month-on {
-  color: hsl(var(--primary));
-  font-weight: 700;
-}
-
-.year-card {
-  border: 1px solid hsl(var(--border));
-  border-radius: 4px;
+.qual-choice-on {
+  background: var(--gradient-brand);
+  color: #000000;
+  transform: scale(1.02);
 }
 
 /* Home number flip */
 .number-flip {
-  animation: number-flip var(--motion-base, 280ms) var(--motion-out, cubic-bezier(0.16, 1, 0.3, 1)) both;
+  animation: number-flip var(--motion-base) var(--motion-ease-out) both;
 }
-
 @keyframes number-flip {
-  0% {
-    transform: rotateX(70deg);
-    opacity: 0;
-  }
-  100% {
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
+  0% { transform: rotateX(70deg); opacity: 0; }
+  100% { transform: rotateX(0deg); opacity: 1; }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .knock-panel,
-  .knock-light,
-  .qual-card,
-  .qual-choice,
-  .year-marker {
-    transition: none !important;
-  }
-  .knock-door.knock-open .knock-panel,
-  .knock-door:hover .knock-panel {
-    transform: rotateY(-62deg);
-  }
-  .knock-line,
-  .number-flip {
-    animation-duration: 1ms !important;
-  }
-  .qual-hold {
-    transform: none;
-  }
-}
-
 
 /* ─────────────────────────────────────────────────────────────
-   PASS 180 - the opening and the sweep
+   The opening and the sweep
    ───────────────────────────────────────────────────────────── */
 .logo-burst {
   position: absolute;
@@ -2149,20 +1960,17 @@ html[data-appearance='light'] .public-auth {
   width: 100%;
   height: 100%;
 }
-/* The lockup that draws in and then shatters. It is decorative: the settled
-   hero carries the real text. */
-.logo-burst-lockup {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
 .cover-headline[data-hidden='true'] { opacity: 0; }
 .cover-headline[data-fade='true'] { transition: opacity var(--motion-fast) linear; }
 .cover-opening [data-opening-hidden='true'] { opacity: 0 !important; animation: none !important; }
 .cover-opening-in { animation: wordmark-rise var(--motion-base) var(--motion-ease-out) both; }
 
 @media (prefers-reduced-motion: reduce) {
+  .qual-card,
+  .qual-choice,
+  .btn-gradient { transition: none !important; }
+  .qual-hold { transform: none; }
+  .number-flip { animation-duration: 1ms !important; }
   .ridgeline-mark path { fill-opacity: 1 !important; }
   .logo-burst { display: none !important; }
   .cover-headline[data-hidden='true'] { opacity: 1 !important; }

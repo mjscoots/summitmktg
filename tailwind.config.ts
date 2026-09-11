@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Geist', 'DM Sans', 'system-ui', 'sans-serif'],
-        display: ['Instrument Serif', 'Geist', 'Georgia', 'serif'],
+        sans: ['Archivo', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Archivo', 'system-ui', '-apple-system', 'sans-serif'],
       },
       letterSpacing: {
         micro: '0.14em',

@@ -1,18 +1,17 @@
-import { forwardRef, memo } from "react";
+import { forwardRef, memo, useId } from "react";
 
 /**
- * Pass 180 - Trinity Sales, warm ink and ember.
+ * Pass 181 - TRNTY alone, and the peak.
  *
- * Wordmark: TRNTY set in Instrument Serif Regular, capitals, letter spacing
- * 0.12em, drawn as SVG text so it scales with the height prop. The full lockup
- * puts the mark left of TRNTY at cap height with a 0.5em gap, and adds TRINITY
- * SALES underneath in Geist 500 at 10 to 11px with 0.3em tracking, ember on
- * dark and #B23E12 on light. The compact wordmark is TRNTY alone. The mark is a
- * solid three peak silhouette filled in ember, centre peak tallest, flat base,
- * corners softened.
+ * The wordmark is the five letters TRNTY set in Archivo 800, uppercase, letter
+ * spacing 0.04em, drawn as SVG text so it scales with the height prop. There is
+ * no TRINITY SALES line and no mark inside any lockup: every variant renders the
+ * letters only, at its size. The `mark` variant renders the peak, a single clean
+ * isosceles triangle filled with the blue to violet gradient, blue at the base
+ * and violet at the apex, no stroke and no inner lines.
  *
  * Variant names and props are unchanged from the previous logo so every import
- * keeps working.
+ * keeps working. TRNTY and the peak never appear side by side.
  */
 export type WordmarkVariant =
   | "hero"
@@ -26,20 +25,17 @@ export type WordmarkVariant =
   | "compactPlain"
   | "mark";
 
-const DISPLAY_STACK = "'Instrument Serif', 'Geist', Georgia, serif";
-const BODY_STACK = "'Geist', 'DM Sans', system-ui, sans-serif";
+const BODY_STACK = "'Archivo', system-ui, -apple-system, sans-serif";
 
-/** The solid three peak silhouette, drawn on a 64 x 64 box with a flat base. */
-export const MARK_PATH = "M1 54 L16 23.2 L24 34 L32 10 L41 33 L50 27.6 L63 54 Z";
-
-const LOCKUP_VARIANTS: WordmarkVariant[] = ["hero", "heroMono", "heroFiber", "heroLife", "full", "fullV2", "stacked"];
+/** The peak: base 1.0 and height 0.82 of a 64 x 64 box, flat base, centred. */
+export const MARK_PATH = "M32 11.52 L64 64 L0 64 Z";
 
 interface WordmarkProps {
   variant?: WordmarkVariant;
   /** Rendered height in px. */
   height?: number;
   className?: string;
-  /** Staggers the five letters and lockup line on first mount. */
+  /** Staggers the five letters on first mount. */
   animate?: boolean;
 }
 
@@ -48,7 +44,7 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
   ref
 ) {
   const renderedHeight = Math.max(height, 12);
-  const accent = "var(--wordmark-accent, #F2673A)";
+  const gradientId = useId();
 
   if (variant === "mark") {
     const size = renderedHeight;
@@ -64,26 +60,25 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
         style={{ display: "block" }}
       >
         <title>Trinity Sales</title>
-        <path d={MARK_PATH} fill={accent} stroke={accent} strokeWidth="2" strokeLinejoin="round" />
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stopColor="#3A8DFF" />
+            <stop offset="0.52" stopColor="#7C6BFF" />
+            <stop offset="1" stopColor="#B69CFF" />
+          </linearGradient>
+        </defs>
+        <path d={MARK_PATH} fill={`url(#${gradientId})`} />
       </svg>
     );
   }
 
-  const lockup = LOCKUP_VARIANTS.includes(variant) && renderedHeight >= 40;
   const mono = variant === "heroMono";
   const letters = mono ? "var(--wordmark-outline, currentColor)" : "var(--wordmark-letters, currentColor)";
 
-  const glyphHeight = lockup ? renderedHeight * 0.66 : renderedHeight;
-  const fontSize = glyphHeight * 0.9;
-  const letterStep = fontSize * 0.68;
-  const baseline = lockup ? glyphHeight * 0.94 : renderedHeight * 0.8;
-
-  // The mark rides at cap height to the left of the first letter, with a gap of
-  // half an em. Only the lockup carries it.
-  const markSize = lockup ? fontSize * 0.78 : 0;
-  const markGap = lockup ? fontSize * 0.5 : 0;
-  const textX = markSize + markGap;
-  const width = Math.round(textX + letterStep * 5 + fontSize * 0.2);
+  const fontSize = renderedHeight * 0.82;
+  const letterStep = fontSize * 0.72;
+  const baseline = renderedHeight * 0.82;
+  const width = Math.round(letterStep * 5 + fontSize * 0.1);
 
   return (
     <svg
@@ -97,28 +92,19 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
       style={{ display: "block" }}
     >
       <title>Trinity Sales</title>
-      {lockup && (
-        <g
-          aria-hidden="true"
-          transform={`translate(0 ${baseline - markSize}) scale(${markSize / 64})`}
-          className={animate ? "wordmark-letter" : undefined}
-        >
-          <path d={MARK_PATH} fill={accent} stroke={accent} strokeWidth="2" strokeLinejoin="round" />
-        </g>
-      )}
       <g aria-hidden="true">
         {"TRNTY".split("").map((letter, index) => (
           <text
             key={`${letter}-${index}`}
-            x={textX + index * letterStep}
+            x={index * letterStep}
             y={baseline}
             fill={letters}
             className={animate ? "wordmark-letter" : undefined}
             style={{
-              fontFamily: DISPLAY_STACK,
-              fontWeight: 400,
+              fontFamily: BODY_STACK,
+              fontWeight: 800,
               fontSize: `${fontSize}px`,
-              letterSpacing: "0.12em",
+              letterSpacing: "0.04em",
               animationDelay: animate ? `calc(${index + 1} * var(--motion-stagger))` : undefined,
             }}
           >
@@ -126,22 +112,6 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
           </text>
         ))}
       </g>
-      {lockup && (
-        <text
-          x={textX + 1}
-          y={renderedHeight * 0.96}
-          fill={accent}
-          className={animate ? "wordmark-lockup-line" : undefined}
-          style={{
-            fontFamily: BODY_STACK,
-            fontWeight: 500,
-            fontSize: `${Math.max(10, Math.min(11, renderedHeight * 0.14))}px`,
-            letterSpacing: "0.3em",
-          }}
-        >
-          TRINITY SALES
-        </text>
-      )}
     </svg>
   );
 });
