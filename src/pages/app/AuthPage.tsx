@@ -131,7 +131,7 @@ const AuthPage = () => {
             <button
               type="button"
               onClick={() => setMode('forgot')}
-              className="w-full min-h-11 text-center text-sm text-primary hover:text-primary/80 transition-colors mt-2"
+              className="w-full min-h-11 text-center text-sm text-ice hover:text-ice/80 transition-colors mt-2"
             >
               Forgot your password?
             </button>
