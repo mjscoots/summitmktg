@@ -16,4 +16,4 @@
 - [x] Separate the logo hero and statement into full-screen sections
 - [x] Update statement, doors, and ticker copy
 - [x] Remove Who runs it, pay, season, and work sections
-- [ ] Verify and append Pass 185 report
+- [x] Verify and append Pass 185 report
