@@ -1326,12 +1326,6 @@ body {
    atmosphere, daylight values, so every token resolves in both
    modes with no invisible text and no invisible hairlines.
    ───────────────────────────────────────────────────────────── */
-html[data-appearance='light'] .public-world,
-html[data-appearance='light'] .public-auth {
-  --primary: 30 11% 7%;
-  --primary-foreground: 15 88% 59%;
-  --primary-glow: 199 92% 38%;
-}
 
 /*
  * Pass 152: phone legibility floor. Nothing on a phone renders below 12px.
