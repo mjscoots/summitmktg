@@ -1761,3 +1761,142 @@ html[data-appearance='light'] .public-auth {
   .app-page { padding: 20px; }
   @media (min-width: 768px) { .app-page { padding: 32px; } }
 }
+
+
+/* ━━━ PASS 178: CINEMATIC COVER ━━━ */
+.cover-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cover-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cover-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 10, 16, 0.4);
+}
+.public-world > header,
+.public-world > main,
+.public-world > footer { position: relative; z-index: 1; }
+
+/* Sections ride over the range on their own near opaque surfaces. */
+.public-section { background: hsl(var(--surface) / 0.92); }
+
+.cover-headline {
+  font-size: clamp(3rem, 9.5vw, 7.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+.section-title {
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.04;
+}
+.cover-bignum {
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sticky section nav, desktop only. */
+.section-nav { display: none; }
+@media (min-width: 1024px) {
+  .section-nav {
+    display: block;
+    border-top: 1px solid hsl(var(--border));
+    background: hsl(var(--background) / 0.85);
+    backdrop-filter: blur(16px);
+  }
+  .section-nav > div { position: relative; }
+  .section-nav-underline {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: hsl(var(--primary));
+    transition: transform var(--motion-base) var(--motion-ease-out), width var(--motion-base) var(--motion-ease-out);
+  }
+}
+
+/* The pinned doors moment, desktop only. */
+.doors-pin {
+  height: 200vh;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.doors-sticky {
+  position: sticky;
+  top: 0;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  align-items: center;
+}
+.doors-pin .door-slide {
+  opacity: var(--p, 1);
+  transform: translateX(calc((1 - var(--p, 1)) * 40vw));
+}
+.doors-pin .door-slide-1 { --p: var(--door-p-1, 0); }
+.doors-pin .door-slide-2 { --p: var(--door-p-2, 0); }
+.doors-pin .door-slide-3 { --p: var(--door-p-3, 0); }
+
+/* Pointer spotlight inside cards, desktop only. */
+@media (hover: hover) and (pointer: fine) {
+  .card-spotlight { position: relative; }
+  .card-spotlight::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--motion-base) var(--motion-ease-out);
+    background: radial-gradient(220px circle at var(--sx, 50%) var(--sy, 50%), hsl(var(--primary) / 0.06), transparent 70%);
+  }
+  .card-spotlight:hover::after { opacity: 1; }
+  .magnetic {
+    transform: translate(var(--mx, 0px), var(--my, 0px));
+    transition: transform var(--motion-base) var(--motion-spring);
+  }
+  .wordmark-sweep:hover text { animation: letter-sweep var(--motion-base) var(--motion-ease-out) both; }
+  .wordmark-sweep:hover text:nth-of-type(2) { animation-delay: var(--motion-stagger); }
+  .wordmark-sweep:hover text:nth-of-type(3) { animation-delay: calc(var(--motion-stagger) * 2); }
+  .wordmark-sweep:hover text:nth-of-type(4) { animation-delay: calc(var(--motion-stagger) * 3); }
+  .wordmark-sweep:hover text:nth-of-type(5) { animation-delay: calc(var(--motion-stagger) * 4); }
+}
+@keyframes letter-sweep { 50% { opacity: 0.5; } }
+
+/* Links: the underline grows from the left. */
+.public-link { position: relative; }
+.public-link::after {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.55rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--motion-base) var(--motion-ease-out);
+}
+.public-link:hover::after { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .doors-pin { height: auto; }
+  .doors-sticky { position: static; min-height: 0; }
+  .doors-pin .door-slide { opacity: 1 !important; transform: none !important; }
+  .magnetic { transform: none !important; transition: none !important; }
+  .card-spotlight::after { display: none !important; }
+  .public-link::after { transition: none !important; }
+  .section-nav-underline { transition: none !important; }
+  .wordmark-sweep:hover text { animation: none !important; }
+}
