@@ -104,19 +104,19 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
     mode: 'light',
     background: '38 41% 95%',
     surface: '36 32% 91%',
-    surfaceElevated: '38 41% 95%',
+    surfaceElevated: '0 0% 100%',
     surfaceSunken: '36 32% 91%',
-    foreground: '30 9% 4%',
+    foreground: '30 11% 7%',
     secondaryText: '34 8% 33%',
     muted: '33 9% 40%',
     border: '37 24% 85%',
     borderSubtle: '37 24% 85%',
     borderStrong: '37 24% 80%',
-    primary: '30 9% 4%',
-    primaryDeep: '30 9% 4%',
+    primary: '30 11% 7%',
+    primaryDeep: '30 11% 7%',
     primaryForeground: '38 41% 95%',
     workspaceAccent: '17 82% 38%',
-    wordmark: { bg: '#FFFFFF', accent: '#B23E12', outline: '#FFFFFF', letters: '#0C0B0A' },
+    wordmark: { bg: '#F7F3EC', accent: '#B23E12', outline: '#141210', letters: '#141210' },
     texture: 'none',
     textureSize: 'auto',
   },
@@ -126,17 +126,17 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
 const MONO_LIGHT = {
   mode: 'light' as const,
   background: '38 41% 95%',
-  surface: '38 41% 95%',
-  surfaceElevated: '38 41% 95%',
+  surface: '36 32% 91%',
+  surfaceElevated: '0 0% 100%',
   surfaceSunken: '36 32% 91%',
-  foreground: '30 9% 4%',
+  foreground: '30 11% 7%',
   secondaryText: '34 8% 33%',
   muted: '33 9% 40%',
   border: '37 24% 85%',
   borderSubtle: '37 24% 85%',
   borderStrong: '37 24% 80%',
-  primary: '30 9% 4%',
-  primaryDeep: '30 9% 4%',
+  primary: '30 11% 7%',
+  primaryDeep: '30 11% 7%',
   primaryForeground: '38 41% 95%',
 };
 
@@ -145,7 +145,7 @@ function lightVariant(p: Palette): Palette {
   return {
     ...p,
     ...MONO_LIGHT,
-    wordmark: { ...p.wordmark, bg: '#FFFFFF', outline: '#0C0B0A', letters: '#0C0B0A' },
+    wordmark: { ...p.wordmark, bg: '#F7F3EC', accent: '#B23E12', outline: '#141210', letters: '#141210' },
     texture: 'none',
   };
 }
@@ -155,7 +155,7 @@ function darkVariant(p: Palette): Palette {
   return {
     ...p,
     ...MONO_DARK,
-    wordmark: { ...p.wordmark, bg: '#0C0B0A', outline: '#F4EFE6', letters: '#F4EFE6' },
+    wordmark: { ...p.wordmark, bg: '#0C0B0A', accent: '#F2673A', outline: '#F4EFE6', letters: '#F4EFE6' },
     texture: 'none',
   };
 }
