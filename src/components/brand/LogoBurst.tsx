@@ -119,6 +119,12 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     let frame = 0;
     let start = 0;
     let lockupBox = { x: 0, y: 0, w: 0, h: 0 };
+    let headlineShown = true;
+    const showHeadline = (visible: boolean) => {
+      if (visible === headlineShown) return;
+      headlineShown = visible;
+      onHeadlineVisible?.(visible);
+    };
 
     const size = () => {
       width = Math.max(1, host.clientWidth);
@@ -291,7 +297,7 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     const settle = () => {
       if (settled) return;
       settled = true;
-      onHeadlineVisible?.(true);
+      showHeadline(true);
       onSettled?.();
     };
 
@@ -355,7 +361,7 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
         return;
       }
       const fade = Math.min(1, (t - FORM_END) / T_CROSS);
-      if (fade === 0) onHeadlineVisible?.(true);
+      if (fade > 0) showHeadline(true);
       paintField((particle) => (particle.tx === null ? null : { x: particle.tx, y: particle.ty as number, a: 1 - fade }));
       if (fade >= 1) {
         ctx.clearRect(0, 0, width, height);
@@ -367,11 +373,13 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     const drawSweep = () => {
       const p = Math.min(1, Math.max(0, progressRef.current));
       if (p <= 0.02) {
-        onHeadlineVisible?.(true);
-        ctx.clearRect(0, 0, width, height);
+        if (!headlineShown) {
+          showHeadline(true);
+          ctx.clearRect(0, 0, width, height);
+        }
         return;
       }
-      onHeadlineVisible?.(false);
+      showHeadline(false);
       const wind = Math.pow(p, 1.6) * width * 1.3;
       const alpha = Math.max(0, 1 - p * p);
       paintField((particle) => {
@@ -405,7 +413,7 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     const boot = () => {
       size();
       build();
-      onHeadlineVisible?.(false);
+      showHeadline(false);
       start = performance.now();
       frame = requestAnimationFrame(loop);
     };
