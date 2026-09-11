@@ -81,7 +81,7 @@ function makeShards(count: 28 | 56): Shard[] {
         burstX: `${Math.cos(angle) * (65 + seeded(index, 6) * 35)}vw`,
         burstY: `${Math.sin(angle) * (65 + seeded(index, 7) * 35)}vh`,
         rotation: (8 + seeded(index, 8) * 12) * (index % 2 === 0 ? -1 : 1),
-        duration: mountain ? 700 : 900,
+        duration: mountain ? 520 : 900,
       });
     }
   }

@@ -123,7 +123,7 @@ const Index = () => {
 
       <div className="cover-progress" ref={progressRef} aria-hidden="true" />
 
-      <header className={`public-nav sticky top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
+      <header className={`public-nav fixed inset-x-0 top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
         <nav className="mx-auto flex max-w-6xl flex-col items-center gap-1 px-5 py-3 sm:flex-row sm:justify-between sm:px-6">
           <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={34} className="h-7 w-auto sm:h-[34px]" />
