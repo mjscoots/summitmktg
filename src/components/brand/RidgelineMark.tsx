@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { MARK_PATH } from './Wordmark';
 
 interface RidgelineMarkProps {
   className?: string;
@@ -7,7 +8,10 @@ interface RidgelineMarkProps {
   animate?: boolean;
 }
 
-/** The continuous TRNTY ridgeline, with an optional draw-and-glow signature. */
+/**
+ * Pass 180 - the solid three peak silhouette in ember. The signature keeps the
+ * draw-and-glow behaviour: the outline strokes on, the fill rises behind it.
+ */
 export function RidgelineMark({ className, size = 48, loop = false, animate = true }: RidgelineMarkProps) {
   return (
     <svg
@@ -19,13 +23,12 @@ export function RidgelineMark({ className, size = 48, loop = false, animate = tr
       className={cn('ridgeline-mark', animate && 'ridgeline-mark-draw', loop && 'ridgeline-mark-loop', className)}
     >
       <path
-        d="M4 48 L17 30 L24 39 L32 15 L41 39 L48 30 L60 48"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="4"
-        strokeLinecap="round"
+        d={MARK_PATH}
+        className="ridgeline-mark-fill"
+        fill="var(--wordmark-accent, #F2673A)"
+        stroke="var(--wordmark-accent, #F2673A)"
+        strokeWidth="2"
         strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
       />
     </svg>
   );
