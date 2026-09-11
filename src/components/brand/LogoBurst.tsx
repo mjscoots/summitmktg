@@ -137,7 +137,7 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     };
 
     /** Samples a drawn offscreen canvas into a list of coloured points. */
-    const sample = (paint: (c: CanvasRenderingContext2D) => void) => {
+    const sample = (paint: (c: CanvasRenderingContext2D) => void, grain = step) => {
       const off = document.createElement('canvas');
       off.width = Math.max(1, Math.round(width));
       off.height = Math.max(1, Math.round(height));
@@ -146,8 +146,8 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
       paint(octx);
       const data = octx.getImageData(0, 0, off.width, off.height).data;
       const points: { x: number; y: number; color: string }[] = [];
-      for (let y = 0; y < off.height; y += step) {
-        for (let x = 0; x < off.width; x += step) {
+      for (let y = 0; y < off.height; y += grain) {
+        for (let x = 0; x < off.width; x += grain) {
           const i = (y * off.width + x) * 4;
           if (data[i + 3] > 128) {
             points.push({ x, y, color: `rgb(${data[i]},${data[i + 1]},${data[i + 2]})` });
@@ -215,7 +215,9 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
     };
 
     const build = () => {
-      const source = sample(paintLockup);
+      // The lockup is sampled finer than the headline so the field is dense
+      // enough to read as text once it settles.
+      const source = sample(paintLockup, Math.max(1, step - 1));
       const targets = sample(paintHeadline);
       // Even thinning so both fields stay under the cap and stay legible.
       const thin = <T,>(list: T[], limit: number): T[] => {
