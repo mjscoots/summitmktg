@@ -145,7 +145,7 @@ html, body, #root {
   html[data-appearance='light'] .light,
   html[data-appearance='light'] .dark,
   html[data-appearance='light'] .gold-world {
-    --background: 0 0% 100%;
+    --background: 38 41% 95%;
     --foreground: 30 11% 7%;
 
     --card: 0 0% 100%;
@@ -154,9 +154,9 @@ html, body, #root {
     --popover-foreground: 30 11% 7%;
 
     --primary: 30 11% 7%;
-    --primary-foreground: 15 88% 59%;
+    --primary-foreground: 38 41% 95%;
     --accent: 30 11% 7%;
-    --accent-foreground: 15 88% 59%;
+    --accent-foreground: 38 41% 95%;
 
     --secondary: 36 32% 91%;
     --secondary-foreground: 30 11% 7%;
@@ -164,19 +164,19 @@ html, body, #root {
     --muted-foreground: 33 9% 40%;
 
     --destructive: 358 72% 48%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 38 41% 95%;
     --success: 17 82% 38%;
-    --success-foreground: 0 0% 100%;
+    --success-foreground: 38 41% 95%;
     --warning: 38 95% 40%;
-    --warning-foreground: 0 0% 100%;
+    --warning-foreground: 38 41% 95%;
 
     --border: 37 24% 85%;
     --input: 0 0% 100%;
     --ring: 17 82% 38%;
 
-    --shadow-lift: 0 1px 2px rgba(16, 24, 40, 0.08);
+    --shadow-lift: 0 1px 2px rgba(20, 18, 16, 0.08);
 
-    --surface: 0 0% 100%;
+    --surface: 36 32% 91%;
     --surface-elevated: 0 0% 100%;
     --surface-sunken: 36 32% 91%;
     --border-subtle: 37 24% 85%;
@@ -189,7 +189,7 @@ html, body, #root {
     --ice: 17 82% 38%;
     --bubble-blue: 15 75% 41%;
     --primary-soft: 17 82% 38% / 0.1;
-    --primary-muted: 200 45% 34%;
+    --primary-muted: 34 8% 33%;
     --primary-glow: 17 82% 38%;
     --primary-deep: 30 11% 7%;
     --workspace-accent: 17 82% 38%;
@@ -209,10 +209,10 @@ html, body, #root {
     --gradient-gold: hsl(var(--primary));
     --gradient-surface: hsl(var(--surface));
 
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 38 41% 95%;
     --sidebar-foreground: 34 8% 33%;
     --sidebar-primary: 17 82% 38%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary-foreground: 38 41% 95%;
     --sidebar-accent: 36 32% 91%;
     --sidebar-accent-foreground: 30 11% 7%;
     --sidebar-border: 37 24% 85%;
