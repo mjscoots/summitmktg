@@ -2159,7 +2159,7 @@ html[data-appearance='light'] .public-auth {
 }
 .cover-headline[data-hidden='true'] { opacity: 0; }
 .cover-headline[data-fade='true'] { transition: opacity var(--motion-fast) linear; }
-.cover-opening [data-opening-hidden='true'] { opacity: 0; }
+.cover-opening [data-opening-hidden='true'] { opacity: 0 !important; animation: none !important; }
 .cover-opening-in { animation: wordmark-rise var(--motion-base) var(--motion-ease-out) both; }
 
 @media (prefers-reduced-motion: reduce) {

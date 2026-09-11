@@ -210,7 +210,7 @@ const Index = () => {
                   <span className="cover-headline-line">Done differently.</span>
                 </h1>
                 {COVER_STATS && <PublicProofStrip />}
-                <p className="cover-support mt-6 max-w-[60ch] text-base leading-relaxed text-text-secondary sm:text-lg">
+                <p data-opening-hidden={intro && !settled ? 'true' : undefined} className="cover-support mt-6 max-w-[60ch] text-base leading-relaxed text-text-secondary sm:text-lg">
                   A performance-based path through sales, training, and team leadership.
                 </p>
 
