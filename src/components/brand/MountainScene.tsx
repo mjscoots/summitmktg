@@ -69,12 +69,28 @@ interface MountainSceneProps {
   day?: number;
   /** Desktop pointer parallax. Never runs on touch or reduced motion. */
   pointerParallax?: boolean;
+  /**
+   * Pass 179 - the climb. 0 puts the lime marker at the left foot of the far
+   * ridge, 1 puts it on the summit. Undefined hides the marker.
+   */
+  climb?: number;
+  /** Pass 179 - a soft light ripple from a tap on the range. */
+  ripple?: boolean;
 }
 
-function MountainSceneBase({ className, day = 0.35, pointerParallax = true }: MountainSceneProps) {
+function MountainSceneBase({
+  className,
+  day = 0.35,
+  pointerParallax = true,
+  climb,
+  ripple = false,
+}: MountainSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dayRef = useRef(day);
   dayRef.current = day;
+  const climbRef = useRef(climb);
+  climbRef.current = climb;
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
