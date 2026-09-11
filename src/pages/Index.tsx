@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, DoorOpen, Handshake, Wallet } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { MountainScene, requestTiltPermission } from "@/components/brand/MountainScene";
 import { PublicProofStrip } from "@/components/recruiting/LiveCounters";
@@ -13,31 +13,9 @@ import { usePublicMotion } from '@/hooks/usePublicMotion';
 import { useCoverMedia } from '@/hooks/useCoverMedia';
 import { FindYourDoor } from '@/components/recruiting/FindYourDoor';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
-import { WhoRunsIt } from '@/components/recruiting/WhoRunsIt';
 import { CoverLogo } from '@/components/brand/CoverLogo';
 import { PenLine } from '@/components/brand/PenLine';
 
-
-const WHAT_WE_DO = [
-  { icon: DoorOpen, title: "Knock", line: "You work a set area with a script you have practised." },
-  { icon: Handshake, title: "Close", line: "You sign the account at the door and log it the same day." },
-  { icon: Wallet, title: "Get paid", line: "You are paid on what you close, not on hours." },
-];
-
-const SEASON_STEPS = [
-  { word: 'Apply', line: 'A short form, then a call with a manager.' },
-  { word: 'Train', line: 'Scripts, product and practice before you knock.' },
-  { word: 'Sell', line: 'You work an area with your team through the summer.' },
-  { word: 'Settle up', line: 'Your pay follows the scale you reached.' },
-  { word: 'Roll into fiber', line: 'When pest ends, fiber starts. Same team, new product, no gap.' },
-];
-
-const PAY_LINES = [
-  'You are paid commission on the accounts you sell.',
-  'Pay is settled on serviced accounts.',
-  'Three tiers: Rookie, Experienced, Veteran.',
-  'Housing is charged per night at what the room actually costs.',
-];
 
 /**
  * Public front door for Trinity Sales.
@@ -145,18 +123,12 @@ const Index = () => {
 
       <div className="cover-progress" ref={progressRef} aria-hidden="true" />
 
-      <header className={`public-nav sticky top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
+      <header className={`public-nav fixed inset-x-0 top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
         <nav className="mx-auto flex max-w-6xl flex-col items-center gap-1 px-5 py-3 sm:flex-row sm:justify-between sm:px-6">
           <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={34} className="h-7 w-auto sm:h-[34px]" />
           </Link>
-          <div className="flex items-center gap-0.5 sm:gap-2">
-            <Link to="/industries/pest" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary sm:px-3">
-              Pest
-            </Link>
-            <Link to="/industries/fiber" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary sm:px-3">
-              Fiber
-            </Link>
+          <div className="flex items-center">
             <Link to="/login" className="public-link inline-flex min-h-11 items-center px-3 text-sm font-semibold">
               Sign in
             </Link>
@@ -165,36 +137,33 @@ const Index = () => {
       </header>
 
       <main className="relative flex-1">
-        {/* Hero: the logo dead centre, then the light world after the burst. */}
+        {/* Screen one: only the assembled logo in the dark world. */}
         <section ref={heroRef} className="cover-open relative isolate px-5 sm:px-6">
           <CoverLogo progress={heroProgress} onWorldLight={onWorldLight} />
+          <div className="min-h-[100svh]" aria-hidden="true" />
+        </section>
 
-          <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-4xl flex-col items-center justify-center py-20 text-center">
-            <div className="cover-hero-copy" data-in={worldLight ? 'true' : 'false'}>
-              <h1 className="cover-headline">
-                <span className="cover-line-blue block">START AT THE DOOR.</span>
-                <span className="cover-line-purple block">DON'T STAY THERE.</span>
-              </h1>
-
-              <PenLine className="cover-pen mt-6" start={worldLight} />
-
-              <div className="cover-actions mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:mx-auto sm:flex-row sm:justify-center">
-                <Link
-                  to="/apply/rookie"
-                  onClick={onPrimaryTap}
-                  className="btn-purple inline-flex w-full items-center justify-center gap-2 px-8 sm:w-auto"
-                >
-                  Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-                <Link to="/login" className="public-link inline-flex min-h-12 items-center px-3 text-sm font-semibold">
-                  Sign in
-                </Link>
-              </div>
+        {/* Screen two: the statement never shares space with the logo. */}
+        <section className="cover-statement public-section relative isolate flex min-h-[100svh] items-center px-5 py-20 text-center sm:px-6">
+          <div className="cover-statement-copy mx-auto w-full max-w-6xl" data-in={worldLight ? 'true' : 'false'}>
+            <h1 className="cover-headline">
+              <span className="reveal-clip"><span className="cover-line-blue block">EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.</span></span>
+              <span className="reveal-clip"><span className="cover-line-purple block">WE JOINED ALL THREE.</span></span>
+            </h1>
+            <p className="cover-statement-body mx-auto mt-7 max-w-[60ch] text-foreground">
+              Pest control. Fiber internet. Life insurance. One team. Sell any of them, year round, and find the one that fits you.
+            </p>
+            <PenLine className="cover-pen mt-6" start={worldLight} />
+            <div className="cover-actions mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:mx-auto sm:flex-row sm:justify-center">
+              <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple inline-flex w-full items-center justify-center gap-2 px-8 sm:w-auto">
+                Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link to="/login" className="public-link inline-flex min-h-12 items-center px-3 text-sm font-semibold">Sign in</Link>
             </div>
           </div>
         </section>
 
-        {/* The ticker band: offices, the live counters and the lanes. */}
+        {/* The ticker band: offices, live counters and three industries. */}
         <CoverTicker />
 
         {COVER_STATS && (
@@ -214,65 +183,6 @@ const Index = () => {
           </h2>
           <div className="mt-10">
             <FindYourDoor />
-          </div>
-        </section>
-
-        {/* What the work is */}
-        <section id="work" className="public-section px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
-          <h2 className="sr-only">What the work is</h2>
-          <div className="reveal-cards mx-auto grid max-w-5xl gap-10 md:grid-cols-3 md:gap-12">
-            {WHAT_WE_DO.map((c, index) => (
-              <article key={c.title} className="public-process">
-                <div className="mb-5 flex items-center justify-center gap-3">
-                  <c.icon className="h-5 w-5 text-text-muted" strokeWidth={1.5} aria-hidden="true" />
-                  <span className="text-xs tabular-nums text-text-muted">0{index + 1}</span>
-                </div>
-                <h3 className="text-lg font-bold text-foreground">{c.title}</h3>
-                <p className="cover-measure mt-2 text-sm text-text-secondary">{c.line}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <WhoRunsIt />
-
-        {/* How pay is set. Four plain lines and the release note. */}
-        <section id="earnings" className="public-section scroll-mt-20 px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
-          <div className="mx-auto max-w-3xl">
-            <h2 className="section-title text-foreground">
-              <span className="reveal-clip"><span>How pay is set</span></span>
-            </h2>
-            <div className="cover-measure mt-8 space-y-3">
-              {PAY_LINES.map((line, index) => (
-                <p key={line} className="reveal-clip text-base text-text-secondary" style={{ '--line': index + 1 } as React.CSSProperties}>
-                  <span>{line}</span>
-                </p>
-              ))}
-            </div>
-            <p
-              className="reveal-clip mt-8 text-sm text-text-muted"
-              style={{ '--line': PAY_LINES.length + 1 } as React.CSSProperties}
-            >
-              <span>The full pay scale is published here when it is released.</span>
-            </p>
-          </div>
-        </section>
-
-        {/* How the season works: five plain steps */}
-        <section id="season" className="public-section px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
-          <div className="mx-auto max-w-4xl">
-            <h2 className="section-title text-foreground">
-              <span className="reveal-clip"><span>How the season works</span></span>
-            </h2>
-            <ol className="reveal-cards mt-10 grid gap-8 sm:grid-cols-2 md:grid-cols-3">
-              {SEASON_STEPS.map((step, index) => (
-                <li key={step.word}>
-                  <p className="cover-label text-text-muted">0{index + 1}</p>
-                  <p className="mt-2 text-xl font-extrabold tracking-tight text-foreground">{step.word}</p>
-                  <p className="cover-measure mt-2 text-sm text-text-secondary">{step.line}</p>
-                </li>
-              ))}
-            </ol>
           </div>
         </section>
 

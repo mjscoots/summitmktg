@@ -1811,6 +1811,7 @@ body {
 .public-world > header,
 .public-world > main,
 .public-world > footer { position: relative; z-index: 1; }
+.public-world > header.public-nav { position: fixed; }
 
 /* Every section between the hero and the final band is fully opaque, so the
    browser never composites the canvas underneath while the visitor scrolls. */
@@ -2131,10 +2132,9 @@ html[data-appearance='light'] .btn-gradient {
 }
 
 
-/* ━━━ PASS 184: THE CENTRED LOGO AND THE LIGHT WORLD ━━━ */
+/* ━━━ PASS 185: VECTOR SHARDS, STATEMENT SCREEN AND LIGHT WORLD ━━━ */
 
-/* The logo, dead centre of the hero, with the gradient fill and the glow as two
-   layers whose clip and opacity are written straight to the node. */
+/* The logo is 28 or 56 crisp clipped SVG clones. At rest they are the source SVG. */
 .cover-logo {
   position: absolute;
   inset: 0;
@@ -2144,28 +2144,51 @@ html[data-appearance='light'] .btn-gradient {
   align-items: center;
   justify-content: center;
 }
-.cover-logo canvas {
-  position: absolute;
-  inset: 0;
+.cover-shard-logo {
   display: block;
-  width: 100%;
-  height: 100%;
-}
-.cover-logo-art {
-  position: relative;
   width: 84vw;
-  opacity: 0;
-  transition: opacity 200ms var(--motion-ease-out);
+  overflow: visible;
 }
-.cover-logo-art[data-on='true'] { opacity: 1; }
 @media (min-width: 700px) {
-  .cover-logo-art { width: 48vw; }
+  .cover-shard-logo { width: 48vw; }
 }
-.cover-logo-fill {
-  position: absolute;
-  inset: 0;
-  clip-path: inset(100% 0 0 0);
+.cover-shard {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform, opacity;
 }
+.cover-logo[data-phase='assemble'] .cover-shard {
+  animation: shard-assemble var(--shard-duration) var(--motion-ease-out) var(--shard-delay) both;
+}
+@keyframes shard-assemble {
+  0% { transform: translate(var(--from-x), var(--from-y)) rotate(var(--shard-rotate)); }
+  91% { transform: translate(0, -2px) rotate(0); }
+  100% { transform: none; }
+}
+.cover-logo[data-phase='assemble'] .cover-shard[data-mountain='true'] {
+  animation-name: shard-assemble-mountain;
+}
+@keyframes shard-assemble-mountain {
+  0% { transform: translate(var(--from-x), var(--from-y)) rotate(var(--shard-rotate)); }
+  87% { transform: translate(0, -2px) rotate(0); }
+  100% { transform: none; }
+}
+.cover-logo[data-phase='burst'] .cover-shard {
+  animation: shard-burst 700ms var(--motion-spring) both;
+}
+@keyframes shard-burst {
+  0%, 42% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--burst-x), var(--burst-y)) rotate(calc(var(--shard-rotate) * 5)); }
+}
+.cover-logo[data-phase='light'] .cover-shard { opacity: 0; }
+.cover-logo[data-phase='reverse'] .cover-shard {
+  animation: shard-reverse 500ms var(--motion-ease-out) both;
+}
+@keyframes shard-reverse {
+  from { opacity: 0; transform: translate(var(--burst-x), var(--burst-y)) rotate(calc(var(--shard-rotate) * 5)); }
+  to { opacity: 1; transform: none; }
+}
+.cover-shard-fill { opacity: 1; }
 .cover-logo-glow {
   position: absolute;
   left: 50%;
@@ -2175,7 +2198,7 @@ html[data-appearance='light'] .btn-gradient {
   max-width: 900px;
   max-height: 900px;
   transform: translate(-50%, -50%);
-  opacity: 0;
+  opacity: var(--logo-glow, 0);
   background: radial-gradient(circle, rgba(0, 78, 253, 0.9) 0%, rgba(109, 59, 255, 0.5) 45%, rgba(109, 59, 255, 0) 70%);
 }
 
@@ -2193,8 +2216,8 @@ html[data-appearance='light'] .btn-gradient {
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0);
 }
-.cover-swell[data-state='out'] { animation: cover-swell-out 900ms var(--motion-ease-out) both; }
-.cover-swell[data-state='in'] { animation: cover-swell-in 500ms var(--motion-ease-out) both; }
+.cover-swell[data-state='burst'] { animation: cover-swell-out 900ms var(--motion-ease-out) both; }
+.cover-swell[data-state='reverse'] { animation: cover-swell-in 500ms var(--motion-ease-out) both; }
 @keyframes cover-swell-out {
   from { transform: translate(-50%, -50%) scale(0); }
   to { transform: translate(-50%, -50%) scale(1); }
@@ -2204,16 +2227,29 @@ html[data-appearance='light'] .btn-gradient {
   to { transform: translate(-50%, -50%) scale(0); }
 }
 
-/* The hero copy only exists in the light world. */
-.cover-hero-copy {
+/* The statement owns the second viewport and cannot overlap the logo hero. */
+.cover-statement { background: #FFFFFF; }
+.cover-statement-copy {
   opacity: 0;
   transform: translateY(12px);
   pointer-events: none;
-  transition: opacity var(--motion-base) var(--motion-ease-out), transform var(--motion-base) var(--motion-ease-out);
+  transition: opacity var(--motion-slow) var(--motion-ease-out), transform var(--motion-slow) var(--motion-ease-out);
 }
-.cover-hero-copy[data-in='true'] { opacity: 1; transform: none; pointer-events: auto; }
+.cover-statement-copy[data-in='true'] { opacity: 1; transform: none; pointer-events: auto; }
+.cover-statement-copy .reveal-clip > * { opacity: 1; transform: translateY(110%); }
+.cover-statement-copy[data-in='true'] .reveal-clip > * { animation: reveal-line var(--motion-slow) var(--motion-ease-out) both; }
+.cover-statement-copy[data-in='true'] .reveal-clip:nth-child(2) > * { animation-delay: 40ms; }
 .cover-line-blue { color: #004EFD; }
 .cover-line-purple { color: #6D3BFF; }
+.cover-statement-body {
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+@media (min-width: 700px) {
+  .cover-statement-body { font-size: 19px; }
+}
 
 /* The handwritten line. The clip opens across the glyphs over 1,800ms. */
 .pen-line { display: block; margin: 0 auto; overflow: visible; }
@@ -2294,11 +2330,11 @@ html[data-appearance='light'] .btn-gradient {
 .public-world[data-world='light'] .cover-ticker-dot { background: #6E7288; }
 
 @media (prefers-reduced-motion: reduce) {
-  .cover-logo-art { opacity: 1 !important; transition: none !important; }
-  .cover-logo canvas,
   .cover-swell,
   .cover-logo-glow { display: none !important; }
-  .cover-hero-copy { opacity: 1 !important; transform: none !important; pointer-events: auto; transition: none !important; }
+  .cover-shard { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .cover-statement-copy { opacity: 1 !important; transform: none !important; pointer-events: auto; transition: none !important; }
+  .cover-statement-copy .reveal-clip > * { animation: none !important; opacity: 1 !important; transform: none !important; }
   .pen-line-wipe { animation: none !important; transform: scaleX(1) !important; }
   .btn-purple { transition: none !important; }
 }

@@ -4853,3 +4853,101 @@ No em dash and no emoji in any line added by this pass.
 Read only counts, unchanged: profiles 536, chat_messages 716, applications 13,
 earnings_goals 0. No writes, no permission changes, no deployments, and the site
 was not published.
+
+## Pass 185: vector shard opening and statement screen
+
+### Vector shard assembly
+The opening no longer samples or paints pixels. `CoverLogo.tsx` divides the
+source logo viewBox into a deterministic jittered grid and renders every piece
+as a full clone of the inline SVG clipped by an angled quadrilateral. At 390 x
+844 it uses 28 shards in a 7 by 4 grid. At 1280 x 900 it uses 56 shards in an 8
+by 7 grid. Left-third shards enter from beyond the left edge, right-third shards
+enter from beyond the right edge, and centre shards alternate from beyond the
+top and bottom edges. Initial rotations are 8 to 20 degrees.
+
+Mountain shards start first and finish inside 700ms. Letter shards start at
+250ms, stagger left to right, travel for 900ms, overshoot by 2px, and settle over
+the final 80ms. The last shard lands by 1,400ms. Any pointer, touch or key input
+during assembly jumps to ready. The settled transform on every shard measured
+`none`. The assembled shards are the SVG itself, with no substitute layer,
+crossfade, or layout shift.
+
+### Fill, burst and reverse
+The blue to light-purple fill starts at p 0 and completes at p 0.32. Measured:
+- p 0.1: fill 0.3125 and glow 0.0375, or 3.75 percent
+- p 0.3: fill 0.9375 and glow 0.1125, or 11.25 percent
+
+At p 0.36 the same 28 or 56 shards fly away from the logo centre over 700ms on
+the spring token, rotate, and fade during the last 300ms. The white circle grows
+over 900ms. Scrolling back below p 0.36 restores the dark world, contracts the
+circle, and returns the shards over 500ms. No canvas and no pixel particles
+remain on the cover.
+
+### Independent statement screen
+The logo hero and statement are consecutive 100svh sections. The first contains
+only the central logo. The second is white and contains only the statement and
+actions. The fixed navigation does not consume document height. At 390 and 1280
+the two section boxes do not overlap, and scrolling back leaves the statement
+below the hero while the logo reassembles.
+
+Verified statement copy at both widths:
+- `EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.`
+- `WE JOINED ALL THREE.`
+- `Pest control. Fiber internet. Life insurance. One team. Sell any of them, year round, and find the one that fits you.`
+- `Where being a sales rep is not the end goal.`
+
+The headline lines reveal first, followed by the existing 1,800ms Caveat pen
+line and then Get in and Sign in. The old eyebrow and both former headline lines
+are absent.
+
+### Cover order after removals
+1. Dark logo hero
+2. White statement screen
+3. Ticker
+4. Public proof counters when available
+5. Three industries. One team.
+6. Find your door
+7. Final application band
+8. Footer
+
+Who runs it, How pay is set, How the season works, and What the work is were
+removed from `Index.tsx`. `src/components/recruiting/WhoRunsIt.tsx` was deleted.
+The related cover markup, arrays, imports, and now-unused selectors were removed.
+The existing public database functions and settings were not changed.
+
+The three equal industry tiles now read:
+- Pest control: Homes and businesses
+- Fiber internet: Homes, in person
+- Life insurance: Families, licensed
+
+### Ticker
+Observed items, in order:
+- `BALTIMORE`
+- `BOSTON`
+- `23 IN THE FIELD`
+- `14 SIGNED FOR 2027`
+- `PEST CONTROL`
+- `FIBER INTERNET`
+- `LIFE INSURANCE`
+
+The two numeric entries are live and remain conditional. No value was invented.
+
+### Performance and reduced motion
+At 390 x 844, sampled main-thread measurement work was median 0.0ms and p95
+0.1ms during assembly, median 0.0ms and p95 0.1ms during burst, and median 0.0ms
+and p95 0.1ms during steady scroll. Browser rAF cadence was median 16.7ms and p95
+16.7ms. The cover had no horizontal overflow.
+
+With reduced motion forced, assembly, shard travel, swell, glow, ticker movement,
+line reveals and pen writing are disabled. The settled vector logo renders
+immediately. The world switches at p 0.36 without a burst, the statement remains
+fully readable, and reverse scroll returns to the dark logo screen.
+
+### Build, size and data
+Typecheck clean with tsgo. Production build clean. Entry gzip is 16,377 bytes of
+JS, down 10 bytes from Pass 184, and 31,602 bytes of CSS, up 219 bytes from Pass
+184. No em dash and no emoji appear in lines added by this pass.
+
+Read-only baselines are unchanged: profiles 536, chat_messages 716, applications
+13, earnings_goals 0. No data writes, permission changes, deployments, or
+publishing occurred.
