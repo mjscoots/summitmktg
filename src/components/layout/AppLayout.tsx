@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
@@ -110,6 +110,14 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
 function WorkspaceScopedMain({ children, fullHeight }: { children: ReactNode; fullHeight?: boolean }) {
   const { activeVertical, epoch } = useWorkspace();
   const location = useLocation();
+  const lastIndex = useRef<number>(window.history.state?.idx ?? 0);
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
+
+  useEffect(() => {
+    const nextIndex = window.history.state?.idx ?? lastIndex.current;
+    setDirection(nextIndex < lastIndex.current ? 'back' : 'forward');
+    lastIndex.current = nextIndex;
+  }, [location.key]);
   return (
     <main
       key={`${activeVertical}:${epoch}`}
@@ -122,7 +130,7 @@ function WorkspaceScopedMain({ children, fullHeight }: { children: ReactNode; fu
       {/* Keyed by path so each route change fades and lifts once. */}
       <div
         key={location.pathname}
-        className={cn('page-transition', fullHeight && 'h-full min-h-0')}
+        className={cn('page-transition', direction === 'back' ? 'page-transition-back' : 'page-transition-forward', fullHeight && 'h-full min-h-0')}
       >
         <VerticalRouteGuard>{children}</VerticalRouteGuard>
       </div>

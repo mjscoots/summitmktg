@@ -28,6 +28,7 @@ export function MobileBottomNav() {
   const rowRef = useRef<HTMLDivElement | null>(null);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
+  const [popped, setPopped] = useState<number | null>(null);
 
   // The indicator follows the active tab, and follows it again after a resize.
   useLayoutEffect(() => {
@@ -90,6 +91,8 @@ export function MobileBottomNav() {
                 tabRefs.current[i] = el;
               }}
               onClick={() => {
+                setPopped(i);
+                window.setTimeout(() => setPopped(null), 280);
                 if (item.path === '/app/chat') markRead();
                 navigate(item.path);
               }}
@@ -99,11 +102,11 @@ export function MobileBottomNav() {
                 active ? 'text-[hsl(var(--workspace-accent))]' : 'text-muted-foreground'
               )}
             >
-              <item.icon className="h-[22px] w-[22px]" strokeWidth={active ? 2 : 1.75} />
+              <item.icon className={cn('h-[22px] w-[22px]', popped === i && 'nav-icon-pop')} strokeWidth={active ? 2 : 1.75} />
               <span className="text-[11px] font-semibold leading-none">{item.label}</span>
 
               {item.path === '/app/chat' && unreadCount > 0 && (
-                <span className="absolute right-[18%] top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+                <span className="unread-pulse absolute right-[18%] top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-primary-foreground">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}

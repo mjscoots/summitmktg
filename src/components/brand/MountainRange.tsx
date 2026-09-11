@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, type CSSProperties } from "react";
 
 /**
  * Pass 175 - the Trinity range.
@@ -79,7 +79,7 @@ function MountainRangeBase({ className, opacity = 1, animate = false, pointerPar
         </linearGradient>
       </defs>
       {RIDGES.map((d, i) => (
-        <path key={i} className="mountain-layer" d={d} fill={`var(--range-${i + 1})`} style={{ '--range-depth': i + 1 } as React.CSSProperties} />
+        <path key={i} className="mountain-layer" d={d} fill={`var(--range-${i + 1})`} style={{ '--range-depth': i + 1 } as CSSProperties} />
       ))}
       <rect x="0" y="370" width="1440" height="230" fill="url(#trnty-haze)" />
     </svg>
