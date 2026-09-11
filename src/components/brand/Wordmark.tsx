@@ -1,17 +1,18 @@
-import { forwardRef, memo, useId } from "react";
+import { forwardRef, memo } from "react";
+import { LETTERS_PATH, LOGO_ASPECT, LOGO_BLUE, LOGO_VIEWBOX, MOUNTAIN_PATH, MOUNTAIN_VIEWBOX } from "./logoPaths";
 
 /**
- * Pass 181 - TRNTY alone, and the peak.
+ * Pass 183 - the owner's real logo.
  *
- * The wordmark is the five letters TRNTY set in Archivo 800, uppercase, letter
- * spacing 0.04em, drawn as SVG text so it scales with the height prop. There is
- * no TRINITY SALES line and no mark inside any lockup: every variant renders the
- * letters only, at its size. The `mark` variant renders the peak, a single clean
- * isosceles triangle filled with the blue to violet gradient, blue at the base
- * and violet at the apex, no stroke and no inner lines.
+ * TRNTY where the N is a mountain range. The traced letters and the traced
+ * mountain are inlined from logoPaths, so the component takes a className and
+ * never needs currentColor. The letters are white on dark and black on light,
+ * read from the --wordmark-letters token; the mountain stays the logo blue in
+ * both appearances.
  *
- * Variant names and props are unchanged from the previous logo so every import
- * keeps working. TRNTY and the peak never appear side by side.
+ * Every lettered variant renders the same logo, scaled to its height prop. The
+ * mark variant renders the mountain path alone, which is also what the icons,
+ * the favicon, the splash and the footer stamp use.
  */
 export type WordmarkVariant =
   | "hero"
@@ -25,17 +26,15 @@ export type WordmarkVariant =
   | "compactPlain"
   | "mark";
 
-const BODY_STACK = "'Archivo', system-ui, -apple-system, sans-serif";
-
-/** The peak: base 1.0 and height 0.82 of a 64 x 64 box, flat base, centred. */
-export const MARK_PATH = "M32 11.52 L64 64 L0 64 Z";
+/** Kept for callers that still draw the peak themselves. */
+export const MARK_PATH = MOUNTAIN_PATH;
 
 interface WordmarkProps {
   variant?: WordmarkVariant;
   /** Rendered height in px. */
   height?: number;
   className?: string;
-  /** Staggers the five letters on first mount. */
+  /** Staggers the two logo layers on first mount. */
   animate?: boolean;
 }
 
@@ -44,7 +43,6 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
   ref
 ) {
   const renderedHeight = Math.max(height, 12);
-  const gradientId = useId();
 
   if (variant === "mark") {
     const size = renderedHeight;
@@ -53,39 +51,27 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
         ref={ref}
         role="img"
         aria-label="Trinity Sales"
-        viewBox="0 0 64 64"
+        viewBox={MOUNTAIN_VIEWBOX}
         width={size}
         height={size}
         className={className}
         style={{ display: "block" }}
       >
         <title>Trinity Sales</title>
-        <defs>
-          <linearGradient id={gradientId} x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor="#3A8DFF" />
-            <stop offset="0.52" stopColor="#7C6BFF" />
-            <stop offset="1" stopColor="#B69CFF" />
-          </linearGradient>
-        </defs>
-        <path d={MARK_PATH} fill={`url(#${gradientId})`} />
+        <path d={MOUNTAIN_PATH} fill={LOGO_BLUE} fillRule="evenodd" />
       </svg>
     );
   }
 
-  const mono = variant === "heroMono";
-  const letters = mono ? "var(--wordmark-outline, currentColor)" : "var(--wordmark-letters, currentColor)";
-
-  const fontSize = renderedHeight * 0.82;
-  const letterStep = fontSize * 0.72;
-  const baseline = renderedHeight * 0.82;
-  const width = Math.round(letterStep * 5 + fontSize * 0.1);
+  const letters = variant === "heroMono" ? "var(--wordmark-outline, #FFFFFF)" : "var(--wordmark-letters, #FFFFFF)";
+  const width = Math.round(renderedHeight * LOGO_ASPECT);
 
   return (
     <svg
       ref={ref}
       role="img"
       aria-label="TRNTY, Trinity Sales"
-      viewBox={`0 0 ${width} ${renderedHeight}`}
+      viewBox={LOGO_VIEWBOX}
       width={width}
       height={renderedHeight}
       className={className}
@@ -93,24 +79,18 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
     >
       <title>Trinity Sales</title>
       <g aria-hidden="true">
-        {"TRNTY".split("").map((letter, index) => (
-          <text
-            key={`${letter}-${index}`}
-            x={index * letterStep}
-            y={baseline}
-            fill={letters}
-            className={animate ? "wordmark-letter" : undefined}
-            style={{
-              fontFamily: BODY_STACK,
-              fontWeight: 800,
-              fontSize: `${fontSize}px`,
-              letterSpacing: "0.04em",
-              animationDelay: animate ? `calc(${index + 1} * var(--motion-stagger))` : undefined,
-            }}
-          >
-            {letter}
-          </text>
-        ))}
+        <path
+          d={LETTERS_PATH}
+          fill={letters}
+          fillRule="evenodd"
+          className={animate ? "wordmark-letter" : undefined}
+        />
+        <path
+          d={MOUNTAIN_PATH}
+          fill={LOGO_BLUE}
+          fillRule="evenodd"
+          className={animate ? "wordmark-lockup-line" : undefined}
+        />
       </g>
     </svg>
   );

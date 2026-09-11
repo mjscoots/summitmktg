@@ -47,7 +47,7 @@ export function FindYourDoor() {
   const ready = sold !== null && start !== null;
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
+    <div className="reveal-cards mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
       <div className="qual-card card-spotlight bg-card p-5">
         <p className="micro-label text-text-muted">One</p>
         <h3 className="mt-3 text-lg font-bold text-foreground">Have you sold door to door before</h3>

@@ -42,11 +42,13 @@ export function WhoRunsIt() {
   }, []);
 
   return (
-    <section id="who" className="public-section public-reveal px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
+    <section id="who" className="public-section px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
       <div className="mx-auto max-w-4xl">
-        <h2 className="section-title text-foreground">Who runs it</h2>
+        <h2 className="section-title text-foreground">
+          <span className="reveal-clip"><span>Who runs it</span></span>
+        </h2>
 
-        <div className="mt-10 grid items-center gap-8 md:grid-cols-2 md:text-left">
+        <div className="reveal-cards mt-10 grid items-center gap-8 md:grid-cols-2 md:text-left">
           {photo ? (
             <img
               src={photo}
@@ -71,7 +73,7 @@ export function WhoRunsIt() {
         {managers.length > 0 && (
           <div className="mt-14">
             <p className="cover-label text-text-muted">Managers</p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <div className="reveal-cards mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               {managers.map((m, index) => (
                 <article key={`${m.first_name}-${index}`} className="rounded-xl bg-card p-5 text-left">
                   <p className="text-base font-semibold text-foreground">{m.first_name}</p>
@@ -95,6 +97,7 @@ export function WhoRunsIt() {
       </div>
     </section>
   );
+
 }
 
 export default WhoRunsIt;
