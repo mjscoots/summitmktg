@@ -244,7 +244,7 @@ Deno.serve(async (req) => {
             body: JSON.stringify({
               from: Deno.env.get("RESEND_FROM_EMAIL") || "Trinity <onboarding@resend.dev>",
               to: [normalizedEmail],
-              subject: "Welcome to Trinity — Your Account is Ready",
+              subject: "Welcome to Trinity. Your account is ready",
               html: `
                 <h2>Welcome to Trinity, ${full_name}!</h2>
                 <p>Your account has been created. Here are your login details:</p>

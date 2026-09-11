@@ -166,7 +166,7 @@ serve(async (req: Request): Promise<Response> => {
           body: JSON.stringify({
             from: `Trinity <${from}>`,
             to,
-            subject: `Veteran bid request — ${fullName}`,
+            subject: `Veteran bid request: ${fullName}`,
             html,
           }),
         });
