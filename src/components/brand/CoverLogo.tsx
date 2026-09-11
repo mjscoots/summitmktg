@@ -19,6 +19,7 @@ interface Shard {
   burstX: string;
   burstY: string;
   rotation: number;
+  duration: number;
 }
 
 export interface CoverLogoProps {
@@ -80,6 +81,7 @@ function makeShards(count: 28 | 56): Shard[] {
         burstX: `${Math.cos(angle) * (65 + seeded(index, 6) * 35)}vw`,
         burstY: `${Math.sin(angle) * (65 + seeded(index, 7) * 35)}vh`,
         rotation: (8 + seeded(index, 8) * 12) * (index % 2 === 0 ? -1 : 1),
+        duration: mountain ? 700 : 900,
       });
     }
   }
@@ -92,6 +94,7 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
   const [phase, setPhase] = useState<Phase>(reduced ? 'ready' : 'assemble');
   const id = useId().replace(/:/g, '');
   const timers = useRef<number[]>([]);
+  const phaseRef = useRef<Phase>(reduced ? 'ready' : 'assemble');
   const previousProgress = useRef(progress);
   const shards = useMemo(() => makeShards(desktop ? 56 : 28), [desktop]);
   const fill = Math.min(1, Math.max(0, progress / FILL_END));
@@ -104,8 +107,16 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
 
   useEffect(() => {
     if (reduced) return;
-    const settle = window.setTimeout(() => setPhase((current) => current === 'assemble' ? 'ready' : current), 1400);
-    const jump = () => setPhase((current) => current === 'assemble' ? 'ready' : current);
+    const setCurrentPhase = (next: Phase) => {
+      phaseRef.current = next;
+      setPhase(next);
+    };
+    const settle = window.setTimeout(() => {
+      if (phaseRef.current === 'assemble') setCurrentPhase('ready');
+    }, 1400);
+    const jump = () => {
+      if (phaseRef.current === 'assemble') setCurrentPhase('ready');
+    };
     window.addEventListener('pointerdown', jump, { passive: true });
     window.addEventListener('keydown', jump);
     window.addEventListener('touchstart', jump, { passive: true });
@@ -121,27 +132,37 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
     const crossedDown = previousProgress.current < BURST_AT && progress >= BURST_AT;
     const crossedUp = previousProgress.current >= BURST_AT && progress < BURST_AT;
     previousProgress.current = progress;
-    timers.current.forEach(window.clearTimeout);
-    timers.current = [];
-
     if (reduced) {
       onWorldLight(progress >= BURST_AT);
-      setPhase(progress >= BURST_AT ? 'light' : 'ready');
+      const next = progress >= BURST_AT ? 'light' : 'ready';
+      phaseRef.current = next;
+      setPhase(next);
       return;
     }
     if (crossedDown) {
+      timers.current.forEach(window.clearTimeout);
+      timers.current = [];
+      phaseRef.current = 'burst';
       setPhase('burst');
       timers.current.push(window.setTimeout(() => {
         onWorldLight(true);
+        phaseRef.current = 'light';
         setPhase('light');
       }, 900));
     } else if (crossedUp) {
+      timers.current.forEach(window.clearTimeout);
+      timers.current = [];
       onWorldLight(false);
+      phaseRef.current = 'reverse';
       setPhase('reverse');
-      timers.current.push(window.setTimeout(() => setPhase('ready'), 500));
+      timers.current.push(window.setTimeout(() => {
+        phaseRef.current = 'ready';
+        setPhase('ready');
+      }, 500));
     }
-    return () => timers.current.forEach(window.clearTimeout);
   }, [onWorldLight, progress, reduced]);
+
+  useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
 
   return (
     <div
@@ -158,6 +179,9 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
             <stop offset="0" stopColor={LOGO_BLUE} />
             <stop offset="1" stopColor="#B69CFF" />
           </linearGradient>
+          <clipPath id={`${id}-fill-clip`}>
+            <rect x={VIEW_X} y={VIEW_Y + VIEW_H * (1 - fill)} width={VIEW_W} height={VIEW_H * fill} />
+          </clipPath>
           {shards.map((shard, index) => (
             <clipPath id={`${id}-shard-${index}`} key={`clip-${index}`}>
               <polygon points={shard.points} />
@@ -178,11 +202,12 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
                 '--burst-x': shard.burstX,
                 '--burst-y': shard.burstY,
                 '--shard-rotate': `${shard.rotation}deg`,
+                '--shard-duration': `${shard.duration}ms`,
               } as React.CSSProperties}
             >
               <path d={LETTERS_PATH} fill="#FFFFFF" fillRule="evenodd" />
               <path d={MOUNTAIN_PATH} fill={LOGO_BLUE} fillRule="evenodd" />
-              <g className="cover-shard-fill">
+              <g className="cover-shard-fill" clipPath={`url(#${id}-fill-clip)`}>
                 <path d={LETTERS_PATH} fill={`url(#${id}-fill)`} fillRule="evenodd" />
                 <path d={MOUNTAIN_PATH} fill={`url(#${id}-fill)`} fillRule="evenodd" />
               </g>
