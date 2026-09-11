@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useChatSkin } from '@/hooks/useChatSkin';
+import { MountainRange } from '@/components/brand/MountainRange';
 
 interface ChatMessage {
   id: string;
