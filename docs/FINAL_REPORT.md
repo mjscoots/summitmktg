@@ -4742,3 +4742,114 @@ Typecheck clean with tsgo against tsconfig.app.json; production build clean in
 12.73s; shell gzip of the entry bundles is 16,391 bytes of JS (from 16,381) and
 30,810 bytes of CSS (from 30,109). Baselines unchanged: profiles 536,
 chat_messages 716, applications 13, earnings_goals 0.
+
+## Pass 184: the centred logo, the fill, the burst and the light world
+
+### The logo, centred
+The cover hero is 100svh and the logo sits dead centre of it, drawn from
+`public/brand/trnty-logo.svg` through `logoPaths.ts`. The art box is 84vw wide on
+phone and 48vw on desktop. Nothing else is visible in the hero on load: the
+eyebrow is gone, the headline, the handwritten line and the two actions all sit
+in `.cover-hero-copy`, which is opacity 0 and pointer-events none until the burst.
+The nav keeps the small logo and Sign in.
+
+### The assembly, on every load
+`src/components/brand/CoverLogo.tsx`. The logo is sampled at 3px on phone
+(capped at 2,400) and 2px on desktop (capped at 7,000); mountain chunks are
+#004EFD and letter chunks are white. Every chunk starts scattered beyond the
+edges in a random direction at 0.9 to 1.7 times the longest viewport edge, flies
+in over 300ms on the ease out token with a 3px outward overshoot, and settles
+that overshoot back over 80ms. Mountain chunks are staggered across 0 to 900ms
+and letters across 300 to 1,600ms, ordered left to right. At 1,600ms the real
+SVG crossfades in over 200ms and the canvas clears.
+
+Measured chunk counts (read from the host's data attribute):
+- 390 x 844: 681 white, 32 blue (713 chunks, under the 2,400 cap)
+- 1280 x 900: 5,359 white, 360 blue (5,719 chunks, under the 7,000 cap)
+
+Any pointerdown, keydown or touchstart during the assembly jumps straight to the
+settled state.
+
+### The fill and the burst, driven by scroll
+Progress is the scroll over the first viewport. The gradient copy of the letters
+is clipped from the baseline up and the glow opacity is written straight to the
+node, so a scroll never re-renders React.
+- p 0.2: `clip-path: inset(63.6% 0px 0px)`, glow opacity 0.04
+- p 0.5: `clip-path: inset(9.1% 0px 0px)`, glow opacity 0.11
+Past p 0.4 the chunk field vibrates one pixel at 22 percent alpha.
+
+At p 0.55 the DOM logo hides, the chunks explode outward on the spring token over
+700ms and fade over the last 300ms, and a white circle swells from the logo
+centre over 900ms. When it has covered the screen the cover switches to the light
+world (`data-world="light"` on the root) and the circle unmounts.
+
+Scrolling back: the world returns to dark, a white circle contracts over 500ms,
+and the chunks reassemble over 500ms before the fill follows the scroll again.
+Verified: after scrolling to p 0.6 the root reads `light`; after scrolling back to
+0 it reads `dark` and the DOM logo is on again.
+
+### The hero copy after the burst
+Headline, read from the DOM at both widths:
+- `START AT THE DOOR.` colour rgb(0, 78, 253)
+- `DON'T STAY THERE.` colour rgb(109, 59, 255)
+Both are Archivo 800 uppercase in `.cover-headline`. The headline is the page's
+only h1; the logo carries a visually hidden name.
+
+The handwritten line is `Where being a sales rep is not the end goal.` in
+`src/components/brand/PenLine.tsx`. Computed font family reads
+`Caveat, Kalam, cursive`, so Caveat loaded and Kalam is only the fallback. The
+line is SVG text measured on mount, written left to right by a clip that opens
+across the glyph box over 1,800ms on the ease out token; the real sentence stays
+in the DOM and reads back as `Where being a sales rep is not the end goal.`
+
+The primary button reads `Get in` on a solid rgb(109, 59, 255), 48px tall, radius
+10, white label, and routes to `/apply/rookie` unchanged. Sign in sits next to it
+as a black underlined link.
+
+### The light world below the hero
+Scoped to `.public-world[data-world='light']`, so the app's own theme is
+untouched. White background (measured rgb(255, 255, 255) on `.public-section`),
+#F5F5F8 cards, white elevated, #E4E4EC borders, black body, #50546A secondary,
+#6E7288 muted. Section titles measure rgb(0, 78, 253). One element per section
+carries solid purple #6D3BFF: the progress hairline, the proof underline, the door
+underline, the qualifier selection, the Book fifteen minutes button and the final
+band button. The grid texture on the hero and the final band is 1px black at 4
+percent. The mountain scene takes light ridges #E9E9E9 through #F5F5F5 and a
+6 percent blue into purple glow through a new `light` prop. The footer mark stays
+#004EFD. No other colour appears below the hero.
+
+Contrast: #004EFD on white is 5.5:1, black on white is 21:1, #50546A on white is
+7.6:1, white on #6D3BFF is 5.9:1.
+
+### Removed
+- `src/components/brand/LogoBurst.tsx` deleted; nothing imports it.
+- The eyebrow, the redaction bar and the headline scroll sweep, with their CSS.
+- The kinetic section title weight in `usePublicMotion`, so the hook now only
+  marks sections visible.
+- The door hover scale; the surface change and the press stay.
+The support line moved out of the hero and now opens the doors section. The proof
+strip moved out of the hero and sits under the ticker.
+
+### Frame times
+Sixty five consecutive rAF deltas during the opening: median 16.7ms and p95
+16.7ms at 390 x 844, median 16.7ms and p95 16.8ms at 1280 x 900. Well inside the
+8ms of work per frame the budget allows.
+
+### Reduced motion
+At 390 with reduced motion forced: the assembly effect never runs (no chunk data
+is written), the canvas, the glow and the swell are display none, the DOM logo is
+opaque from the first frame, the hero copy is visible with no transition, the pen
+line clip is fully open, and the world crossfades between dark and light over
+300ms at the same p 0.55. The headline, the handwritten line, the Get in label and
+every section colour read exactly as they do with motion on.
+
+### Build
+Typecheck clean. Production build clean in 14.49s. Entry gzip: JS 16,387 bytes
+(16,391 in Pass 183, minus 4) and CSS 31,383 bytes (30,810 in Pass 183, plus 573).
+
+No em dash and no emoji in any line added by this pass.
+
+### Data
+Read only counts, unchanged: profiles 536, chat_messages 716, applications 13,
+earnings_goals 0. No writes, no permission changes, no deployments, and the site
+was not published.

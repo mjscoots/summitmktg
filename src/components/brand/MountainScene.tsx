@@ -61,6 +61,8 @@ interface MountainSceneProps {
   pointerParallax?: boolean;
   /** 0 to 1 as the final band arrives: the glow brightens from 8 to 14 percent. */
   glowBoost?: number;
+  /** Pass 184: the light world after the burst. Light ridges, a 6 percent glow. */
+  light?: boolean;
 }
 
 /**
@@ -84,7 +86,7 @@ function easeInOut(t: number): number {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }
 
-function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0 }: MountainSceneProps) {
+function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0, light = false }: MountainSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const boostRef = useRef(glowBoost);
   boostRef.current = glowBoost;
@@ -111,6 +113,11 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0 }:
     let ranges = ['#1C1C1C', '#161616', '#101010', '#0A0A0A', '#050505'];
 
     const readPalette = () => {
+      if (light) {
+        sky = '#FFFFFF';
+        ranges = ['#E9E9E9', '#EDEDED', '#F0F0F0', '#F3F3F3', '#F5F5F5'];
+        return;
+      }
       const styles = getComputedStyle(document.documentElement);
       const bg = styles.getPropertyValue('--background').trim();
       sky = bg ? `hsl(${bg})` : '#000000';
@@ -160,9 +167,15 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0 }:
       const peakBase = ty + 340 * scale;
       const reach = VIEW_H * scale * 0.4;
       glow = ctx.createLinearGradient(peakX, peakBase, peakX, peakBase - reach);
-      glow.addColorStop(0, 'rgba(58,141,255,1)');
-      glow.addColorStop(0.55, 'rgba(124,107,255,0.7)');
-      glow.addColorStop(1, 'rgba(182,156,255,0)');
+      if (light) {
+        glow.addColorStop(0, 'rgba(0,78,253,1)');
+        glow.addColorStop(0.55, 'rgba(109,59,255,0.6)');
+        glow.addColorStop(1, 'rgba(109,59,255,0)');
+      } else {
+        glow.addColorStop(0, 'rgba(58,141,255,1)');
+        glow.addColorStop(0.55, 'rgba(124,107,255,0.7)');
+        glow.addColorStop(1, 'rgba(182,156,255,0)');
+      }
     };
 
     let px = 0;
@@ -194,7 +207,7 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0 }:
       // lifted toward 14 percent as the final band arrives.
       if (glow) {
         const boost = Math.max(0, Math.min(1, boostRef.current));
-        const base = 0.08 + boost * 0.06;
+        const base = light ? 0.06 : 0.08 + boost * 0.06;
         const breath = easeInOut((Math.sin((now / 12000) * Math.PI * 2) + 1) / 2);
         const breathe = reduceMotion ? base : base - 0.02 + breath * 0.04;
         ctx.globalAlpha = breathe;
@@ -320,7 +333,7 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0 }:
       window.removeEventListener('pointermove', onPointer);
       window.removeEventListener('deviceorientation', onOrient);
     };
-  }, [pointerParallax]);
+  }, [pointerParallax, light]);
 
   return <canvas ref={canvasRef} aria-hidden="true" className={className} style={{ display: 'block', width: '100%', height: '100%' }} />;
 }

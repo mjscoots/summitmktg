@@ -14,7 +14,9 @@ import { useCoverMedia } from '@/hooks/useCoverMedia';
 import { FindYourDoor } from '@/components/recruiting/FindYourDoor';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { WhoRunsIt } from '@/components/recruiting/WhoRunsIt';
-import { LogoBurst, shouldRunIntro } from '@/components/brand/LogoBurst';
+import { CoverLogo } from '@/components/brand/CoverLogo';
+import { PenLine } from '@/components/brand/PenLine';
+
 
 const WHAT_WE_DO = [
   { icon: DoorOpen, title: "Knock", line: "You work a set area with a script you have practised." },
@@ -40,11 +42,13 @@ const PAY_LINES = [
 /**
  * Public front door for Trinity Sales.
  *
- * Pass 183 keeps the centred cover and brings every animation on it to one
- * standard. One rAF loop reads the scroll and writes three things: whether the
- * nav is scrolled, the hero progress that drives the headline sweep, and the
- * progress hairline plus the final band's own progress, which lifts the scene
- * glow. The opening runs on every load with motion allowed.
+ * Pass 184 puts the logo dead centre. It builds itself out of flying chunks on
+ * load, fills with the gradient as the visitor scrolls, and at 55 percent of the
+ * first viewport it bursts and the whole cover swells from black to white. One
+ * rAF loop reads the scroll and writes four things: whether the nav is scrolled,
+ * the hero progress that drives the logo, the progress hairline, and the final
+ * band's own progress, which lifts the scene glow. Everything below the hero is
+ * the light world and stays plain.
  */
 const Index = () => {
   const media = useCoverMedia();
@@ -53,18 +57,16 @@ const Index = () => {
   const heroRef = useRef<HTMLElement | null>(null);
   const bandRef = useRef<HTMLElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
-  const headlineRef = useRef<HTMLHeadingElement | null>(null);
-  const [intro] = useState(() => shouldRunIntro());
-  const [headlineVisible, setHeadlineVisible] = useState(true);
-  const [settled, setSettled] = useState(() => !intro);
-  // Scroll progress over the first 60vh, which drives the headline sweep.
+  // True once the white has covered the screen, false again on the way back.
+  const [worldLight, setWorldLight] = useState(false);
+  // Scroll progress over the first viewport, which drives the logo.
   const [heroProgress, setHeroProgress] = useState(0);
-  // The final band's own progress, which lifts the scene glow from 8 to 14 percent.
+  // The final band's own progress, which lifts the scene glow.
   const [bandProgress, setBandProgress] = useState(0);
   const tiltAsked = useRef(false);
-  const onHeadlineVisible = useCallback((visible: boolean) => setHeadlineVisible(visible), []);
-  const onSettled = useCallback(() => setSettled(true), []);
+  const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
   usePublicMotion();
+
 
   // iOS only hands over device orientation from inside a gesture, and the grant
   // does not survive the session. It is asked for once, on the first tap of the
@@ -84,7 +86,7 @@ const Index = () => {
       frame = 0;
       const y = el ? el.scrollTop : window.scrollY;
       setScrolled(y > 40);
-      setHeroProgress(Math.min(1, Math.max(0, y / (window.innerHeight * 0.6))));
+      setHeroProgress(Math.min(1, Math.max(0, y / Math.max(1, window.innerHeight))));
 
       const scroller = el || document.documentElement;
       const span = Math.max(1, scroller.scrollHeight - window.innerHeight);
@@ -126,7 +128,10 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="gold-world public-world relative flex min-h-screen flex-col">
+    <div
+      className="gold-world public-world relative flex min-h-screen flex-col"
+      data-world={worldLight ? 'light' : 'dark'}
+    >
       {/* The range sits fixed behind the hero and the final band. */}
       <div className="cover-scene" aria-hidden="true">
         {media.video ? (
@@ -135,7 +140,7 @@ const Index = () => {
           <img className="cover-media" src={media.image} alt="" />
         ) : null}
         {(media.video || media.image) && <div className="cover-scrim" />}
-        {sceneOn && <MountainScene pointerParallax glowBoost={bandProgress} />}
+        {sceneOn && <MountainScene pointerParallax glowBoost={bandProgress} light={worldLight} />}
       </div>
 
       <div className="cover-progress" ref={progressRef} aria-hidden="true" />
@@ -160,80 +165,45 @@ const Index = () => {
       </header>
 
       <main className="relative flex-1">
-        {/* Hero: centred in the viewport, nothing off to the left. */}
-        <section
-          ref={heroRef}
-          className={`cover-open relative isolate px-5 sm:px-6${intro ? ' cover-opening' : ''}`}
-        >
-          {intro && (
-            <LogoBurst
-              headlineRef={headlineRef}
-              progress={heroProgress}
-              onHeadlineVisible={onHeadlineVisible}
-              onSettled={onSettled}
-            />
-          )}
+        {/* Hero: the logo dead centre, then the light world after the burst. */}
+        <section ref={heroRef} className="cover-open relative isolate px-5 sm:px-6">
+          <CoverLogo progress={heroProgress} onWorldLight={onWorldLight} />
+
           <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-4xl flex-col items-center justify-center py-20 text-center">
-            <p
-              className="cover-eyebrow cover-rise text-text-secondary"
-              data-in={settled ? 'true' : undefined}
-              style={{ '--rise': 0 } as React.CSSProperties}
-            >
-              NOT ON A JOB BOARD.
-            </p>
+            <div className="cover-hero-copy" data-in={worldLight ? 'true' : 'false'}>
+              <h1 className="cover-headline">
+                <span className="cover-line-blue block">START AT THE DOOR.</span>
+                <span className="cover-line-purple block">DON'T STAY THERE.</span>
+              </h1>
 
-            <h1
-              ref={headlineRef}
-              className="cover-headline text-foreground"
-              data-hidden={!headlineVisible}
-              data-fade="true"
-              style={intro ? undefined : { opacity: Math.max(0, 1 - heroProgress * heroProgress) }}
-            >
-              <span className="block">EVERY SUMMER SALES JOB ENDS IN AUGUST.</span>
-              <span className="cover-redact block" data-redact={intro && !settled ? 'true' : undefined}>
-                <span className="gradient-text">EXCEPT THIS ONE.</span>
-              </span>
-            </h1>
+              <PenLine className="cover-pen mt-6" start={worldLight} />
 
-            <p
-              className="cover-support cover-rise cover-measure mt-6 text-base leading-relaxed text-text-secondary sm:text-lg"
-              data-in={settled ? 'true' : undefined}
-              style={{ '--rise': 1 } as React.CSSProperties}
-            >
-              Pest control in season. Fiber internet after it. One team, selling all year.
-            </p>
-
-            <div
-              className="cover-actions cover-rise mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:flex-row sm:justify-center"
-              data-in={settled ? 'true' : undefined}
-              style={{ '--rise': 2 } as React.CSSProperties}
-            >
-              <Link
-                to="/apply/rookie"
-                onClick={onPrimaryTap}
-                className="btn-gradient inline-flex w-full items-center justify-center gap-2 px-8 sm:w-auto"
-              >
-                Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-              <Link to="/login" className="public-link inline-flex min-h-12 items-center px-3 text-sm font-semibold">
-                Sign in
-              </Link>
-            </div>
-
-            {COVER_STATS && (
-              <div
-                className="cover-rise mt-10 w-full"
-                data-in={settled ? 'true' : undefined}
-                style={{ '--rise': 3 } as React.CSSProperties}
-              >
-                <PublicProofStrip />
+              <div className="cover-actions mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:mx-auto sm:flex-row sm:justify-center">
+                <Link
+                  to="/apply/rookie"
+                  onClick={onPrimaryTap}
+                  className="btn-purple inline-flex w-full items-center justify-center gap-2 px-8 sm:w-auto"
+                >
+                  Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+                <Link to="/login" className="public-link inline-flex min-h-12 items-center px-3 text-sm font-semibold">
+                  Sign in
+                </Link>
               </div>
-            )}
+            </div>
           </div>
         </section>
 
         {/* The ticker band: offices, the live counters and the lanes. */}
         <CoverTicker />
+
+        {COVER_STATS && (
+          <div className="public-section px-5 py-10 sm:px-6" data-reveal>
+            <div className="mx-auto max-w-4xl">
+              <PublicProofStrip />
+            </div>
+          </div>
+        )}
 
         <ThreeDoorSection />
 
@@ -318,7 +288,7 @@ const Index = () => {
             <Link
               to="/apply/rookie"
               onClick={onPrimaryTap}
-              className="btn-gradient mt-7 inline-flex items-center justify-center gap-2 px-8"
+              className="btn-purple mt-7 inline-flex items-center justify-center gap-2 px-8"
             >
               Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
