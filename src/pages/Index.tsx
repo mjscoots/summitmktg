@@ -128,13 +128,7 @@ const Index = () => {
           <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={34} className="h-7 w-auto sm:h-[34px]" />
           </Link>
-          <div className="flex items-center gap-0.5 sm:gap-2">
-            <Link to="/industries/pest" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary sm:px-3">
-              Pest
-            </Link>
-            <Link to="/industries/fiber" className="inline-flex min-h-11 items-center px-2.5 text-sm text-text-secondary sm:px-3">
-              Fiber
-            </Link>
+          <div className="flex items-center">
             <Link to="/login" className="public-link inline-flex min-h-11 items-center px-3 text-sm font-semibold">
               Sign in
             </Link>
@@ -169,7 +163,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* The ticker band: offices, the live counters and the lanes. */}
+        {/* The ticker band: offices, live counters and three industries. */}
         <CoverTicker />
 
         {COVER_STATS && (
