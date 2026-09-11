@@ -695,7 +695,7 @@ button, a, [role="button"] {
     button, a[role="button"], [role="tab"], select, summary {
       min-height: 44px;
     }
-    button.h-auto, a.h-auto { min-height: 0; }
+    button[class~='h-auto'], a[class~='h-auto'] { min-height: 0; }
   }
 
   /* Skeleton loader: one low-cost transform-only highlight. */

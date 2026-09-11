@@ -4125,7 +4125,7 @@ At 390px, the cover keeps its single-column actions and bottom-aligned range; `p
 ### Verification
 
 - `tsgo --noEmit -p tsconfig.app.json`: clean.
-- `npm run build`: clean. The only reported CSS minifier warnings come from pre-existing Tailwind generation around `!h-auto` SVG utilities and are unrelated to Pass 177 motion.
+- `npm run build`: clean.
 - Shell gzip: entry JS 16,461 bytes, below the 16.5 KB reference and with no growth over 3 KB; entry CSS 29,655 bytes.
 - Baselines read back unchanged: profiles 536, chat_messages 715, applications 13.
 - No new copy was introduced. No em dash or emoji was added by Pass 177.
