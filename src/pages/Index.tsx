@@ -183,7 +183,7 @@ const Index = () => {
                 <p className="cover-support mt-6 max-w-[60ch] text-base leading-relaxed text-text-secondary sm:text-lg">
                   A performance-based path through sales, training, and team leadership.
                 </p>
-              </div>
+
 
               {/* Space for both actions is reserved so the late pay scale read
                   cannot shift the hero. */}
