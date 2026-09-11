@@ -191,13 +191,12 @@ const Index = () => {
             />
           )}
           <div className="relative z-10 mx-auto flex min-h-[calc(100svh-69px)] max-w-6xl flex-col justify-between pb-16 pt-10 sm:pb-20 md:pb-24">
-            <Wordmark
-              variant="hero"
-              height={72}
-              animate={!intro}
-              className={settled && intro ? 'cover-opening-in' : undefined}
-              data-opening-hidden={!settled}
-            />
+            <span
+              className={settled && intro ? 'cover-opening-in inline-block' : 'inline-block'}
+              data-opening-hidden={intro && !settled ? 'true' : undefined}
+            >
+              <Wordmark variant="hero" height={72} animate={!intro} />
+            </span>
             <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-14">
               <div className="max-w-4xl">
                 <h1
@@ -218,7 +217,9 @@ const Index = () => {
 
               {/* Space for both actions is reserved so the late pay scale read
                   cannot shift the hero. */}
-              <div className="cover-actions mt-9 flex min-h-[112px] w-full max-w-xl flex-col items-start gap-4 sm:min-h-12 sm:flex-row sm:items-center">
+              <div
+                data-opening-hidden={intro && !settled ? 'true' : undefined}
+                className="cover-actions mt-9 flex min-h-[112px] w-full max-w-xl flex-col items-start gap-4 sm:min-h-12 sm:flex-row sm:items-center">
                 <Button asChild className="primary-sheen magnetic min-h-12 w-full overflow-hidden px-8 font-bold sm:w-auto">
                   <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
                 </Button>
