@@ -17,6 +17,7 @@ import { KnockDoor } from '@/components/recruiting/KnockDoor';
 import { FindYourDoor } from '@/components/recruiting/FindYourDoor';
 import { YearStrip } from '@/components/recruiting/YearStrip';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
+import { LogoBurst, shouldRunIntro } from '@/components/brand/LogoBurst';
 
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
@@ -45,6 +46,15 @@ const Index = () => {
   const [active, setActive] = useState('work');
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
   const navRef = useRef<HTMLDivElement | null>(null);
+  // Pass 180: the opening runs once per session and only with motion allowed.
+  const headlineRef = useRef<HTMLHeadingElement | null>(null);
+  const [intro] = useState(() => shouldRunIntro());
+  const [headlineVisible, setHeadlineVisible] = useState(true);
+  const [settled, setSettled] = useState(() => !shouldRunIntro());
+  // Scroll progress over the first 70vh, which drives the headline sweep.
+  const [heroProgress, setHeroProgress] = useState(0);
+  const onHeadlineVisible = useCallback((visible: boolean) => setHeadlineVisible(visible), []);
+  const onSettled = useCallback(() => setSettled(true), []);
   usePublicMotion();
 
   const hasPublishedBands = Boolean(calc?.pay_scale?.bands?.length);
@@ -61,6 +71,7 @@ const Index = () => {
         : document.documentElement.scrollHeight - window.innerHeight;
       const progress = total > 0 ? Math.min(1, Math.max(0, y / total)) : 0;
       setScrolled(y > 40);
+      setHeroProgress(Math.min(1, Math.max(0, y / (window.innerHeight * 0.7))));
       setPastHero(y > window.innerHeight * 0.7);
       setDay(reduceMotion ? 0.35 : 0.35 + progress * 0.65);
       // The climb reaches the summit as the final Apply band comes into view.
@@ -170,12 +181,32 @@ const Index = () => {
 
       <main className="relative flex-1">
         {/* Hero: full viewport, lockup top left, headline in the lower third. */}
-        <section className="public-cover relative isolate px-5 sm:px-6">
+        <section className={`public-cover relative isolate px-5 sm:px-6${intro ? ' cover-opening' : ''}`}>
+          {intro && (
+            <LogoBurst
+              headlineRef={headlineRef}
+              progress={heroProgress}
+              onHeadlineVisible={onHeadlineVisible}
+              onSettled={onSettled}
+            />
+          )}
           <div className="relative z-10 mx-auto flex min-h-[calc(100svh-69px)] max-w-6xl flex-col justify-between pb-16 pt-10 sm:pb-20 md:pb-24">
-            <Wordmark variant="hero" height={72} animate />
+            <Wordmark
+              variant="hero"
+              height={72}
+              animate={!intro}
+              className={settled && intro ? 'cover-opening-in' : undefined}
+              data-opening-hidden={!settled}
+            />
             <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-14">
               <div className="max-w-4xl">
-                <h1 className="cover-headline font-display font-bold text-foreground">
+                <h1
+                  ref={headlineRef}
+                  className="cover-headline text-foreground"
+                  data-hidden={!headlineVisible}
+                  data-fade="true"
+                  style={intro ? undefined : { opacity: Math.max(0, 1 - heroProgress * heroProgress) }}
+                >
                   <span className="cover-headline-line">Financial freedom.</span>
                   <span className="cover-headline-line">Done differently.</span>
                 </h1>
