@@ -1978,8 +1978,20 @@ html[data-appearance='light'] .btn-gradient {
 .cover-redact[data-redact='true'] > span { opacity: 0; transition: none; }
 .cover-redact[data-redact='true']::after { opacity: 1; transition: none; }
 
+/* Pass 183: everything under the headline rises 12px once the burst settles,
+   one after another on the 60ms stagger. Transform and opacity only. */
+.cover-rise {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity var(--motion-base) var(--motion-ease-out) calc(var(--rise, 0) * var(--motion-stagger)),
+    transform var(--motion-base) var(--motion-ease-out) calc(var(--rise, 0) * var(--motion-stagger));
+}
+.cover-rise[data-in='true'] { opacity: 1; transform: none; }
+
 .cover-headline[data-hidden='true'] { opacity: 0; }
 .cover-headline[data-fade='true'] { transition: opacity var(--motion-fast) linear; }
+
 .cover-opening [data-opening-hidden='true'] { opacity: 0 !important; animation: none !important; }
 .cover-opening-in { animation: wordmark-rise var(--motion-base) var(--motion-ease-out) both; }
 
