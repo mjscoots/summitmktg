@@ -36,7 +36,7 @@ export const TEXT_SIZES: { key: TextSize; label: string }[] = [
 
 /** Own bubble tint, as raw H S L so CSS can add its own alpha. */
 export const BUBBLE_HSL: Record<BubbleColor, string | null> = {
-  workspace: null, // falls back to the workspace accent already on the page
+  workspace: '221 100% 62%', // blue, the secondary of the system
   classic: '142 62% 38%',
 };
 

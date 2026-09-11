@@ -1042,14 +1042,14 @@ body {
    PASS 75 - chat bubbles, ranks, mission tiles
    ───────────────────────────────────────────────────────────── */
 @layer components {
-  /* Flat bubbles: workspace accent for self, neutral surface for others. */
+  /* Flat bubbles: blue for self, surface elevated for others. */
   .bubble-own {
-    background: hsl(var(--chat-bubble, var(--workspace-accent)));
+    background: hsl(var(--chat-bubble, var(--ice)));
     border: 0;
-    color: hsl(var(--primary-foreground));
+    color: #FFFFFF;
   }
   .bubble-other {
-    background: hsl(var(--card));
+    background: hsl(var(--surface-elevated));
     border: 0;
     color: hsl(var(--foreground));
   }
