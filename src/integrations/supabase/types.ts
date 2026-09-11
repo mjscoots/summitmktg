@@ -484,10 +484,12 @@ export type Database = {
           application_type: string
           city_state: string
           created_at: string | null
+          earnings_goal: string | null
           email: string
           first_touch_at: string | null
           full_name: string
           id: string
+          interested_in: string[] | null
           notes: string | null
           partner_id: string | null
           phone: string
@@ -496,6 +498,7 @@ export type Database = {
           referrer_user_id: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          sales_style: string | null
           source_code: string | null
           source_type: string
           status: string
@@ -506,10 +509,12 @@ export type Database = {
           application_type: string
           city_state: string
           created_at?: string | null
+          earnings_goal?: string | null
           email: string
           first_touch_at?: string | null
           full_name: string
           id?: string
+          interested_in?: string[] | null
           notes?: string | null
           partner_id?: string | null
           phone: string
@@ -518,6 +523,7 @@ export type Database = {
           referrer_user_id?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          sales_style?: string | null
           source_code?: string | null
           source_type?: string
           status?: string
@@ -528,10 +534,12 @@ export type Database = {
           application_type?: string
           city_state?: string
           created_at?: string | null
+          earnings_goal?: string | null
           email?: string
           first_touch_at?: string | null
           full_name?: string
           id?: string
+          interested_in?: string[] | null
           notes?: string | null
           partner_id?: string | null
           phone?: string
@@ -540,6 +548,7 @@ export type Database = {
           referrer_user_id?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          sales_style?: string | null
           source_code?: string | null
           source_type?: string
           status?: string
