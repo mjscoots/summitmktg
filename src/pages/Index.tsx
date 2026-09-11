@@ -50,7 +50,7 @@ const Index = () => {
   const headlineRef = useRef<HTMLHeadingElement | null>(null);
   const [intro] = useState(() => shouldRunIntro());
   const [headlineVisible, setHeadlineVisible] = useState(true);
-  const [settled, setSettled] = useState(() => !shouldRunIntro());
+  const [settled, setSettled] = useState(() => !intro);
   // Scroll progress over the first 70vh, which drives the headline sweep.
   const [heroProgress, setHeroProgress] = useState(0);
   const onHeadlineVisible = useCallback((visible: boolean) => setHeadlineVisible(visible), []);
