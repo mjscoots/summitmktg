@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect, useRef } from "react";
 
 /**
  * Pass 175 - the Trinity range.
@@ -22,6 +22,8 @@ interface MountainRangeProps {
   className?: string;
   /** 0 to 1. The faint version behind the Home hero uses 0.3. */
   opacity?: number;
+  animate?: boolean;
+  pointerParallax?: boolean;
 }
 
 /**
@@ -29,14 +31,45 @@ interface MountainRangeProps {
  * the SVG keeps its aspect and is scaled with preserveAspectRatio "xMidYMax
  * slice", so the outer ridges crop away and the tall centre peak stays in view.
  */
-function MountainRangeBase({ className, opacity = 1 }: MountainRangeProps) {
+function MountainRangeBase({ className, opacity = 1, animate = false, pointerParallax = false }: MountainRangeProps) {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  useEffect(() => {
+    if (!pointerParallax || window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.matchMedia('(hover: none)').matches) return;
+    const svg = svgRef.current;
+    if (!svg) return;
+    let targetX = 0;
+    let targetY = 0;
+    let x = 0;
+    let y = 0;
+    let frame = 0;
+    const move = (event: PointerEvent) => {
+      targetX = (event.clientX / window.innerWidth - 0.5) * 2;
+      targetY = (event.clientY / window.innerHeight - 0.5) * 2;
+    };
+    const tick = () => {
+      x += (targetX - x) * 0.08;
+      y += (targetY - y) * 0.08;
+      svg.style.setProperty('--range-pointer-x', x.toFixed(3));
+      svg.style.setProperty('--range-pointer-y', y.toFixed(3));
+      frame = requestAnimationFrame(tick);
+    };
+    window.addEventListener('pointermove', move, { passive: true });
+    frame = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener('pointermove', move);
+      cancelAnimationFrame(frame);
+    };
+  }, [pointerParallax]);
+
   return (
     <svg
+      ref={svgRef}
       viewBox="0 0 1440 600"
       preserveAspectRatio="xMidYMax slice"
       aria-hidden="true"
       focusable="false"
-      className={className}
+      className={`${className ?? ''} ${animate ? 'mountain-settle' : ''} ${pointerParallax ? 'mountain-pointer' : ''}`}
       style={{ display: "block", width: "100%", height: "100%", opacity }}
     >
       <defs>
@@ -46,7 +79,7 @@ function MountainRangeBase({ className, opacity = 1 }: MountainRangeProps) {
         </linearGradient>
       </defs>
       {RIDGES.map((d, i) => (
-        <path key={i} d={d} fill={`var(--range-${i + 1})`} />
+        <path key={i} className="mountain-layer" d={d} fill={`var(--range-${i + 1})`} style={{ '--range-depth': i + 1 } as React.CSSProperties} />
       ))}
       <rect x="0" y="370" width="1440" height="230" fill="url(#trnty-haze)" />
     </svg>
