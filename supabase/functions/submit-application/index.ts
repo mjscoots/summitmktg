@@ -26,6 +26,9 @@ function getCorsHeaders(origin: string | null) {
 const REJECTED = "That did not go through. Check the phone and email and try again.";
 const TOO_MANY = "Too many tries. Wait an hour and try again.";
 
+const INTERESTS = ["Pest control", "Fiber internet", "Life insurance", "Not sure yet"];
+const STYLES = ["In person sales", "Remote sales", "Either"];
+
 const cap = (value: unknown, max: number) => {
   const text = String(value ?? "").trim();
   return text ? text.slice(0, max) : "";
@@ -60,6 +63,16 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const yearsExperience = yearsRaw ? Number(yearsRaw) : null;
 
     if (!fullName || !email || !phone || !cityState) return reject();
+
+    // Pass 186: what they told us they want. Blank goes over as null and any
+    // value outside the allowed lists is dropped rather than stored.
+    const rawInterests = Array.isArray(body.interested_in) ? body.interested_in : [];
+    const interestedIn = rawInterests
+      .map((v: unknown) => cap(v, 40))
+      .filter((v: string) => INTERESTS.includes(v));
+    const styleCandidate = cap(body.sales_style, 40);
+    const salesStyle = STYLES.includes(styleCandidate) ? styleCandidate : null;
+    const earningsGoal = cap(body.earnings_goal, 120) || null;
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -106,6 +119,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
       source_code: cap(body.source_code, 60) || null,
       referrer_user_id: cap(body.referrer_user_id, 60) || null,
       partner_id: cap(body.partner_id, 60) || null,
+      interested_in: interestedIn.length ? interestedIn : null,
+      sales_style: salesStyle,
+      earnings_goal: earningsGoal,
     });
     if (error) {
       console.error("application insert failed:", error.message);

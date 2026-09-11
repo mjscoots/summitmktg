@@ -1898,35 +1898,6 @@ html[data-appearance='light'] .btn-gradient {
 /* Links stay plain: the colour is the only signal. */
 .public-link { position: relative; color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
 
-/* Find your door */
-.qual-card {
-  border-radius: 12px;
-  transition: opacity var(--motion-base) var(--motion-ease-out),
-    transform var(--motion-base) var(--motion-ease-out);
-}
-.qual-hold { opacity: 0.55; transform: translateY(12px); }
-.qual-in { opacity: 1; transform: translateY(0); }
-.qual-choice {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  width: 100%;
-  padding: 0 1rem;
-  border-radius: 10px;
-  font-size: 0.9375rem;
-  color: hsl(var(--foreground));
-  background: hsl(var(--surface-elevated));
-  border: 0;
-  transition: background-color var(--motion-base) var(--motion-ease-out),
-    transform var(--motion-base) var(--motion-ease-out);
-}
-.qual-choice-on {
-  background: hsl(var(--foreground));
-  color: #000000;
-  transform: scale(1.02);
-}
-
 /* Home number flip */
 .number-flip {
   animation: number-flip var(--motion-base) var(--motion-ease-out) both;
@@ -1948,10 +1919,7 @@ html[data-appearance='light'] .btn-gradient {
 .cover-rise[data-in='true'] { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .qual-card,
-  .qual-choice,
   .btn-gradient { transition: none !important; }
-  .qual-hold { transform: none; }
   .number-flip { animation-duration: 1ms !important; }
   .ridgeline-mark path { fill-opacity: 1 !important; }
   .cover-rise { opacity: 1 !important; transform: none !important; transition: none !important; }
@@ -2325,7 +2293,6 @@ html[data-appearance='light'] .btn-gradient {
 .public-world[data-world='light'] .gradient-text { color: #6D3BFF; -webkit-text-fill-color: #6D3BFF; }
 .public-world[data-world='light'] .proof-underline::after,
 .public-world[data-world='light'] .door-lane::after { background: #6D3BFF; }
-.public-world[data-world='light'] .qual-choice-on { background: #6D3BFF; color: #FFFFFF; }
 .public-world[data-world='light'] .public-link { color: #000000; }
 .public-world[data-world='light'] .cover-ticker-dot { background: #6E7288; }
 
@@ -2337,4 +2304,123 @@ html[data-appearance='light'] .btn-gradient {
   .cover-statement-copy .reveal-clip > * { animation: none !important; opacity: 1 !important; transform: none !important; }
   .pen-line-wipe { animation: none !important; transform: scaleX(1) !important; }
   .btn-purple { transition: none !important; }
+}
+
+/* -------------------------------------------------------------------------
+   Pass 186: the three questions, as a sheet and as a plain section.
+   ------------------------------------------------------------------------- */
+.ask-layer { position: fixed; inset: 0; z-index: 60; }
+
+.ask-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  animation: ask-fade 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ask-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 88%;
+  overflow-y: auto;
+  border-radius: 24px 24px 0 0;
+  background: #ffffff;
+  color: #0A0A0F;
+  padding: 28px 20px calc(24px + env(safe-area-inset-bottom));
+  animation: ask-rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (min-width: 640px) {
+  .ask-sheet {
+    left: 50%;
+    right: auto;
+    bottom: 5vh;
+    width: 520px;
+    height: auto;
+    max-height: 80vh;
+    transform: translateX(-50%);
+    border-radius: 20px;
+    padding: 32px 28px;
+    animation: ask-rise-card 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+.ask-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: #50546A;
+}
+
+.ask-body { margin-top: 28px; }
+@media (min-width: 640px) { .ask-body { margin-top: 8px; } }
+
+.ask-step { animation: ask-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+.ask-question {
+  font-family: Archivo, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  line-height: 1.05;
+  text-align: center;
+  color: #0A0A0F;
+}
+
+.ask-choice {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border: 1px solid #E4E4EC;
+  border-radius: 12px;
+  background: #F5F5F8;
+  color: #0A0A0F;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1), color 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ask-choice:active { transform: scale(0.97); }
+.ask-choice-on { background: #6D3BFF; border-color: #6D3BFF; color: #ffffff; }
+
+.ask-input {
+  display: block;
+  width: 100%;
+  min-height: 56px;
+  border: 1px solid #E4E4EC;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0A0A0F;
+  padding: 0 14px;
+  font-size: 16px;
+}
+.ask-input::placeholder { color: #6E7288; }
+
+.ask-done { animation: ask-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.ask-line { text-align: center; font-weight: 700; font-size: 1.125rem; color: #0A0A0F; }
+
+@keyframes ask-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ask-rise { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes ask-rise-card {
+  from { transform: translateX(-50%) translateY(24px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@keyframes ask-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ask-scrim,
+  .ask-sheet,
+  .ask-step,
+  .ask-done { animation: none !important; }
+  .ask-sheet { transform: none; }
+  @media (min-width: 640px) { .ask-sheet { transform: translateX(-50%); } }
+  .ask-choice { transition: none !important; }
 }

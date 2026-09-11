@@ -11,7 +11,7 @@ import { COVER_STATS } from "@/lib/coverStats";
 import { RidgelineMark } from '@/components/brand/RidgelineMark';
 import { usePublicMotion } from '@/hooks/usePublicMotion';
 import { useCoverMedia } from '@/hooks/useCoverMedia';
-import { FindYourDoor } from '@/components/recruiting/FindYourDoor';
+import { AskSheet, AskSection } from '@/components/recruiting/AskSheet';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
 import { PenLine } from '@/components/brand/PenLine';
@@ -136,6 +136,8 @@ const Index = () => {
         </nav>
       </header>
 
+      <AskSheet watchId="statement" />
+
       <main className="relative flex-1">
         {/* Screen one: only the assembled logo in the dark world. */}
         <section ref={heroRef} className="cover-open relative isolate px-5 sm:px-6">
@@ -144,7 +146,7 @@ const Index = () => {
         </section>
 
         {/* Screen two: the statement never shares space with the logo. */}
-        <section className="cover-statement public-section relative isolate flex min-h-[100svh] items-center px-5 py-20 text-center sm:px-6">
+        <section id="statement" className="cover-statement public-section relative isolate flex min-h-[100svh] items-center px-5 py-20 text-center sm:px-6">
           <div className="cover-statement-copy mx-auto w-full max-w-6xl" data-in={worldLight ? 'true' : 'false'}>
             <h1 className="cover-headline">
               <span className="reveal-clip"><span className="cover-line-blue block">EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.</span></span>
@@ -176,15 +178,8 @@ const Index = () => {
 
         <ThreeDoorSection />
 
-        {/* Find your door: three taps to the right application */}
-        <section id="find" className="public-section px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
-          <h2 className="section-title mx-auto max-w-4xl text-foreground">
-            <span className="reveal-clip"><span>Find your door</span></span>
-          </h2>
-          <div className="mt-10">
-            <FindYourDoor />
-          </div>
-        </section>
+        {/* The three questions, in the page for anyone who closed the sheet. */}
+        <AskSection />
 
         {/* Final band */}
         <section

@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Users, Target, Trophy, TrendingUp, Settings, Mou
 import { VideoPlayer } from "@/components/VideoPlayer";
 import VetCalculator, { VetCalculatorValues } from "@/components/VetCalculator";
 import IndustryStep, { useApplicationSource } from "@/components/apply/IndustryStep";
+import WantsStep, { useWants } from "@/components/apply/WantsStep";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { setPageMeta } from "@/lib/pageMeta";
@@ -33,7 +34,7 @@ const VetApplication = () => {
     setPageMeta({
       title: "Apply as a Veteran - Trinity Sales",
       description:
-        "Apply to run a summer season with Trinity as an experienced sales rep.",
+        "Apply to sell with Trinity as an experienced sales rep. Pest control, fiber internet or life insurance.",
       path: "/apply/veteran",
     });
   }, []);
@@ -44,6 +45,7 @@ const VetApplication = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const { vertical, setVertical, source } = useApplicationSource();
+  const wants = useWants();
   const [verticalError, setVerticalError] = useState<string | undefined>();
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
@@ -101,7 +103,7 @@ const VetApplication = () => {
         phone: "Phone Number",
         cityState: "City, State",
         lastSeasonRevenue: "Last Season Revenue",
-        intendedMarket: "Previously Knocked Markets",
+        intendedMarket: "Markets you have worked",
         referralName: "Who told you about Trinity",
       };
       return `${fieldLabels[field]} is required`;
@@ -188,6 +190,7 @@ const VetApplication = () => {
           phone: formData.phone.trim(),
           city_state: formData.cityState.trim(),
           referral_source: formData.referralName.trim(),
+          ...wants.payload(),
           previous_company: formData.intendedMarket.trim(),
           years_experience: formData.lastSeasonRevenue.replace(/[^0-9]/g, ''),
           vertical: vertical === "unsure" ? null : vertical,
@@ -431,14 +434,14 @@ const VetApplication = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Previously knocked markets<RequiredAsterisk />
+                  Markets you have worked<RequiredAsterisk />
                 </label>
                 <input
                   type="text"
                   value={formData.intendedMarket}
                   onChange={(e) => updateField("intendedMarket", e.target.value)}
                   onBlur={() => handleBlur("intendedMarket")}
-                  placeholder="List the markets you've knocked before (city/state)"
+                  placeholder="List the markets you have worked before (city/state)"
                   className={`input-field ${touched.intendedMarket && errors.intendedMarket ? 'border-destructive' : ''}`}
                   required
                 />
@@ -448,6 +451,8 @@ const VetApplication = () => {
               </div>
               </div>
             </section>
+
+            <WantsStep wants={wants} />
 
             <section className="public-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-extrabold text-foreground">How you heard about us</h2>

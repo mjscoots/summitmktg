@@ -70,20 +70,20 @@ export default function IndustryPage() {
           <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-foreground">
             <ArrowLeft className="w-4 h-4" /> Back home
           </Link>
-          <p className="micro-label text-primary">Coming soon</p>
+          <p className="micro-label text-primary">Life insurance</p>
           <h1 className="mt-3 text-3xl md:text-5xl font-black tracking-tight text-foreground">Trinity Life</h1>
           <p className="mt-4 text-base text-muted-foreground">
-            Life insurance. The career product for reps who want off the doors. Requires a state
-            license to sell.
+            Life insurance. One of our three industries, alongside pest control and fiber internet.
+            Requires a state license to sell.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
-            This path is still being set up. Leave your details and we will reach out when it opens.
+            Leave your details and a manager will walk you through the licensing step.
           </p>
           <Link
             to="/apply/rookie?vertical=Life"
             className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Tell me when <ArrowRight className="w-4 h-4" />
+            Get in <ArrowRight className="w-4 h-4" />
           </Link>
         </main>
       </div>

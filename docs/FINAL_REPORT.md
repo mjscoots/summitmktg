@@ -4951,3 +4951,60 @@ JS, down 10 bytes from Pass 184, and 31,602 bytes of CSS, up 219 bytes from Pass
 Read-only baselines are unchanged: profiles 536, chat_messages 716, applications
 13, earnings_goals 0. No data writes, permission changes, deployments, or
 publishing occurred.
+
+## Pass 186: the question sheet and the application that asks what they want
+
+### The sheet
+New `src/components/recruiting/AskSheet.tsx` replaces `FindYourDoor` (file deleted, its CSS block removed from `src/index.css`).
+
+Trigger: an IntersectionObserver on the statement screen (`#statement`). 1,500ms after it is fully in view, or immediately once it has mostly scrolled off the top, whichever lands first. One rise per visit.
+
+Measured at 390 x 844: sheet 390 wide, 743 tall (88 percent of the viewport), 24px top radius, pinned to the bottom, scrim rgba(0,0,0,0.3).
+Measured at 1280 x 900: centred card 520 wide, 304 tall, radius 20.
+
+Questions and answers, verbatim, one at a time, Archivo 800 at clamp(1.5rem, 5vw, 2.5rem), answers 56px tall filling #6D3BFF with white text on select, next question sliding in from the right over 280ms:
+1. Have you done sales before? - Yes / No
+2. Do you think you would be good at it? - Yes / Not sure / I want to find out
+3. Where are you located? - free text, 16px input
+
+On the third answer: one line, You are in the right place., and one purple Get in button.
+
+Routing table, both observed in the browser:
+- Yes -> /apply/veteran?sales=yes&good=unsure&market=Boise%2C+ID&vertical=
+- No -> /apply/rookie?sales=no&good=find_out&market=Provo%2C+UT&vertical=
+
+market lands in the City, State field of the form (observed: Provo, UT). sales and good are stored nowhere; they only pick the route. vertical is carried empty.
+
+Close behaviour: X button, tap on the scrim, swipe down over 80px on touch, Escape. Any close writes sessionStorage key `trnty_ask_seen` = 1; a reload in the same session did not show the sheet again (dialog count 0). Focus moves into the sheet on open, Tab and Shift Tab cycle inside it, focus returns to the previous element on close.
+
+Nothing is lost for a visitor who closed it: the same three questions live in the page where Find your door was, titled Three questions. (`#ask`, observed title and first question).
+
+Reduced motion: the sheet appears with no rise, no step slide and no scrim fade; all three questions and the routing were verified working at 390 with reduced motion on.
+
+### The application asks what they want
+New `src/components/apply/WantsStep.tsx`, rendered in both `RookieApplication.tsx` and `VetApplication.tsx` after the contact fields and before the referral field:
+- What are you most interested in? (one or more) - Pest control, Fiber internet, Life insurance, Not sure yet
+- In person or remote? - In person sales, Remote sales, Either
+- What is your earnings goal for your first year? - one line, placeholder Your number, no suggested figures
+
+Migration added three nullable columns to public.applications. Read back from information_schema: `earnings_goal` text, `interested_in` ARRAY (text[]), `sales_style` text.
+
+`submit-application` accepts the three fields, sends null when blank, drops any interest outside the four allowed values and any style outside the three, and was redeployed successfully after the change (deploy confirmed this run, 2026-09-11 UTC).
+
+Insert path proved inside a transaction: one rookie row with interested_in ARRAY['Pest control','Life insurance'], sales_style Either, earnings_goal Your number, then ROLLBACK. The applications count after rollback is 13.
+
+Staff view (`AdminApplicationsTab.tsx`): under the existing referral line reviewers now see Interested in, In person or remote and Earnings goal; blank answers render nothing. Copy Info includes the same three lines when present.
+
+### Copy scrub
+- `src/components/apply/IndustryStep.tsx`: Live / Off season lane / Coming replaced with Homes and businesses, in person / Homes, in person / Families, licensed; Life is no longer disabled.
+- `src/components/recruiting/FindYourDoor.tsx`: deleted (contained the off season lane comment and the seasonal routing).
+- `src/index.css`: the Find your door block and its reduced motion and light world rules removed.
+- `src/pages/IndustryPage.tsx`: Coming soon label became Life insurance; the copy now reads as one of three industries; still being set up replaced with the licensing line; Tell me when became Get in.
+- `src/pages/VetApplication.tsx`: Previously knocked markets became Markets you have worked (label, error label and placeholder); the page description no longer frames the season as summer only.
+- `src/pages/RookieApplication.tsx`: the page description no longer frames the season as summer only.
+- Reviewed and left alone: the app side workspace copy (not the public site), WinbackTab Coming back (a call outcome), and the verified production ticker lines (historical results, not season framing).
+
+### Build and baselines
+Typecheck clean. Production build clean in 10.53s. Shell gzip: JS 16.41 kB, CSS 32.07 kB (Pass 185: JS 16.38 kB, CSS 31.60 kB).
+Baselines unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
+No em dashes and no emoji in the added lines. The site was not published.
