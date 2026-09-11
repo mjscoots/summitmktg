@@ -2,8 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Display face Space Grotesk and body Inter load from Google Fonts in index.html
-   with display swap; Inter is also self-hosted through @fontsource. */
+/* Pass 180: display face Instrument Serif (Regular and Italic) and body face
+   Geist (400, 500, 600) load from Google Fonts in index.html with display swap
+   and a system fallback. Palette V5 is warm ink with one ember accent. */
 
 html, body, #root {
   overflow-x: hidden;
@@ -217,10 +218,10 @@ html, body, #root {
     --sidebar-border: 37 24% 85%;
     --sidebar-ring: 17 82% 38%;
 
-    --wordmark-bg: #FFFFFF;
-    --wordmark-accent: #547E07;
-    --wordmark-outline: #0A0F1A;
-    --wordmark-letters: #0A0F1A;
+    --wordmark-bg: #F7F3EC;
+    --wordmark-accent: #B23E12;
+    --wordmark-outline: #141210;
+    --wordmark-letters: #141210;
   }
 
 
@@ -293,7 +294,7 @@ html, body, #root {
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
     font-size: 15px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -315,8 +316,8 @@ html, body, #root {
     color: hsl(var(--text-primary));
   }
 
-  h1 { font-family: 'Geist', 'DM Sans', system-ui, sans-serif; font-weight: 800; font-size: 2rem; line-height: 1.12; }
-  h2 { font-family: 'Geist', 'DM Sans', system-ui, sans-serif; font-weight: 700; font-size: 1.5rem; line-height: 1.2; }
+  h1 { font-family: 'Geist', 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 2rem; line-height: 1.12; }
+  h2 { font-family: 'Geist', 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 1.5rem; line-height: 1.2; }
   h3 { font-size: 1.25rem; line-height: 1.3; font-weight: 600; }
   h4 { font-size: 1rem; line-height: 1.35; font-weight: 600; }
   @media (min-width: 768px) {
@@ -460,30 +461,30 @@ html, body, #root {
 
 /* ━━━ WORDMARK DEFAULTS - public site and login ━━━ */
 :root {
-  --wordmark-bg: #070A10;
-  --wordmark-accent: #B4F53B;
-  --wordmark-outline: #FFFFFF;
-  --wordmark-letters: #FFFFFF;
+  --wordmark-bg: #0C0B0A;
+  --wordmark-accent: #F2673A;
+  --wordmark-outline: #F4EFE6;
+  --wordmark-letters: #F4EFE6;
 
-  /* The range, far to near, on the dark base. */
-  --range-1: #16233D;
-  --range-2: #121D33;
-  --range-3: #0E1729;
-  --range-4: #0B1220;
-  --range-5: #080D17;
+  /* The range, far to near, on the warm ink base. */
+  --range-1: #2A231E;
+  --range-2: #221C18;
+  --range-3: #1A1512;
+  --range-4: #14100E;
+  --range-5: #0F0C0A;
 }
 
 html[data-appearance='light'] {
-  --wordmark-bg: #FFFFFF;
-  --wordmark-accent: #547E07;
-  --wordmark-outline: #0A0F1A;
-  --wordmark-letters: #0A0F1A;
+  --wordmark-bg: #F7F3EC;
+  --wordmark-accent: #B23E12;
+  --wordmark-outline: #141210;
+  --wordmark-letters: #141210;
 
-  --range-1: #DCE4F2;
-  --range-2: #E2E9F4;
-  --range-3: #E8EDF6;
-  --range-4: #EEF1F7;
-  --range-5: #F3F5F8;
+  --range-1: #E6DED2;
+  --range-2: #EAE3D8;
+  --range-3: #EEE8DE;
+  --range-4: #F2EEE5;
+  --range-5: #F7F3EC;
 }
 
 
@@ -1008,7 +1009,9 @@ body {
   }
 
   .font-display {
-    font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
+    font-family: 'Instrument Serif', 'Geist', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
   }
 
   /* Mono removes the shine sweep: the class is kept as a no-op. */
@@ -1781,7 +1784,7 @@ html[data-appearance='light'] .public-auth {
 .cover-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(7, 10, 16, 0.4);
+  background: rgba(12, 11, 10, 0.4);
 }
 .public-world > header,
 .public-world > main,
@@ -1791,17 +1794,23 @@ html[data-appearance='light'] .public-auth {
 .public-section { background: hsl(var(--surface) / 0.92); }
 
 .cover-headline {
-  font-size: clamp(3rem, 9.5vw, 7.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
+  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(3.25rem, 10vw, 8rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
 }
+.cover-headline-line:nth-child(2) { font-style: italic; }
 .section-title {
+  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
+  font-weight: 400;
   font-size: clamp(2rem, 5vw, 4rem);
   line-height: 1.04;
+  letter-spacing: -0.02em;
 }
 .cover-bignum {
-  font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
-  font-weight: 700;
+  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
+  font-weight: 400;
   font-size: clamp(3rem, 8vw, 6rem);
   line-height: 1;
   font-variant-numeric: tabular-nums;
