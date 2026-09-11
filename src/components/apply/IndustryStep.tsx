@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { captureSourceFromUrl, ORGANIC, type SourceAttribution } from '@/lib/source';
 
 export const INDUSTRY_OPTIONS = [
-  { value: 'Pest', label: 'Pest control', line: 'Live', disabled: false },
-  { value: 'Fiber', label: 'Fiber internet', line: 'Off season lane', disabled: false },
-  { value: 'Life', label: 'Life insurance', line: 'Coming', disabled: true },
+  { value: 'Pest', label: 'Pest control', line: 'Homes and businesses, in person', disabled: false },
+  { value: 'Fiber', label: 'Fiber internet', line: 'Homes, in person', disabled: false },
+  { value: 'Life', label: 'Life insurance', line: 'Families, licensed', disabled: false },
 ] as const;
 
 /** Reads ?vertical= and ?ref= once on mount and resolves the source attribution. */
