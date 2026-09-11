@@ -116,7 +116,7 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
     primaryDeep: '220 39% 5%',
     primaryForeground: '0 0% 100%',
     workspaceAccent: '223 100% 56%',
-    wordmark: { bg: '#FFFFFF', accent: '#7BAF12', outline: '#FFFFFF', letters: '#070A10' },
+    wordmark: { bg: '#FFFFFF', accent: '#547E07', outline: '#FFFFFF', letters: '#070A10' },
     texture: 'none',
     textureSize: 'auto',
   },

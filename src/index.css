@@ -74,6 +74,7 @@ html, body, #root {
 
     /* ━━━ ICE ACCENT - links, focus, active tab, progress only ━━━ */
     --ice: 221 100% 62%;
+    --bubble-blue: 221 100% 46%;
     --primary-soft: 221 100% 62% / 0.12;
     --primary-muted: 200 60% 76%;
     --primary-glow: 221 100% 62%;
@@ -180,6 +181,7 @@ html, body, #root {
     --text-muted: 218 11% 54%;
 
     --ice: 223 100% 56%;
+    --bubble-blue: 221 100% 46%;
     --primary-soft: 223 100% 56% / 0.1;
     --primary-muted: 200 45% 34%;
     --primary-glow: 223 100% 56%;
@@ -211,7 +213,7 @@ html, body, #root {
     --sidebar-ring: 223 100% 56%;
 
     --wordmark-bg: #FFFFFF;
-    --wordmark-accent: #7BAF12;
+    --wordmark-accent: #547E07;
     --wordmark-outline: #0A0F1A;
     --wordmark-letters: #0A0F1A;
   }
@@ -468,7 +470,7 @@ html, body, #root {
 
 html[data-appearance='light'] {
   --wordmark-bg: #FFFFFF;
-  --wordmark-accent: #7BAF12;
+  --wordmark-accent: #547E07;
   --wordmark-outline: #0A0F1A;
   --wordmark-letters: #0A0F1A;
 
@@ -1044,7 +1046,7 @@ body {
 @layer components {
   /* Flat bubbles: blue for self, surface elevated for others. */
   .bubble-own {
-    background: hsl(var(--chat-bubble, var(--ice)));
+    background: hsl(var(--chat-bubble, var(--bubble-blue)));
     border: 0;
     color: #FFFFFF;
   }
