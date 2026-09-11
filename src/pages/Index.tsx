@@ -179,7 +179,9 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="cover-actions mt-9 flex w-full max-w-xl flex-col items-start gap-4 sm:flex-row sm:items-center">
+              {/* Space for both actions is reserved so the late pay scale read
+                  cannot shift the hero. */}
+              <div className="cover-actions mt-9 flex min-h-[112px] w-full max-w-xl flex-col items-start gap-4 sm:min-h-12 sm:flex-row sm:items-center">
                 <Button asChild className="primary-sheen magnetic min-h-12 w-full overflow-hidden px-8 font-bold sm:w-auto">
                   <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
                 </Button>
