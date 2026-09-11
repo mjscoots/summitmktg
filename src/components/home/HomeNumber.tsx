@@ -1,5 +1,6 @@
 import { useHomeNumber } from '@/hooks/useHomeNumber';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CountUp } from '@/components/shared/CountUp';
 
 /**
  * The figure a home opens on, above the hero. When the person saved a goal in
@@ -15,7 +16,7 @@ export function HomeNumber({ vertical }: { vertical: string }) {
     <section aria-label={label}>
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-1 text-[44px] font-bold leading-none tracking-tight tabular-nums text-foreground">
-        {value}
+        {typeof value === 'number' ? <CountUp value={value} duration={700} /> : value}
       </p>
       {season !== null && (
         <p className="mt-2 text-[13px] text-muted-foreground">

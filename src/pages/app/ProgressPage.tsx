@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useMyPoints } from '@/hooks/useMyPoints';
 import { supabase } from '@/integrations/supabase/client';
+import { CountUp } from '@/components/shared/CountUp';
 
 export default function ProgressPage() {
   const { user } = useAuth();
@@ -34,7 +35,7 @@ export default function ProgressPage() {
           <section className="grid grid-cols-2 gap-8" aria-label="Progress figures">
             <div>
               <p className="text-[13px] text-muted-foreground">Streak</p>
-              <p className="mt-1 text-3xl font-semibold tabular-nums text-foreground">{data?.currentStreak ?? 0}</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums text-foreground"><CountUp value={data?.currentStreak ?? 0} duration={700} /></p>
             </div>
             <div>
               <p className="text-[13px] text-muted-foreground">Points this week</p>

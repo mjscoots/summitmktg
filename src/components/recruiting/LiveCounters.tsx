@@ -1,4 +1,26 @@
+import { useEffect, useRef, useState } from 'react';
 import { usePublicCounters } from '@/hooks/usePublicRecruiting';
+import { CountUp } from '@/components/shared/CountUp';
+
+function ProofNumber({ value }: { value: number }) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting) return;
+      setVisible(true);
+      observer.disconnect();
+    }, { threshold: 0.2 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  return <span ref={ref}>{visible ? <CountUp value={value} duration={900} /> : '0'}</span>;
+}
 
 interface LiveCountersProps {
   /** 'inline' for the cover hero, 'section' for the recruiting page */
@@ -65,7 +87,7 @@ export function PublicProofStrip() {
       <div className="mx-auto flex max-w-6xl flex-wrap gap-x-10 gap-y-4">
         {items.map((item) => (
           <p key={item.label} className="text-sm text-muted-foreground">
-            <strong className="mr-2 text-2xl font-bold tabular-nums text-foreground">{item.value.toLocaleString()}</strong>
+            <strong className="mr-2 text-2xl font-bold tabular-nums text-foreground"><ProofNumber value={item.value} /></strong>
             {item.label}
           </p>
         ))}

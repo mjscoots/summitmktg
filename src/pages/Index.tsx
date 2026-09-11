@@ -10,6 +10,8 @@ import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
 import { usePublicCalc } from "@/hooks/usePublicCalc";
 import { Button } from "@/components/ui/button";
 import { COVER_STATS } from "@/lib/coverStats";
+import { RidgelineMark } from '@/components/brand/RidgelineMark';
+import { usePublicMotion } from '@/hooks/usePublicMotion';
 
 const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
 
@@ -37,6 +39,8 @@ const Index = () => {
   const navigate = useNavigate();
   const calc = usePublicCalc();
   const [offset, setOffset] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  usePublicMotion();
 
   // Slow parallax on the range, off under prefers-reduced-motion.
   useEffect(() => {
@@ -46,6 +50,7 @@ const Index = () => {
     const onScroll = () => {
       const y = el ? el.scrollTop : window.scrollY;
       setOffset(y * 0.15);
+      setScrolled(y > 40);
     };
     target.addEventListener('scroll', onScroll, { passive: true });
     return () => target.removeEventListener('scroll', onScroll);
@@ -59,7 +64,7 @@ const Index = () => {
 
   return (
     <div className="gold-world public-world min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-30 bg-background/85 backdrop-blur-xl">
+      <header className={`public-nav sticky top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 sm:px-6">
           <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={26} />
@@ -86,22 +91,23 @@ const Index = () => {
             style={{ transform: `translateY(${offset}px)` }}
             aria-hidden="true"
           >
-            <MountainRange />
+            <MountainRange animate pointerParallax />
           </div>
           <div className="relative z-10 mx-auto flex min-h-[min(760px,calc(100svh-69px))] max-w-6xl flex-col justify-end pb-16 pt-24 sm:pb-20 md:pb-24 md:pt-32">
             <div className="max-w-4xl">
-              <Wordmark variant="hero" height={72} className="mb-8" />
+              <Wordmark variant="hero" height={72} className="mb-8" animate />
               <h1 className="font-display font-bold !text-[clamp(2.25rem,8vw,5rem)] !leading-[1.02] tracking-tight text-foreground">
-                Financial freedom.<br />Done differently.
+                <span className="cover-headline-line">Financial freedom.</span>
+                <span className="cover-headline-line">Done differently.</span>
               </h1>
               {COVER_STATS && <PublicProofStrip />}
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
+              <p className="cover-support mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
                 A performance-based path through sales, training, and team leadership.
               </p>
             </div>
 
-            <div className="mt-9 flex w-full max-w-xl flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <Button asChild className="min-h-12 w-full px-8 font-bold sm:w-auto">
+            <div className="cover-actions mt-9 flex w-full max-w-xl flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <Button asChild className="primary-sheen min-h-12 w-full overflow-hidden px-8 font-bold sm:w-auto">
                 <Link to="/apply/rookie">Apply <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
               </Button>
               {hasPublishedBands && (
@@ -124,7 +130,7 @@ const Index = () => {
         <ThreeDoorSection />
 
         {/* What the work is */}
-        <section className="bg-surface px-5 py-16 sm:px-6 md:py-24">
+        <section className="public-reveal bg-surface px-5 py-16 sm:px-6 md:py-24" data-reveal>
           <h2 className="sr-only">What the work is</h2>
           <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3 md:gap-12">
             {WHAT_WE_DO.map((c, index) => (
@@ -142,7 +148,7 @@ const Index = () => {
 
         {/* Calculator, still gated on a published pay scale */}
         {hasPublishedBands && (
-          <section id="earnings" className="scroll-mt-20 px-5 py-16 sm:px-6 md:py-24">
+          <section id="earnings" className="public-reveal scroll-mt-20 px-5 py-16 sm:px-6 md:py-24" data-reveal>
             <div className="mx-auto max-w-3xl">
               <h2 className="text-center text-2xl font-bold tracking-tight text-foreground md:text-3xl">
                 Estimate your earnings
@@ -160,7 +166,7 @@ const Index = () => {
         )}
 
         {/* How the season works */}
-        <section className="px-5 py-16 sm:px-6 md:py-24">
+        <section className="public-reveal px-5 py-16 sm:px-6 md:py-24" data-reveal>
           <div className="mx-auto max-w-4xl">
             <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
               How the season works
@@ -178,7 +184,7 @@ const Index = () => {
         </section>
 
         {/* Final band */}
-        <section className="public-cta relative overflow-hidden bg-surface px-5 py-16 text-center sm:px-6 md:py-24">
+        <section className="public-cta public-reveal relative overflow-hidden bg-surface px-5 py-16 text-center sm:px-6 md:py-24" data-reveal>
           <div className="relative z-10 mx-auto max-w-xl">
             <Wordmark variant="hero" height={96} className="mx-auto" />
             <p className="mt-6 text-base text-text-secondary">Applications take a few minutes.</p>
@@ -195,10 +201,10 @@ const Index = () => {
         </section>
       </main>
 
-      <footer className="py-8">
+      <footer className="public-reveal py-8" data-reveal>
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 sm:flex-row sm:justify-between sm:px-6">
           <div className="flex items-center gap-3">
-            <Wordmark variant="mark" height={26} />
+            <RidgelineMark size={26} />
             <div>
               <p className="text-sm font-semibold text-foreground">Trinity Sales</p>
               <p className="text-xs text-text-muted">© 2026</p>

@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle } from "lucide-react";
+import { RidgelineMark } from '@/components/brand/RidgelineMark';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -86,6 +87,7 @@ const AuthPage = () => {
 
         {/* Header */}
         <div className="text-center mb-7">
+          <RidgelineMark size={42} className="mx-auto mb-3 text-primary" />
           <div className="mx-auto mb-5 flex w-full max-w-[280px] justify-center">
             <Wordmark variant="heroMono" height={84} />
           </div>

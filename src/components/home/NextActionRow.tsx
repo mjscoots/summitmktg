@@ -13,7 +13,7 @@ export function NextActionRow() {
     <button
       type="button"
       onClick={() => navigate(action.to)}
-      className="flex min-h-11 w-full items-center gap-3 rounded-[var(--radius)] bg-card px-4 py-3 text-left transition-colors hover:bg-secondary"
+      className="next-action-in flex min-h-11 w-full items-center gap-3 rounded-[var(--radius)] bg-card px-4 py-3 text-left transition-colors hover:bg-secondary"
     >
       <span className="flex-1 text-[14px] text-foreground">{action.text}</span>
       <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
