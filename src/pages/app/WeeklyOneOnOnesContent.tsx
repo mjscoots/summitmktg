@@ -58,7 +58,7 @@ export default function WeeklyOneOnOnesContent() {
               onClick={() => navigate('/app/one-on-ones/prep')}
             >
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -84,7 +84,7 @@ export default function WeeklyOneOnOnesContent() {
               onClick={() => navigate('/app/one-on-ones/prep?mode=manager')}
             >
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
                   <UserCheck className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">

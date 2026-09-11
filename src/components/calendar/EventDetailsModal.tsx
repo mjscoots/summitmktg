@@ -169,8 +169,8 @@ export function EventDetailsModal({
                     <span className={cn(
                       "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase flex items-center gap-1",
                       remote
-                        ? "bg-[hsl(270,60%,50%)]/15 text-[hsl(270,60%,65%)]"
-                        : "bg-[hsl(25,90%,55%)]/15 text-[hsl(25,90%,60%)]"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-warning/15 text-warning"
                     )}>
                       {remote ? <Video className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
                       {remote ? 'Remote' : 'In Person'}

@@ -6,8 +6,8 @@ import { RIDGES } from './MountainRange';
  *
  * A canvas scene for the public cover only. It reuses the five ridgeline paths
  * from MountainRange (Path2D on the same 1440 x 600 box, xMid / yMax slice) and
- * adds atmosphere: three drifting mist bands, a slow blue light band behind the
- * tallest peak, a sparse rising particle field and a lime horizon line that
+ * adds atmosphere: three drifting mist bands, a slow warm light band behind the
+ * tallest peak, a sparse rising particle field and an ember horizon line that
  * draws in once along the crest of the far ridge.
  *
  * Time of day is a scalar 0 to 1. Zero is the night base, one lifts the sky and
@@ -25,25 +25,25 @@ const INTRO_MS = 1500;
 const HORIZON_MS = 1200;
 const HORIZON_LEN = 4200;
 
-const SKY_NIGHT = [7, 10, 16];
-const SKY_DAWN = [11, 18, 36];
+const SKY_NIGHT = [12, 11, 10];
+const SKY_DAWN = [30, 22, 18];
 
 /** Far to near, matching --range-1 .. --range-5. */
 const RIDGE_NIGHT = [
-  [28, 43, 73],
-  [21, 34, 58],
-  [16, 26, 45],
-  [12, 19, 33],
-  [8, 13, 23],
+  [42, 35, 30],
+  [34, 28, 24],
+  [26, 21, 18],
+  [20, 16, 14],
+  [15, 12, 10],
 ];
 
 /** One step brighter with a blue lean, reached at time of day 1. */
 const RIDGE_DAWN = [
-  [52, 76, 124],
-  [38, 57, 95],
-  [27, 42, 71],
-  [18, 29, 50],
-  [11, 18, 31],
+  [66, 54, 44],
+  [52, 42, 35],
+  [40, 32, 27],
+  [30, 24, 20],
+  [22, 18, 15],
 ];
 
 function mix(a: number[], b: number[], t: number): string {
@@ -70,7 +70,7 @@ interface MountainSceneProps {
   /** Desktop pointer parallax. Never runs on touch or reduced motion. */
   pointerParallax?: boolean;
   /**
-   * Pass 179 - the climb. 0 puts the lime marker at the left foot of the far
+   * Pass 179 - the climb. 0 puts the ember marker at the left foot of the far
    * ridge, 1 puts it on the summit. Undefined hides the marker.
    */
   climb?: number;
@@ -172,18 +172,20 @@ function MountainSceneBase({
 
       mist = [0, 1, 2].map((i) => {
         const g = ctx.createLinearGradient(0, 0, width, 0);
-        g.addColorStop(0, 'rgba(180,200,230,0)');
-        g.addColorStop(0.35, `rgba(180,200,230,${0.05 + i * 0.012})`);
-        g.addColorStop(0.65, `rgba(180,200,230,${0.04 + i * 0.012})`);
-        g.addColorStop(1, 'rgba(180,200,230,0)');
+        g.addColorStop(0, 'rgba(230,214,190,0)');
+        g.addColorStop(0.35, `rgba(230,214,190,${0.05 + i * 0.012})`);
+        g.addColorStop(0.65, `rgba(230,214,190,${0.04 + i * 0.012})`);
+        g.addColorStop(1, 'rgba(230,214,190,0)');
         return g;
       });
 
       const peakX = tx + 720 * scale;
       const peakY = ty + 150 * scale;
       glow = ctx.createRadialGradient(peakX, peakY, 0, peakX, peakY, Math.max(width, height) * 0.55);
-      glow.addColorStop(0, 'rgba(61,123,255,1)');
-      glow.addColorStop(1, 'rgba(61,123,255,0)');
+      // Dawn gold lives only inside the canvas scene, never in the interface.
+      glow.addColorStop(0, 'rgba(245,185,75,1)');
+      glow.addColorStop(0.55, 'rgba(242,103,58,0.5)');
+      glow.addColorStop(1, 'rgba(242,103,58,0)');
     };
 
     let px = 0;
@@ -231,7 +233,7 @@ function MountainSceneBase({
           if (p.x < -4) p.x = width + 4;
           if (p.x > width + 4) p.x = -4;
           ctx.globalAlpha = p.lime ? 0.25 : 0.15;
-          ctx.fillStyle = p.lime ? '#B4F53B' : '#FFFFFF';
+          ctx.fillStyle = p.lime ? '#F2673A' : '#F5B94B';
           ctx.beginPath();
           ctx.arc(p.x + px * p.depth * 3, p.y + py * p.depth * 3, p.r, 0, Math.PI * 2);
           ctx.fill();
@@ -249,9 +251,9 @@ function MountainSceneBase({
         ctx.fill(paths[i]);
 
         if (i === 0) {
-          // The lime crest draws in once over 1.2 seconds.
+          // The ember crest draws in once over 1.2 seconds.
           const p = reduceMotion ? 1 : Math.min(1, elapsed / HORIZON_MS);
-          ctx.strokeStyle = 'rgba(180,245,59,0.5)';
+          ctx.strokeStyle = 'rgba(242,103,58,0.5)';
           ctx.lineWidth = 1 / scale;
           ctx.setLineDash([HORIZON_LEN, HORIZON_LEN]);
           ctx.lineDashOffset = HORIZON_LEN * (1 - p);
@@ -291,11 +293,11 @@ function MountainSceneBase({
         const mxp = tx + px * 1.2 + point.x * scale;
         const myp = ty + py * 1.2 + point.y * scale;
         const halo = ctx.createRadialGradient(mxp, myp, 0, mxp, myp, 22);
-        halo.addColorStop(0, 'rgba(180,245,59,0.35)');
-        halo.addColorStop(1, 'rgba(180,245,59,0)');
+        halo.addColorStop(0, 'rgba(242,103,58,0.35)');
+        halo.addColorStop(1, 'rgba(242,103,58,0)');
         ctx.fillStyle = halo;
         ctx.fillRect(mxp - 22, myp - 22, 44, 44);
-        ctx.fillStyle = '#B4F53B';
+        ctx.fillStyle = '#F2673A';
         ctx.beginPath();
         ctx.arc(mxp, myp, 3.5, 0, Math.PI * 2);
         ctx.fill();
@@ -308,7 +310,7 @@ function MountainSceneBase({
           const t = (now - r.start) / RIPPLE_MS;
           const eased = 1 - Math.pow(1 - t, 3);
           ctx.globalAlpha = 0.22 * (1 - t);
-          ctx.strokeStyle = '#B4F53B';
+          ctx.strokeStyle = '#F2673A';
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.arc(r.x, r.y, 8 + eased * 180, 0, Math.PI * 2);

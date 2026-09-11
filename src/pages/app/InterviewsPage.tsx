@@ -108,7 +108,7 @@ export default function InterviewsPage() {
                 >
                   {/* Number Badge (dark blue) + Title */}
                   <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-bold text-lg">{card.number}</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -148,7 +148,7 @@ export default function InterviewsPage() {
                   { num: 3, text: 'Final decision and onboarding' },
                 ].map((item) => (
                   <div key={item.num} className="flex items-center gap-3 text-sm">
-                    <div className="w-6 h-6 rounded bg-[hsl(217,91%,15%)] flex items-center justify-center flex-shrink-0">
+                    <div className="w-6 h-6 rounded bg-primary/15 flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-semibold text-xs">{item.num}</span>
                     </div>
                     <span className="text-foreground">Interview {item.num}</span>

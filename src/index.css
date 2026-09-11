@@ -2,8 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Display face Space Grotesk and body Inter load from Google Fonts in index.html
-   with display swap; Inter is also self-hosted through @fontsource. */
+/* Pass 180: display face Instrument Serif (Regular and Italic) and body face
+   Geist (400, 500, 600) load from Google Fonts in index.html with display swap
+   and a system fallback. Palette V5 is warm ink with one ember accent. */
 
 html, body, #root {
   overflow-x: hidden;
@@ -13,40 +14,40 @@ html, body, #root {
 @layer base {
   :root {
     /* ━━━ MONO SYSTEM - near-black surfaces, bright white outlines ━━━ */
-    --background: 220 39% 5%;
-    --foreground: 210 44% 96%;
+    --background: 30 9% 4%;
+    --foreground: 39 39% 93%;
 
-    --card: 219 35% 8%;
-    --card-foreground: 210 44% 96%;
+    --card: 30 11% 7%;
+    --card-foreground: 39 39% 93%;
 
-    --popover: 219 35% 8%;
-    --popover-foreground: 210 44% 96%;
+    --popover: 30 11% 7%;
+    --popover-foreground: 39 39% 93%;
 
     /* Primary action is white on near-black */
-    --primary: 81 90% 60%;
-    --primary-foreground: 220 39% 5%;
+    --primary: 15 88% 59%;
+    --primary-foreground: 30 9% 4%;
 
-    --secondary: 218 33% 11%;
-    --secondary-foreground: 210 44% 96%;
+    --secondary: 30 12% 10%;
+    --secondary-foreground: 39 39% 93%;
 
-    --muted: 218 33% 11%;
-    --muted-foreground: 215 12% 49%;
+    --muted: 30 12% 10%;
+    --muted-foreground: 33 8% 50%;
 
-    --accent: 81 90% 60%;
-    --accent-foreground: 220 39% 5%;
+    --accent: 15 88% 59%;
+    --accent-foreground: 30 9% 4%;
 
     --destructive: 358 100% 68%;
-    --destructive-foreground: 220 39% 5%;
+    --destructive-foreground: 30 9% 4%;
 
-    --success: 81 90% 60%;
-    --success-foreground: 220 39% 5%;
+    --success: 15 88% 59%;
+    --success-foreground: 30 9% 4%;
 
     --warning: 42 100% 47%;
-    --warning-foreground: 220 39% 5%;
+    --warning-foreground: 30 9% 4%;
 
-    --border: 215 27% 16%;
-    --input: 218 33% 11%;
-    --ring: 221 100% 62%;
+    --border: 30 11% 15%;
+    --input: 30 12% 10%;
+    --ring: 15 88% 59%;
 
     /* Radius, elevation, motion */
     --radius: 0.75rem;
@@ -64,44 +65,44 @@ html, body, #root {
     --motion-ease: var(--motion-ease-out);
 
     /* ━━━ SURFACE LAYERS ━━━ */
-    --surface: 219 35% 8%;
-    --surface-elevated: 218 33% 11%;
-    --surface-sunken: 222 40% 4%;
+    --surface: 30 11% 7%;
+    --surface-elevated: 30 12% 10%;
+    --surface-sunken: 30 10% 3%;
 
     /* ━━━ BORDER LAYERS ━━━ */
-    --border-subtle: 215 27% 16%;
-    --border-strong: 216 25% 22%;
+    --border-subtle: 30 11% 15%;
+    --border-strong: 30 9% 21%;
 
     /* ━━━ TEXT HIERARCHY ━━━ */
-    --text-primary: 210 44% 96%;
-    --text-secondary: 216 18% 71%;
-    --text-muted: 215 12% 49%;
+    --text-primary: 39 39% 93%;
+    --text-secondary: 37 13% 66%;
+    --text-muted: 33 8% 50%;
 
     /* ━━━ ICE ACCENT - links, focus, active tab, progress only ━━━ */
-    --ice: 221 100% 62%;
-    --bubble-blue: 221 100% 46%;
-    --primary-soft: 221 100% 62% / 0.12;
-    --primary-muted: 200 60% 76%;
-    --primary-glow: 221 100% 62%;
-    --primary-deep: 210 44% 96%;
+    --ice: 15 88% 59%;
+    --bubble-blue: 15 75% 41%;
+    --primary-soft: 15 88% 59% / 0.12;
+    --primary-muted: 37 13% 66%;
+    --primary-glow: 15 88% 59%;
+    --primary-deep: 39 39% 93%;
 
     /* Workspace identity accent - wordmark, active tab, focus ring */
-    --workspace-accent: 221 100% 62%;
+    --workspace-accent: 15 88% 59%;
 
     /* Fiber mint, for the rollover card shown inside other workspaces */
-    --fiber-mint: 81 90% 60%;
+    --fiber-mint: 15 88% 59%;
 
 
     /* Role accents follow the one accent */
-    --rookie-accent: 221 100% 62%;
-    --rookie-glow: 221 100% 62%;
-    --manager-accent: 221 100% 62%;
-    --manager-glow: 221 100% 62%;
+    --rookie-accent: 15 88% 59%;
+    --rookie-glow: 15 88% 59%;
+    --manager-accent: 15 88% 59%;
+    --manager-glow: 15 88% 59%;
 
     /* Surfaces kept flat where glass tokens are still referenced */
-    --glass-bg: 219 35% 8%;
-    --glass-border: 215 27% 16%;
-    --glass-glow: 221 100% 62% / 0;
+    --glass-bg: 30 11% 7%;
+    --glass-border: 30 11% 15%;
+    --glass-glow: 15 88% 59% / 0;
 
     /* No gradients and no glow in Mono: these resolve to flat surfaces. */
     --gradient-ice: hsl(var(--ice));
@@ -112,29 +113,29 @@ html, body, #root {
     --glow-ice: none;
 
     /* Sidebar */
-    --sidebar-background: 222 40% 4%;
-    --sidebar-foreground: 216 18% 71%;
-    --sidebar-primary: 221 100% 62%;
-    --sidebar-primary-foreground: 220 39% 5%;
-    --sidebar-accent: 218 33% 11%;
-    --sidebar-accent-foreground: 210 44% 96%;
-    --sidebar-border: 215 27% 16%;
-    --sidebar-ring: 221 100% 62%;
+    --sidebar-background: 30 10% 3%;
+    --sidebar-foreground: 37 13% 66%;
+    --sidebar-primary: 15 88% 59%;
+    --sidebar-primary-foreground: 30 9% 4%;
+    --sidebar-accent: 30 12% 10%;
+    --sidebar-accent-foreground: 39 39% 93%;
+    --sidebar-border: 30 11% 15%;
+    --sidebar-ring: 15 88% 59%;
 
   }
 
   /* Rookie and manager themes share the one ice accent */
   .theme-rookie,
   .theme-manager {
-    --primary: 81 90% 60%;
-    --accent: 81 90% 60%;
-    --ring: 221 100% 62%;
+    --primary: 15 88% 59%;
+    --accent: 15 88% 59%;
+    --ring: 15 88% 59%;
   }
 
   .dark,
   .light {
-    --background: 220 39% 5%;
-    --foreground: 210 44% 96%;
+    --background: 30 9% 4%;
+    --foreground: 39 39% 93%;
   }
 
   /* ━━━ LIGHT APPEARANCE - the same Mono system in daylight values.
@@ -144,63 +145,63 @@ html, body, #root {
   html[data-appearance='light'] .light,
   html[data-appearance='light'] .dark,
   html[data-appearance='light'] .gold-world {
-    --background: 0 0% 100%;
-    --foreground: 221 44% 7%;
+    --background: 38 41% 95%;
+    --foreground: 30 11% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 221 44% 7%;
+    --card-foreground: 30 11% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 221 44% 7%;
+    --popover-foreground: 30 11% 7%;
 
-    --primary: 221 44% 7%;
-    --primary-foreground: 81 90% 60%;
-    --accent: 221 44% 7%;
-    --accent-foreground: 81 90% 60%;
+    --primary: 30 11% 7%;
+    --primary-foreground: 38 41% 95%;
+    --accent: 30 11% 7%;
+    --accent-foreground: 38 41% 95%;
 
-    --secondary: 216 26% 96%;
-    --secondary-foreground: 221 44% 7%;
-    --muted: 216 26% 96%;
-    --muted-foreground: 218 11% 54%;
+    --secondary: 36 32% 91%;
+    --secondary-foreground: 30 11% 7%;
+    --muted: 36 32% 91%;
+    --muted-foreground: 33 9% 40%;
 
     --destructive: 358 72% 48%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 81 70% 34%;
-    --success-foreground: 0 0% 100%;
+    --destructive-foreground: 38 41% 95%;
+    --success: 17 82% 38%;
+    --success-foreground: 38 41% 95%;
     --warning: 38 95% 40%;
-    --warning-foreground: 0 0% 100%;
+    --warning-foreground: 38 41% 95%;
 
-    --border: 216 21% 91%;
+    --border: 37 24% 85%;
     --input: 0 0% 100%;
-    --ring: 223 100% 56%;
+    --ring: 17 82% 38%;
 
-    --shadow-lift: 0 1px 2px rgba(16, 24, 40, 0.08);
+    --shadow-lift: 0 1px 2px rgba(20, 18, 16, 0.08);
 
-    --surface: 0 0% 100%;
+    --surface: 36 32% 91%;
     --surface-elevated: 0 0% 100%;
-    --surface-sunken: 216 26% 96%;
-    --border-subtle: 216 21% 91%;
-    --border-strong: 216 21% 85%;
+    --surface-sunken: 36 32% 91%;
+    --border-subtle: 37 24% 85%;
+    --border-strong: 37 24% 80%;
 
-    --text-primary: 221 44% 7%;
-    --text-secondary: 218 15% 35%;
-    --text-muted: 218 11% 54%;
+    --text-primary: 30 11% 7%;
+    --text-secondary: 34 8% 33%;
+    --text-muted: 33 9% 40%;
 
-    --ice: 223 100% 56%;
-    --bubble-blue: 221 100% 46%;
-    --primary-soft: 223 100% 56% / 0.1;
-    --primary-muted: 200 45% 34%;
-    --primary-glow: 223 100% 56%;
-    --primary-deep: 221 44% 7%;
-    --workspace-accent: 223 100% 56%;
-    --fiber-mint: 81 70% 34%;
+    --ice: 17 82% 38%;
+    --bubble-blue: 15 75% 41%;
+    --primary-soft: 17 82% 38% / 0.1;
+    --primary-muted: 34 8% 33%;
+    --primary-glow: 17 82% 38%;
+    --primary-deep: 30 11% 7%;
+    --workspace-accent: 17 82% 38%;
+    --fiber-mint: 17 82% 38%;
 
-    --rookie-accent: 223 100% 56%;
-    --rookie-glow: 223 100% 56%;
-    --manager-accent: 223 100% 56%;
-    --manager-glow: 223 100% 56%;
+    --rookie-accent: 17 82% 38%;
+    --rookie-glow: 17 82% 38%;
+    --manager-accent: 17 82% 38%;
+    --manager-glow: 17 82% 38%;
 
     --glass-bg: 0 0% 100%;
-    --glass-border: 216 21% 91%;
+    --glass-border: 37 24% 85%;
 
     --gradient-ice: hsl(var(--ice));
     --gradient-hero: hsl(var(--surface));
@@ -208,68 +209,68 @@ html, body, #root {
     --gradient-gold: hsl(var(--primary));
     --gradient-surface: hsl(var(--surface));
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 218 15% 35%;
-    --sidebar-primary: 223 100% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 216 26% 96%;
-    --sidebar-accent-foreground: 221 44% 7%;
-    --sidebar-border: 216 21% 91%;
-    --sidebar-ring: 223 100% 56%;
+    --sidebar-background: 38 41% 95%;
+    --sidebar-foreground: 34 8% 33%;
+    --sidebar-primary: 17 82% 38%;
+    --sidebar-primary-foreground: 38 41% 95%;
+    --sidebar-accent: 36 32% 91%;
+    --sidebar-accent-foreground: 30 11% 7%;
+    --sidebar-border: 37 24% 85%;
+    --sidebar-ring: 17 82% 38%;
 
-    --wordmark-bg: #FFFFFF;
-    --wordmark-accent: #547E07;
-    --wordmark-outline: #0A0F1A;
-    --wordmark-letters: #0A0F1A;
+    --wordmark-bg: #F7F3EC;
+    --wordmark-accent: #B23E12;
+    --wordmark-outline: #141210;
+    --wordmark-letters: #141210;
   }
 
 
   /* ━━━ PUBLIC WORLD - outward-facing pages (cover, recruiting, applications).
      The same Mono palette; the public site stays dark. ━━━ */
   .gold-world {
-    --background: 220 39% 5%;
-    --foreground: 210 44% 96%;
+    --background: 30 9% 4%;
+    --foreground: 39 39% 93%;
 
-    --card: 219 35% 8%;
-    --card-foreground: 210 44% 96%;
-    --popover: 219 35% 8%;
-    --popover-foreground: 210 44% 96%;
+    --card: 30 11% 7%;
+    --card-foreground: 39 39% 93%;
+    --popover: 30 11% 7%;
+    --popover-foreground: 39 39% 93%;
 
-    --primary: 81 90% 60%;
-    --primary-foreground: 220 39% 5%;
-    --accent: 81 90% 60%;
-    --accent-foreground: 220 39% 5%;
-    --ring: 221 100% 62%;
+    --primary: 15 88% 59%;
+    --primary-foreground: 30 9% 4%;
+    --accent: 15 88% 59%;
+    --accent-foreground: 30 9% 4%;
+    --ring: 15 88% 59%;
 
-    --secondary: 218 33% 11%;
-    --secondary-foreground: 210 44% 96%;
-    --muted: 218 33% 11%;
-    --muted-foreground: 215 12% 49%;
+    --secondary: 30 12% 10%;
+    --secondary-foreground: 39 39% 93%;
+    --muted: 30 12% 10%;
+    --muted-foreground: 33 8% 50%;
 
-    --success: 81 90% 60%;
-    --success-foreground: 220 39% 5%;
+    --success: 15 88% 59%;
+    --success-foreground: 30 9% 4%;
 
-    --border: 215 27% 16%;
-    --input: 218 33% 11%;
+    --border: 30 11% 15%;
+    --input: 30 12% 10%;
 
-    --surface: 219 35% 8%;
-    --surface-elevated: 218 33% 11%;
-    --surface-sunken: 222 40% 4%;
-    --border-subtle: 215 27% 16%;
-    --border-strong: 216 25% 22%;
+    --surface: 30 11% 7%;
+    --surface-elevated: 30 12% 10%;
+    --surface-sunken: 30 10% 3%;
+    --border-subtle: 30 11% 15%;
+    --border-strong: 30 9% 21%;
 
-    --text-primary: 210 44% 96%;
-    --text-secondary: 216 18% 71%;
-    --text-muted: 215 12% 49%;
+    --text-primary: 39 39% 93%;
+    --text-secondary: 37 13% 66%;
+    --text-muted: 33 8% 50%;
 
-    --primary-soft: 221 100% 62% / 0.12;
-    --primary-muted: 200 60% 76%;
-    --primary-glow: 221 100% 62%;
-    --primary-deep: 210 44% 96%;
+    --primary-soft: 15 88% 59% / 0.12;
+    --primary-muted: 37 13% 66%;
+    --primary-glow: 15 88% 59%;
+    --primary-deep: 39 39% 93%;
 
-    --glass-bg: 219 35% 8%;
-    --glass-border: 215 27% 16%;
-    --glass-glow: 221 100% 62% / 0;
+    --glass-bg: 30 11% 7%;
+    --glass-border: 30 11% 15%;
+    --glass-glow: 15 88% 59% / 0;
 
     --gradient-primary: hsl(var(--primary));
     --gradient-gold: hsl(var(--primary));
@@ -293,7 +294,7 @@ html, body, #root {
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
     font-size: 15px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -315,8 +316,8 @@ html, body, #root {
     color: hsl(var(--text-primary));
   }
 
-  h1 { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-weight: 800; font-size: 2rem; line-height: 1.12; }
-  h2 { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 1.5rem; line-height: 1.2; }
+  h1 { font-family: 'Geist', 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 2rem; line-height: 1.12; }
+  h2 { font-family: 'Geist', 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 1.5rem; line-height: 1.2; }
   h3 { font-size: 1.25rem; line-height: 1.3; font-weight: 600; }
   h4 { font-size: 1rem; line-height: 1.35; font-weight: 600; }
   @media (min-width: 768px) {
@@ -335,7 +336,7 @@ html, body, #root {
   /* Scrollbar styling - thin, dark, blue thumb */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(221 100% 62% / 0.28) transparent;
+    scrollbar-color: hsl(15 88% 59% / 0.28) transparent;
   }
   *::-webkit-scrollbar {
     width: 8px;
@@ -351,7 +352,7 @@ html, body, #root {
     background-clip: content-box;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: hsl(221 100% 62% / 0.55);
+    background: hsl(15 88% 59% / 0.55);
     background-clip: content-box;
   }
 }
@@ -370,7 +371,7 @@ html, body, #root {
   }
 
   .font-chat-display {
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
     letter-spacing: -0.01em;
   }
 
@@ -460,30 +461,30 @@ html, body, #root {
 
 /* ━━━ WORDMARK DEFAULTS - public site and login ━━━ */
 :root {
-  --wordmark-bg: #070A10;
-  --wordmark-accent: #B4F53B;
-  --wordmark-outline: #FFFFFF;
-  --wordmark-letters: #FFFFFF;
+  --wordmark-bg: #0C0B0A;
+  --wordmark-accent: #F2673A;
+  --wordmark-outline: #F4EFE6;
+  --wordmark-letters: #F4EFE6;
 
-  /* The range, far to near, on the dark base. */
-  --range-1: #16233D;
-  --range-2: #121D33;
-  --range-3: #0E1729;
-  --range-4: #0B1220;
-  --range-5: #080D17;
+  /* The range, far to near, on the warm ink base. */
+  --range-1: #2A231E;
+  --range-2: #221C18;
+  --range-3: #1A1512;
+  --range-4: #14100E;
+  --range-5: #0F0C0A;
 }
 
 html[data-appearance='light'] {
-  --wordmark-bg: #FFFFFF;
-  --wordmark-accent: #547E07;
-  --wordmark-outline: #0A0F1A;
-  --wordmark-letters: #0A0F1A;
+  --wordmark-bg: #F7F3EC;
+  --wordmark-accent: #B23E12;
+  --wordmark-outline: #141210;
+  --wordmark-letters: #141210;
 
-  --range-1: #DCE4F2;
-  --range-2: #E2E9F4;
-  --range-3: #E8EDF6;
-  --range-4: #EEF1F7;
-  --range-5: #F3F5F8;
+  --range-1: #E6DED2;
+  --range-2: #EAE3D8;
+  --range-3: #EEE8DE;
+  --range-4: #F2EEE5;
+  --range-5: #F7F3EC;
 }
 
 
@@ -1003,12 +1004,14 @@ body {
   /* Numbers use the display face, tabular */
   .stat-num,
   .stat-value {
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-family: 'Geist', 'DM Sans', system-ui, sans-serif;
     font-variant-numeric: tabular-nums;
   }
 
   .font-display {
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-family: 'Instrument Serif', 'Geist', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
   }
 
   /* Mono removes the shine sweep: the class is kept as a no-op. */
@@ -1243,9 +1246,9 @@ body {
 @layer components {
   .public-world,
   .public-auth {
-    --primary: 81 90% 60%;
-    --primary-foreground: 220 39% 5%;
-    --primary-glow: 221 100% 62%;
+    --primary: 15 88% 59%;
+    --primary-foreground: 30 9% 4%;
+    --primary-glow: 15 88% 59%;
   }
 
   .public-cover, .public-auth, .public-cta { background: hsl(var(--background)); }
@@ -1307,8 +1310,8 @@ body {
    ───────────────────────────────────────────────────────────── */
 html[data-appearance='light'] .public-world,
 html[data-appearance='light'] .public-auth {
-  --primary: 221 44% 7%;
-  --primary-foreground: 81 90% 60%;
+  --primary: 30 11% 7%;
+  --primary-foreground: 15 88% 59%;
   --primary-glow: 199 92% 38%;
 }
 
@@ -1548,9 +1551,17 @@ html[data-appearance='light'] .public-auth {
 }
 .ridgeline-mark { color: hsl(var(--primary)); }
 .ridgeline-mark path { stroke-dasharray: 180; stroke-dashoffset: 0; }
+/* Pass 180: the silhouette fills from base to peak behind the drawn outline.
+   fill-opacity is the one property here that is not transform or opacity,
+   because an SVG fill cannot be revealed any other way without a second node. */
+@keyframes ridgeline-fill {
+  0%, 40% { fill-opacity: 0; }
+  100% { fill-opacity: 1; }
+}
 .ridgeline-mark-draw path {
   animation: ridgeline-draw var(--motion-hero) var(--motion-ease-out) both,
-    ridgeline-glow var(--motion-hero) var(--motion-ease-out) both;
+    ridgeline-glow var(--motion-hero) var(--motion-ease-out) both,
+    ridgeline-fill var(--motion-hero) var(--motion-ease-out) both;
 }
 .ridgeline-mark-loop path {
   animation-duration: 1.6s;
@@ -1781,7 +1792,7 @@ html[data-appearance='light'] .public-auth {
 .cover-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(7, 10, 16, 0.4);
+  background: rgba(12, 11, 10, 0.4);
 }
 .public-world > header,
 .public-world > main,
@@ -1791,17 +1802,23 @@ html[data-appearance='light'] .public-auth {
 .public-section { background: hsl(var(--surface) / 0.92); }
 
 .cover-headline {
-  font-size: clamp(3rem, 9.5vw, 7.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.035em;
+  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(3.25rem, 10vw, 8rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
 }
+.cover-headline-line:nth-child(2) { font-style: italic; }
 .section-title {
+  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
+  font-weight: 400;
   font-size: clamp(2rem, 5vw, 4rem);
   line-height: 1.04;
+  letter-spacing: -0.02em;
 }
 .cover-bignum {
-  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  font-weight: 700;
+  font-family: 'Instrument Serif', 'Geist', Georgia, serif;
+  font-weight: 400;
   font-size: clamp(3rem, 8vw, 6rem);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -2115,4 +2132,40 @@ html[data-appearance='light'] .public-auth {
   .qual-hold {
     transform: none;
   }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   PASS 180 - the opening and the sweep
+   ───────────────────────────────────────────────────────────── */
+.logo-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.logo-burst canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* The lockup that draws in and then shatters. It is decorative: the settled
+   hero carries the real text. */
+.logo-burst-lockup {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.cover-headline[data-hidden='true'] { opacity: 0; }
+.cover-headline[data-fade='true'] { transition: opacity var(--motion-fast) linear; }
+.cover-opening [data-opening-hidden='true'] { opacity: 0 !important; animation: none !important; }
+.cover-opening-in { animation: wordmark-rise var(--motion-base) var(--motion-ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ridgeline-mark path { fill-opacity: 1 !important; }
+  .logo-burst { display: none !important; }
+  .cover-headline[data-hidden='true'] { opacity: 1 !important; }
+  .cover-opening [data-opening-hidden='true'] { opacity: 1 !important; }
+  .cover-opening-in { animation: none !important; }
 }
