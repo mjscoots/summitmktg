@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   BUBBLE_HSL,
   TEXT_SIZE_PX,
@@ -18,7 +19,8 @@ export function useChatPrefs(): ChatPrefs {
 
 /**
  * The cosmetic skin for one room: a wallpaper class plus the bubble colour and
- * text size as CSS variables the bubbles and composer read.
+ * text size as CSS variables the bubbles and composer read. On the photo
+ * wallpaper the person's own upload is signed and handed over as --chat-photo.
  */
 export function useChatSkin(slug: string | null | undefined): {
   className: string;
@@ -27,11 +29,31 @@ export function useChatSkin(slug: string | null | undefined): {
 } {
   const prefs = useChatPrefs();
   const wallpaper = wallpaperForRoom(slug);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (wallpaper !== 'photo' || !prefs.wallpaper_path) {
+      setPhotoUrl(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const { data } = await supabase.storage
+        .from('chat-wallpapers')
+        .createSignedUrl(prefs.wallpaper_path as string, 60 * 60);
+      if (!cancelled) setPhotoUrl(data?.signedUrl ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [wallpaper, prefs.wallpaper_path]);
+
   const bubble = BUBBLE_HSL[prefs.bubble];
   const style: CSSProperties = {
     ['--chat-text' as string]: TEXT_SIZE_PX[prefs.text_size],
   };
   if (bubble) style['--chat-bubble' as string] = bubble;
+  if (photoUrl) style['--chat-photo' as string] = `url("${photoUrl}")`;
 
   return { className: `chat-surface chat-surface-${wallpaper}`, style, prefs };
 }
