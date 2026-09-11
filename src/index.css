@@ -1898,35 +1898,6 @@ html[data-appearance='light'] .btn-gradient {
 /* Links stay plain: the colour is the only signal. */
 .public-link { position: relative; color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
 
-/* Find your door */
-.qual-card {
-  border-radius: 12px;
-  transition: opacity var(--motion-base) var(--motion-ease-out),
-    transform var(--motion-base) var(--motion-ease-out);
-}
-.qual-hold { opacity: 0.55; transform: translateY(12px); }
-.qual-in { opacity: 1; transform: translateY(0); }
-.qual-choice {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  width: 100%;
-  padding: 0 1rem;
-  border-radius: 10px;
-  font-size: 0.9375rem;
-  color: hsl(var(--foreground));
-  background: hsl(var(--surface-elevated));
-  border: 0;
-  transition: background-color var(--motion-base) var(--motion-ease-out),
-    transform var(--motion-base) var(--motion-ease-out);
-}
-.qual-choice-on {
-  background: hsl(var(--foreground));
-  color: #000000;
-  transform: scale(1.02);
-}
-
 /* Home number flip */
 .number-flip {
   animation: number-flip var(--motion-base) var(--motion-ease-out) both;
