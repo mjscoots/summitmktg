@@ -82,7 +82,7 @@ const Index = () => {
         {/* Hero: the range sits behind the headline, bottom aligned. */}
         <section className="public-cover relative isolate overflow-hidden px-5 sm:px-6">
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[68%] sm:h-[74%]"
+            className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[82%] sm:h-[76%]"
             style={{ transform: `translateY(${offset}px)` }}
             aria-hidden="true"
           >
