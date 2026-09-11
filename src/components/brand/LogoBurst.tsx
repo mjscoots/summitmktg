@@ -215,31 +215,65 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
       c.restore();
     };
 
-    /** The headline, in the exact box the DOM headline occupies. */
+    /**
+     * The headline, painted onto the exact visual lines the DOM lays out.
+     *
+     * A canvas cannot wrap text, and the headline wraps on a phone, so each
+     * line is read back from the DOM with a Range: every character's client
+     * rect is measured and characters sharing a rect top belong to the same
+     * visual line. Each visual line is then painted at that line's own left
+     * edge and baseline, in the same computed font, so every sampled point sits
+     * on a real headline glyph pixel rather than an estimate.
+     */
     const paintHeadline = (c: CanvasRenderingContext2D) => {
-      const rect = headline.getBoundingClientRect();
       const hostRect = host.getBoundingClientRect();
-      const left = rect.left - hostRect.left;
-      const top = rect.top - hostRect.top;
-      const lines = Array.from(headline.children) as HTMLElement[];
-      c.fillStyle = WHITE;
-      c.textBaseline = 'alphabetic';
+      const spans = Array.from(headline.children) as HTMLElement[];
+      const nodes = spans.length > 0 ? spans : [headline];
       const fontPx = parseFloat(headlineStyle.fontSize) || 48;
-      const lineHeight = parseFloat(headlineStyle.lineHeight) || fontPx * 0.92;
       c.font = headlineFont;
-      lines.forEach((line, index) => {
+      c.textBaseline = 'alphabetic';
+
+      nodes.forEach((node, spanIndex) => {
         // Line two is painted in flat blue purely as a key: on pairing those
         // points alternate blue and violet so the settled field reads as the
         // gradient.
-        c.fillStyle = index === 1 ? BLUE : WHITE;
-        const y = top + lineHeight * index + fontPx * 0.78;
-        c.fillText(line.textContent || '', left, y);
+        c.fillStyle = spanIndex === 1 ? BLUE : WHITE;
+        const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+        let text = walker.nextNode() as Text | null;
+        while (text) {
+          const value = text.data;
+          const range = document.createRange();
+          let lineTop = Number.NaN;
+          let lineLeft = 0;
+          let lineBottom = 0;
+          let buffer = '';
+          const flush = () => {
+            if (!buffer.trim()) return;
+            c.fillText(buffer, lineLeft - hostRect.left, lineBottom - hostRect.top - (lineBottom - lineTop - fontPx) / 2);
+            buffer = '';
+          };
+          for (let i = 0; i < value.length; i += 1) {
+            range.setStart(text, i);
+            range.setEnd(text, i + 1);
+            const rect = range.getBoundingClientRect();
+            if (rect.width === 0 && rect.height === 0) {
+              buffer += value[i];
+              continue;
+            }
+            if (Number.isNaN(lineTop) || Math.abs(rect.top - lineTop) > 2) {
+              flush();
+              lineTop = rect.top;
+              lineBottom = rect.bottom;
+              lineLeft = rect.left;
+            }
+            buffer += value[i];
+          }
+          flush();
+          text = walker.nextNode() as Text | null;
+        }
       });
-      if (lines.length === 0) {
-        c.fillStyle = WHITE;
-        c.fillText(headline.textContent || '', left, top + fontPx * 0.78);
-      }
     };
+
 
     const group = (list: Particle[], key: (p: Particle) => string) => {
       const map = new Map<string, Particle[]>();
