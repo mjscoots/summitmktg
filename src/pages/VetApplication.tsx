@@ -31,9 +31,9 @@ interface FormErrors {
 const VetApplication = () => {
   useEffect(() => {
     setPageMeta({
-      title: "Apply as a Veteran - Summit Marketing",
+      title: "Apply as a Veteran - Trinity Sales",
       description:
-        "Apply to run a summer season with Summit as an experienced sales rep.",
+        "Apply to run a summer season with Trinity as an experienced sales rep.",
       path: "/apply/veteran",
     });
   }, []);
@@ -88,7 +88,7 @@ const VetApplication = () => {
         cityState: "City, State",
         lastSeasonRevenue: "Last Season Revenue",
         intendedMarket: "Previously Knocked Markets",
-        referralName: "Who told you about Summit",
+        referralName: "Who told you about Trinity",
       };
       return `${fieldLabels[field]} is required`;
     }
@@ -267,7 +267,7 @@ const VetApplication = () => {
           <VetCalculator onApplyClick={scrollToForm} onValuesChange={handleCalcValuesChange} />
         </div>
 
-        {/* Summit Upside Section */}
+        {/* Trinity Upside Section */}
         <div className="mb-16 animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <h2 className="mb-6 text-center text-2xl font-extrabold tracking-tight text-foreground">
             What you get here
@@ -438,7 +438,7 @@ const VetApplication = () => {
             <section className="public-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-extrabold text-foreground">How you heard about us</h2>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Who told you about Summit
+                Who told you about Trinity
               </label>
               <input
                 type="text"

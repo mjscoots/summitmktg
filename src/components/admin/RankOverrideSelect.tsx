@@ -45,7 +45,7 @@ export function RankOverrideSelect({ userId }: { userId: string }) {
         <SelectValue placeholder="Rank" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="__none__" className="text-xs">No rank (Summit)</SelectItem>
+        <SelectItem value="__none__" className="text-xs">No rank (Trinity)</SelectItem>
         {ranks.map((r) => (
           <SelectItem key={r.id} value={r.id} className="text-xs">{r.name}</SelectItem>
         ))}

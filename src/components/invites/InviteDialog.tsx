@@ -124,7 +124,7 @@ export function InviteDialog({ triggerLabel = 'Invite', triggerVariant = 'outlin
   const shareLink = async (url: string) => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Summit invite', text: `Here is your Summit invite: ${url}`, url });
+        await navigator.share({ title: 'Trinity invite', text: `Here is your Trinity invite: ${url}`, url });
         return;
       } catch {
         return;

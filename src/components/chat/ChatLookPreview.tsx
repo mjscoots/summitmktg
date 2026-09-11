@@ -1,4 +1,5 @@
 import { useChatSkin } from '@/hooks/useChatSkin';
+import { MountainRange } from '@/components/brand/MountainRange';
 
 /** A small sample room so a choice can be judged before leaving the screen. */
 export function ChatLookPreview() {
@@ -6,10 +7,11 @@ export function ChatLookPreview() {
 
   return (
     <div
-      className={`${className} overflow-hidden rounded`}
+      className={`${className} relative isolate overflow-hidden rounded`}
       style={style}
     >
-      <div className="space-y-2 p-4">
+      <MountainRange className="chat-range" />
+      <div className="relative space-y-2 p-4">
         <div className="flex">
           <span className="bubble-other chat-text max-w-[75%] rounded-[18px] rounded-tl-[5px] px-3 py-[7px] leading-relaxed">
             This is how other people look.

@@ -2,15 +2,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 const PRODUCTION_LINES = [
-  'A verified Summit rep sold $429,000 in accounts last summer.',
-  'A verified Summit rep sold $314,000 in accounts last summer.',
-  'A verified Summit rep sold $286,000 in accounts last summer.',
-  'A verified Summit rep sold $242,000 in accounts last summer.',
-  'A verified Summit rep sold $227,000 in accounts last summer.',
-  'A verified Summit rep sold $192,000 in accounts last summer.',
-  'A verified Summit rep sold $158,000 in accounts last summer.',
-  'A verified Summit rep sold $142,000 in accounts last summer.',
-  '20 Summit reps each sold over $100,000 last summer.',
+  'A verified Trinity rep sold $429,000 in accounts last summer.',
+  'A verified Trinity rep sold $314,000 in accounts last summer.',
+  'A verified Trinity rep sold $286,000 in accounts last summer.',
+  'A verified Trinity rep sold $242,000 in accounts last summer.',
+  'A verified Trinity rep sold $227,000 in accounts last summer.',
+  'A verified Trinity rep sold $192,000 in accounts last summer.',
+  'A verified Trinity rep sold $158,000 in accounts last summer.',
+  'A verified Trinity rep sold $142,000 in accounts last summer.',
+  '20 Trinity reps each sold over $100,000 last summer.',
   '36 reps sold over $50,000.',
   'The team serviced over $6,000,000 in accounts.',
 ] as const;

@@ -46,7 +46,7 @@ export function PushToggle() {
     }
 
     if (needsHomeScreen) {
-      setNote('On iPhone, add Summit to your home screen first, then turn this on from the installed app.');
+      setNote('On iPhone, add Trinity to your home screen first, then turn this on from the installed app.');
       setBusy(false);
       return;
     }
@@ -76,7 +76,7 @@ export function PushToggle() {
         <div className="mr-4 min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground">Push notifications</p>
           <p className="text-xs text-muted-foreground">
-            Buzz this device even when Summit is closed
+            Buzz this device even when Trinity is closed
           </p>
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">
@@ -96,7 +96,7 @@ export function PushToggle() {
       )}
       {supported && needsHomeScreen && !on && (
         <p className="mt-2 text-xs text-muted-foreground">
-          On iPhone, push works once Summit is added to the home screen.
+          On iPhone, push works once Trinity is added to the home screen.
         </p>
       )}
       {note && <p className="mt-2 text-xs text-muted-foreground">{note}</p>}

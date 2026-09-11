@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 import { isManagerOrAbove } from '@/lib/roles';
 import { LIFE_CARD, LIFE_STAGES, nextStage, type LifeContact } from '@/lib/lifePipeline';
 
-/** Summit Life pipeline: contacts grouped by stage, with the next step on each. */
+/** Trinity Life pipeline: contacts grouped by stage, with the next step on each. */
 export default function PipelinePage() {
   const { user, role } = useAuth();
   const isLead = isManagerOrAbove(role);

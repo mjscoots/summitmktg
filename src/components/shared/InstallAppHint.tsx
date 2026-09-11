@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 const DISMISS_KEY = 'summit_install_hint_dismissed';
 
 /**
- * Pass 140 - one quiet line for phone browsers where Summit is not installed
+ * Pass 140 - one quiet line for phone browsers where Trinity is not installed
  * yet. Dismissible, and the dismissal is remembered on that device.
  */
 export function InstallAppHint() {
@@ -34,7 +34,7 @@ export function InstallAppHint() {
   return (
     <div className="flex items-center gap-2 rounded-[var(--radius)] border border-border bg-card px-4 py-3">
       <p className="min-w-0 flex-1 text-[13px] text-muted-foreground">
-        Add Summit to your home screen.{' '}
+        Add Trinity to your home screen.{' '}
         <span className="text-foreground">
           {isIOS ? 'Tap Share, then Add to Home Screen.' : 'Open the browser menu, then Install app.'}
         </span>

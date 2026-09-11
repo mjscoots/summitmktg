@@ -31,7 +31,7 @@ export function SentRepOverrideNote() {
     <div className="rounded-xl border border-white/[0.06] bg-background/40 p-4">
       <div className="flex items-center gap-2">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Reps Summit sends you
+          Reps Trinity sends you
         </p>
         <span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-400">
           Draft

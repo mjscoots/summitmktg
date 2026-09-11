@@ -73,7 +73,7 @@ const DEFAULTS: Settings = {
 };
 
 const PILLARS: { key: string; label: string }[] = [
-  { key: "command_pillar_summit", label: "Summit / Hawx" },
+  { key: "command_pillar_summit", label: "Trinity / Hawx" },
   { key: "command_pillar_realestate", label: "Real Estate" },
   { key: "command_pillar_content", label: "Content · @scootascend" },
   { key: "command_pillar_self", label: "Self / Recovery" },

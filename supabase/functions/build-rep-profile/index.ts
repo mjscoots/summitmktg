@@ -60,7 +60,7 @@ async function gatherSources(admin: any, userId: string, since: string | null): 
       .order("created_at", { ascending: false })
       .limit(40);
     for (const m of msgs ?? []) {
-      add("assistant_message", m.id, m.created_at, `Asked Summit: ${m.content}`);
+      add("assistant_message", m.id, m.created_at, `Asked Trinity: ${m.content}`);
     }
   }
 

@@ -61,7 +61,7 @@ export function PublicProofStrip() {
   if (items.length === 0) return null;
 
   return (
-    <section className="px-5 py-10 md:px-8" aria-label="Summit team proof">
+    <section className="px-5 py-10 md:px-8" aria-label="Trinity team proof">
       <div className="mx-auto flex max-w-6xl flex-wrap gap-x-10 gap-y-4">
         {items.map((item) => (
           <p key={item.label} className="text-sm text-muted-foreground">

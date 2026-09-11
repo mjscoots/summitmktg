@@ -32,7 +32,7 @@ const SECTION_LABELS: Record<string, string> = {
   forms: 'Forms',
   profile: 'Profile',
   links: 'Links',
-  'ask-summit': 'Ask Summit',
+  'ask-summit': 'Ask Trinity',
   command: 'Command',
   'war-room': 'War room',
 };

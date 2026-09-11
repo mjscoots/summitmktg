@@ -1,5 +1,5 @@
 /**
- * Summit is installable, not offline. Nothing caches, and no worker is
+ * Trinity is installable, not offline. Nothing caches, and no worker is
  * registered for anyone who has not turned push on (see src/lib/push.ts).
  *
  * This module only cleans up after the old caching worker: it deletes the

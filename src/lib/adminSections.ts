@@ -71,7 +71,7 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'dayone', label: 'Day one course', adminOnly: true },
     { value: 'drills', label: 'Drills', adminOnly: true },
     { value: 'recruiting', label: 'Public site' },
-    { value: 'assistant', label: 'Ask Summit', adminOnly: true },
+    { value: 'assistant', label: 'Ask Trinity', adminOnly: true },
   ],
   settings: [
     { value: 'season', label: 'Season' },

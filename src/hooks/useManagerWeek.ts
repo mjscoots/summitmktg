@@ -54,7 +54,7 @@ export function attentionReasons(r: WeekRow, lastOpened: string | null): string[
     new Date(r.profile_built_at) > new Date(lastOpened) &&
     r.concerns.length > 0
   ) {
-    out.push('New note from Summit says');
+    out.push('New note from Trinity says');
   }
   return out;
 }

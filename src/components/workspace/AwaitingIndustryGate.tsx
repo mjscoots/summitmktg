@@ -13,7 +13,7 @@ const ALLOWED = ['/app/chat', '/app/ask', '/app/profile'];
 
 /**
  * Pass 149 - membership is acceptance only. A person with no industry yet keeps
- * Summit Trinity chat and one waiting screen, and nothing industry scoped opens
+ * Trinity chat and one waiting screen, and nothing industry scoped opens
  * until the owner accepts them.
  */
 export function AwaitingIndustryGate({ children }: { children: ReactNode }) {
@@ -36,7 +36,7 @@ export function AwaitingIndustryGate({ children }: { children: ReactNode }) {
           app opens as soon as that is done.
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Until then you can read and post in Summit Trinity, the room everyone shares.
+          Until then you can read and post in Trinity, the room everyone shares.
         </p>
         <div className="mt-6 flex flex-col gap-2">
           <button
@@ -44,7 +44,7 @@ export function AwaitingIndustryGate({ children }: { children: ReactNode }) {
             onClick={() => navigate('/app/chat')}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
-            <MessageSquare className="h-4 w-4" /> Open Summit Trinity
+            <MessageSquare className="h-4 w-4" /> Open Trinity
           </button>
           <button
             type="button"

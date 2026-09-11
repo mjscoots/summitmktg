@@ -129,7 +129,7 @@ export default function Interview2Page() {
             <span className="text-primary-foreground font-bold text-lg">2</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Summit: Second Interview Call</h1>
+            <h1 className="text-xl font-bold text-foreground">Trinity: Second Interview Call</h1>
             <p className="text-muted-foreground text-xs mt-0.5">Be happy</p>
           </div>
         </div>

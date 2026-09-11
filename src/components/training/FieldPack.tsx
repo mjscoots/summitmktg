@@ -31,7 +31,7 @@ const CHIPS = [
 
 type ChipKey = (typeof CHIPS)[number]['key'];
 
-/** The line Ask Summit practice mode opens with for one entry. */
+/** The line Ask Trinity practice mode opens with for one entry. */
 export function practiceSeed(entry: Pick<PlaybookEntry, 'kind' | 'title'>) {
   return entry.kind === 'close'
     ? `Let me practice the ${entry.title}`

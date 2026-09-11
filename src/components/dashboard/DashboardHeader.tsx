@@ -46,7 +46,7 @@ export function DashboardHeader() {
             >
               <Mountain className="w-5 h-5 text-primary" />
               <span className="text-lg font-black tracking-tight" style={{ textShadow: '0 0 10px hsl(216, 80%, 45%, 0.3)' }}>
-                Summit
+                Trinity
               </span>
             </button>
             <span className={`text-xs font-bold ${roleColor} ${roleBgColor} px-2.5 py-1 rounded uppercase tracking-wide`}>

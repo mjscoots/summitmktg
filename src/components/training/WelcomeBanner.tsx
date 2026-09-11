@@ -13,7 +13,7 @@ interface WelcomeBannerProps {
 const JOURNEY_MESSAGES = [
   {
     threshold: 0,
-    title: "Welcome to Summit",
+    title: "Welcome to Trinity",
     message: "You just took the first step. Most people never do.",
     subtext: "This is where your story changes.",
     icon: Mountain,

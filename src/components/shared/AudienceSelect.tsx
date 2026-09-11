@@ -16,7 +16,7 @@ const CHOICES = ['Pest', 'Fiber', 'Life'];
 
 /**
  * Pass 144 - every piece of content says who it is for. One industry, or
- * All Summit, which shows in every workspace.
+ * All Trinity, which shows in every workspace.
  */
 export function AudienceSelect({
   value,
@@ -46,7 +46,7 @@ export function AudienceSelect({
             {v}
           </option>
         ))}
-        <option value={ALL_SUMMIT}>All Summit</option>
+        <option value={ALL_SUMMIT}>All Trinity</option>
       </select>
     </div>
   );

@@ -32,9 +32,9 @@ const RookieApplication = () => {
 
   useEffect(() => {
     setPageMeta({
-      title: "Apply as a Rookie - Summit Marketing",
+      title: "Apply as a Rookie - Trinity Sales",
       description:
-        "Apply for a summer sales season with Summit. First-time reps start here.",
+        "Apply for a summer sales season with Trinity. First-time reps start here.",
       path: "/apply/rookie",
     });
   }, []);
@@ -81,7 +81,7 @@ const RookieApplication = () => {
         email: "Email Address",
         phone: "Phone Number",
         cityState: "City, State",
-        referralName: "Who told you about Summit",
+        referralName: "Who told you about Trinity",
       };
       const error = `${fieldLabels[field]} is required`;
       setErrors((prev) => ({ ...prev, [field]: error }));
@@ -117,7 +117,7 @@ const RookieApplication = () => {
           email: "Email Address",
           phone: "Phone Number",
           cityState: "City, State",
-          referralName: "Who told you about Summit",
+          referralName: "Who told you about Trinity",
         };
         newErrors[field] = `${fieldLabels[field]} is required`;
         isValid = false;
@@ -364,7 +364,7 @@ const RookieApplication = () => {
             <section className="public-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-extrabold text-foreground">How you heard about us</h2>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Who told you about Summit
+                Who told you about Trinity
               </label>
               <input
                 type="text"

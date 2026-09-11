@@ -1,7 +1,7 @@
 import { useChatAttachmentUrl } from '@/lib/chatAttachments';
 import { cn } from '@/lib/utils';
 
-/** Summit tokens only. One tone per room, picked from the room name. */
+/** Trinity tokens only. One tone per room, picked from the room name. */
 const TONES = ['--ice', '--fiber-mint', '--success', '--warning', '--primary-muted'];
 
 function toneFor(name: string) {

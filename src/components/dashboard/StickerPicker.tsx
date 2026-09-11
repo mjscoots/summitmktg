@@ -14,7 +14,7 @@ export const SUMMIT_STICKERS: Sticker[] = [
   { id: 'to-the-top', label: 'To the Top!', src: '/stickers/to-the-top.png' },
   { id: 'close-it', label: 'Close It!', src: '/stickers/close-it.png' },
   { id: 'nice-work', label: 'Nice Work!', src: '/stickers/nice-work.png' },
-  { id: 'summit', label: 'Summit!', src: '/stickers/summit.png' },
+  { id: 'summit', label: 'Trinity!', src: '/stickers/summit.png' },
   { id: 'lol', label: 'LOL', src: '/stickers/lol.png' },
   { id: 'go-go-go', label: 'Go Go Go!', src: '/stickers/go-go-go.png' },
   { id: 'grind-time', label: 'Grind Time', src: '/stickers/grind-time.png' },
@@ -50,7 +50,7 @@ export function StickerPicker({ onSelect, onClose }: StickerPickerProps) {
   return (
     <div className="absolute bottom-full mb-2 right-0 w-[320px] bg-card border border-border rounded-xl shadow-xl z-30 animate-in fade-in slide-in-from-bottom-2 duration-200">
       <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
-        <span className="text-xs font-bold text-foreground uppercase tracking-wider">Summit Stickers</span>
+        <span className="text-xs font-bold text-foreground uppercase tracking-wider">Trinity Stickers</span>
         <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xs">✕</button>
       </div>
       <div className="grid grid-cols-5 gap-1 p-2 max-h-[240px] overflow-y-auto">

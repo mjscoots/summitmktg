@@ -1,0 +1,1 @@
+UPDATE public.profiles SET first_open_at = NULL WHERE user_id = '70eeded3-4c88-41ee-8049-2b75e92cb866' AND first_open_at IS NOT NULL;

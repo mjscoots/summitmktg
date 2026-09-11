@@ -516,9 +516,9 @@ export default function PersonProfilePage() {
       )}
 
 
-      {/* What Summit has learned */}
+      {/* What Trinity has learned */}
       {aiProfile && (
-        <Section title="What Summit has learned">
+        <Section title="What Trinity has learned">
           <Card className="p-4 space-y-2">
             {aiProfile.summary ? (
               <p className="text-[13px] text-foreground whitespace-pre-wrap">{aiProfile.summary}</p>
@@ -557,9 +557,9 @@ export default function PersonProfilePage() {
         </Button>
       )}
 
-      {/* Ask Summit threads */}
+      {/* Ask Trinity threads */}
       {threads.length > 0 && (
-        <Section title="Ask Summit threads">
+        <Section title="Ask Trinity threads">
           <Card className="p-4 space-y-2">
             {threads.map((t) => (
               <div key={t.id}>
@@ -576,7 +576,7 @@ export default function PersonProfilePage() {
                   <div className="space-y-2 py-2">
                     {openThread.messages.map((m: any, i: number) => (
                       <p key={i} className="text-[13px] whitespace-pre-wrap">
-                        <span className="text-muted-foreground">{m.role === 'user' ? 'They asked: ' : 'Summit: '}</span>
+                        <span className="text-muted-foreground">{m.role === 'user' ? 'They asked: ' : 'Trinity: '}</span>
                         {m.content}
                       </p>
                     ))}

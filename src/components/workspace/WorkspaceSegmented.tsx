@@ -5,11 +5,11 @@ import { RequestVerticalAccessDialog } from '@/components/workspace/RequestVerti
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
-/** The accent a workspace owns, used only on the active segment. */
+/** One accent across the three doors: lime, the primary of the system. */
 const ACCENT: Record<string, string> = {
-  Pest: '197 100% 68%',
-  Fiber: '158 70% 55%',
-  Life: '218 100% 56%',
+  Pest: '81 90% 60%',
+  Fiber: '81 90% 60%',
+  Life: '81 90% 60%',
 };
 
 /**
@@ -50,8 +50,8 @@ export function WorkspaceSegmented({
               aria-current={active ? 'true' : undefined}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-[11px] font-semibold"
               style={{
-                color: active ? `hsl(${ACCENT[w.vertical] || '197 100% 68%'})` : 'hsl(var(--text-muted))',
-                background: active ? `hsl(${ACCENT[w.vertical] || '197 100% 68%'} / 0.12)` : 'transparent',
+                color: active ? `hsl(${ACCENT[w.vertical] || '81 90% 60%'})` : 'hsl(var(--text-muted))',
+                background: active ? `hsl(${ACCENT[w.vertical] || '81 90% 60%'} / 0.12)` : 'transparent',
               }}
             >
               {(w.short_name || w.vertical).slice(0, 1)}
@@ -73,7 +73,7 @@ export function WorkspaceSegmented({
         >
           {[...workspaces].sort((a, b) => ['Pest', 'Fiber', 'Life'].indexOf(a.vertical) - ['Pest', 'Fiber', 'Life'].indexOf(b.vertical)).map((w) => {
             const active = w.vertical === activeVertical;
-            const accent = ACCENT[w.vertical] || '197 100% 68%';
+            const accent = ACCENT[w.vertical] || '81 90% 60%';
             return (
               <button
                 key={w.vertical}

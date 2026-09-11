@@ -372,7 +372,7 @@ function LazyFallback() {
                 </ProtectedRoute>
               } />
 
-              {/* Leads - every person who has been part of Summit (manager and above) */}
+              {/* Leads - every person who has been part of Trinity (manager and above) */}
               <Route path="/app/leads" element={
                 <ProtectedRoute>
                   <LeadsPage />
@@ -471,7 +471,7 @@ function LazyFallback() {
               } />
 
 
-              {/* Ask Summit - grounded AI assistant */}
+              {/* Ask Trinity - grounded AI assistant */}
               <Route path="/app/ask" element={
                 <ProtectedRoute>
                     <AskSummitPage />

@@ -294,7 +294,7 @@ export function ChatList({
               <Bot className="h-5 w-5" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[15px] font-semibold text-foreground">Ask Summit</span>
+              <span className="block truncate text-[15px] font-semibold text-foreground">Ask Trinity</span>
               <span className="block truncate text-[13px] text-muted-foreground">
                 Answers about events, pay, training and people
               </span>

@@ -212,7 +212,7 @@ export default function Interview3Page() {
             <span className="text-primary-foreground font-bold text-lg">3</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Summit: Third Interview Call</h1>
+            <h1 className="text-xl font-bold text-foreground">Trinity: Third Interview Call</h1>
             <p className="text-muted-foreground text-xs mt-0.5">Final interview and potential offer</p>
           </div>
         </div>
@@ -297,7 +297,7 @@ export default function Interview3Page() {
           </QuestionCard>
 
           <QuestionCard>
-            <FieldLabel>Summit looks for 2 core qualities in every representative: Coachability, and Work Ethic. Knowing our company core qualities, do you feel like this would be a good fit for you? Why?</FieldLabel>
+            <FieldLabel>Trinity looks for 2 core qualities in every representative: Coachability, and Work Ethic. Knowing our company core qualities, do you feel like this would be a good fit for you? Why?</FieldLabel>
             <textarea value={formData.coreQualities} onChange={(e) => handleChange('coreQualities', e.target.value)} placeholder="Your answer" rows={3} className={textareaClass} />
           </QuestionCard>
 

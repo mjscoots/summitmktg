@@ -94,7 +94,7 @@ export default function BeforeTheyLeft({ snapshot, aiSummary, profileUserId }: P
 
       {summary && (
         <div className="mt-3">
-          <p className="micro-label">What Summit had learned</p>
+          <p className="micro-label">What Trinity had learned</p>
           <p className="mt-1 text-[13px] leading-snug text-foreground">{summary}</p>
         </div>
       )}

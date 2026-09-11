@@ -1,4 +1,4 @@
-/** The Summit Life pipeline stages, in the order the work moves. */
+/** The Trinity Life pipeline stages, in the order the work moves. */
 export const LIFE_STAGES = [
   'New',
   'Contacted',

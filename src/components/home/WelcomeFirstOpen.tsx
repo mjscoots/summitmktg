@@ -64,7 +64,7 @@ export function WelcomeFirstOpen() {
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background px-5 py-10">
       <div className="mx-auto max-w-md">
         <h1 className="text-[26px] font-bold tracking-tight text-foreground">
-          {firstName ? `Welcome to Summit, ${firstName}.` : 'Welcome to Summit.'}
+          {firstName ? `Welcome to Trinity, ${firstName}.` : 'Welcome to Trinity.'}
         </h1>
         <p className="mt-2 text-[15px] text-muted-foreground">Three things before your first door.</p>
 
@@ -74,7 +74,12 @@ export function WelcomeFirstOpen() {
               <p className="text-[15px] font-semibold text-foreground">
                 {i + 1}. {step.title}
               </p>
-              <Button className="mt-3 min-h-11 w-full" onClick={() => { setShow(false); navigate(step.to); }}>
+              {/* One lime action on the screen; the other two steps are outlined. */}
+              <Button
+                variant={i === 0 ? 'default' : 'outline'}
+                className="mt-3 min-h-11 w-full"
+                onClick={() => { setShow(false); navigate(step.to); }}
+              >
                 {step.button}
               </Button>
             </li>

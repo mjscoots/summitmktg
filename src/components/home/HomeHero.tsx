@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { CountUp } from '@/components/shared/CountUp';
 import { GoalRing } from '@/components/home/GoalRing';
+import { MountainRange } from '@/components/brand/MountainRange';
 
 /** Shine plays once per browser session so Home stays calm on every reopen. */
 function useOnceShine(key: string): boolean {
@@ -65,11 +66,15 @@ export function HomeHero({
   const shine = useOnceShine(shineKey);
 
   return (
-    <section className={cn('card-hero p-4', shine && 'shine', className)}>
+    <section className={cn('card-hero relative isolate overflow-hidden p-4', shine && 'shine', className)}>
+      {/* The range, faint, behind the one number. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-3/4" aria-hidden="true">
+        <MountainRange opacity={0.3} />
+      </div>
       <div className="relative z-10 flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="micro-label">{label}</p>
-          <p className="mt-1 text-[56px] font-bold leading-none tracking-tight text-foreground">
+          <p className="mt-1 text-[56px] font-bold leading-none tracking-tight text-primary">
             <CountUp value={value} />
           </p>
           <p className="mt-1.5 text-[13px] text-muted-foreground">

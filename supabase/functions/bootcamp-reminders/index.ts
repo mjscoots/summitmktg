@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
               Authorization: `Bearer ${resendApiKey}`,
             },
             body: JSON.stringify({
-              from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit <onboarding@resend.dev>",
+              from: Deno.env.get("RESEND_FROM_EMAIL") || "Trinity <onboarding@resend.dev>",
               to: [profile.email],
               subject,
               html: body,
@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
             Authorization: `Bearer ${resendApiKey}`,
           },
           body: JSON.stringify({
-             from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit <onboarding@resend.dev>",
+             from: Deno.env.get("RESEND_FROM_EMAIL") || "Trinity <onboarding@resend.dev>",
              to: [info.managerEmail],
             subject,
             html: body,

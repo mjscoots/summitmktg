@@ -182,7 +182,7 @@ const PillarJoinPage = () => {
     <form onSubmit={submit} className="public-surface p-6">
       <h1 className="text-xl font-extrabold text-foreground">Join {lookup.pillar_name}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        {industry ? `${industry} at Summit` : 'Summit'}
+        {industry ? `${industry} at Trinity` : 'Trinity'}
       </p>
       <p className="mt-1 text-sm text-muted-foreground">
         Make your account here. Your pillar leader accepts you in from their side.

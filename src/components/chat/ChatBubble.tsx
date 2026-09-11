@@ -427,7 +427,7 @@ export function ChatBubble({
           )}>
 
             {message.is_ai && isFirstInGroup && (
-              <span className="text-[11px] font-semibold text-primary/70 block mb-0.5">Summit AI</span>
+              <span className="text-[11px] font-semibold text-primary/70 block mb-0.5">Trinity AI</span>
             )}
             {renderContent()}
             {!hasMediaContent && !isEditing && (

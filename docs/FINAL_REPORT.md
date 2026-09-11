@@ -3917,3 +3917,143 @@ No other copy, logic, or permissions changed. The function was redeployed with t
 - Deploy: backend deploy tool reported `Successfully deployed edge functions: manager-weekly-digest`.
 - Baselines unchanged: applications 13, profiles 536, chat_messages 715, user_notifications 6372.
 - No data writes, no real form submissions, no live function calls that create rows. The site was not published.
+
+## Pass 175 - Trinity Sales: brand and aesthetics overhaul
+
+### 1. Name and wordmark
+
+- Company name is Trinity Sales, everyday name Trinity, wordmark TRNTY.
+- `index.html`: title `Trinity Sales`, og:title / twitter:title `Trinity Sales`, author `Trinity Sales`, JSON LD Organization `name: Trinity Sales` with `alternateName: Summit Marketing` kept for search continuity, WebSite `name: Trinity Sales`, `application-name` TRNTY, `apple-mobile-web-app-title` TRNTY, theme colours `#070A10` dark and `#FFFFFF` light. The canonical URL, og:image and the Instagram link are untouched.
+- `public/manifest.webmanifest`: name `Trinity Sales`, short_name `TRNTY`, description `Training, chat and team tools for Trinity reps.`, background and theme `#070A10`.
+- 79 files under `src` and `supabase/functions` were renamed by a scripted pass: `Summit Marketing` to `Trinity Sales`, `Summit Trinity` to `Trinity`, then the bare word `Summit` to `Trinity` on word boundaries only, so identifiers (SummitLoader, AskSummitPage, `summit_stack_*`, `Summit_Fiber_Pay_Scale_v5.xlsx`), storage keys, URLs, domains and email addresses could not be touched. `Ask Summit` is now `Ask Trinity`, `Summit Checklist` is `Trinity Checklist`, the welcome screen reads `Welcome to Trinity, {first name}.`, the login line reads `Sign in to Trinity.`
+- One stored value was restored by hand after the rename: `src/pages/app/LeadsPage.tsx` keeps `value="Summit"` (a lead source written to the database) with the label `Trinity`.
+- Wordmark spec: TRNTY in Space Grotesk 700, letter spacing 0.08em, `--wordmark-letters` white on dark and `#0A0F1A` on light. The full lockup adds `TRINITY SALES` at 10 to 11px, 0.3em tracking, in lime. Compact is TRNTY alone (used in nav and headers at 26 to 36px). The small mark and the app icon are one continuous three peak ridgeline, a single lime stroke, centre peak tallest, no fill.
+- The old logo was a React component (`src/components/brand/Wordmark.tsx`) holding path data; there were no `wordmark-component.svg`, `wordmark-compact-component.svg`, hero SVG or `mark.svg` files in the repository to replace. The component was rewritten in place and keeps the same export, the same `variant` names (`hero`, `heroMono`, `heroFiber`, `heroLife`, `full`, `fullV2`, `stacked`, `compact`, `compactPlain`, `mark`) and the same `height` and `className` props, so every existing import keeps working.
+- PNG export was possible in the sandbox. `favicon.png` (64), `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png`, `icon-512-maskable.png` (safe area inset) and `splash-1170x2532.png` were redrawn from the new mark with Pillow. A vector `public/favicon.svg` was added and is listed first in the head.
+
+### 2. Palette
+
+Token names are unchanged; only values moved.
+
+Dark (default everywhere except Life and an explicit light choice): background `#070A10` (220 39% 5%), surface and card `#0D121B` (219 35% 8%), surface elevated `#131A26` (218 33% 11%), border `#1E2734` (215 27% 16%), border strong `#2A3546` (216 25% 22%), text `#F2F6FA` (210 44% 96%), secondary `#A7B2C2` (216 18% 71%), muted `#6F7B8C` (215 12% 49%).
+
+Lime `#B4F53B` (81 90% 60%) is `--primary`, `--accent`, `--workspace-accent`, `--success` and `--sidebar-primary`: primary buttons with `#070A10` labels, the active bottom tab and sidebar indicator, progress fills and the goal ring, the big number on Home. Blue `#3D7BFF` (221 100% 62%) is `--ice` and `--ring`: links, active secondary controls, focus rings on inputs, unread dots. Warning `#F2A900` (42 100% 47%) and destructive `#FF5A5F` stay. No lime to blue gradient exists anywhere; the accents never sit at equal weight in one row.
+
+Own chat bubbles are blue with white text; other bubbles sit on surface elevated. The bubble blue is a deeper `221 100% 46%` (`--bubble-blue`) so white bubble text clears AA (see contrast).
+
+Light (Life and an explicit light choice): background `#FFFFFF`, surface `#F3F5F8` (216 26% 96%), surface elevated `#FFFFFF`, border `#E2E6EC` (216 21% 91%), text `#0A0F1A` (221 44% 7%), secondary `#4B5566` (218 15% 35%), muted `#7C8595` (218 11% 54%). Primary button is `#0A0F1A` fill with a lime label; links and active states are blue `#1F5EFF` (223 100% 56%). The light wordmark accent was adjusted from `#7BAF12` to `#547E07` for legibility. The range in light mode is drawn in blue greys.
+
+Old ice `#5AD1FF` and mint `#3DDC97` are gone from `src`, including the workspace palettes and the workspace switcher.
+
+Contrast ratios measured on the final values:
+
+| Pair | Ratio |
+| --- | --- |
+| lime `#B4F53B` on background `#070A10` | 15.16:1 |
+| `#070A10` on lime `#B4F53B` | 15.16:1 |
+| blue `#3D7BFF` on background `#070A10` | 5.17:1 |
+| text `#F2F6FA` on surface `#0D121B` | 17.27:1 |
+| secondary `#A7B2C2` on surface `#0D121B` | 8.75:1 |
+| muted `#6F7B8C` on background `#070A10` | 4.61:1 |
+| light blue `#1F5EFF` on white | 5.12:1 |
+| light text `#0A0F1A` on `#F3F5F8` | 17.54:1 |
+| lime label `#B4F53B` on light primary `#0A0F1A` | 14.66:1 |
+
+Two values were adjusted because they came in under 4.5:1 and both carry text:
+
+- white on blue `#3D7BFF` was 3.84:1. The own chat bubble now uses `221 100% 46%` (`#004AEB`): white on it is 6.61:1.
+- the light mode lockup lime `#7BAF12` on white was 2.63:1. It is now `#547E07`: 4.81:1 on white.
+
+### 3. The mountain
+
+`src/components/brand/MountainRange.tsx`, viewBox 1440 by 600, five layered ridgelines. The paths were produced by a seeded generator (a linear congruential generator feeding jittered peak points, then Catmull-Rom converted to cubic beziers) so the silhouette is irregular rather than triangular. No strokes, no clip art. Layers far to near in dark mode `#16233D`, `#121D33`, `#0E1729`, `#0B1220`, `#080D17`; light mode `#DCE4F2` down to `#F3F5F8`; both sets are written as `--range-1` to `--range-5` by the workspace theme, so the range follows the resolved appearance. A haze rectangle over the lower third fades from transparent to the page background so the range dissolves into the page.
+
+Placement: the public cover hero (full width, bottom aligned, behind the headline), the login screen (lower half), and behind the Home hero on all three workspaces at 30 percent opacity. The cover range translates on `translateY(scroll * 0.15)` and the listener is not attached at all under `prefers-reduced-motion: reduce`.
+
+Cropping: the SVG uses `preserveAspectRatio="xMidYMax slice"`, so at 1280 the whole 1440 wide range reads with all five layers visible; at 390 the outer ridges crop away left and right and the tall centre peak stays in frame, its crest sitting just below the headline with the near layers filling the lower third.
+
+### 4. Type
+
+Space Grotesk 500/700 and Inter 400 to 700 load from Google Fonts in `index.html` with `display=swap` and preconnect; Inter is also self-hosted through `@fontsource` as the fallback path, and the Montserrat imports were removed from `src/main.tsx`. `font-display` (Tailwind) and the `h1`, `h2`, number and wordmark rules in `src/index.css` now resolve to `'Space Grotesk', 'Inter', system-ui, sans-serif`. Body stays 15px on phone and 16px on desktop, labels are 12px muted at 0.08em, headings are sentence case at -0.02em, and the Pass 152 rule that nothing renders under 12px on a phone is untouched.
+
+### 5. The public cover
+
+`src/pages/Index.tsx` was rebuilt from the version at commit 2d0bfe05, in the same order and with the same copy, then restyled. Sections top to bottom at both 390 and 1280:
+
+1. Nav: TRNTY compact wordmark, `Pest`, `Fiber`, `Sign in` in blue. At 390 the two industry links stay visible and every target is at least 44px tall.
+2. Hero, the range behind it: TRNTY full lockup, then the restored headline `Financial freedom.` / `Done differently.` in Space Grotesk 700 at `clamp(2.25rem, 8vw, 5rem)`, the restored line `A performance-based path through sales, training, and team leadership.`, the lime `Apply` button, the blue text link `See what you could make` (only when a pay scale is published), then `Pest control now · Fiber internet in the off-season`. At 390 the headline breaks over two lines above the range crest; at 1280 it runs two lines at 5rem with the range peaks to its right.
+3. Three doors (`ThreeDoorSection`, unchanged component): Pest live, Fiber `Off season lane`, Life greyed.
+4. What the work is, on the surface shade: `Knock` / `You work a set area with a script you have practised.`, `Close` / `You sign the account at the door and log it the same day.`, `Get paid` / `You are paid on what you close, not on hours.` One column at 390, three at 1280.
+5. Estimate your earnings: `Estimate your earnings` and `Set the accounts and the weeks. The pay scale does the rest.` with the existing calculator, still gated on `get_public_calc` published bands.
+6. How the season works: `Apply` / `A short form, then a call with a manager.`, `Train` / `Scripts, product and practice before you knock.`, `Sell the season` / `You work an area with your team through the summer.`, `Settle up` / `Your pay follows the scale you reached.`
+7. Final band: the TRNTY lockup, `Applications take a few minutes.`, the lime `Apply` button, and the Pass 172 line `Already on the team, sign in` (kept; the Pass 170 `Where this goes` section it used to sit under is gone with the restore).
+8. Footer: the ridgeline mark, `Trinity Sales`, `© 2026`, `For parents`, `Instagram`.
+
+Card borders are gone; sections are separated by spacing and surface shade, with one lime action per section and blue for links. The Pass 170 referral field on the applications is untouched.
+
+### 6. The app, at 390 in dark
+
+- Login: the range in the lower half, TRNTY lockup, `Welcome back`, `Sign in to Trinity.`, inputs with a blue focus ring, a lime `Sign in` button, and the forgot password link in blue.
+- Home (owner): the TRNTY compact wordmark in the header, the lime active `Home` tab in the floating bottom bar. This account had never opened the app, so the first open welcome screen showed: `Welcome to Trinity, Mathew.` / `Three things before your first door.` with `Open day one` as the one lime action and the two other steps outlined, plus `Skip for now`. Owner Today and the hero sit behind it on the next open.
+- Home (Pest sales account): not walked at 390. The signed in session available to this pass is the owner's own account; no sales account session can be minted without that person signing in. The hero and its number were verified in code and through the owner's Home.
+- Chat room list: rooms on surface elevated, `Ask Trinity` at the bottom, the lime active `Chat` tab. The Trinity wallpaper draws the range at 20 percent behind the room; Night is flat, Photo is the person's own image.
+- More: three groups, `YOUR WORK` (4), `MANAGE` (12), `SETTINGS` (4), the workspace segmented control above them now in one lime accent instead of the old per industry mint and ice, then `VIEW AS`, feedback and log out.
+- Progress: `Progress` / `Your points, recognition and To do.`, the points and streak figures, `Leaderboard rank`, `Badges` with the trophy case rows in lime small caps, then `To do`.
+- Life Home in light: not walked. The owner's session has no Life workspace access, so the light palette was verified through the token values and the light range colours rather than on screen.
+
+### 7. Emails and functions
+
+User facing copy inside `supabase/functions` was renamed with the same rules; from addresses, domains and reply addresses are unchanged (the Resend display name reads `Trinity <onboarding@resend.dev>`). Redeployed with the backend deploy tool: `admin-approve-user`, `admin-create-user`, `ai-coach`, `ask-summit`, `bootcamp-reminders`, `build-rep-profile`, `check-inactivity`, `send-calendar-notification`, `send-welcome-email`, `submit-vet-lead`, `weekly-owner-report`. Tool output: `Successfully deployed edge functions: admin-approve-user, admin-create-user, ai-coach, ask-summit, bootcamp-reminders, build-rep-profile, check-inactivity, send-calendar-notification, send-welcome-email, submit-vet-lead, weekly-owner-report`. No live function was called and no form was submitted.
+
+### Remaining `Summit` hits in code, with reasons
+
+All remaining hits are identifiers, keys, URLs, file names or addresses:
+
+- `SummitLoader`, `AskSummitPage`, `isSummitAppShellCache`, `summitUpside`, `ask_summit_roster` - component, page, function and RPC identifiers.
+- `ask-summit` - edge function name and route segment; `'ask-summit': 'Ask Trinity'` maps the function name to the new label.
+- `summit.chat.lastRoom`, `summit_interview_responses`, `summit_source_attribution`, `summit-doors-cache-v1`, `summit-(static|shell)-` - browser storage and cache keys.
+- `command_pillar_summit`, `summit_stack_fiber_sonic`, `summit_stack_fiber_surf`, `rank_is_summit`, `ALL_SUMMIT` - `app_settings` keys and code constants; labels around them read Trinity.
+- `Summit_Fiber_Pay_Scale_v5.xlsx` - the stored file name in the private bucket, matched by an allow list.
+- `summitmktgsales.com`, `summitmktg.lovable.app`, `www.instagram.com/summitmktgsales/`, `support@summitmktgsales.com`, `push@summitmktgsales.com`, `@summit-import.local`, `pending@summit.com`, `summit2026`, `snapshots/summit-*.json` - domains, URLs, addresses, a seed password and backup paths.
+- `.chat-surface-summit`, `.summit-atmosphere` - CSS class names tied to the stored `wallpaper` value `summit` and a legacy no-op rule.
+- `src/pages/app/LeadsPage.tsx` `value="Summit"` and `LeaderboardPage` `'summit'` scope - values compared against stored data.
+- `src/tailwind.config.lov.json` - generated config, not hand edited.
+
+### Database rows whose text contains Summit (not edited, for the owner to decide)
+
+| Table . column | id | text |
+| --- | --- | --- |
+| access_codes . description | d7f8407e-c7d3-417f-a9e5-978df31fa08d | Default Summit access code |
+| app_settings . value | e34cc244-5158-4c40-8c35-7fb585fc198a | Reps Summit sends you: 5% to manage + 5% to train = 10% override |
+| app_settings . value | badf36f2-af21-4a8e-ba89-87e452539420 | Paid installs with Summit, across every ISP and every blitz ... |
+| calendar_events . title | 08e5f09e, 169788c3, 16e07511, 7897b29f, 95eee9b6, c9fa0368, dd2993c0, e1c1a399, f087339c, fe6e1c15 | Summit Regional Call (10 rows) |
+| chat_channels . label | 19a27732-a0c6-43bf-a7aa-ff27a176d8cf | Summit Trinity |
+| chat_channels . label | a47d0893-f9fe-4cfe-9d41-1b82b2f1d919 | Summit Pest |
+| chat_channels . label | d9021b9d-583a-4bef-844b-a6ecd4a0f21e | Summit Fiber |
+| chat_channels . label | f5bb2a4d-a278-4828-a708-7bcba5b50a7d | Summit Life |
+| schedule_items . title / description | 28e9be74-2b33-4d1b-abe8-32aa8b064ae0 | Summit Call / Company-wide Summit call |
+| scripts . body | 2e3a6f4b, 612d5fea, a2cf28ba | recruiting call scripts opening "it's [your name] with Summit" |
+| todo_items . title | 0f7eb754-8260-4910-81c7-4c0720827354 | Make summit video |
+| training_lessons . title | 4f332830-0133-422f-8aa9-221feb4f3805 | Welcome to Summit Marketing Family |
+| training_lessons . content | 277057f8, 4f332830, bf0ce148, d344cc77, dde44c23, ed31bd81 | manual chapters naming Summit or SUMMIT MARKETING |
+| training_modules . title / description | 4b1ef288-4988-408e-a08b-7d234e12b5f6 | Welcome to Summit / Welcome to the Summit Marketing family and understand your purpose |
+
+### Remaining hardcoded hex and hsl outside index.css, with reasons
+
+- `src/components/workspace/WorkspaceThemeProvider.tsx` - the source of truth for the workspace palettes: the wordmark colours and the five range layers must be literal values before they become CSS variables.
+- `src/components/brand/Wordmark.tsx` - `#B4F53B` and `#FFFFFF` as fallbacks behind `var(--wordmark-accent)` and `var(--wordmark-letters)`, for the mark on surfaces that set no wordmark variables.
+- `src/components/command/*.tsx` and `src/pages/app/CommandCenterPage.tsx` - the private operator Command Center keeps its own gold on near-black palette, out of the product theme.
+- `#D4AF37` in `TicketPage`, `RankInsignia`, `BadgeChip`, `BadgeStrip`, `SeasonBanner`, `TeamBattles`, `IncentiveTracker`, `HallOfFame`, `LeaderboardPage` - the established trophy and owner gold treatment, unchanged by this pass.
+- `src/components/admin/RichTextEditor.tsx` and `AdminThemesTab.tsx` - swatch values inside colour pickers, which are data, not styling.
+- `src/pages/app/BootcampPhase3.tsx` - `#ffffff` as a canvas `strokeStyle` for the signature pad.
+- `src/tailwind.config.lov.json` - generated file.
+- Every other `hsl(` hit in `src` is `hsl(var(--token))`, which is token use.
+
+### Verification
+
+- The copy added or renamed in this pass contains no em dash and no emoji. Em dashes do remain in older comment and AI prompt text inside `supabase/functions` (weekly-owner-report, bulk-create-users, extract-leaderboard, submit-vet-lead, validate-signup, daily-accountability-post, redeem-invite, ask-summit, ai-coach, admin-create-user); none of them is user facing product copy and none was touched here.
+- `bun x tsgo --noEmit` clean; `bun x vite build` clean.
+- Shell gzip: entry JS `dist/assets/index-*.js` = 16,516 bytes gzip; entry CSS `dist/assets/index-*.css` = 28,399 bytes gzip.
+- Baselines: profiles 536, chat_messages 715, applications 13 - unchanged. `user_notifications` reads 6445, up from 6375, entirely from the cron writers between Pass 174 and now; this pass wrote no notification.
+- One accidental data write happened and was rolled back: opening `/app` in the verification browser as the owner rendered the Pass 172 first open screen, which stamped `profiles.first_open_at` for that one account. It was set back to NULL in a migration, so the welcome screen behaves as it did before this pass. No other row was written. No form was submitted and no live function was called.
+- The site was not published.

@@ -47,8 +47,8 @@ export default function TicketPage() {
 
   useEffect(() => {
     setPageMeta({
-      title: 'Golden Ticket - Summit Marketing',
-      description: 'You were handed a Summit ticket. Leave your details and a manager will reach out.',
+      title: 'Golden Ticket - Trinity Sales',
+      description: 'You were handed a Trinity ticket. Leave your details and a manager will reach out.',
       path: '/ticket',
     });
     (async () => {

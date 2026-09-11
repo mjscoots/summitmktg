@@ -89,7 +89,7 @@ export function WinterPlanCard() {
         <div className="mt-4 border-t border-border pt-4">
           <VerticalApplicationForm
             vertical="Fiber"
-            name="Summit Fiber"
+            name="Trinity Fiber"
             prefillFromProfile
             onDone={() => {
               setShowFiberForm(false);
@@ -103,7 +103,7 @@ export function WinterPlanCard() {
       {showLifeNote && (
         <div className="mt-4 border-t border-border pt-4">
           <p className="text-[13px] text-muted-foreground">
-            Recorded. Summit Life is opening soon - you will get access when it opens.
+            Recorded. Trinity Life is opening soon - you will get access when it opens.
           </p>
           <Button variant="ghost" className="mt-2 min-h-11" onClick={() => setShowLifeNote(false)}>
             Close

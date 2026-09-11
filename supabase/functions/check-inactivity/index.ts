@@ -40,11 +40,11 @@ function daysUntilSummer(): number {
 // ── email builders ──────────────────────────────────────────────────
 function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subject: string; html: string } {
   return {
-    subject: "Summit Training Reminder - Let's Get Back on Track!",
+    subject: "Trinity Training Reminder - Let's Get Back on Track!",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a2e;">
         <h2 style="color: #1a1a2e;">Hi ${firstName(user.full_name)},</h2>
-        <p>We noticed you haven't been active on Summit for the past 3 days. Your training progress is important to your success this summer, and we want to make sure you stay on track!</p>
+        <p>We noticed you haven't been active on Trinity for the past 3 days. Your training progress is important to your success this summer, and we want to make sure you stay on track!</p>
         
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">Your Current Stats:</h3>
@@ -68,17 +68,17 @@ function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subje
         <p>Your team is counting on you, and so is your future self.</p>
 
         <p style="text-align: center; margin: 24px 0;">
-          <a href="${appUrl}/app" style="background: #1a1a2e; color: #fff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: bold;">Log Into Summit →</a>
+          <a href="${appUrl}/app" style="background: #1a1a2e; color: #fff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: bold;">Log Into Trinity →</a>
         </p>
 
         <p>Questions? Reply to this email or reach out to your team leader.</p>
 
-        <p>See you in the platform,<br/><strong>The Summit Team</strong></p>
+        <p>See you in the platform,<br/><strong>The Trinity Team</strong></p>
 
         ${user.pillar_name ? `<p style="color:#666; font-size: 13px;">P.S. – Your pillar, <strong>${user.pillar_name}</strong>, is rooting for you and wants to see you succeed. Let's make them proud!</p>` : ""}
         
         <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;"/>
-        <p style="color: #999; font-size: 11px;">You're receiving this because you have an active Summit account. If you believe this is an error, reply to this email.</p>
+        <p style="color: #999; font-size: 11px;">You're receiving this because you have an active Trinity account. If you believe this is an error, reply to this email.</p>
       </div>
     `,
   };
@@ -86,11 +86,11 @@ function buildDay3Email(user: any, trainingPct: number, appUrl: string): { subje
 
 function buildDay4Email(user: any, trainingPct: number, teamStats: any, appUrl: string): { subject: string; html: string } {
   return {
-    subject: "Missing You on Summit! Your Team Needs You",
+    subject: "Missing You on Trinity! Your Team Needs You",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a2e;">
         <h2 style="color: #1a1a2e;">Hey ${firstName(user.full_name)},</h2>
-        <p>Quick check-in – we haven't seen you on Summit in 4 days and wanted to make sure everything's okay!</p>
+        <p>Quick check-in – we haven't seen you on Trinity in 4 days and wanted to make sure everything's okay!</p>
 
         <p><strong>Here's the truth:</strong><br/>
         The difference between reps who crush it this summer and those who struggle? Daily training.</p>
@@ -123,12 +123,12 @@ function buildDay4Email(user: any, trainingPct: number, teamStats: any, appUrl: 
         </p>
 
         <p>Your team is waiting for you.</p>
-        <p>– <strong>Summit Team</strong></p>
+        <p>– <strong>Trinity Team</strong></p>
 
         ${user.pillar_name ? `<p style="color:#666; font-size: 13px;">CC: <strong>${user.pillar_name}</strong> – Your pillar is in your corner and wants to see you win.</p>` : ""}
 
         <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;"/>
-        <p style="color: #999; font-size: 11px;">You're receiving this because you have an active Summit account. If you believe this is an error, reply to this email.</p>
+        <p style="color: #999; font-size: 11px;">You're receiving this because you have an active Trinity account. If you believe this is an error, reply to this email.</p>
       </div>
     `,
   };
@@ -151,7 +151,7 @@ function buildPillarEmail(
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a2e;">
         <h2 style="color: #1a1a2e;">Hi ${firstName(pillarName)},</h2>
-        <p>This is an automated alert to let you know that <strong>${userName}</strong> from your <strong>${teamName}</strong> team has been inactive on Summit for <strong>${daysCount} days</strong>.</p>
+        <p>This is an automated alert to let you know that <strong>${userName}</strong> from your <strong>${teamName}</strong> team has been inactive on Trinity for <strong>${daysCount} days</strong>.</p>
 
         <div style="background: #f4f4f8; border-radius: 8px; padding: 16px; margin: 16px 0;">
           <h3 style="margin-top:0;">Team Member Details:</h3>
@@ -188,10 +188,10 @@ function buildPillarEmail(
           </ul>
         </div>
 
-        <p>You can view detailed team activity in the Teams section of Summit.</p>
+        <p>You can view detailed team activity in the Teams section of Trinity.</p>
 
         <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;"/>
-        <p style="color: #999; font-size: 11px;">This is an automated alert from Summit. You're receiving this as a pillar leader.</p>
+        <p style="color: #999; font-size: 11px;">This is an automated alert from Trinity. You're receiving this as a pillar leader.</p>
       </div>
     `,
   };
@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
     // Use the published app URL for links
     const appUrl = "https://summitmktg.lovable.app";
     // Email sender – change once domain is verified in Resend
-    const fromEmail = "Summit <onboarding@resend.dev>";
+    const fromEmail = "Trinity <onboarding@resend.dev>";
 
     const now = new Date();
     const thresholdMs72 = 72 * 60 * 60 * 1000; // 3 days

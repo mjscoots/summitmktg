@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
         
         try {
           await resend.emails.send({
-            from: Deno.env.get("RESEND_FROM_EMAIL") || "Summit <onboarding@resend.dev>",
+            from: Deno.env.get("RESEND_FROM_EMAIL") || "Trinity <onboarding@resend.dev>",
             to: profile.email,
             subject: ` Calendar Event: ${event_title}`,
             html: `
@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
                   ${event_location ? `<p style="margin: 5px 0;"><strong>Where:</strong> ${event_location}</p>` : ""}
                   ${event_description ? `<p style="margin: 10px 0 0 0;">${event_description}</p>` : ""}
                 </div>
-                <p>Log in to the Summit app to view details and confirm your attendance.</p>
+                <p>Log in to the Trinity app to view details and confirm your attendance.</p>
                 <a href="https://summitmktgsales.com/app/calendar" 
                    style="display: inline-block; background: #4A90A4; color: white; padding: 12px 24px; 
                           text-decoration: none; border-radius: 6px; margin-top: 10px;">
