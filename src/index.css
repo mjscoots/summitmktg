@@ -1335,6 +1335,16 @@ html[data-appearance='light'] .public-auth {
   .chat-surface-summit > .chat-range { opacity: 0.2; }
   .chat-surface-night { background: hsl(var(--surface-sunken)); }
   .chat-surface-photo { background: hsl(var(--surface)); }
+  /* The person's own photo, set as --chat-photo by useChatSkin. */
+  .chat-surface-photo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--chat-photo, none);
+    background-size: cover;
+    background-position: center;
+    pointer-events: none;
+  }
   .chat-range {
     position: absolute;
     inset: auto 0 0 0;

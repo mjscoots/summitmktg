@@ -235,9 +235,23 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
   }, [personalGrossRevenue, numDirectRookies, numDirectVets, numDirectManagers, avgManagerTeamRevenue, avgRookiePra, avgVetPra, onValuesChange]);
 
   if (!published) {
+    // The veteran and marketing scales are not published, so no rate can be
+    // shown. Say so plainly and keep the way forward on the screen.
     return (
-      <div className="card-elevated p-6 md:p-8">
-        <p className="text-sm text-muted-foreground">{NOT_PUBLISHED}</p>
+      <div className="card-elevated space-y-3 p-6 md:p-8">
+        <h3 className="text-xl font-bold text-foreground">Veteran numbers</h3>
+        <p className="text-sm text-muted-foreground">
+          {NOT_PUBLISHED} Send the form and we go through your numbers and terms on the call.
+        </p>
+        {onApplyClick && (
+          <button
+            type="button"
+            onClick={onApplyClick}
+            className="inline-flex min-h-11 items-center rounded bg-primary px-5 text-[14px] font-semibold text-primary-foreground"
+          >
+            Go to the form
+          </button>
+        )}
       </div>
     );
   }
