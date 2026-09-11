@@ -225,33 +225,18 @@ function LogoBurstBase({ headlineRef, progress, onHeadlineVisible, onSettled }: 
         for (let i = 0; i < limit; i += 1) keep.push(list[Math.floor(i * stride)]);
         return keep;
       };
-      const src = thin(source, cap);
-      const tgt = thin(targets, cap);
+      // Both fields are thinned to the same count and sorted into grid cells,
+      // then paired index by index. That is a linear pass after the sort, so
+      // there is no O(n squared) nearest neighbour loop, and every particle
+      // ends on a real headline pixel.
+      const cell = 12;
+      const order = (pt: { x: number; y: number }) => Math.floor(pt.y / cell) * 10000 + Math.floor(pt.x / cell);
+      const count = Math.min(source.length, targets.length, cap);
+      const src = thin(source, count).sort((m, n) => order(m) - order(n));
+      const tgt = thin(targets, count).sort((m, n) => order(m) - order(n));
 
-      // Grid buckets so target matching stays linear.
-      const cell = 24;
-      const buckets = new Map<string, { x: number; y: number }[]>();
-      for (const t of tgt) {
-        const key = `${Math.floor(t.x / cell)}:${Math.floor(t.y / cell)}`;
-        const list = buckets.get(key);
-        if (list) list.push(t);
-        else buckets.set(key, [t]);
-      }
-      const keys = Array.from(buckets.keys());
-      let keyIndex = 0;
-
-      particles = src.map((p) => {
-        // Nearest unclaimed target: try the bucket over the particle first, then
-        // walk the remaining buckets in order.
-        let claim: { x: number; y: number } | undefined;
-        const own = `${Math.floor(p.x / cell)}:${Math.floor(p.y / cell)}`;
-        const ownList = buckets.get(own);
-        if (ownList && ownList.length) claim = ownList.pop();
-        while (!claim && keyIndex < keys.length) {
-          const list = buckets.get(keys[keyIndex]);
-          if (list && list.length) claim = list.pop();
-          else keyIndex += 1;
-        }
+      particles = src.map((p, index) => {
+        const claim = tgt[index];
         const angle = Math.atan2(p.y - height / 2, p.x - width / 2) + (Math.random() - 0.5) * 0.6;
         const reach = Math.max(width, height) * (0.28 + Math.random() * 0.42);
         return {
