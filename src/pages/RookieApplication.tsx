@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Zap, Target, Users, Calendar, FileText, Mountain, Loader2 } from "lucide-react";
 import EarningsCalculator from "@/components/EarningsCalculator";
 import IndustryStep, { useApplicationSource } from "@/components/apply/IndustryStep";
+import WantsStep, { useWants } from "@/components/apply/WantsStep";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { setPageMeta } from "@/lib/pageMeta";
@@ -29,12 +30,13 @@ const RookieApplication = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const { vertical, setVertical, source } = useApplicationSource();
+  const wants = useWants();
 
   useEffect(() => {
     setPageMeta({
       title: "Apply as a Rookie - Trinity Sales",
       description:
-        "Apply for a summer sales season with Trinity. First-time reps start here.",
+        "Apply to sell with Trinity. Pest control, fiber internet or life insurance. First-time reps start here.",
       path: "/apply/rookie",
     });
   }, []);
@@ -174,6 +176,7 @@ const RookieApplication = () => {
           phone: formData.phone.trim(),
           city_state: formData.cityState.trim(),
           referral_source: formData.referralName.trim(),
+          ...wants.payload(),
           vertical: vertical === "unsure" ? null : vertical,
           source_type: source.source_type,
           source_code: source.source_code,
@@ -374,6 +377,8 @@ const RookieApplication = () => {
               </div>
               </div>
             </section>
+
+            <WantsStep wants={wants} />
 
             <section className="public-surface p-5 sm:p-6">
               <h2 className="mb-4 text-base font-extrabold text-foreground">How you heard about us</h2>
