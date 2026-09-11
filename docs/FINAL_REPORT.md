@@ -4622,3 +4622,123 @@ tsconfig.app.json; production build clean in 11.45s; shell gzip of the entry
 bundles is 16,381 bytes of JS (from 16,404) and 30,109 bytes of CSS (from
 30,011). Baselines unchanged: profiles 536, chat_messages 716, applications 13,
 earnings_goals 0.
+
+## Pass 183: the real logo, one motion standard, new motion moments
+
+### The logo
+The owner's traced wordmark is saved verbatim at public/brand/trnty-logo.svg
+(viewBox 171 282 1625 281, white letters path then blue mountain path) and the
+same two path strings are inlined in src/components/brand/logoPaths.ts, which is
+the single source for Wordmark, RidgelineMark, LogoBurst and the icon renders.
+Every Wordmark variant (hero, heroMono, heroFiber, heroLife, full, fullV2,
+stacked, compact, compactPlain) draws the full lockup scaled to its height, with
+the letters white on dark and #000000 on light and the mountain #004EFD in both
+modes. The mark variant, the icons, the splash, the footer stamp and
+RidgelineMark use the mountain path alone. RidgelineMark keeps its name and its
+props and strokes the mountain over 900ms (stroke-dasharray 2700, the measured
+path length is 2693.0) before the fill rises. #004EFD appears only in the logo,
+the mark and the opening particles.
+
+Measured logo: nav lockup 28.0px tall at 390 and 34.0px tall at 1280, centred on
+phone and left on desktop. Opening source lockup 302.4px wide at 390 (77.5vw)
+and 544.0px at 1280 (42.5vw).
+
+Icons regenerated from the mountain path alone with the sandbox renderer:
+favicon.svg 3,576 bytes, favicon.png 431, apple-touch-icon.png 3,393,
+icon-192.png 3,691, icon-512.png 11,553, icon-512-maskable.png 9,518,
+splash-1170x2532.png 38,747. Mountain centred on black at 70 percent of canvas.
+
+### Particle counts by colour
+Sampled off the opening canvas (alpha above 8).
+At 390: source field 5,564 white points and 686 blue points, no other colour.
+At 1280: source field 20,208 white and 2,111 blue, no other colour.
+Settled living field at 390: 250 lit points on the 2px sample grid; at 1280: 615.
+Every sampled point is white or the headline gradient; no blue remains after the
+handoff, as specified.
+
+### Formed particle offset
+Each character of the headline is measured back out of the DOM with a Range, so
+canvas lines sit on the real wrapped visual lines. Sampled lit points against
+the DOM headline line boxes: 0 points outside the boxes and a maximum offset of
+0.00px at both 390 and 1280, inside the 1px bar.
+
+### The audit, before and after
+1. Durations. Before: mixed 200ms, 300ms, 400ms, 600ms, 700ms literals. After:
+   150 to 200ms feedback, 280ms content, up to 520ms hero and section entrances,
+   all from the motion tokens.
+2. Easing. Before: ease, ease-out and one linear on entrances. After:
+   cubic-bezier(0.16,1,0.3,1) on enter and exit, ease-in-out on loops, the spring
+   only inside the opening, linear kept only on sub-300ms opacity crossfades.
+3. Animated properties. Before: a blind opacity delay on the hero support and
+   actions, and clip-path on the old headline wipe. After: transform and opacity
+   only, with two documented exceptions, the mark fill-opacity and the gradient
+   button background-position.
+4. The opening. Before: text sampling, once per session, estimated line
+   positions. After: the traced logo sampled at 3px on phone capped at 2,400 and
+   2px on desktop capped at 7,000, source colours preserved, formation onto the
+   real DOM glyph lines, a 200ms ease-out crossfade, then the post-burst rise.
+5. The sweep. Before: a one way fade. After: a pure function of scroll
+   progress, reversible, crossfading between p=0.04 and p=0.12.
+6. Section reveals. Before: one plain block fade per section. After: clipped
+   line reveals at 520ms with a 40ms per line stagger and cards rising 16px on a
+   60ms stagger, triggered once at 15 percent visibility.
+7. The scene. Before: modulo loops that jumped at the seam and particles that
+   popped in. After: seamless sine drift per layer, an eased glow breath from 6
+   to 10 percent lifted toward 14 percent at the final band, respawn at zero
+   alpha with a 600ms fade, and sleep when the tab is hidden or the canvas is off
+   screen.
+
+### The new motion moments, at 390 and 1280
+Hero rise: three staggered elements, eyebrow at 200ms with a 200ms ease-out fade,
+support line and actions at 280ms with 60ms and 120ms delays, 12px translate,
+cubic-bezier(0.16,1,0.3,1), all reaching opacity 1 and transform none.
+Scroll progress hairline: present at both widths, 2px, gradient, scaleX driven by
+the single rAF loop.
+Ticker band: present at both widths, one duplicated track, 40s linear, no seam.
+Clipped line reveals: 9 at both widths. Card reveals: 5 groups at both widths.
+Door hover and press: 2 lane underlines; scale 1.02 lift on a fine pointer,
+scale 0.98 on press, underline drawing from the left.
+Living headline touch repel: the settled field pushes away from a pointer or a
+finger inside a 26px radius and springs back on the decay curve.
+Final band glow: the band's own progress is passed to the scene as glowBoost and
+lifts the peak glow toward 14 percent.
+Manager card and photo rise: the Who runs it section rises on the card stagger.
+Book fifteen minutes shimmer: btn-shimmer, 6s, ease-in-out, on every gradient
+button.
+The proof underline is wired on the counter numbers, but the cover proof strip
+stays off because COVER_STATS is false, so no number renders on the cover.
+
+### Sweep crossfade
+DOM headline opacity: 1.00 at p=0, 0.50 at p=0.08, 0.00 at p=0.30, and the same
+values coming back on the reverse scroll at both widths.
+
+### Ticker items, verbatim
+BALTIMORE, BOSTON, 23 IN THE FIELD, 14 SIGNED FOR 2027, PEST, FIBER, LIFE COMING.
+
+### Gyroscope path
+On a coarse pointer the scene layers follow deviceorientation at three depths.
+iOS only delivers those events after a gesture asks, so requestTiltPermission is
+called inside the first tap of the primary hero button; a refusal or an
+unsupported browser simply leaves the self drift running, and no error surfaces.
+
+### Frame times
+Opening: median 16.7ms, p95 16.8ms at both widths.
+Sweep: median 16.7ms, p95 16.7ms at both widths.
+Steady scroll: median 16.7ms, p95 16.7ms at both widths.
+Touching the headline: median 16.7ms, p95 16.7ms at both widths.
+
+### Reduced motion
+With prefers-reduced-motion reduce at 390: zero requestAnimationFrame calls, no
+opening canvas mounted, the headline at opacity 1, the redaction bar not
+rendered, all three hero rise elements at opacity 1, the ticker animation none,
+the progress hairline display none, zero hidden clipped lines, zero hidden cards,
+and the button shimmer none. The scene draws a single static frame with no
+particles.
+
+### Build
+No new npm dependencies, no copy changes, no compensation figures, no data
+writes, no live probes, no publish. No em dash and no emoji in any added line.
+Typecheck clean with tsgo against tsconfig.app.json; production build clean in
+12.73s; shell gzip of the entry bundles is 16,391 bytes of JS (from 16,381) and
+30,810 bytes of CSS (from 30,109). Baselines unchanged: profiles 536,
+chat_messages 716, applications 13, earnings_goals 0.
