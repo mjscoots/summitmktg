@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       const displayed = names.slice(0, MAX_NAMES);
       const remaining = names.length - displayed.length;
       const nameStr = displayed.map(n => `• ${n}`).join("\n");
-      const extra = remaining > 0 ? `\n_...and ${remaining} more — see Team page for full list_` : "";
+      const extra = remaining > 0 ? `\n_...and ${remaining} more. See Team page for full list_` : "";
       return `${emoji} **${label}** (${names.length})\n${nameStr}${extra}`;
     };
 
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
     }
 
     if (inactive.length > 0) {
-      sections.push(formatNameList(inactive, "GHOST MODE — 3+ DAYS INACTIVE", "👻"));
+      sections.push(formatNameList(inactive, "GHOST MODE: 3+ DAYS INACTIVE", "👻"));
     }
 
     if (sections.length === 0) {
@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const content = `📢 **DAILY ACCOUNTABILITY REPORT**\n\n${sections.join("\n\n")}\n\n---\nManagers — if your people are on this list, it's your job to get them off it. ⚔️`;
+    const content = `📢 **DAILY ACCOUNTABILITY REPORT**\n\n${sections.join("\n\n")}\n\n---\nManagers: if your people are on this list, it's your job to get them off it. ⚔️`;
 
     await supabase.from("chat_messages").insert({
       user_id: botUserId,

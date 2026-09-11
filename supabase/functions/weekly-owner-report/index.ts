@@ -70,7 +70,7 @@ function buildHtml(weekEnding: string, p: any): string {
       risk.length === 0
         ? `<p style="font-size:14px;margin:0;color:#666">Nobody flagged.</p>`
         : `<ul style="font-size:14px;margin:0;padding-left:18px">${risk
-            .map((r) => `<li>${r.name} — ${r.days == null ? "never active" : `${r.days}d`}</li>`)
+            .map((r) => `<li>${r.name}: ${r.days == null ? "never active" : `${r.days}d`}</li>`)
             .join("")}</ul>`
     }
   </div></body></html>`;
@@ -153,7 +153,7 @@ serve(async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: FROM_EMAIL,
         to: emails,
-        subject: `Weekly report — week ending ${latest.week_ending}`,
+        subject: `Weekly report: week ending ${latest.week_ending}`,
         html: buildHtml(latest.week_ending, payload),
       }),
     });

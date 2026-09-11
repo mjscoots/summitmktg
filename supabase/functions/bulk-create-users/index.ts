@@ -987,14 +987,14 @@ Deno.serve(async (req) => {
     const summerReadyGap = response.status_sync.summer_ready_imported - response.status_sync.summer_ready_applied;
     if (summerReadyGap > 0) {
       response.canonical_gap_warnings.push(
-        `${summerReadyGap} imported Summer Ready reps were not mapped to canonical records — review required.`
+        `${summerReadyGap} imported Summer Ready reps were not mapped to canonical records. Review required.`
       );
     }
 
     const nlcGap = response.status_sync.nlc_imported - response.status_sync.nlc_applied;
     if (nlcGap > 0) {
       response.canonical_gap_warnings.push(
-        `${nlcGap} imported NLC reps were not mapped to canonical records — review required.`
+        `${nlcGap} imported NLC reps were not mapped to canonical records. Review required.`
       );
     }
 

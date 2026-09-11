@@ -152,13 +152,13 @@ serve(async (req) => {
         const detail = await res.text();
         if (res.status === 429) {
           return new Response(
-            JSON.stringify({ error: "Rate limited by the AI service — try again in a minute." }),
+            JSON.stringify({ error: "Rate limited by the AI service. Try again in a minute." }),
             { status: 429, headers: { ...cors, "Content-Type": "application/json" } }
           );
         }
         if (res.status === 402) {
           return new Response(
-            JSON.stringify({ error: "AI credits are exhausted — add credits to run the import." }),
+            JSON.stringify({ error: "AI credits are exhausted. Add credits to run the import." }),
             { status: 402, headers: { ...cors, "Content-Type": "application/json" } }
           );
         }
