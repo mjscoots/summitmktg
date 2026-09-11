@@ -62,6 +62,17 @@ export function YearStrip({ onDay }: { onDay?: (day: number | null) => void }) {
 
   useEffect(() => () => onDay?.(null), [onDay]);
 
+  /** A tap or an arrow key holds the sky briefly, then hands it back to scroll. */
+  const holdRef = useRef<number | null>(null);
+  const hold = useCallback(
+    (next: number) => {
+      onDay?.(monthDay(next));
+      if (holdRef.current) window.clearTimeout(holdRef.current);
+      holdRef.current = window.setTimeout(() => onDay?.(null), 900);
+    },
+    [onDay]
+  );
+
   return (
     <div>
       <div
@@ -84,14 +95,19 @@ export function YearStrip({ onDay }: { onDay?: (day: number | null) => void }) {
         }}
         onPointerUp={() => onDay?.(null)}
         onPointerCancel={() => onDay?.(null)}
+        onBlur={() => onDay?.(null)}
         onKeyDown={(event) => {
           if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
             event.preventDefault();
-            setIndex((i) => Math.min(11, i + 1));
+            const next = Math.min(11, index + 1);
+            setIndex(next);
+            hold(next);
           }
           if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
             event.preventDefault();
-            setIndex((i) => Math.max(0, i - 1));
+            const next = Math.max(0, index - 1);
+            setIndex(next);
+            hold(next);
           }
         }}
       >
@@ -106,7 +122,10 @@ export function YearStrip({ onDay }: { onDay?: (day: number | null) => void }) {
             <button
               key={month}
               type="button"
-              onClick={() => setIndex(i)}
+              onClick={() => {
+                setIndex(i);
+                hold(i);
+              }}
               className={`year-month ${i === index ? 'year-month-on' : ''}`}
             >
               {month}
