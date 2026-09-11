@@ -102,6 +102,39 @@ function MountainSceneBase({
     const coarse = window.matchMedia('(hover: none)').matches;
     const paths = RIDGES.map((d) => new Path2D(d));
 
+    // The crest of the far ridge, sampled once in view units so the climb
+    // marker can ride it. The samples run from the left foot to the summit.
+    const crest: { x: number; y: number }[] = [];
+    try {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '0');
+      svg.setAttribute('height', '0');
+      svg.style.position = 'absolute';
+      svg.style.opacity = '0';
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', RIDGES[0]);
+      svg.appendChild(path);
+      document.body.appendChild(svg);
+      const total = path.getTotalLength();
+      for (let i = 0; i <= 240; i += 1) {
+        const point = path.getPointAtLength((total * i) / 240);
+        if (point.y < 330 && point.x >= -20 && point.x <= 730) crest.push({ x: point.x, y: point.y });
+      }
+      document.body.removeChild(svg);
+      crest.sort((a, b) => a.x - b.x);
+    } catch {
+      /* the marker simply does not render */
+    }
+
+    interface Ripple {
+      x: number;
+      y: number;
+      start: number;
+    }
+    let ripples: Ripple[] = [];
+    const RIPPLE_MS = 700;
+
+
     let width = 0;
     let height = 0;
     let scale = 1;
