@@ -2518,3 +2518,44 @@ html[data-appearance='light'] .btn-gradient {
   .apply-step { animation: none !important; }
   .apply-progress { transition: none !important; }
 }
+
+/* ━━━ PASS 190: ONE SURFACE, NO SEAM ━━━
+   The light world is painted once, on the world wrapper, behind everything.
+   The hero, the statement and the wrapper between them paint nothing at all, so
+   there is no box edge to see. The hairline grid and the scene canvas are both
+   masked so they dissolve instead of stopping on a line. */
+.public-world {
+  background: hsl(var(--background));
+  transition: background-color 300ms linear;
+}
+.cover-hero,
+.cover-statement,
+.public-world > main {
+  background: transparent;
+  background-image: none;
+  border: 0;
+  box-shadow: none;
+  outline: none;
+}
+/* The range melts into the page: its lower 30 percent is masked to transparent. */
+.cover-scene {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 70%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 70%, rgba(0, 0, 0, 0) 100%);
+}
+/* The grid fades from full to zero across the last 25vh of the section it sits in. */
+.cover-open::before {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 25vh), rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 25vh), rgba(0, 0, 0, 0) 100%);
+}
+/* The statement centres in its own screen, with the space above the headline capped. */
+.cover-statement {
+  justify-content: center;
+  padding-top: min(18vh, 80px);
+  padding-bottom: min(18vh, 80px);
+}
+@media (min-width: 700px) {
+  .cover-statement {
+    padding-top: min(20vh, 80px);
+    padding-bottom: min(20vh, 80px);
+  }
+}
