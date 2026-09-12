@@ -1,11 +1,15 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { setPageMeta } from "@/lib/pageMeta";
+import { loadSchedulingUrl } from "@/lib/scheduling";
 
 const ApplySuccess = () => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const wantsCall = params.get("call") === "1";
+  const [schedulingUrl, setSchedulingUrl] = useState<string | null>(null);
 
   useEffect(() => {
     setPageMeta({
@@ -14,6 +18,10 @@ const ApplySuccess = () => {
       path: "/apply/success",
     });
   }, []);
+
+  useEffect(() => {
+    if (wantsCall) loadSchedulingUrl().then(setSchedulingUrl);
+  }, [wantsCall]);
 
   return (
     <div className="gold-world relative flex min-h-screen items-center justify-center bg-background px-5">
@@ -26,8 +34,18 @@ const ApplySuccess = () => {
           Application received
         </h1>
         <p className="mt-3 text-text-secondary">
-          A manager reviews it and calls you. Keep an eye on your phone and your email.
+          Someone from the team will reach out and see if you are a good fit.
         </p>
+        {wantsCall && schedulingUrl && (
+          <a
+            href={schedulingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-xl bg-[#6D3BFF] px-6 text-sm font-bold text-white transition-opacity hover:opacity-90"
+          >
+            Open the scheduling page
+          </a>
+        )}
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={() => navigate("/")}

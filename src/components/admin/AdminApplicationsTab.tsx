@@ -24,6 +24,8 @@ interface Application {
   interested_in: string[] | null;
   sales_style: string | null;
   earnings_goal: string | null;
+  experience: string | null;
+  wants_call: boolean | null;
   application_type: string;
   status: string;
   notes: string | null;
