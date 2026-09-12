@@ -5127,3 +5127,74 @@ Staff view: src/components/admin/AdminApplicationsTab.tsx now renders "Experienc
 - Shell gzip: JS 16,325 bytes (Pass 187 16,381, minus 56), CSS 32,597 bytes (Pass 187 32,359, plus 238).
 - Baselines unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
 - No permission changes beyond the two columns and the redeployed function. No cover change. The site was not published.
+
+## Pass 189 - pay mechanics closed on every public route
+
+### Calculator renders removed
+- `src/pages/Recruiting.tsx` - `<EarningsCalculator onApplyClick={...} />` plus the whole "Run the numbers" section wrapper and the `EarningsCalculator` import. `handleApplyClick` stays (used by the two path cards and the footer links).
+- `src/components/IndustrySwitcher.tsx` - lazy `EarningsCalculator` and `FiberPublicCalculator` imports, the `#earnings` scroll target block, the `Suspense`/`Skeleton` wrapper, the `usePublicCalc()` call and its import. This component is not mounted by any route today; it was scrubbed anyway because it is public-page code.
+- No other public route rendered a calculator. `VetBidForm` was only reachable through `EarningsCalculator`, so with that render gone the "Already sold before" bid dialog is no longer reachable from any public route. The file is untouched and still ships inside the app calculator.
+
+### Touched pages, top to bottom after the change
+`/recruiting`: nav (Trinity mark, Apply Now) -> hero (wordmark, "Your Summer. Your Move.", intro line, Start Your Application, LiveCounters) -> RecruitingProof (reps on the team, years running) -> RecruitingContentPack (optional video, day in the life, straight answers, first-summer reps) -> Why Trinity (six cards) -> Who We're Looking For -> ThreeDoorSection -> Choose Your Path (Rookie and Veteran cards, Instagram help line) -> Ready to Find the Trinity CTA -> footer. The proof section and the Why Trinity grid now meet directly where the calculator section used to sit; the page keeps three Apply calls to action, so no CTA was added.
+
+`/industries/:slug`: header -> back home -> title -> public note -> description -> How it works -> The ladder (rank names and arrows only, the per-rank dollar figure is gone) -> Lead cards -> Apply button plus the veteran link. Nothing else moved; the page keeps its Apply CTA.
+
+`src/components/recruiting/RecruitingProof.tsx`: public stat keys reduced to `team_size` and `years_running` (counts of people and years, allowed). `rookie_avg_earnings` and `top_rookie` are no longer rendered anywhere public; `PROOF_FIELDS` keeps them so the admin panel still edits them.
+
+`src/components/recruiting/RecruitingContentPack.tsx`: the testimonial `first_summer_figure` dollar line is no longer rendered. Quote, name and school remain.
+
+`src/App.tsx`: `/apply` now redirects to `/apply/rookie` instead of `/recruiting#apply`.
+
+### Copy scrub on /recruiting (pay content that was not a calculator)
+- meta description "Training, housing and pay explained." -> "Training, housing and the season explained." (removed)
+- h1 "Your Summer. Your Income." -> "Your Summer. Your Move." (removed)
+- hero "earn more in 4 months than most make in a year" -> "get more out of four months than most people get out of a year" (earnings claim removed, sentence kept)
+- benefit "High Income Potential / Earn based on your effort ... paid on what you close" -> "Your Effort Decides It / This is not an hourly job. What you put in is what you get out of the summer." (removed; the DollarSign icon import went with it, Mountain is used instead)
+- benefit "Fast Results / Start earning within your first week" -> "Fast Start / You are on the doors in your first week, not after months of classroom time." (removed)
+- "a high-income skill" -> "a real sales skill" in both the looking-for list and the Rookie card (removed)
+- Veteran card "instant marketing deals" -> "the veteran track"; bullet "Top-tier commission structure" -> "Veteran track from day one"; bullet "Uncapped overrides on your team" -> "Build and lead your own team" (marketing deal, commission and override mechanics removed)
+- `/industries/:slug` meta fallback "You close, you get paid on what you close." -> sentence dropped, the rest of the description kept.
+
+### Grep over every public route in item 1
+Pattern: dollar sign, a percentage, commission, override, spread, marketing deal, pay ladder, tier, rent, earn, make. Files swept: `Index.tsx`, `Recruiting.tsx`, `TicketPage.tsx`, `Parents.tsx`, `IndustryPage.tsx`, `JoinRedirect.tsx`, `InvitePage.tsx`, `PillarJoinPage.tsx`, `RookieApplication.tsx`, `VetApplication.tsx`, `ApplySuccess.tsx`, `AuthPage.tsx`, `PendingApproval.tsx`, `ResetPasswordPage.tsx`, `NotFound.tsx`, plus every component those routes render (`IndustrySwitcher`, `RecruitingProof`, `RecruitingContentPack`, `LiveCounters`, `ThreeDoorSection`, `AskSheet`, `ProductionTicker`, `ApplyFlow`, `IndustryStep`, `WantsStep`, `ManagerPicker`).
+
+Classified hits after the edits:
+- Removed: every item in the copy scrub list above, the per-rank dollar figure on `/industries/:slug`, the two money proof stats, the testimonial dollar figure, and both calculators with their pay ladder, active revenue percentage and "Rent is free at $125,000" housing line.
+- Left alone, template literals and code, no pay meaning: `${...}` interpolations in `AskSheet.tsx`, `RecruitingProof.tsx`, `RecruitingContentPack.tsx`, `IndustryPage.tsx`, `IndustrySwitcher.tsx`, `TicketPage.tsx`, `AuthPage.tsx`, `InvitePage.tsx`, `PillarJoinPage.tsx`, `ManagerPicker.tsx`, and the email regex in `ApplyFlow.tsx`.
+- Left alone, questions asked of the applicant rather than a claim: "What is your earnings goal for your first year?" in `ApplyFlow.tsx` and `WantsStep.tsx`, and the `earnings_goal` payload key.
+- Left alone, admin-only strings never rendered on a public route: `PROOF_FIELDS` hints "e.g. $18,400" and "e.g. $41,000" in `RecruitingProof.tsx` (used by `AdminRecruitingTab`).
+- Left alone, not reachable and cover code that this pass may not change: `components/recruiting/ProductionTicker.tsx` lines 5 to 15 carry eleven dollar production lines ($429,000 down to $50,000 and "$6,000,000 in accounts"). Its only render site is `pages/Index.tsx` line 241, gated by `COVER_STATS` in `src/lib/coverStats.ts`, which is `false`, so nothing renders on `/`. Confirmed by browser: no dollar sign in the body text of `/`. Listed for the owner because the strings still exist in the repo.
+- Left alone, statement of pay basis with no figure or mechanic, on `/apply/rookie` not on the two pages item 3 names for removal: `pages/RookieApplication.tsx` line 24, "You are paid on performance, not the clock."
+- Left alone, `PillarJoinPage.tsx` line 188 "Make your account here" - the word make, no pay meaning.
+- Left alone, `JoinRedirect.tsx` line 14 still sends a no-vertical `/join` visit to `/recruiting#apply`; that anchor is the Choose Your Path section, which still exists. Item 4 only names `/apply`.
+
+### /parents and /ticket, full list for the owner (nothing changed on either page)
+`src/pages/Parents.tsx`
+- line 19: "Trinity trains and fields door-to-door sales reps. Reps work an assigned area and sell service agreements directly to residents. It is commission-based sales work, not an hourly job, and it runs roughly from May through August. Trinity also runs a smaller fiber internet line in the winter and is starting a life insurance line."
+- line 26: "Reps relocate to the summer sales market and live in shared housing arranged by the team, usually apartments with two to four reps per unit. Housing costs are disclosed before the season starts and are deducted from commissions rather than paid up front."
+- line 36: heading "How pay works"
+- line 38: "Pay is commission on serviced accounts. A rep earns a percentage of the revenue their accounts generate once service is performed, and the percentage increases as total revenue increases. Because it is commission, earnings depend entirely on how much the rep sells and how many of those accounts stay serviced. There is no guaranteed income and no earnings promise."
+- line 62: meta description "A plain explanation of the summer sales job, housing, safety and how pay works at Trinity."
+- line 93: "This page explains what your student would be doing, where they would live, how they are supervised, and how they get paid. No pitch - just the facts, so you can ask better questions."
+
+`src/pages/TicketPage.tsx`
+- line 12: interest option "The money"
+- No dollar figure, percentage, tier, override, spread, marketing deal or earnings claim anywhere on the page. Lines 44, 105, 123 to 126 are the ticket number and the "claimed of 100" count, which is a count of tickets, not money.
+
+Note for the owner: `/recruiting` also renders admin-editable database content (`get_recruiting_proof`, the day-in-the-life timeline, the straight-answers FAQ, the testimonial quotes) and `/industries/:slug` renders `get_public_industry` description and public note. Those strings live in the database, not in the code, so this pass could not scrub them without a data write. The owner should read them in the admin panel and clear any pay figure there.
+
+### Logged-in render sites, all still present
+- `src/pages/app/LinksPage.tsx` line 779 still renders `<EarningsCalculator />` and `<VetCalculator />` behind the rookie and veteran tab, imports at lines 19 and 20 intact.
+- `src/pages/app/EstimateEarningsPage.tsx` present and untouched.
+- Component files all present and unmodified: `EarningsCalculator.tsx`, `VetCalculator.tsx`, `FiberPublicCalculator.tsx`, `VetBidForm.tsx`, `shared/PayLadderTrack.tsx`.
+- Nothing under `/app`, `/admin` or `/command` was edited.
+
+### Verification
+- `tsgo --noEmit -p tsconfig.app.json`: clean.
+- `npm run build`: clean, built in 10.99s.
+- Browser sweep at 1280 wide, body text of `/recruiting`, `/industries/pest`, `/industries/fiber`, `/`, `/apply/rookie`, `/apply/veteran` matched against "Earnings calculator", "Run the numbers", "Pay ladder", "Accounts per week", "Season earnings", "Rent is free", "marketing deal", "commission", "override" and any dollar amount: zero hits on all six. No page errors.
+- `/apply` resolves to `http://localhost:8080/apply/rookie`.
+- Shell gzip: JS 16,274 bytes (Pass 188 16,325, minus 51), CSS 32,597 bytes (Pass 188 32,597, unchanged).
+- Baselines unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
+- No data write, no permission change, no cover change, no new dependency. The site was not published.
