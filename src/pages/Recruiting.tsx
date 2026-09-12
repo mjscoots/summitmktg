@@ -246,19 +246,20 @@ const Recruiting = () => {
               </h3>
               
               <p className="text-muted-foreground mb-6">
-                <span className="text-primary font-semibold">Prior D2D experience?</span> Join with 
-                instant marketing deals and the ability to build your own team.
+                <span className="text-primary font-semibold">Prior D2D experience?</span> Join on the
+                veteran track with the ability to build and lead your own team.
               </p>
               
               <ul className="space-y-2 text-sm text-muted-foreground mb-6">
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Top-tier commission structure
+                  Veteran track from day one
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Uncapped overrides on your team
+                  Build and lead your own team
                 </li>
+
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   Systems & AI tools
