@@ -218,6 +218,20 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0, l
         ctx.restore();
       }
 
+      // Pass 190: in the light world the tint is a falloff, never a filled panel.
+      // A vertical wash of the sky colour takes the top of the frame to pure
+      // white and reaches zero by 60 percent of the viewport height, so no tinted
+      // box and no boundary can be seen under the nav.
+      if (light) {
+        const wash = ctx.createLinearGradient(0, 0, 0, height * 0.6);
+        wash.addColorStop(0, sky);
+        wash.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = wash;
+        ctx.fillRect(0, 0, width, height * 0.6);
+      }
+
+
+
       // Particles above the range. A respawn starts at zero alpha and fades in
       // over 600ms, so nothing ever pops into frame.
       if (!reduceMotion) {
