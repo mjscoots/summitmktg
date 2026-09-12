@@ -2561,3 +2561,12 @@ html[data-appearance='light'] .btn-gradient {
     padding-bottom: 10vh;
   }
 }
+/* The nav over the cover is a wash that fades out, never a bordered band, so the
+   only horizontal line left in the transition is gone too. */
+.public-world .public-nav {
+  border-bottom-color: transparent;
+  background: transparent;
+}
+.public-world .public-nav-scrolled {
+  background: linear-gradient(to bottom, hsl(var(--background) / 0.92) 0%, hsl(var(--background) / 0.72) 55%, hsl(var(--background) / 0) 100%);
+}
