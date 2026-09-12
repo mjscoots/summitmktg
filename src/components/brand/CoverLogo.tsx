@@ -89,6 +89,7 @@ function makeShards(count: 28 | 56): Shard[] {
 }
 
 function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
+  const logoRef = useRef<HTMLDivElement | null>(null);
   const reduced = useRef(!shouldRunOpening()).current;
   const [desktop, setDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 700);
   const [phase, setPhase] = useState<Phase>(reduced ? 'ready' : 'assemble');
@@ -164,8 +165,43 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
 
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
 
+  useEffect(() => {
+    if (reduced) return;
+    const node = logoRef.current;
+    if (!node) return;
+    let frame = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    const draw = () => {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+      node.style.setProperty('--logo-drift-x', `${currentX.toFixed(2)}px`);
+      node.style.setProperty('--logo-drift-y', `${currentY.toFixed(2)}px`);
+      frame = requestAnimationFrame(draw);
+    };
+    const onPointer = (event: PointerEvent) => {
+      targetX = (event.clientX / window.innerWidth - 0.5) * 16;
+      targetY = (event.clientY / window.innerHeight - 0.5) * -16;
+    };
+    const onOrient = (event: DeviceOrientationEvent) => {
+      targetX = Math.max(-8, Math.min(8, (event.gamma || 0) / 3.75));
+      targetY = Math.max(-8, Math.min(8, -((event.beta || 45) - 45) / 3.75));
+    };
+    window.addEventListener('pointermove', onPointer, { passive: true });
+    window.addEventListener('deviceorientation', onOrient);
+    frame = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('deviceorientation', onOrient);
+    };
+  }, [reduced]);
+
   return (
     <div
+      ref={logoRef}
       className="cover-logo"
       data-phase={phase}
       data-shards={shards.length}
