@@ -82,13 +82,14 @@ const Recruiting = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tight">
-            Your Summer. <span className="text-primary">Your Income.</span>
+            Your Summer. <span className="text-primary">Your Move.</span>
           </h1>
           
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Trinity is looking for driven individuals ready to work hard, 
-            compete, and earn more in 4 months than most make in a year.
+            Trinity is looking for driven individuals ready to work hard,
+            compete, and get more out of four months than most people get out of a year.
           </p>
+
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
