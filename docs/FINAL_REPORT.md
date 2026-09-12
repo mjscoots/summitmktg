@@ -5198,3 +5198,51 @@ Note for the owner: `/recruiting` also renders admin-editable database content (
 - Shell gzip: JS 16,274 bytes (Pass 188 16,325, minus 51), CSS 32,597 bytes (Pass 188 32,597, unchanged).
 - Baselines unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
 - No data write, no permission change, no cover change, no new dependency. The site was not published.
+
+## Pass 190 - one surface, the seam closed
+
+### What was making the seam
+The fixed scene canvas fills the whole viewport with an opaque sky and, in the light
+world, a blue and violet glow at 8 to 14 percent, which read as a pale tinted panel.
+The statement section painted its own opaque background on top of it, so the canvas
+was cut off on a hard horizontal line with pure white below, and the hero grid stopped
+dead at the same line. Two stacked boxes.
+
+### Every element that used to paint its own background and no longer does
+- `#statement` section: lost the `public-section` class and the rule `.cover-statement { background: hsl(var(--background)); }` was deleted. It now paints nothing.
+- `.cover-hero`, `.cover-statement` and `.public-world > main`: forced to `background: transparent`, `background-image: none`, `border: 0`, `box-shadow: none`, `outline: none`.
+- `.public-nav`: the translucent band background and the 1px scrolled bottom border are gone over the cover. The scrolled nav is now a vertical wash from 92 percent to 72 percent to 0 percent of the world background, so it fades out with no line.
+- Painting the light world now happens once, on the world wrapper: `.public-world { background: hsl(var(--background)); transition: background-color 300ms linear; }`. The light world already flips `--background` to white on the same wrapper, so the white arrives with the burst rather than as a box that starts at a section boundary. Sections below the statement (`ThreeDoorSection`, `AskSection`, the final band, the footer) keep their own opaque fill, and because that fill is the same colour as the wrapper there is no edge where they meet.
+
+### Mask values used
+- Scene canvas, `.cover-scene`: `mask-image: linear-gradient(to bottom, #000 0%, #000 70%, rgba(0,0,0,0) 100%)`, so the lower 30 percent of the frame is masked to transparent and the ridge melts into the page. Nothing clips it at a section boundary any more. The light ridge colours (#E9E9E9 to #F5F5F5) are unchanged.
+- Hairline grid, `.cover-open::before` (hero and final band, both places the grid meets a section edge): `mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 25vh), rgba(0,0,0,0) 100%)`, full to zero across the last 25vh.
+- Tint: in the light world the canvas now draws a vertical wash of the sky colour from full at y 0 to zero at 60 percent of the viewport height, added right after the glow and before the ridges. The tint is a radial glow under a vertical falloff that is pure white by 60vh, with no filled panel and no boundary.
+
+### Statement placement
+Section is its own `min-h-[100svh]` screen, `justify-content: center`, `align-items: flex-start`, `padding-top: 18vh` on phone and `20vh` from 700px up, `padding-bottom: 8vh` and `10vh`. The `py-20` utility and `items-center` were removed from the element so the cap is the only thing setting the space above the headline. Measured distance from the top of the statement screen to the first line of the headline: 152px at 390 x 844 (18vh of 844) and 180px at 1280 x 900 (20vh of 900). Copy, ink, pen line and button are untouched.
+
+### Pixel proof
+Chromium, screenshots at 390 x 844 and 1280 x 900, scrolled to p 0.15, 0.30, 0.40, 0.60 and 0.85 of the first viewport, saved under `/tmp/browser/p190/`. Two measurements per shot. The seam test looks only at pairs of rows that are flat across the width (per row standard deviation under 2 of 255), because a seam is a step between two flat surfaces; the raw centre column is also reported, where the large numbers are glyph edges of the wordmark, the logo and the headline, not surface steps.
+
+| width | position | largest flat surface row to row jump | row | centre column max jump (glyph edges) | row |
+| --- | --- | --- | --- | --- | --- |
+| 390 | 0.15 | 0.39% | 690 | 100.00% (wordmark) | 86 |
+| 390 | 0.30 | 0.43% | 390 | 93.33% (wordmark) | 86 |
+| 390 | 0.40 | 0.39% | 275 | 0.39% | 284 |
+| 390 | 0.60 | 0.58% | 669 | 100.00% (wordmark) | 86 |
+| 390 | 0.85 | 0.58% | 669 | 91.76% (wordmark) | 86 |
+| 1280 | 0.15 | 0.39% | 833 | 13.73% (logo) | 277 |
+| 1280 | 0.30 | 0.39% | 833 | 36.86% (logo) | 134 |
+| 1280 | 0.40 | 0.20% | 295 | 0.39% | 294 |
+| 1280 | 0.60 | 0.59% | 699 | 40.39% (headline ink) | 595 |
+| 1280 | 0.85 | 0.60% | 699 | 50.98% (headline ink) | 534 |
+
+Statement: no horizontal edge greater than 2 percent luminance exists anywhere in the transition at either width. The largest surface step measured across all ten samples is 0.60 percent, which is gradient banding, not an edge. Before the fix the same test found a 10.6 percent step at the nav rule and the statement boundary produced a hard cut; both are gone. No page errors at either width.
+
+### Verification
+- `tsgo --noEmit -p tsconfig.app.json`: clean.
+- `npm run build`: clean, built in 15.06s.
+- Shell gzip: JS `index-J92V-V1q.js` 16,290 bytes (Pass 189 16,274, plus 16), CSS `index-DoFDUFIB.css` 32,750 bytes (Pass 189 32,597, plus 153).
+- Baselines unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
+- No copy change, no permission change, no data write, no new dependency. The site was not published.
