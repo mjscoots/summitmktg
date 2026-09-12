@@ -2001,12 +2001,16 @@ html[data-appearance='light'] .btn-gradient {
 
 /* Doors: a small scale where there is a pointer, a press everywhere, and a
    gradient underline that draws under the lane name. */
-.public-door { transition: transform var(--motion-base) var(--motion-ease-out), background-color var(--motion-base) var(--motion-ease-out); }
+.public-door {
+  transform: translate3d(var(--tile-x, 0), var(--tile-y, 0), 0);
+  transition: background-color var(--motion-base) var(--motion-ease-out);
+  will-change: transform;
+}
 @media (hover: hover) and (pointer: fine) {
   /* Pass 184: the scale is gone, the surface change stays. */
   .public-door:hover { background: hsl(var(--surface-elevated)); }
 }
-.public-door:active { transform: scale(0.98); }
+.public-door:active { opacity: 0.92; }
 .door-lane { position: relative; display: inline-block; }
 .door-lane::after {
   content: '';
