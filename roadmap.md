@@ -38,3 +38,10 @@
 - [x] /parents and /ticket left as is, every hit listed for the owner
 - [x] /apply now redirects to /apply/rookie
 - [x] Typecheck, build, browser sweep, baselines unchanged, report written
+
+## Pass 190 - the cover seam
+- [x] One surface: hero, statement and main paint nothing, world wrapper paints once
+- [x] Grid masked over the last 25vh, canvas masked over its lower 30 percent
+- [x] Light world tint is a falloff to pure white by 60vh, nav band no longer a bordered box
+- [x] Statement centred with the space above the headline capped at 18vh and 20vh
+- [x] Pixel proof at 390 and 1280, no surface step above 0.60 percent, report written
