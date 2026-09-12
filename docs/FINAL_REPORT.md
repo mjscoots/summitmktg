@@ -5066,3 +5066,64 @@ The handwritten support uses Caveat 600 and #0A0A0F. It writes over 1,400ms star
 - Read only baselines are unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
 - No dependency, permission, backend, or data changes were made. The site was not published.
 No em dashes and no emoji in the added lines. The site was not published.
+
+## Pass 188 - the application, front to back
+
+### 1. Pay content removed from the public pages
+- src/pages/RookieApplication.tsx: removed the `EarningsCalculator` render, the `scrollToForm` Apply now button path, the long form (`IndustryStep`, `WantsStep`, contact fields, submit bar). The pay ladder, the line "Rent is free at 125,000 active revenue" and the line "This is math, not a promise" lived inside EarningsCalculator and no longer reach this route.
+- src/pages/RookieApplication.tsx: removed the "Already sold before?" dialog (`VetBidForm`, reached through EarningsCalculator). Replaced with one plain line above the flow: "Sold before? Apply here" linking to /apply/veteran.
+- src/pages/RookieApplication.tsx: removed the tile "High-income upside" so no pay framing remains in the tiles.
+- src/pages/VetApplication.tsx: removed the `VetCalculator` render with its personal and team inputs, commission rate, marketing deal percentage, spreads, incentive cost and totals; removed the tiles "Instant Marketing Deal", "Full Commission on Mosquito" and "Scalable Structure"; removed the subline "Set your numbers, then send the form."
+- Kept exactly as written on the veteran page: the founders video and the tiles Training, Uncapped team building, Systems for Vets.
+- Component files untouched: src/components/EarningsCalculator.tsx, src/components/VetCalculator.tsx, src/components/VetBidForm.tsx.
+- Other render sites, all confirmed untouched: src/pages/Recruiting.tsx:118 (EarningsCalculator), src/components/IndustrySwitcher.tsx:191 (EarningsCalculator, lazy), src/components/EarningsCalculator.tsx:223 (VetBidForm), src/pages/app/LinksPage.tsx:779 (EarningsCalculator and VetCalculator, inside the logged in app).
+- Grep over the public application routes, the flow, the success page and the cover for a dollar sign, a percentage, the words percent, commission, marketing deal, "Rent is free" and "not a promise": two hits only, both non user facing, a comment in src/pages/Index.tsx line 22 and the email regex in src/components/apply/ApplyFlow.tsx line 43. No rate, percentage, dollar figure or marketing deal mechanic renders on /apply/rookie, /apply/veteran or the cover.
+
+### 2. The step flow, both routes
+One card, centred, max width 560, a back arrow top left, a 4px track with a #6D3BFF fill at step over total, and the line "Step n of N". New file src/components/apply/ApplyFlow.tsx.
+
+Rookie, 7 steps, verbatim:
+1. "What are you most interested in?" helper "Choose one or more." Options Pest control, Fiber internet, Life insurance, Not sure yet. Multi select, Continue.
+2. "What have you done before?" Options Nothing yet, Some sales, Door to door, Another industry. Single select.
+3. "In person or remote?" Options In person sales, Remote sales, Either. Single select.
+4. "What is your earnings goal for your first year?" input, placeholder "Your number", no figures on screen. Continue.
+5. "Where are you located?" input, placeholder "City, State". Continue.
+6. "How do we reach you?" three inputs in order Full name, Phone number, Email address, placeholders "John Smith", "(555) 123-4567", "john@example.com". Continue disabled until all three are filled and the email is valid.
+7. "Who told you about Trinity?" input, placeholder "The person who referred you, or the account you saw", Skip link under Continue.
+
+Veteran, 9 steps: the same, with two extra required steps after step 3, "Last season revenue" with an empty placeholder and "Markets you have worked" with the placeholder "List the markets you have worked before, city and state".
+
+The old question "Which Trinity are you applying to?" is gone from both pages. Step 1 carries it, and ?vertical=pest|fiber|life preselects the matching option on step 1. A single industry pick is what is sent as the vertical.
+
+Measured at 390 and 1280 by walking every step:
+- Rookie 390 step count read Step 1 of 7 through Step 7 of 7, progress fill 14, 29, 43, 57, 71, 86, 100 percent of the track.
+- Veteran 390 and 1280 read Step 1 of 9 through Step 9 of 9, fill 11, 22, 33, 44, 56, 67, 78, 89, 100 percent.
+- Every choice button and every Continue measured 308 x 64 at 390 (full width inside the 24px gutters) and 420 x 64 at 1280. Radius 12. Unselected is black text on white with a 1px #E4E4EC border, selected fills #6D3BFF with white text. Primary buttons are solid #6D3BFF, white label 18px weight 600.
+- Single select advances by itself after a 280ms timer. Multi select and typed steps advance on Continue, disabled until valid.
+- /apply/rookie and /apply/veteran at 390 need no scrolling to reach step one: document scrollHeight is not greater than the viewport height, flow bottom at 800 and 756.
+- Keyboard: Enter advances when the step is valid, the back arrow carries aria-label Back and is focusable, every option is a real button, and focus moves to the new question heading on each step change. No browser page errors in the walk.
+- Reduced motion: computed animation-name on .apply-step is "none", so steps swap with no slide.
+
+### 3. The end screen and the choice
+One screen, heading verbatim "We will have someone reach out and see if you are a good fit.", then two stacked buttons, "Set up a call first" solid #6D3BFF and "Just submit my application" as a plain black label on white with a 1px border. Measured 308 x 64 at 390 and 420 x 64 at 1280 for both. Both submit. Set up a call sends wants_call true, opens the scheduling link in a new tab and lands on the success screen with the link repeated as "Open the scheduling page". Just submit sends wants_call false.
+
+Scheduling URL used: https://calendly.com/mathewjoyce/sales-opportunity. Source: public.app_settings has no owner_calendly row, so get_public_setting('owner_calendly') is empty and the constant is used. No setting row was written. If the setting were set to anything other than the bare profile URL that value would win, and if no URL resolves the Set up a call button does not render.
+
+Success screen copy: heading "Application received", line "Someone from the team will reach out and see if you are a good fit." Back home and Instagram buttons unchanged.
+
+### 4. Storage
+One migration on public.applications. Columns read back:
+- experience, text, nullable, no default
+- wants_call, boolean, not null, default false
+
+submit-application accepts experience and wants_call, validates experience against exactly Nothing yet, Some sales, Door to door, Another industry and stores null otherwise, and coerces wants_call to a boolean defaulting false. The honeypot, CORS allowlist, trim and truncate rules, the required full_name, email, phone and city_state, valid_public_email, valid_public_phone, the rate limits and the service role insert are unchanged. Deployed 2026-09-12 at 01:2x UTC in this pass, reported as "Successfully deployed edge functions: submit-application".
+
+Rollback proof: inside BEGIN one rookie row was inserted with interested_in ARRAY['Fiber internet'], sales_style Either, earnings_goal "Your number", experience "Some sales" and wants_call true. Read back inside the transaction it returned experience "Some sales", wants_call true, sales_style Either, interested_in [Fiber internet], with the inside count 14, then ROLLBACK. After rollback the applications count is 13.
+
+Staff view: src/components/admin/AdminApplicationsTab.tsx now renders "Experience: {value}" and a "Wants a call" marker under the existing three answer lines, blank values hidden, and Copy Info includes "Experience: ..." and "Wants a call".
+
+### 5. Checks
+- Typecheck clean, production build clean in 9.04s.
+- Shell gzip: JS 16,325 bytes (Pass 187 16,381, minus 56), CSS 32,597 bytes (Pass 187 32,359, plus 238).
+- Baselines unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
+- No permission changes beyond the two columns and the redeployed function. No cover change. The site was not published.
