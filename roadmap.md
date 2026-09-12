@@ -31,3 +31,10 @@
 - [x] One step by step flow on both routes with the end choice
 - [x] Store experience and wants a call, redeploy the form handler
 - [x] Verify, report, no publish
+
+## Pass 189 - pay mechanics off public routes
+- [x] Calculator renders removed from /recruiting and IndustrySwitcher
+- [x] Pay copy scrubbed on /recruiting and /industries/:slug
+- [x] /parents and /ticket left as is, every hit listed for the owner
+- [x] /apply now redirects to /apply/rookie
+- [x] Typecheck, build, browser sweep, baselines unchanged, report written

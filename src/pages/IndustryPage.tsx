@@ -44,9 +44,10 @@ export default function IndustryPage() {
         title: `${res?.label || vertical} - Trinity Sales`,
         description:
           res?.description ||
-          'We train and field sales reps in pest control and fiber internet. You close, you get paid on what you close.',
+          'We train and field sales reps in pest control and fiber internet.',
         path: `/industries/${slug.toLowerCase()}`,
       });
+
     })();
   }, [vertical, slug]);
 
@@ -160,16 +161,12 @@ export default function IndustryPage() {
                   <div className="flex flex-wrap gap-x-3 gap-y-2">
                     {data.ranks.map((r, i) => (
                       <span key={r.name} className="flex items-center gap-3">
-                        <span className="text-sm text-foreground">
-                          {r.name}
-                          {r.value != null && (
-                            <span className="text-primary tabular-nums"> · ${Number(r.value).toLocaleString()}</span>
-                          )}
-                        </span>
+                        <span className="text-sm text-foreground">{r.name}</span>
                         {i < data.ranks.length - 1 && <span className="text-muted-foreground/50">→</span>}
                       </span>
                     ))}
                   </div>
+
                 </div>
               </section>
             ) : null}

@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Mountain, Users, Target, Trophy, DollarSign, Calendar, Zap, CheckCircle } from "lucide-react";
+import { ArrowRight, Mountain, Users, Target, Trophy, Calendar, Zap, CheckCircle } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
 import { RecruitingContentPack } from "@/components/recruiting/RecruitingContentPack";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 
-import EarningsCalculator from "@/components/EarningsCalculator";
 import { setPageMeta } from "@/lib/pageMeta";
 
 const Recruiting = () => {
@@ -17,24 +16,24 @@ const Recruiting = () => {
     setPageMeta({
       title: "Summer Sales Jobs - Trinity Sales",
       description:
-        "Trinity trains and fields door-to-door sales reps. Training, housing and pay explained.",
+        "Trinity trains and fields door-to-door sales reps. Training, housing and the season explained.",
       path: "/recruiting",
     });
   }, []);
 
   const benefits = [
-    { icon: DollarSign, title: "High Income Potential", description: "Earn based on your effort, not an hourly cap. You get paid on what you close." },
+    { icon: Mountain, title: "Your Effort Decides It", description: "This is not an hourly job. What you put in is what you get out of the summer." },
     { icon: Calendar, title: "4-Month Sprint", description: "Work hard for one season. Build skills, capital, and connections that last a lifetime." },
     { icon: Users, title: "Team Culture", description: "Join a brotherhood of competitive, driven individuals who push each other to be better." },
     { icon: Trophy, title: "Real Competition", description: "Weekly leaderboards, team challenges, and recognition for top performers." },
     { icon: Target, title: "Proven System", description: "Battle-tested scripts, training, and support from day one. No guesswork." },
-    { icon: Zap, title: "Fast Results", description: "Start earning within your first week. No months of training before you see income." },
+    { icon: Zap, title: "Fast Start", description: "You are on the doors in your first week, not after months of classroom time." },
   ];
 
   const whoWeAreLookingFor = [
     "Competitive athletes or former athletes",
     "People who hate the idea of a normal 9-5",
-    "Anyone looking for a high-income skill",
+    "Anyone looking for a real sales skill",
     "College students wanting to maximize their summer",
     "Entrepreneurs who want real sales experience",
   ];
@@ -44,6 +43,7 @@ const Recruiting = () => {
     navigate(path);
     window.scrollTo(0, 0);
   };
+
 
   return (
     <div className="gold-world min-h-screen bg-background">
@@ -82,13 +82,14 @@ const Recruiting = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tight">
-            Your Summer. <span className="text-primary">Your Income.</span>
+            Your Summer. <span className="text-primary">Your Move.</span>
           </h1>
           
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Trinity is looking for driven individuals ready to work hard, 
-            compete, and earn more in 4 months than most make in a year.
+            Trinity is looking for driven individuals ready to work hard,
+            compete, and get more out of four months than most people get out of a year.
           </p>
+
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -109,15 +110,7 @@ const Recruiting = () => {
       <RecruitingProof />
       <RecruitingContentPack />
 
-      {/* Earnings math */}
-      <section className="border-t border-border py-16">
-        <div className="mx-auto max-w-3xl px-6">
-          <h2 className="mb-8 text-center text-2xl font-black tracking-wide text-foreground md:text-3xl">
-            Run the numbers
-          </h2>
-          <EarningsCalculator onApplyClick={() => handleApplyClick("/apply/rookie")} />
-        </div>
-      </section>
+
 
       {/* Benefits Grid */}
       <section className="py-20 bg-secondary/30">
@@ -212,8 +205,9 @@ const Recruiting = () => {
               
               <p className="text-muted-foreground mb-6">
                 <span className="text-accent font-semibold">No experience required.</span> Perfect for college students, 
-                athletes, or anyone ready to learn a high-income skill from scratch.
+                athletes, or anyone ready to learn a real sales skill from scratch.
               </p>
+
               
               <ul className="space-y-2 text-sm text-muted-foreground mb-6">
                 <li className="flex items-center gap-2">
@@ -252,19 +246,20 @@ const Recruiting = () => {
               </h3>
               
               <p className="text-muted-foreground mb-6">
-                <span className="text-primary font-semibold">Prior D2D experience?</span> Join with 
-                instant marketing deals and the ability to build your own team.
+                <span className="text-primary font-semibold">Prior D2D experience?</span> Join on the
+                veteran track with the ability to build and lead your own team.
               </p>
               
               <ul className="space-y-2 text-sm text-muted-foreground mb-6">
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Top-tier commission structure
+                  Veteran track from day one
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  Uncapped overrides on your team
+                  Build and lead your own team
                 </li>
+
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                   Systems & AI tools

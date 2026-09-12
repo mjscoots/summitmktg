@@ -1,12 +1,8 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { usePublicCalc } from "@/hooks/usePublicCalc";
 
-const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
-const FiberPublicCalculator = lazy(() => import("@/components/FiberPublicCalculator"));
 
 const TABS = [
   { slug: "pest", vertical: "Pest", label: "Pest" },
@@ -35,7 +31,7 @@ function hashSlug(): Slug | null {
 }
 
 /**
- * Landing-page industry toggle. Swaps the description, how-it-works lines, calculator,
+ * Landing-page industry toggle. Swaps the description, how-it-works lines,
  * lead card and Apply target in place. Pulls the same content blocks the /industries/*
  * pages use, so there is one place to edit.
  */
@@ -43,7 +39,7 @@ export default function IndustrySwitcher() {
   const navigate = useNavigate();
   const [slug, setSlug] = useState<Slug>(() => hashSlug() ?? "pest");
   const [content, setContent] = useState<Record<string, IndustryData | null>>({});
-  const calc = usePublicCalc();
+
 
   useEffect(() => {
     const onHash = () => {
@@ -184,17 +180,8 @@ export default function IndustrySwitcher() {
           </div>
         ) : null}
 
-        {slug !== "life" && (
-          <div id="earnings" className="scroll-mt-8">
-            <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius)]" />}>
-              {slug === "pest" ? (
-                <EarningsCalculator calcData={calc} />
-              ) : (
-                <FiberPublicCalculator calcData={calc} />
-              )}
-            </Suspense>
-          </div>
-        )}
+
+
 
         <div>
           <button

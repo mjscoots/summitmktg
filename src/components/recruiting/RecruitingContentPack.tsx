@@ -107,16 +107,15 @@ function Testimonials({ items }: { items: RecruitingContent['testimonials'] }) {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((t, i) => (
             <div key={i} className="rounded-xl border border-border bg-card/60 p-5">
-              {t.first_summer_figure && (
-                <p className="text-xl font-black tabular-nums text-primary">{t.first_summer_figure}</p>
-              )}
+              {/* Pass 189: the money figure is not shown on a public route. */}
               {t.quote && (
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">“{t.quote}”</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">“{t.quote}”</p>
               )}
               <p className="mt-3 text-[13px] font-bold text-foreground">{t.rep_name}</p>
               {t.school && <p className="text-[12px] text-muted-foreground">{t.school}</p>}
             </div>
           ))}
+
         </div>
       </div>
     </section>
