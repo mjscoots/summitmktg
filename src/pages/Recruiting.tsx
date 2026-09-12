@@ -110,15 +110,7 @@ const Recruiting = () => {
       <RecruitingProof />
       <RecruitingContentPack />
 
-      {/* Earnings math */}
-      <section className="border-t border-border py-16">
-        <div className="mx-auto max-w-3xl px-6">
-          <h2 className="mb-8 text-center text-2xl font-black tracking-wide text-foreground md:text-3xl">
-            Run the numbers
-          </h2>
-          <EarningsCalculator onApplyClick={() => handleApplyClick("/apply/rookie")} />
-        </div>
-      </section>
+
 
       {/* Benefits Grid */}
       <section className="py-20 bg-secondary/30">
