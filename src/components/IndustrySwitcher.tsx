@@ -31,7 +31,7 @@ function hashSlug(): Slug | null {
 }
 
 /**
- * Landing-page industry toggle. Swaps the description, how-it-works lines, calculator,
+ * Landing-page industry toggle. Swaps the description, how-it-works lines,
  * lead card and Apply target in place. Pulls the same content blocks the /industries/*
  * pages use, so there is one place to edit.
  */
@@ -39,7 +39,7 @@ export default function IndustrySwitcher() {
   const navigate = useNavigate();
   const [slug, setSlug] = useState<Slug>(() => hashSlug() ?? "pest");
   const [content, setContent] = useState<Record<string, IndustryData | null>>({});
-  const calc = usePublicCalc();
+
 
   useEffect(() => {
     const onHash = () => {
