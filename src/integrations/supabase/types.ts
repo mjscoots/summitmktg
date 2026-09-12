@@ -486,6 +486,7 @@ export type Database = {
           created_at: string | null
           earnings_goal: string | null
           email: string
+          experience: string | null
           first_touch_at: string | null
           full_name: string
           id: string
@@ -503,6 +504,7 @@ export type Database = {
           source_type: string
           status: string
           vertical: string | null
+          wants_call: boolean
           years_experience: number | null
         }
         Insert: {
@@ -511,6 +513,7 @@ export type Database = {
           created_at?: string | null
           earnings_goal?: string | null
           email: string
+          experience?: string | null
           first_touch_at?: string | null
           full_name: string
           id?: string
@@ -528,6 +531,7 @@ export type Database = {
           source_type?: string
           status?: string
           vertical?: string | null
+          wants_call?: boolean
           years_experience?: number | null
         }
         Update: {
@@ -536,6 +540,7 @@ export type Database = {
           created_at?: string | null
           earnings_goal?: string | null
           email?: string
+          experience?: string | null
           first_touch_at?: string | null
           full_name?: string
           id?: string
@@ -553,6 +558,7 @@ export type Database = {
           source_type?: string
           status?: string
           vertical?: string | null
+          wants_call?: boolean
           years_experience?: number | null
         }
         Relationships: [
