@@ -314,8 +314,8 @@ html, body, #root {
        background, so the texture costs no extra element and no paint work
        beyond the background itself. */
     background-image:
-      repeating-linear-gradient(to right, hsl(0 0% 100% / 0.03) 0 1px, transparent 1px 56px),
-      repeating-linear-gradient(to bottom, hsl(0 0% 100% / 0.03) 0 1px, transparent 1px 56px);
+      repeating-linear-gradient(to right, hsl(0 0% 100% / 0.04) 0 1px, transparent 1px 56px),
+      repeating-linear-gradient(to bottom, hsl(0 0% 100% / 0.04) 0 1px, transparent 1px 56px);
     background-attachment: fixed;
   }
 
@@ -1980,46 +1980,6 @@ html[data-appearance='light'] .btn-gradient {
   pointer-events: none;
 }
 
-/* The ticker band. One track, duplicated once, translated by exactly half the
-   rail width so the loop never jumps. */
-.cover-ticker {
-  --ticker-gap: 2.5rem;
-  overflow: hidden;
-  padding: 0.75rem 0;
-}
-.cover-ticker-rail {
-  display: flex;
-  width: max-content;
-  animation: cover-ticker 40s linear infinite;
-}
-.cover-ticker-track {
-  display: flex;
-  align-items: center;
-  gap: var(--ticker-gap);
-  padding-right: var(--ticker-gap);
-}
-.cover-ticker-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  white-space: nowrap;
-  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
-  font-weight: 500;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: hsl(var(--text-muted));
-}
-.cover-ticker-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 9999px;
-  background: hsl(var(--text-muted));
-}
-@keyframes cover-ticker {
-  to { transform: translateX(-50%); }
-}
-
 /* Proof numbers: the gradient underline draws from the left as the count lands. */
 .proof-underline { position: relative; display: inline-block; }
 .proof-underline::after {
@@ -2092,7 +2052,6 @@ html[data-appearance='light'] .btn-gradient {
   }
   .reveal-clip { overflow: visible; }
   .cover-progress { display: none !important; }
-  .cover-ticker-rail { animation: none !important; }
   .proof-underline::after { transform: scaleX(1); animation: none !important; }
   .door-lane::after { transition: none !important; }
   .btn-gradient { animation: none !important; transition: none !important; }
@@ -2116,6 +2075,7 @@ html[data-appearance='light'] .btn-gradient {
   display: block;
   width: 84vw;
   overflow: visible;
+  transform: translate3d(var(--logo-drift-x, 0), var(--logo-drift-y, 0), 0);
 }
 @media (min-width: 700px) {
   .cover-shard-logo { width: 48vw; }
@@ -2165,7 +2125,7 @@ html[data-appearance='light'] .btn-gradient {
   height: 90vw;
   max-width: 900px;
   max-height: 900px;
-  transform: translate(-50%, -50%);
+  transform: translate(calc(-50% + var(--logo-drift-x, 0)), calc(-50% + var(--logo-drift-y, 0)));
   opacity: var(--logo-glow, 0);
   background: radial-gradient(circle, rgba(0, 78, 253, 0.9) 0%, rgba(109, 59, 255, 0.5) 45%, rgba(109, 59, 255, 0) 70%);
 }
@@ -2180,6 +2140,7 @@ html[data-appearance='light'] .btn-gradient {
   margin: 0;
   border-radius: 9999px;
   background: #FFFFFF;
+  filter: blur(60px);
   z-index: 25;
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0);
@@ -2195,8 +2156,8 @@ html[data-appearance='light'] .btn-gradient {
   to { transform: translate(-50%, -50%) scale(0); }
 }
 
-/* The statement owns the second viewport and cannot overlap the logo hero. */
-.cover-statement { background: #FFFFFF; }
+/* The statement stays in the current world until the swell changes that world. */
+.cover-statement { background: hsl(var(--background)); }
 .cover-statement-copy {
   opacity: 0;
   transform: translateY(12px);
@@ -2205,8 +2166,9 @@ html[data-appearance='light'] .btn-gradient {
 }
 .cover-statement-copy[data-in='true'] { opacity: 1; transform: none; pointer-events: auto; }
 .cover-statement-copy .reveal-clip > * { opacity: 1; transform: translateY(110%); }
-.cover-statement-copy[data-in='true'] .reveal-clip > * { animation: reveal-line var(--motion-slow) var(--motion-ease-out) both; }
-.cover-statement-copy[data-in='true'] .reveal-clip:nth-child(2) > * { animation-delay: 40ms; }
+.cover-statement-copy[data-in='true'] .cover-block-line > * {
+  animation: reveal-line var(--motion-slow) var(--motion-ease-out) 1800ms both;
+}
 .cover-line-blue { color: #004EFD; }
 .cover-line-purple { color: #6D3BFF; }
 .cover-statement-body {
@@ -2219,7 +2181,8 @@ html[data-appearance='light'] .btn-gradient {
   .cover-statement-body { font-size: 19px; }
 }
 
-/* The handwritten line. The clip opens across the glyphs over 1,800ms. */
+/* Handwritten lines share one measured SVG mechanism and sequence by delay. */
+.pen-lines { display: flex; flex-direction: column; align-items: center; }
 .pen-line { display: block; margin: 0 auto; overflow: visible; }
 .pen-line-text {
   font-family: 'Caveat', 'Kalam', cursive;
@@ -2234,15 +2197,80 @@ html[data-appearance='light'] .btn-gradient {
   transform: scaleX(0);
 }
 .pen-line[data-writing='true'] .pen-line-wipe {
-  animation: pen-write 1800ms var(--motion-ease-out) both;
+  animation: pen-write var(--pen-duration, 1800ms) var(--motion-ease-out) var(--pen-delay, 0ms) both;
 }
 @keyframes pen-write {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
 .cover-pen {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
   line-height: 1.2;
+}
+.cover-pen .pen-line-text { font-size: clamp(44px, 4.5vw, 64px); }
+.cover-ink-headline .pen-line-text {
+  font-size: clamp(48px, 7vw, 72px);
+  fill: #004EFD;
+}
+.cover-ink-headline .pen-lines { gap: 0.02em; }
+.cover-block-line { margin-top: 0.12em; }
+.cover-actions {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.cover-statement-copy[data-in='true'] .cover-actions {
+  animation: statement-button-in 400ms var(--motion-ease-out) 2920ms both;
+}
+@keyframes statement-button-in { to { opacity: 1; transform: none; } }
+.cover-get-in {
+  width: 100%;
+  height: 64px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+@media (min-width: 700px) {
+  .cover-get-in { width: 340px; height: 68px; }
+}
+
+/* The hero light bridge rises from p .18 to .36 without moving the burst. */
+.cover-hero::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28vh;
+  pointer-events: none;
+  opacity: var(--bridge-opacity, 0);
+  background: linear-gradient(to bottom, transparent, #FFFFFF);
+}
+.cover-scroll-cue {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 40px;
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.18);
+  opacity: 1;
+  transition: opacity 300ms linear;
+}
+.cover-scroll-cue[data-hidden='true'] { opacity: 0; }
+.cover-scroll-cue span {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #004EFD;
+  transform: translate(-50%, 0);
+  animation: cover-scroll-dot 2000ms linear infinite;
+}
+@keyframes cover-scroll-dot {
+  0% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 0; transform: translate(-50%, 22px); }
+  100% { opacity: 0; transform: translate(-50%, 22px); }
 }
 
 /* The one solid purple button. */
@@ -2294,15 +2322,16 @@ html[data-appearance='light'] .btn-gradient {
 .public-world[data-world='light'] .proof-underline::after,
 .public-world[data-world='light'] .door-lane::after { background: #6D3BFF; }
 .public-world[data-world='light'] .public-link { color: #000000; }
-.public-world[data-world='light'] .cover-ticker-dot { background: #6E7288; }
 
 @media (prefers-reduced-motion: reduce) {
   .cover-swell,
-  .cover-logo-glow { display: none !important; }
+  .cover-logo-glow,
+  .cover-scroll-cue { display: none !important; }
   .cover-shard { animation: none !important; opacity: 1 !important; transform: none !important; }
   .cover-statement-copy { opacity: 1 !important; transform: none !important; pointer-events: auto; transition: none !important; }
   .cover-statement-copy .reveal-clip > * { animation: none !important; opacity: 1 !important; transform: none !important; }
   .pen-line-wipe { animation: none !important; transform: scaleX(1) !important; }
+  .cover-actions { animation: none !important; opacity: 1 !important; transform: none !important; }
   .btn-purple { transition: none !important; }
 }
 
@@ -2323,12 +2352,13 @@ html[data-appearance='light'] .btn-gradient {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 88%;
-  overflow-y: auto;
+  height: min(88svh, 560px);
+  min-height: min(520px, 88svh);
+  overflow: hidden;
   border-radius: 24px 24px 0 0;
   background: #ffffff;
   color: #0A0A0F;
-  padding: 28px 20px calc(24px + env(safe-area-inset-bottom));
+  padding: 28px 24px calc(20px + env(safe-area-inset-bottom));
   animation: ask-rise 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -2339,11 +2369,13 @@ html[data-appearance='light'] .btn-gradient {
     bottom: 5vh;
     width: 520px;
     height: auto;
+    min-height: 0;
     max-height: 80vh;
     transform: translateX(-50%);
     border-radius: 20px;
     padding: 32px 28px;
     animation: ask-rise-card 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: min-height 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
@@ -2361,7 +2393,25 @@ html[data-appearance='light'] .btn-gradient {
 }
 
 .ask-body { margin-top: 28px; }
-@media (min-width: 640px) { .ask-body { margin-top: 8px; } }
+.ask-sheet .ask-body {
+  position: relative;
+  display: flex;
+  height: calc(100% - 28px);
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 36px;
+}
+.ask-sheet .ask-step { width: 100%; }
+@media (min-width: 640px) {
+  .ask-body { margin-top: 8px; }
+  .ask-sheet .ask-body {
+    height: auto;
+    min-height: 245px;
+    transition: min-height 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ask-sheet .ask-body[data-step='1'] { min-height: 310px; }
+  .ask-sheet .ask-body[data-step='2'] { min-height: 260px; }
+}
 
 .ask-step { animation: ask-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
@@ -2390,6 +2440,18 @@ html[data-appearance='light'] .btn-gradient {
 }
 .ask-choice:active { transform: scale(0.97); }
 .ask-choice-on { background: #6D3BFF; border-color: #6D3BFF; color: #ffffff; }
+.ask-continue {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #6D3BFF;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+.ask-continue:disabled { opacity: 0.35; }
 
 .ask-input {
   display: block;
@@ -2406,6 +2468,18 @@ html[data-appearance='light'] .btn-gradient {
 
 .ask-done { animation: ask-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 .ask-line { text-align: center; font-weight: 700; font-size: 1.125rem; color: #0A0A0F; }
+.ask-get-in { min-height: 64px; border-radius: 12px; font-size: 18px; }
+.ask-dots { display: none; }
+.ask-sheet .ask-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  transform: translateX(-50%);
+}
+.ask-dot { width: 6px; height: 6px; border-radius: 9999px; background: rgba(0, 0, 0, 0.18); }
+.ask-dot-on { background: #6D3BFF; }
 
 @keyframes ask-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes ask-rise { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -2423,4 +2497,6 @@ html[data-appearance='light'] .btn-gradient {
   .ask-sheet { transform: none; }
   @media (min-width: 640px) { .ask-sheet { transform: translateX(-50%); } }
   .ask-choice { transition: none !important; }
+  .ask-sheet .ask-body { transition: none !important; }
+  .public-door { transform: none !important; }
 }
