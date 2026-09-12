@@ -187,8 +187,9 @@ function LazyFallback() {
              <Route path="/invite/:token" element={<InvitePage />} />
              {/* The permanent pillar recruit link */}
              <Route path="/p/:token" element={<PillarJoinPage />} />
-             {/* Redirect /apply to /recruiting#apply section */}
-             <Route path="/apply" element={<Navigate to="/recruiting#apply" replace />} />
+             {/* Pass 189: /apply lands on the rookie application, not the old form */}
+             <Route path="/apply" element={<Navigate to="/apply/rookie" replace />} />
+
              <Route path="/apply/rookie" element={<RookieApplication />} />
              <Route path="/apply/veteran" element={<VetApplication />} />
              <Route path="/apply/success" element={<ApplySuccess />} />

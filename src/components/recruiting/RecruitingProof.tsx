@@ -17,14 +17,15 @@ export const PROOF_FIELDS: { key: keyof ProofData; label: string; hint: string }
   { key: 'video_url', label: 'Video URL (optional)', hint: 'https://...' },
 ];
 
-const STAT_KEYS: (keyof ProofData)[] = ['team_size', 'years_running', 'rookie_avg_earnings', 'top_rookie'];
+// Pass 189: the public page shows counts of people and years only. The money
+// fields stay editable in admin but are never rendered on a public route.
+const STAT_KEYS: (keyof ProofData)[] = ['team_size', 'years_running'];
 
 const LABELS: Record<string, string> = {
   team_size: 'Reps on the team',
   years_running: 'Years running',
-  rookie_avg_earnings: 'Avg first summer, rookie',
-  top_rookie: 'Top rookie summer',
 };
+
 
 function toEmbed(url: string): string | null {
   try {

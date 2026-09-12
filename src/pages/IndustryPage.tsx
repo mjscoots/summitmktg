@@ -44,9 +44,10 @@ export default function IndustryPage() {
         title: `${res?.label || vertical} - Trinity Sales`,
         description:
           res?.description ||
-          'We train and field sales reps in pest control and fiber internet. You close, you get paid on what you close.',
+          'We train and field sales reps in pest control and fiber internet.',
         path: `/industries/${slug.toLowerCase()}`,
       });
+
     })();
   }, [vertical, slug]);
 
