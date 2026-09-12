@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Mountain, Users, Target, Trophy, DollarSign, Calendar, Zap, CheckCircle } from "lucide-react";
+import { ArrowRight, Mountain, Users, Target, Trophy, Calendar, Zap, CheckCircle } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
 import { RecruitingContentPack } from "@/components/recruiting/RecruitingContentPack";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 
-import EarningsCalculator from "@/components/EarningsCalculator";
 import { setPageMeta } from "@/lib/pageMeta";
 
 const Recruiting = () => {
@@ -17,24 +16,24 @@ const Recruiting = () => {
     setPageMeta({
       title: "Summer Sales Jobs - Trinity Sales",
       description:
-        "Trinity trains and fields door-to-door sales reps. Training, housing and pay explained.",
+        "Trinity trains and fields door-to-door sales reps. Training, housing and the season explained.",
       path: "/recruiting",
     });
   }, []);
 
   const benefits = [
-    { icon: DollarSign, title: "High Income Potential", description: "Earn based on your effort, not an hourly cap. You get paid on what you close." },
+    { icon: Mountain, title: "Your Effort Decides It", description: "This is not an hourly job. What you put in is what you get out of the summer." },
     { icon: Calendar, title: "4-Month Sprint", description: "Work hard for one season. Build skills, capital, and connections that last a lifetime." },
     { icon: Users, title: "Team Culture", description: "Join a brotherhood of competitive, driven individuals who push each other to be better." },
     { icon: Trophy, title: "Real Competition", description: "Weekly leaderboards, team challenges, and recognition for top performers." },
     { icon: Target, title: "Proven System", description: "Battle-tested scripts, training, and support from day one. No guesswork." },
-    { icon: Zap, title: "Fast Results", description: "Start earning within your first week. No months of training before you see income." },
+    { icon: Zap, title: "Fast Start", description: "You are on the doors in your first week, not after months of classroom time." },
   ];
 
   const whoWeAreLookingFor = [
     "Competitive athletes or former athletes",
     "People who hate the idea of a normal 9-5",
-    "Anyone looking for a high-income skill",
+    "Anyone looking for a real sales skill",
     "College students wanting to maximize their summer",
     "Entrepreneurs who want real sales experience",
   ];
@@ -44,6 +43,7 @@ const Recruiting = () => {
     navigate(path);
     window.scrollTo(0, 0);
   };
+
 
   return (
     <div className="gold-world min-h-screen bg-background">
