@@ -2507,3 +2507,14 @@ html[data-appearance='light'] .btn-gradient {
   .ask-sheet .ask-body { transition: none !important; }
   .public-door { transform: none !important; }
 }
+
+/* Pass 188: the step by step application. Slide in, nothing under reduced motion. */
+.apply-step { animation: apply-step-in 240ms var(--motion-ease-out) both; }
+.apply-progress { transition: width 240ms var(--motion-ease-out); }
+
+@keyframes apply-step-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .apply-step { animation: none !important; }
+  .apply-progress { transition: none !important; }
+}

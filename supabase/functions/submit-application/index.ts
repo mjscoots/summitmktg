@@ -28,6 +28,7 @@ const TOO_MANY = "Too many tries. Wait an hour and try again.";
 
 const INTERESTS = ["Pest control", "Fiber internet", "Life insurance", "Not sure yet"];
 const STYLES = ["In person sales", "Remote sales", "Either"];
+const EXPERIENCE = ["Nothing yet", "Some sales", "Door to door", "Another industry"];
 
 const cap = (value: unknown, max: number) => {
   const text = String(value ?? "").trim();
@@ -73,6 +74,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const styleCandidate = cap(body.sales_style, 40);
     const salesStyle = STYLES.includes(styleCandidate) ? styleCandidate : null;
     const earningsGoal = cap(body.earnings_goal, 120) || null;
+
+    // Pass 188: what they have done before, and whether they asked for a call.
+    const experienceCandidate = cap(body.experience, 40);
+    const experience = EXPERIENCE.includes(experienceCandidate) ? experienceCandidate : null;
+    const wantsCall = body.wants_call === true;
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -122,6 +128,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
       interested_in: interestedIn.length ? interestedIn : null,
       sales_style: salesStyle,
       earnings_goal: earningsGoal,
+      experience,
+      wants_call: wantsCall,
     });
     if (error) {
       console.error("application insert failed:", error.message);

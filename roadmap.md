@@ -25,3 +25,9 @@
 - [x] Add bounded pointer drift to the logo, peak glow, and industry tiles
 - [x] Stabilize and measure the question sheet at 390 and 1280
 - [x] Verify performance, reduced motion, build, gzip, and append the report
+
+## Pass 188
+- [x] Remove pay content from the public application pages
+- [x] One step by step flow on both routes with the end choice
+- [x] Store experience and wants a call, redeploy the form handler
+- [x] Verify, report, no publish

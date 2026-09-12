@@ -24,6 +24,8 @@ interface Application {
   interested_in: string[] | null;
   sales_style: string | null;
   earnings_goal: string | null;
+  experience: string | null;
+  wants_call: boolean | null;
   application_type: string;
   status: string;
   notes: string | null;
@@ -148,6 +150,8 @@ export default function AdminApplicationsTab() {
       app.interested_in?.length ? `Interested in: ${app.interested_in.join(', ')}` : '',
       app.sales_style ? `In person or remote: ${app.sales_style}` : '',
       app.earnings_goal ? `Earnings goal: ${app.earnings_goal}` : '',
+      app.experience ? `Experience: ${app.experience}` : '',
+      app.wants_call ? 'Wants a call' : '',
       app.notes ? `Notes: ${app.notes}` : '',
     ].filter(Boolean).join('\n');
     await navigator.clipboard.writeText(lines);
@@ -298,6 +302,8 @@ export default function AdminApplicationsTab() {
                       {app.interested_in?.length ? <span>Interested in: {app.interested_in.join(', ')}</span> : null}
                       {app.sales_style && <span>In person or remote: {app.sales_style}</span>}
                       {app.earnings_goal && <span>Earnings goal: {app.earnings_goal}</span>}
+                      {app.experience && <span>Experience: {app.experience}</span>}
+                      {app.wants_call && <span className="text-primary">Wants a call</span>}
                       {app.source_type && <span>Source: {app.source_type}</span>}
                       {typeFilter === 'veteran' && app.previous_company && <span>Prev: {app.previous_company}</span>}
                       {typeFilter === 'veteran' && app.years_experience != null && <span>Rev: {app.years_experience}</span>}
