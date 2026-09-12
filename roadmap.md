@@ -17,3 +17,11 @@
 - [x] Update statement, doors, and ticker copy
 - [x] Remove Who runs it, pay, season, and work sections
 - [x] Verify and append Pass 185 report
+
+## Pass 187
+- [x] Soften the hero to statement transition and add the scroll cue
+- [x] Write the statement headline and supporting lines in sequence
+- [x] Remove the cover ticker and move the industries line
+- [x] Add bounded pointer drift to the logo, peak glow, and industry tiles
+- [x] Stabilize and measure the question sheet at 390 and 1280
+- [x] Verify performance, reduced motion, build, gzip, and append the report

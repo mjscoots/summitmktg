@@ -62,9 +62,10 @@ interface QuestionsProps {
 /** The three questions, one at a time, plus the closing line. */
 export function AskQuestions({ ask, idPrefix }: QuestionsProps) {
   const { sold, setSold, good, setGood, market, setMarket, step, done, href } = ask;
+  const [completed, setCompleted] = useState(false);
 
   return (
-    <div className="ask-body">
+    <div className="ask-body" data-step={step} data-complete={completed ? 'true' : 'false'}>
       {step === 0 && (
         <div className="ask-step" key="one">
           <h3 className="ask-question" id={`${idPrefix}-q1`}>Have you done sales before?</h3>
@@ -101,7 +102,7 @@ export function AskQuestions({ ask, idPrefix }: QuestionsProps) {
         </div>
       )}
 
-      {step === 2 && (
+      {step === 2 && !completed && (
         <div className="ask-step" key="three">
           <h3 className="ask-question">Where are you located?</h3>
           <input
@@ -112,16 +113,27 @@ export function AskQuestions({ ask, idPrefix }: QuestionsProps) {
             autoComplete="address-level2"
             className="ask-input mt-6"
           />
-          {done && (
-            <div className="ask-done mt-7">
-              <p className="ask-line">You are in the right place.</p>
-              <Link to={href} className="btn-purple mt-5 inline-flex w-full items-center justify-center gap-2 px-8">
-                Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </div>
-          )}
+          <button
+            type="button"
+            className="ask-continue mt-3"
+            disabled={!done}
+            onClick={() => setCompleted(true)}
+          >
+            Continue
+          </button>
         </div>
       )}
+      {step === 2 && completed && (
+        <div className="ask-step ask-final" key="done">
+          <p className="ask-line">You are in the right place.</p>
+          <Link to={href} className="btn-purple ask-get-in mt-5 inline-flex w-full items-center justify-center gap-2 px-8">
+            Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+      )}
+      <div className="ask-dots" aria-label={`Question ${step + 1} of 3`}>
+        {[0, 1, 2].map((index) => <span key={index} className={step === index ? 'ask-dot ask-dot-on' : 'ask-dot'} />)}
+      </div>
     </div>
   );
 }

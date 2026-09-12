@@ -3,10 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { MountainScene, requestTiltPermission } from "@/components/brand/MountainScene";
-import { PublicProofStrip } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
-import { CoverTicker } from "@/components/recruiting/CoverTicker";
 import { COVER_STATS } from "@/lib/coverStats";
 import { RidgelineMark } from '@/components/brand/RidgelineMark';
 import { usePublicMotion } from '@/hooks/usePublicMotion';
@@ -41,9 +39,16 @@ const Index = () => {
   const [heroProgress, setHeroProgress] = useState(0);
   // The final band's own progress, which lifts the scene glow.
   const [bandProgress, setBandProgress] = useState(0);
+  const [wideInk, setWideInk] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1100);
   const tiltAsked = useRef(false);
   const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
   usePublicMotion();
+
+  useEffect(() => {
+    const resize = () => setWideInk(window.innerWidth >= 1100);
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
 
 
   // iOS only hands over device orientation from inside a gesture, and the grant
@@ -64,7 +69,9 @@ const Index = () => {
       frame = 0;
       const y = el ? el.scrollTop : window.scrollY;
       setScrolled(y > 40);
-      setHeroProgress(Math.min(1, Math.max(0, y / Math.max(1, window.innerHeight))));
+      const nextHeroProgress = Math.min(1, Math.max(0, y / Math.max(1, window.innerHeight)));
+      setHeroProgress(nextHeroProgress);
+      heroRef.current?.style.setProperty('--bridge-opacity', String(Math.min(0.1, Math.max(0, (nextHeroProgress - 0.18) / 0.18 * 0.1))));
 
       const scroller = el || document.documentElement;
       const span = Math.max(1, scroller.scrollHeight - window.innerHeight);
@@ -140,8 +147,11 @@ const Index = () => {
 
       <main className="relative flex-1">
         {/* Screen one: only the assembled logo in the dark world. */}
-        <section ref={heroRef} className="cover-open relative isolate px-5 sm:px-6">
+        <section ref={heroRef} className="cover-open cover-hero relative isolate px-5 sm:px-6">
           <CoverLogo progress={heroProgress} onWorldLight={onWorldLight} />
+          <div className="cover-scroll-cue" data-hidden={heroProgress > 0.04 ? 'true' : 'false'} aria-hidden="true">
+            <span />
+          </div>
           <div className="min-h-[100svh]" aria-hidden="true" />
         </section>
 
@@ -149,32 +159,28 @@ const Index = () => {
         <section id="statement" className="cover-statement public-section relative isolate flex min-h-[100svh] items-center px-5 py-20 text-center sm:px-6">
           <div className="cover-statement-copy mx-auto w-full max-w-6xl" data-in={worldLight ? 'true' : 'false'}>
             <h1 className="cover-headline">
-              <span className="reveal-clip"><span className="cover-line-blue block">EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.</span></span>
-              <span className="reveal-clip"><span className="cover-line-purple block">WE JOINED ALL THREE.</span></span>
+              <PenLine
+                className="cover-ink-headline"
+                lines={wideInk ? ['EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.'] : ['EVERYONE ARGUES OVER', 'WHICH INDUSTRY IS BEST.']}
+                duration={1600}
+                start={worldLight}
+              />
+              <span className="reveal-clip cover-block-line"><span className="cover-line-purple block">WE JOINED ALL THREE.</span></span>
             </h1>
-            <p className="cover-statement-body mx-auto mt-7 max-w-[60ch] text-foreground">
-              Pest control. Fiber internet. Life insurance. One team. Sell any of them, year round, and find the one that fits you.
-            </p>
-            <PenLine className="cover-pen mt-6" start={worldLight} />
-            <div className="cover-actions mt-9 flex w-full max-w-sm flex-col items-center gap-4 sm:mx-auto sm:flex-row sm:justify-center">
-              <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple inline-flex w-full items-center justify-center gap-2 px-8 sm:w-auto">
+            <PenLine
+              className="cover-pen mt-6"
+              lines={['Trinity.', 'Where being a sales rep is not the end goal.']}
+              duration={1400}
+              delay={2520}
+              start={worldLight}
+            />
+            <div className="cover-actions mt-9 flex w-full items-center justify-center">
+              <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in inline-flex items-center justify-center gap-2 px-8">
                 Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <Link to="/login" className="public-link inline-flex min-h-12 items-center px-3 text-sm font-semibold">Sign in</Link>
             </div>
           </div>
         </section>
-
-        {/* The ticker band: offices, live counters and three industries. */}
-        <CoverTicker />
-
-        {COVER_STATS && (
-          <div className="public-section px-5 py-10 sm:px-6" data-reveal>
-            <div className="mx-auto max-w-4xl">
-              <PublicProofStrip />
-            </div>
-          </div>
-        )}
 
         <ThreeDoorSection />
 

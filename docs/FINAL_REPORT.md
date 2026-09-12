@@ -5007,4 +5007,62 @@ Staff view (`AdminApplicationsTab.tsx`): under the existing referral line review
 ### Build and baselines
 Typecheck clean. Production build clean in 10.53s. Shell gzip: JS 16.41 kB, CSS 32.07 kB (Pass 185: JS 16.38 kB, CSS 31.60 kB).
 Baselines unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
+
+## Pass 187: cover polish
+
+### Gradient bridge and white swell
+
+- The statement section now follows the current world background. It remains black before the burst and becomes white only when the world changes.
+- The final 28vh of the hero carries a transparent to white bridge. Its measured opacity was 0.011 at p 0.20, 0.067 at p 0.30, and 0.100 at p 0.36.
+- The white swell still begins at p 0.36 with the existing 900ms outward and 500ms reverse timing. Its edge is feathered with a 60px blur.
+- Screenshots at 390 and 1280 showed no hard white edge before the burst.
+
+### Hero cue and statement sequence
+
+- The cue is centered 40px above the hero bottom. Its track is 1px wide and 28px tall at 18 percent white. Its blue dot is 6px.
+- The dot travels for 1,600ms, fades during that run, then rests for 400ms. The cue fades over 300ms after p passes 0.04 and returns at the top.
+- The headline uses Caveat 600 and #004EFD. At 390 it writes as `EVERYONE ARGUES OVER` then `WHICH INDUSTRY IS BEST.` At 1280 it fits as `EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.` inside 90 percent of the container. Total writing time is 1,600ms.
+- `WE JOINED ALL THREE.` follows in Archivo 800, uppercase, #6D3BFF, with its clipped reveal starting 200ms after the ink finishes.
+- Contrast on white is 5.82:1 for #004EFD and 5.54:1 for #6D3BFF.
+
+Statement screen, top to bottom:
+
+1. `EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.`
+2. `WE JOINED ALL THREE.`
+3. `Trinity.`
+4. `Where being a sales rep is not the end goal.`
+5. `Get in`
+
+The handwritten support uses Caveat 600 and #0A0A0F. It writes over 1,400ms starting 200ms after the block line lands. The button begins rising 400ms after that handwriting starts. It measured 350 by 64 at 390, which is the viewport minus 20px gutters, and 340 by 68 at 1280. It remains linked to `/apply/rookie`. Sign in is absent from this screen and remains in the navigation and final band.
+
+### Industries and removals
+
+- The first line below `Three industries. One team.` is now `Pest control. Fiber internet. Life insurance. One team. Sell any of them, year round, and find the one that fits you.`
+- `src/components/recruiting/CoverTicker.tsx` was deleted. Its import, render, marquee styles, animation, offices, counters, and signed text were removed. Nothing replaced the ticker, so the industries section follows the statement.
+- `get_public_counters` was not changed.
+
+### Pointer motion and frame cost
+
+- The assembled logo and its glow lerp against the pointer or existing device orientation input by up to 8px.
+- The peak glow lerps horizontally by up to 5 percent of viewport width.
+- Each industry tile lerps at its own depth, capped at 2px, 3px, and 4px.
+- The glow breathes between 8 and 14 percent. Hero grid hairlines are 4 percent white.
+- At 390 the measured median main thread animation work was 0.4ms across opening, burst, and steady scroll, below the 8ms target. No horizontal overflow or runtime page errors were found.
+
+### Question sheet
+
+- At 390 the sheet measured 390 by 560 at question one, question two, and question three. It stayed fixed between steps, within the 520px minimum and 88svh maximum rule.
+- At 1280 the card stayed 520px wide. Its measured auto heights were 340px, 408px, and 332px across the three steps, with the 200ms height transition.
+- Both sizes use 24px internal gutters, 12px answer gaps, 56px answers, a 44px close target, and three bottom dots with one #6D3BFF active dot.
+- The location step keeps `Where are you located?`, the existing input, and a 56px full width `Continue` control disabled until text exists.
+- The final screen keeps `You are in the right place.` and `Get in`. The final Get in is 342 by 64 at 390 and 340 by 68 at 1280. Questions, answers, routes, query parameters, and `trnty_ask_seen` are unchanged.
+
+### Reduced motion and checks
+
+- Reduced motion hides the hero cue, opens both ink clips immediately, shows the support pen line immediately, shows the block line and button without rising, removes pointer drift, and shows the sheet and step changes without animation.
+- Added source and report lines contain no em dash and no emoji.
+- Typecheck is clean. Production build is clean in 12.18s.
+- Shell gzip is 16,373 bytes for entry JavaScript and 32,372 bytes for entry CSS. Against Pass 186 this is minus 37 bytes of JavaScript and plus 302 bytes of CSS.
+- Read only baselines are unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
+- No dependency, permission, backend, or data changes were made. The site was not published.
 No em dashes and no emoji in the added lines. The site was not published.
