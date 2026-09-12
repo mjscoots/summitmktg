@@ -12,8 +12,8 @@ import { RIDGES } from './MountainRange';
  * Pass 183 brings the scene to the one motion standard:
  * - every ridge drift is a sine of absolute time, so no loop ever restarts and
  *   nothing jumps at the seam,
- * - the glow behind the tallest peak breathes on an eased sine between 6 and 10
- *   percent, and brightens toward 14 percent as the final band arrives,
+ * - the glow behind the tallest peak breathes on an eased sine between 8 and 14
+ *   percent and follows the pointer horizontally by up to 5vw,
  * - particles respawn at zero alpha and fade in over 600ms, so nothing pops,
  * - the layers tilt to the pointer on desktop and to device orientation on a
  *   phone, three depths, 12px at the nearest layer, lerped at 0.08, on top of
@@ -161,12 +161,12 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0, l
         return g;
       });
 
-      // One soft glow behind the tallest peak: blue at the base into violet at
-      // the top, fading out over 40 percent of the scene height.
+      // One soft glow behind the tallest peak, fading out over 40 percent of the
+      // scene height. Its canvas transform follows the pointer at draw time.
       const peakX = tx + 720 * scale;
       const peakBase = ty + 340 * scale;
       const reach = VIEW_H * scale * 0.4;
-      glow = ctx.createLinearGradient(peakX, peakBase, peakX, peakBase - reach);
+      glow = ctx.createRadialGradient(peakX, peakBase - reach * 0.2, 0, peakX, peakBase - reach * 0.2, reach);
       if (light) {
         glow.addColorStop(0, 'rgba(0,78,253,1)');
         glow.addColorStop(0.55, 'rgba(109,59,255,0.6)');
@@ -203,17 +203,19 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0, l
       ctx.fillStyle = sky;
       ctx.fillRect(0, 0, width, height);
 
-      // The glow: an eased breath between 6 and 10 percent over twelve seconds,
-      // lifted toward 14 percent as the final band arrives.
+      // The glow: an eased breath between 8 and 14 percent over twelve seconds.
       if (glow) {
-        const boost = Math.max(0, Math.min(1, boostRef.current));
-        const base = light ? 0.06 : 0.08 + boost * 0.06;
         const breath = easeInOut((Math.sin((now / 12000) * Math.PI * 2) + 1) / 2);
-        const breathe = reduceMotion ? base : base - 0.02 + breath * 0.04;
+        const boost = Math.max(0, Math.min(1, boostRef.current));
+        const breathe = reduceMotion ? 0.11 : 0.08 + breath * 0.06 + boost * 0;
+        const glowShift = reduceMotion ? 0 : px * width * 0.05;
+        ctx.save();
+        ctx.translate(glowShift, 0);
         ctx.globalAlpha = breathe;
         ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, width, height);
+        ctx.fillRect(-Math.abs(glowShift), 0, width + Math.abs(glowShift) * 2, height);
         ctx.globalAlpha = 1;
+        ctx.restore();
       }
 
       // Particles above the range. A respawn starts at zero alpha and fades in

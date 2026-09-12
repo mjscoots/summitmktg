@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useId, useRef, useState } from 'react';
 
 /**
  * Pass 184 - the handwritten line under the headline.
@@ -13,17 +13,26 @@ import { memo, useEffect, useRef, useState } from 'react';
  * line simply renders.
  */
 
-const LINE = 'Where being a sales rep is not the end goal.';
-
 export interface PenLineProps {
   className?: string;
   /** The write only starts once this is true. */
   start?: boolean;
+  lines?: readonly string[];
+  duration?: number;
+  delay?: number;
 }
 
-function PenLineBase({ className, start = true }: PenLineProps) {
+interface DrawnLineProps {
+  line: string;
+  start: boolean;
+  duration: number;
+  delay: number;
+}
+
+function DrawnLine({ line, start, duration, delay }: DrawnLineProps) {
   const textRef = useRef<SVGTextElement | null>(null);
   const [box, setBox] = useState<{ w: number; h: number; x: number; y: number } | null>(null);
+  const clipId = `pen-${useId().replace(/:/g, '')}`;
 
   useEffect(() => {
     const node = textRef.current;
@@ -48,43 +57,74 @@ function PenLineBase({ className, start = true }: PenLineProps) {
       cancelAnimationFrame(frame);
       window.removeEventListener('resize', measure);
     };
-  }, []);
+  }, [line]);
 
   const pad = 6;
   const vb = box ? `${box.x - pad} ${box.y - pad} ${box.w + pad * 2} ${box.h + pad * 2}` : '0 0 600 80';
 
+  const style = box
+    ? {
+        maxWidth: `${Math.round(box.w + pad * 2)}px`,
+        '--pen-duration': `${duration}ms`,
+        '--pen-delay': `${delay}ms`,
+      } as React.CSSProperties
+    : { visibility: 'hidden' as const };
+
+  return (
+    <svg
+      className="pen-line"
+      aria-hidden="true"
+      data-writing={start && box ? 'true' : 'false'}
+      viewBox={vb}
+      width="100%"
+      style={style}
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <defs>
+        <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
+          <rect
+            className="pen-line-wipe"
+            x={box ? box.x - pad : 0}
+            y={box ? box.y - pad : 0}
+            width={box ? box.w + pad * 2 : 600}
+            height={box ? box.h + pad * 2 : 80}
+          />
+        </clipPath>
+      </defs>
+      <text ref={textRef} className="pen-line-text pen-line-ghost" x="0" y="0" dominantBaseline="hanging">
+        {line}
+      </text>
+      <g clipPath={`url(#${clipId})`}>
+        <text className="pen-line-text pen-line-ink" x="0" y="0" dominantBaseline="hanging">
+          {line}
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+function PenLineBase({
+  className,
+  start = true,
+  lines = ['Where being a sales rep is not the end goal.'],
+  duration = 1800,
+  delay = 0,
+}: PenLineProps) {
+  const perLine = duration / Math.max(1, lines.length);
   return (
     <p className={className}>
-      <span className="sr-only">{LINE}</span>
-      <svg
-        className="pen-line"
-        aria-hidden="true"
-        data-writing={start && box ? 'true' : 'false'}
-        viewBox={vb}
-        width="100%"
-        style={box ? { maxWidth: `${Math.round(box.w + pad * 2)}px` } : { visibility: 'hidden' }}
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <defs>
-          <clipPath id="pen-line-clip" clipPathUnits="userSpaceOnUse">
-            <rect
-              className="pen-line-wipe"
-              x={box ? box.x - pad : 0}
-              y={box ? box.y - pad : 0}
-              width={box ? box.w + pad * 2 : 600}
-              height={box ? box.h + pad * 2 : 80}
-            />
-          </clipPath>
-        </defs>
-        <text ref={textRef} className="pen-line-text pen-line-ghost" x="0" y="0" dominantBaseline="hanging">
-          {LINE}
-        </text>
-        <g clipPath="url(#pen-line-clip)">
-          <text className="pen-line-text pen-line-ink" x="0" y="0" dominantBaseline="hanging">
-            {LINE}
-          </text>
-        </g>
-      </svg>
+      <span className="sr-only">{lines.join(' ')}</span>
+      <span className="pen-lines" aria-hidden="true">
+        {lines.map((line, index) => (
+          <DrawnLine
+            key={`${index}-${line}`}
+            line={line}
+            start={start}
+            duration={perLine}
+            delay={delay + perLine * index}
+          />
+        ))}
+      </span>
     </p>
   );
 }
