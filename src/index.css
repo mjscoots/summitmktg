@@ -2160,8 +2160,8 @@ html[data-appearance='light'] .btn-gradient {
   to { transform: translate(-50%, -50%) scale(0); }
 }
 
-/* The statement stays in the current world until the swell changes that world. */
-.cover-statement { background: hsl(var(--background)); }
+/* Pass 190: the statement paints nothing. The world wrapper owns the surface. */
+
 .cover-statement-copy {
   opacity: 0;
   transform: translateY(12px);
