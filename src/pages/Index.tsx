@@ -156,7 +156,7 @@ const Index = () => {
         </section>
 
         {/* Screen two: the statement never shares space with the logo. */}
-        <section id="statement" className="cover-statement relative isolate flex min-h-[100svh] items-center px-5 text-center sm:px-6">
+        <section id="statement" className="cover-statement relative isolate flex min-h-[100svh] px-5 text-center sm:px-6">
           <div className="cover-statement-copy mx-auto w-full max-w-6xl" data-in={worldLight ? 'true' : 'false'}>
             <h1 className="cover-headline">
               <PenLine

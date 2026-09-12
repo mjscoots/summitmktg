@@ -2547,15 +2547,17 @@ html[data-appearance='light'] .btn-gradient {
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 25vh), rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 25vh), rgba(0, 0, 0, 0) 100%);
 }
-/* The statement centres in its own screen, with the space above the headline capped. */
+/* The statement sits in its own screen with the space above the headline capped,
+   so the copy reads near the middle instead of a screen of empty white. */
 .cover-statement {
   justify-content: center;
-  padding-top: min(18vh, 80px);
-  padding-bottom: min(18vh, 80px);
+  align-items: flex-start;
+  padding-top: 18vh;
+  padding-bottom: 8vh;
 }
 @media (min-width: 700px) {
   .cover-statement {
-    padding-top: min(20vh, 80px);
-    padding-bottom: min(20vh, 80px);
+    padding-top: 20vh;
+    padding-bottom: 10vh;
   }
 }
