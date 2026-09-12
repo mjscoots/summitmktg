@@ -205,8 +205,9 @@ const Recruiting = () => {
               
               <p className="text-muted-foreground mb-6">
                 <span className="text-accent font-semibold">No experience required.</span> Perfect for college students, 
-                athletes, or anyone ready to learn a high-income skill from scratch.
+                athletes, or anyone ready to learn a real sales skill from scratch.
               </p>
+
               
               <ul className="space-y-2 text-sm text-muted-foreground mb-6">
                 <li className="flex items-center gap-2">
