@@ -180,17 +180,8 @@ export default function IndustrySwitcher() {
           </div>
         ) : null}
 
-        {slug !== "life" && (
-          <div id="earnings" className="scroll-mt-8">
-            <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius)]" />}>
-              {slug === "pest" ? (
-                <EarningsCalculator calcData={calc} />
-              ) : (
-                <FiberPublicCalculator calcData={calc} />
-              )}
-            </Suspense>
-          </div>
-        )}
+
+
 
         <div>
           <button
