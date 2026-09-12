@@ -39,9 +39,16 @@ const Index = () => {
   const [heroProgress, setHeroProgress] = useState(0);
   // The final band's own progress, which lifts the scene glow.
   const [bandProgress, setBandProgress] = useState(0);
+  const [wideInk, setWideInk] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1100);
   const tiltAsked = useRef(false);
   const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
   usePublicMotion();
+
+  useEffect(() => {
+    const resize = () => setWideInk(window.innerWidth >= 1100);
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
 
 
   // iOS only hands over device orientation from inside a gesture, and the grant
@@ -154,7 +161,7 @@ const Index = () => {
             <h1 className="cover-headline">
               <PenLine
                 className="cover-ink-headline"
-                lines={['EVERYONE ARGUES OVER', 'WHICH INDUSTRY IS BEST.']}
+                lines={wideInk ? ['EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.'] : ['EVERYONE ARGUES OVER', 'WHICH INDUSTRY IS BEST.']}
                 duration={1600}
                 start={worldLight}
               />
