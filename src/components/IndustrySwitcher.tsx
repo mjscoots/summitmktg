@@ -1,12 +1,8 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { usePublicCalc } from "@/hooks/usePublicCalc";
 
-const EarningsCalculator = lazy(() => import("@/components/EarningsCalculator"));
-const FiberPublicCalculator = lazy(() => import("@/components/FiberPublicCalculator"));
 
 const TABS = [
   { slug: "pest", vertical: "Pest", label: "Pest" },
