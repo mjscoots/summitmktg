@@ -130,6 +130,10 @@ const Index = () => {
       delete statement.dataset.sequenceStarted;
       delete statement.dataset.sequenceComplete;
       statement.querySelectorAll<HTMLElement>('[data-animating]').forEach((node) => { node.dataset.animating = 'false'; });
+      statement.querySelectorAll<HTMLElement>('.pen-line').forEach((line) => {
+        line.style.setProperty('--pen-opacity', '0');
+        line.style.setProperty('--pen-dot-x', '0px');
+      });
     };
     if (reduced) {
       statement.dataset.sequence = 'reduced';
@@ -167,6 +171,11 @@ const Index = () => {
       statement.dataset.sequence = 'playing';
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
       statement.dataset.sequenceStartVisibility = Number(statement.dataset.visibility || 0).toFixed(4);
+      penLines.forEach((line) => {
+        const isNote = line.closest('[data-sequence-part="note"]') !== null;
+        line.style.setProperty('--pen-opacity', isNote ? '0' : '1');
+      });
+      mark(nodes.ink, true);
       const draw = (now: number) => {
         const workStarted = performance.now();
         const time = now - startedAt;
@@ -181,13 +190,14 @@ const Index = () => {
         penLines.forEach((line, index) => {
           const isNote = line.closest('[data-sequence-part="note"]') !== null;
           const progress = isNote ? range(time, 3960, 5360) : penLines.length === 2 ? ink : index === 0 ? range(time, 0, 700) : range(time, 700, 1400);
+          line.style.setProperty('--pen-opacity', isNote && time < 3960 ? '0' : '1');
           line.style.setProperty('--pen-dot-x', `${(penWidths[index] * progress).toFixed(2)}px`);
         });
         mark(nodes.ink, time < 1400);
-        mark(nodes.payoffOne, time >= 2400 && time < 2780);
-        mark(nodes.payoffTwo, time >= 2580 && time < 2960);
-        mark(nodes.note, time >= 3960 && time < 5360);
-        mark(nodes.button, time >= 5560 && time < 5980);
+        mark(nodes.payoffOne, time >= 2300 && time < 2780);
+        mark(nodes.payoffTwo, time >= 2480 && time < 2960);
+        mark(nodes.note, time >= 3860 && time < 5360);
+        mark(nodes.button, time >= 5460 && time < 5980);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;

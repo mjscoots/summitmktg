@@ -2196,7 +2196,7 @@ html[data-appearance='light'] .btn-gradient {
   margin: 0 auto;
   opacity: 0;
 }
-.pen-line[data-pen-measured='true'] { opacity: 1; }
+.pen-line[data-pen-measured='true'] { opacity: var(--pen-opacity, 0); }
 .pen-line-text {
   display: block;
   font-family: 'Caveat', 'Kalam', cursive;
