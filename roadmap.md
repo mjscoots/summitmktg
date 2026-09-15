@@ -59,3 +59,8 @@
 - [x] Replace public purple with blue, black and white without changing the signed-in app
 - [x] Measure six progress checkpoints, four widths, reduced motion, frame cost and seam proof
 - [x] Typecheck, automatic production build and report, no publish
+
+## Rookie application admin handoff
+- [x] Trace the public rookie form through the protected submission function to the admin Applications inbox
+- [x] Allow the current preview, published Trinity URL and Trinity custom domains to submit
+- [ ] Deploy the submission function and verify the live handoff without creating an application
