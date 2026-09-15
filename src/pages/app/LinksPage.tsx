@@ -105,7 +105,10 @@ function extractPhoneFromLine(line: string): { name: string; phone: string } | n
 
 export default function LinksPage() {
   const { role } = useAuth();
-  const isAdmin = role === 'admin' || role === 'owner' || role === 'manager';
+  const isManagerUp = role === 'manager' || role === 'admin' || role === 'owner';
+  const seesEverything = role === 'admin' || role === 'owner';
+  const isAdmin = isManagerUp;
+
 
   const [links, setLinks] = useState<ManagedLink[]>([]);
   const [phones, setPhones] = useState<PhoneEntry[]>([]);
