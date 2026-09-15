@@ -136,10 +136,13 @@ const Index = () => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
     };
     const startedAt = performance.now();
+    const frameCosts: number[] = [];
+    const visibleAt: Record<string, number> = {};
     statement.dataset.sequence = 'playing';
     statement.dataset.sequenceStarted = startedAt.toFixed(2);
     let frame = 0;
     const draw = (now: number) => {
+      const workStarted = performance.now();
       const time = now - startedAt;
       const ink = range(time, 0, 1400);
       setProgress('--ink-all', ink);
@@ -162,8 +165,27 @@ const Index = () => {
       mark(nodes.payoffTwo, time >= 2580 && time < 2960);
       mark(nodes.note, time >= 3960 && time < 5360);
       mark(nodes.button, time >= 5560 && time < 5980);
+      const recordVisible = (key: string, active: boolean) => {
+        if (active && visibleAt[key] === undefined) {
+          visibleAt[key] = time;
+          statement.dataset[`${key}VisibleAt`] = time.toFixed(1);
+        }
+      };
+      recordVisible('ink', ink > 0);
+      recordVisible('payoffOne', time >= 2400);
+      recordVisible('payoffTwo', time >= 2580);
+      recordVisible('note', time >= 3960);
+      recordVisible('button', time >= 5560);
+      frameCosts.push(performance.now() - workStarted);
       if (time < 5980) frame = requestAnimationFrame(draw);
-      else statement.dataset.sequenceComplete = 'true';
+      else {
+        const ordered = [...frameCosts].sort((a, b) => a - b);
+        const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
+        statement.dataset.frameMedian = (ordered[Math.floor(ordered.length / 2)] || 0).toFixed(3);
+        statement.dataset.frameP95 = percentile.toFixed(3);
+        statement.dataset.frameMax = (ordered[ordered.length - 1] || 0).toFixed(3);
+        statement.dataset.sequenceComplete = 'true';
+      }
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
