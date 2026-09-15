@@ -10,11 +10,18 @@ const allowedOrigins = [
   "https://summitmktg.lovable.app",
   "https://summitmktgsales.com",
   "https://www.summitmktgsales.com",
+  "https://trntysales.lovable.app",
+  "https://trntysales.com",
+  "https://www.trntysales.com",
   "http://localhost:8080",
 ];
 
 function getCorsHeaders(origin: string | null) {
-  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith(".lovable.app"));
+  const isAllowed = origin && (
+    allowedOrigins.includes(origin) ||
+    origin.endsWith(".lovable.app") ||
+    origin.endsWith(".lovableproject.com")
+  );
   return {
     "Access-Control-Allow-Origin": isAllowed && origin ? origin : allowedOrigins[0],
     "Access-Control-Allow-Headers":
