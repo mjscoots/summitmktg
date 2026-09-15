@@ -132,6 +132,7 @@ const Index = () => {
     };
     const penLines = Array.from(statement.querySelectorAll<HTMLElement>('.pen-line'));
     const penWidths = penLines.map((line) => line.getBoundingClientRect().width);
+    penLines.forEach((line, index) => line.style.setProperty('--pen-width', `${penWidths[index].toFixed(2)}px`));
     const mark = (node: HTMLElement | null, active: boolean) => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
     };

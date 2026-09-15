@@ -2200,12 +2200,12 @@ html[data-appearance='light'] .btn-gradient {
   font-family: 'Caveat', 'Kalam', cursive;
   font-weight: 500;
   color: #0A0A0F;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, transparent calc(50% - 40px), #000 50%, #000 100%);
-  mask-image: linear-gradient(to right, transparent 0, transparent calc(50% - 40px), #000 50%, #000 100%);
-  -webkit-mask-size: 200% 100%;
-  mask-size: 200% 100%;
-  -webkit-mask-position: calc((1 - var(--pen-progress, 0)) * 100%) 0;
-  mask-position: calc((1 - var(--pen-progress, 0)) * 100%) 0;
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
+  -webkit-mask-size: calc(var(--pen-width, 100%) + 40px) 100%;
+  mask-size: calc(var(--pen-width, 100%) + 40px) 100%;
+  -webkit-mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%) - 40px) 0;
+  mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%) - 40px) 0;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
