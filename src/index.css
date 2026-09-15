@@ -2204,8 +2204,8 @@ html[data-appearance='light'] .btn-gradient {
   mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
   -webkit-mask-size: calc(var(--pen-width, 100%) + 40px) 100%;
   mask-size: calc(var(--pen-width, 100%) + 40px) 100%;
-  -webkit-mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%) - 40px) 0;
-  mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%) - 40px) 0;
+  -webkit-mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%)) 0;
+  mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%)) 0;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
