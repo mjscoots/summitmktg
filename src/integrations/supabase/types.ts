@@ -2878,6 +2878,7 @@ export type Database = {
       }
       managed_links: {
         Row: {
+          category: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
@@ -2891,6 +2892,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -2904,6 +2906,7 @@ export type Database = {
           url: string
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null

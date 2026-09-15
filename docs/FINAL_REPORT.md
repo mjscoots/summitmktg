@@ -5581,3 +5581,102 @@ Contrast on white is 5.99:1 for #004EFD and 19.75:1 for #0A0A0F. Both exceed the
 - Added lines contain no em dash and no emoji.
 - Read-only baselines after verification: profiles 536, applications 13 and earnings_goals 0 are unchanged. `chat_messages` remains 717, the same external one-row increase recorded in Pass 191. This pass made no data writes.
 - No new dependency, permission change, data write or publication. The site was not published.
+
+## Pass 196 - Resources audience gate, grouping and operating links
+
+Scope: logged in app only, /app/links. No public cover change. Not published.
+
+### 1. Audience gate bug
+
+Before the fix `src/pages/app/LinksPage.tsx` had `const filteredLinks = links;`, so every
+row rendered to every signed in user regardless of `target_role`.
+
+target_role counts before the fix (all managed_links rows):
+
+- all: 7
+- rookie: 0
+- manager: 0
+
+Plainly: nothing was exposed. No row was marked Managers Only before this pass, so no
+manager only link had ever been visible to reps. The gate was still broken and would have
+leaked the first restricted row saved, which is why it was fixed before inserting the
+Interviews rows.
+
+Fix: the page now computes `isManagerUp` (manager, admin, owner) and `seesEverything`
+(admin, owner). Filter behaviour, verified by evaluating the shipped predicate over a
+sample set of one Everyone row, two Managers Only rows and one Rookies Only row:
+
+- rookie: Base pitch, Rookie only sample
+- manager: Base pitch, Interview 1 watch before, Interview call
+- admin: all four
+- owner: all four
+
+Any card whose audience is not Everyone now carries a small muted label reading
+"Managers only" or "Rookies only". Everyone cards carry no label.
+
+### 2. Migration and column
+
+Migration: `ALTER TABLE public.managed_links ADD COLUMN IF NOT EXISTS category text;`
+Read back from information_schema: `category` present on managed_links (1 matching column).
+
+### 3. Rows inserted
+
+managed_links total before: 7. After: 23. Sixteen rows added, no pre existing row
+modified, deactivated or deleted (the insert touched no existing id and display_order
+continued from the previous maximum of 4). Read back as title, target_role, category:
+
+- One Stop support, call or text | all | One Stop
+- No availability showing | all | One Stop
+- Hawx customer portal | all | One Stop
+- Blackbird app, TestFlight | all | Apps and setup
+- Blackbird login walkthrough | all | Apps and setup
+- Apruv setup walkthrough | all | Apps and setup
+- Apruv support, call or text | all | Apps and setup
+- Base pitch | all | Pest sales training
+- Base RAC process | all | Pest sales training
+- Base switchover | all | Pest sales training
+- Zoom trainings | all | Pest sales training
+- Vet Zoom trainings | all | Pest sales training
+- Interview 1, watch before | manager | Interviews
+- Interview 2, watch before | manager | Interviews
+- Interview call | manager | Interviews
+- Parent video | all | Recruiting
+
+### 4. Links tab groups
+
+Rendered at 390x844 and 1280x900 as a signed in owner. Group labels in order, identical at
+both widths: Links, One Stop, Apps and setup, Pest sales training, Interviews, Recruiting.
+Each label is a small uppercase muted line above its own grid, one column at 390 and two at
+1280. Group contents in order:
+
+- Links: Onboarding ZOOM Link, Mathews calendly, Nic Minders Calendly, APRUV TUTORIAL, LUCS CALENDLY
+- One Stop: One Stop support call or text, No availability showing, Hawx customer portal
+- Apps and setup: Blackbird app TestFlight, Blackbird login walkthrough, Apruv setup walkthrough, Apruv support call or text
+- Pest sales training: Base pitch, Base RAC process, Base switchover, Zoom trainings, Vet Zoom trainings
+- Interviews: Interview 1 watch before, Interview 2 watch before, Interview call
+- Recruiting: Parent video
+
+display_order still orders rows inside a group, and drag to reorder now runs per group,
+rewriting only that group's own order slots.
+
+### 5. tel: links
+
+Three anchors render with href tel:+18016099348, tel:+18016099348 and tel:+13859934118, each
+with an empty target attribute, so a phone opens the dialer instead of a browser tab. Other
+rows keep target _blank with noopener noreferrer. URLs pass through sanitizeUrl.
+
+### 6. Add Link dialog
+
+The Add Link and Edit Link dialog gains a Category field: a plain text input, blank allowed,
+with a datalist offering One Stop, Apps and setup, Pest sales training, Interviews and
+Recruiting, and a helper line stating that blank keeps the row under Links.
+
+### 7. Checks
+
+- Nothing else changed: Phones, Emails, Calculators, Pay and Tools tabs untouched; public site untouched.
+- Typecheck: `bunx tsgo --noEmit -p tsconfig.app.json` clean.
+- Production build: build OK.
+- Gzip delta: LinksPage.tsx +468 bytes, SortableLinkCard.tsx +71 bytes gzipped.
+- No em dashes and no emoji in added lines.
+- Baselines: profiles 536, chat_messages 717, applications 13, earnings_goals 0 unchanged. managed_links 7 to 23 by design.
+- The site was not published.

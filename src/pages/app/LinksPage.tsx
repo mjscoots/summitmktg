@@ -31,9 +31,14 @@ interface ManagedLink {
   description: string | null;
   icon: string | null;
   target_role: string;
+  category: string | null;
   display_order: number;
   is_active: boolean;
 }
+
+/** Group order on the Links tab. Rows with no category come first. */
+const LINK_GROUPS = ['One Stop', 'Apps and setup', 'Pest sales training', 'Interviews', 'Recruiting'];
+
 
 interface PhoneEntry {
   id: string;
@@ -100,7 +105,10 @@ function extractPhoneFromLine(line: string): { name: string; phone: string } | n
 
 export default function LinksPage() {
   const { role } = useAuth();
-  const isAdmin = role === 'admin' || role === 'owner' || role === 'manager';
+  const isManagerUp = role === 'manager' || role === 'admin' || role === 'owner';
+  const seesEverything = role === 'admin' || role === 'owner';
+  const isAdmin = isManagerUp;
+
 
   const [links, setLinks] = useState<ManagedLink[]>([]);
   const [phones, setPhones] = useState<PhoneEntry[]>([]);
@@ -119,6 +127,8 @@ export default function LinksPage() {
   const [description, setDescription] = useState('');
   const [targetRole, setTargetRole] = useState<string>('all');
   const [icon, setIcon] = useState('link');
+  const [category, setCategory] = useState('');
+
 
   // Phone form state
   const [showAddPhone, setShowAddPhone] = useState(false);
@@ -178,11 +188,25 @@ export default function LinksPage() {
 
   useEffect(() => { fetchLinks(); fetchPhones(); fetchEmails(); }, []);
 
-  const filteredLinks = links;
+  // The audience saved on a link decides who sees it. Admins and owners keep
+  // seeing every row so they can manage the list.
+  const filteredLinks = links.filter(l => {
+    if (seesEverything) return true;
+    if (l.target_role === 'manager') return isManagerUp;
+    if (l.target_role === 'rookie') return !isManagerUp;
+    return true;
+  });
+
+  const linkGroups = [
+    { name: 'Links', items: filteredLinks.filter(l => !l.category) },
+    ...LINK_GROUPS.map(name => ({ name, items: filteredLinks.filter(l => l.category === name) })),
+    ...Array.from(new Set(filteredLinks.map(l => l.category).filter((c): c is string => !!c && !LINK_GROUPS.includes(c))))
+      .map(name => ({ name, items: filteredLinks.filter(l => l.category === name) })),
+  ].filter(g => g.items.length > 0);
 
   // ── Link CRUD ──
   const resetForm = () => {
-    setTitle(''); setUrl(''); setDescription(''); setTargetRole('all'); setIcon('link');
+    setTitle(''); setUrl(''); setDescription(''); setTargetRole('all'); setIcon('link'); setCategory('');
     setEditingLink(null);
   };
 
@@ -191,14 +215,14 @@ export default function LinksPage() {
     if (editingLink) {
       const { error } = await supabase
         .from('managed_links')
-        .update({ title, url, description: description || null, target_role: targetRole, icon })
+        .update({ title, url, description: description || null, target_role: targetRole, icon, category: category.trim() || null })
         .eq('id', editingLink.id);
       if (error) { toast.error('Failed to update link'); return; }
       toast.success('Link updated');
     } else {
       const { error } = await supabase
         .from('managed_links')
-        .insert({ title, url, description: description || null, target_role: targetRole, icon, display_order: links.length });
+        .insert({ title, url, description: description || null, target_role: targetRole, icon, category: category.trim() || null, display_order: links.length });
       if (error) { toast.error('Failed to add link'); return; }
       toast.success('Link added');
     }
@@ -221,26 +245,32 @@ export default function LinksPage() {
     setDescription(link.description || '');
     setTargetRole(link.target_role);
     setIcon(link.icon || 'link');
+    setCategory(link.category || '');
     setShowAdd(true);
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+
+  // Dragging reorders inside one group only, reusing that group's own slots.
+  const handleGroupDragEnd = async (groupItems: ManagedLink[], event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = filteredLinks.findIndex(l => l.id === active.id);
-    const newIndex = filteredLinks.findIndex(l => l.id === over.id);
-    const reordered = arrayMove(filteredLinks, oldIndex, newIndex);
-    const updatedLinks = links.map(l => {
-      const newPos = reordered.findIndex(r => r.id === l.id);
-      return newPos >= 0 ? { ...l, display_order: newPos } : l;
-    });
-    setLinks(updatedLinks.sort((a, b) => a.display_order - b.display_order));
-    const updates = reordered.map((link, idx) =>
-      supabase.from('managed_links').update({ display_order: idx }).eq('id', link.id)
+    const oldIndex = groupItems.findIndex(l => l.id === active.id);
+    const newIndex = groupItems.findIndex(l => l.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const slots = groupItems.map(l => l.display_order);
+    const reordered = arrayMove(groupItems, oldIndex, newIndex);
+    const nextOrder = new Map(reordered.map((l, idx) => [l.id, slots[idx]]));
+    setLinks(links
+      .map(l => (nextOrder.has(l.id) ? { ...l, display_order: nextOrder.get(l.id)! } : l))
+      .sort((a, b) => a.display_order - b.display_order));
+    const results = await Promise.all(
+      reordered.map((link, idx) =>
+        supabase.from('managed_links').update({ display_order: slots[idx] }).eq('id', link.id)
+      )
     );
-    const results = await Promise.all(updates);
     if (results.some(r => r.error)) { toast.error('Failed to save order'); fetchLinks(); }
   };
+
 
   // ── Phone CRUD ──
   const resetPhoneForm = () => {
@@ -496,6 +526,21 @@ export default function LinksPage() {
                             </SelectContent>
                           </Select>
                         </div>
+                        <div>
+                          <Input
+                            placeholder="Category (optional)"
+                            value={category}
+                            onChange={e => setCategory(e.target.value)}
+                            list="link-category-suggestions"
+                          />
+                          <datalist id="link-category-suggestions">
+                            {LINK_GROUPS.map(name => <option key={name} value={name} />)}
+                          </datalist>
+                          <p className="text-[10px] text-muted-foreground mt-1">
+                            Leave blank to keep it under Links. Suggestions: {LINK_GROUPS.join(', ')}.
+                          </p>
+                        </div>
+
                         <Button onClick={handleSave} className="w-full">{editingLink ? 'Update' : 'Add Link'}</Button>
                       </div>
                     </DialogContent>
@@ -591,23 +636,33 @@ export default function LinksPage() {
                 {isAdmin && <p className="text-xs text-muted-foreground/60 mt-1">Click "Add Link" to get started</p>}
               </Card>
             ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={filteredLinks.map(l => l.id)} strategy={rectSortingStrategy}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {filteredLinks.map(link => (
-                      <SortableLinkCard
-                        key={link.id}
-                        link={link}
-                        isAdmin={isAdmin}
-                        isReordering={isReordering}
-                        onEdit={openEdit}
-                        onDelete={handleDelete}
-                      />
-                    ))}
+              <div className="space-y-6">
+                {linkGroups.map(group => (
+                  <div key={group.name}>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2">
+                      {group.name}
+                    </p>
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleGroupDragEnd(group.items, e)}>
+                      <SortableContext items={group.items.map(l => l.id)} strategy={rectSortingStrategy}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {group.items.map(link => (
+                            <SortableLinkCard
+                              key={link.id}
+                              link={link}
+                              isAdmin={isAdmin}
+                              isReordering={isReordering}
+                              onEdit={openEdit}
+                              onDelete={handleDelete}
+                            />
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
                   </div>
-                </SortableContext>
-              </DndContext>
+                ))}
+              </div>
             )}
+
           </>
         )}
 

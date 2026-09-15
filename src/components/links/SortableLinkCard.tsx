@@ -3,6 +3,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Link2, BookOpen, Users, Globe, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { sanitizeUrl } from '@/lib/sanitizeUrl';
+
 
 interface ManagedLink {
   id: string;
@@ -79,11 +81,14 @@ export function SortableLinkCard({ link, isAdmin, isReordering, onEdit, onDelete
           {link.description && (
             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{link.description}</p>
           )}
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant="outline" className="text-[9px] text-muted-foreground/60">
-              {link.target_role === 'all' ? 'Everyone' : link.target_role === 'rookie' ? 'Rookie' : 'Manager'}
-            </Badge>
-          </div>
+          {link.target_role !== 'all' && (
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-[9px] text-muted-foreground/60">
+                {link.target_role === 'rookie' ? 'Rookies only' : 'Managers only'}
+              </Badge>
+            </div>
+          )}
+
         </div>
       </div>
 
@@ -114,16 +119,19 @@ export function SortableLinkCard({ link, isAdmin, isReordering, onEdit, onDelete
     );
   }
 
+  // A tel: link must open the phone dialer, so it never gets a new browser tab.
+  const isTel = link.url.trim().toLowerCase().startsWith('tel:');
+
   return (
     <a
       ref={setNodeRef}
       style={style}
-      href={link.url}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={sanitizeUrl(link.url)}
+      {...(isTel ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
       className="group block"
     >
       {cardContent}
     </a>
   );
+
 }

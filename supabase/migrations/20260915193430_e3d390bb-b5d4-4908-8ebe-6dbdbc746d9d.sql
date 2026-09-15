@@ -1,0 +1,1 @@
+ALTER TABLE public.managed_links ADD COLUMN IF NOT EXISTS category text;
