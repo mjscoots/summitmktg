@@ -85,20 +85,6 @@ const Index = () => {
         setBandProgress(Math.min(1, Math.max(0, (window.innerHeight - rect.top) / travel)));
       }
 
-      const statement = statementRef.current;
-      if (statement && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const rect = statement.getBoundingClientRect();
-        const q = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height - window.innerHeight)));
-        const range = (from: number, to: number) => Math.min(1, Math.max(0, (q - from) / (to - from)));
-        statement.style.setProperty('--statement-q', q.toFixed(4));
-        statement.style.setProperty('--ink-all', range(0.05, 0.30).toFixed(4));
-        statement.style.setProperty('--ink-1', range(0.05, 0.175).toFixed(4));
-        statement.style.setProperty('--ink-2', range(0.175, 0.30).toFixed(4));
-        statement.style.setProperty('--payoff-1', range(0.34, 0.40).toFixed(4));
-        statement.style.setProperty('--payoff-2', range(0.40, 0.46).toFixed(4));
-        statement.style.setProperty('--note-progress', range(0.52, 0.74).toFixed(4));
-        statement.style.setProperty('--button-progress', range(0.78, 0.86).toFixed(4));
-      }
     };
     const onScroll = () => {
       if (frame) return;
@@ -111,6 +97,100 @@ const Index = () => {
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
+
+  // Pass 193: one clock begins when the white swell finishes. It drives both
+  // writing masks and every entrance, then stops completely after six seconds.
+  useEffect(() => {
+    const statement = statementRef.current;
+    if (!statement) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const setProgress = (name: string, value: number) => statement.style.setProperty(name, value.toFixed(4));
+    const reset = () => {
+      ['--ink-all', '--ink-1', '--ink-2', '--payoff-1', '--payoff-2', '--note-progress', '--button-progress']
+        .forEach((name) => setProgress(name, 0));
+      statement.dataset.sequence = 'idle';
+      statement.querySelectorAll<HTMLElement>('[data-animating]').forEach((node) => { node.dataset.animating = 'false'; });
+    };
+    if (reduced) {
+      statement.dataset.sequence = 'reduced';
+      return;
+    }
+    if (!worldLight) {
+      reset();
+      return;
+    }
+
+    const clamp = (value: number) => Math.min(1, Math.max(0, value));
+    const range = (time: number, from: number, to: number) => clamp((time - from) / (to - from));
+    const easeOut = (value: number) => 1 - Math.pow(1 - value, 4);
+    const nodes = {
+      ink: statement.querySelector<HTMLElement>('[data-sequence-part="ink"]'),
+      payoffOne: statement.querySelector<HTMLElement>('[data-sequence-part="payoff-1"]'),
+      payoffTwo: statement.querySelector<HTMLElement>('[data-sequence-part="payoff-2"]'),
+      note: statement.querySelector<HTMLElement>('[data-sequence-part="note"]'),
+      button: statement.querySelector<HTMLElement>('[data-sequence-part="button"]'),
+    };
+    const penLines = Array.from(statement.querySelectorAll<HTMLElement>('.pen-line'));
+    const penWidths = penLines.map((line) => line.getBoundingClientRect().width);
+    penLines.forEach((line, index) => line.style.setProperty('--pen-width', `${penWidths[index].toFixed(2)}px`));
+    const mark = (node: HTMLElement | null, active: boolean) => {
+      if (node) node.dataset.animating = active ? 'true' : 'false';
+    };
+    const startedAt = performance.now();
+    const frameCosts: number[] = [];
+    const visibleAt: Record<string, number> = {};
+    statement.dataset.sequence = 'playing';
+    statement.dataset.sequenceStarted = startedAt.toFixed(2);
+    let frame = 0;
+    const draw = (now: number) => {
+      const workStarted = performance.now();
+      const time = now - startedAt;
+      const ink = range(time, 0, 1400);
+      setProgress('--ink-all', ink);
+      setProgress('--ink-1', range(time, 0, 700));
+      setProgress('--ink-2', range(time, 700, 1400));
+      setProgress('--payoff-1', easeOut(range(time, 2400, 2780)));
+      setProgress('--payoff-2', easeOut(range(time, 2580, 2960)));
+      setProgress('--note-progress', range(time, 3960, 5360));
+      setProgress('--button-progress', easeOut(range(time, 5560, 5980)));
+      penLines.forEach((line, index) => {
+        const progress = index === penLines.length - 1
+          ? range(time, 3960, 5360)
+          : wideInk
+            ? ink
+            : index === 0 ? range(time, 0, 700) : range(time, 700, 1400);
+        line.style.setProperty('--pen-dot-x', `${(penWidths[index] * progress).toFixed(2)}px`);
+      });
+      mark(nodes.ink, time < 1400);
+      mark(nodes.payoffOne, time >= 2400 && time < 2780);
+      mark(nodes.payoffTwo, time >= 2580 && time < 2960);
+      mark(nodes.note, time >= 3960 && time < 5360);
+      mark(nodes.button, time >= 5560 && time < 5980);
+      const recordVisible = (key: string, active: boolean) => {
+        if (active && visibleAt[key] === undefined) {
+          visibleAt[key] = time;
+          statement.dataset[`${key}VisibleAt`] = time.toFixed(1);
+        }
+      };
+      recordVisible('ink', ink > 0);
+      recordVisible('payoffOne', time >= 2400);
+      recordVisible('payoffTwo', time >= 2580);
+      recordVisible('note', time >= 3960);
+      recordVisible('button', time >= 5560);
+      frameCosts.push(performance.now() - workStarted);
+      if (time < 5980) frame = requestAnimationFrame(draw);
+      else {
+        const ordered = [...frameCosts].sort((a, b) => a - b);
+        const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
+        statement.dataset.frameMedian = (ordered[Math.floor(ordered.length / 2)] || 0).toFixed(3);
+        statement.dataset.frameP95 = percentile.toFixed(3);
+        statement.dataset.frameMax = (ordered[ordered.length - 1] || 0).toFixed(3);
+        statement.dataset.sequenceComplete = 'true';
+      }
+    };
+    frame = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(frame);
+  }, [wideInk, worldLight]);
 
   // The canvas only runs while the hero or the final band is on screen.
   useEffect(() => {
@@ -173,34 +253,38 @@ const Index = () => {
 
         {/* Screen two: the statement never shares space with the logo. */}
         <section ref={statementRef} id="statement" className="cover-statement relative isolate px-5 text-center sm:px-6">
-          <div className="cover-statement-sticky">
           <div className="cover-statement-copy mx-auto w-full max-w-6xl">
             <h1 className="cover-headline">
-              <PenLine
-                className="cover-ink-headline"
-                lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
-                start={false}
-                progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
-              />
+              <div data-sequence-part="ink" data-animating="false">
+                <PenLine
+                  className="cover-ink-headline"
+                  lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
+                  progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
+                />
+              </div>
               <span className="reveal-clip cover-block-line">
                 <span className="cover-block-lines">
-                  <span className="cover-line-black">SO WE JOINED</span>
-                  <span className="cover-line-blue">ALL THREE.</span>
+                  <span className="cover-line-black" data-sequence-part="payoff-1" data-animating="false">SO WE JOINED</span>
+                  <span className="cover-line-blue" data-sequence-part="payoff-2" data-animating="false">ALL THREE.</span>
                 </span>
               </span>
             </h1>
-            <PenLine
-              className="cover-pen"
-              lines={['Where being a sales rep is not the end goal.']}
-              start={false}
-              progressVariables={['--note-progress']}
-            />
-            <div className="cover-actions flex w-full items-center justify-center">
-              <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in inline-flex items-center justify-center gap-2">
-                Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
+            <div data-sequence-part="note" data-animating="false">
+              <PenLine
+                className="cover-pen"
+                lines={['Where being a sales rep is not the end goal.']}
+                progressVariables={['--note-progress']}
+              />
             </div>
-          </div>
+            <div className="cover-actions flex w-full items-center justify-center" data-sequence-part="button" data-animating="false">
+              <span className="cover-get-in-wrap">
+                <span className="cover-get-in-glow cover-get-in-glow-wide" aria-hidden="true" />
+                <span className="cover-get-in-glow cover-get-in-glow-tight" aria-hidden="true" />
+                <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
+                  Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </span>
+            </div>
           </div>
         </section>
 

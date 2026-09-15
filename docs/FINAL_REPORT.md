@@ -5300,6 +5300,58 @@ The setup uses `clamp(1.75rem, 5.5vw, 3.25rem)` and sentence case. The payoff us
 - Baseline read after the no-write run: profiles 536, applications 13 and earnings_goals 0 are unchanged. `chat_messages` is 717, one above the requested 716 baseline. This pass made no data writes, so that row arrived externally during the run and was not altered or removed.
 - No new dependency, permission change, data write or publication. The site was not published.
 
+## Pass 193 - timed statement sequence
+
+### Screen and trigger
+The statement is a plain 100svh screen again. There is no sticky element, extended section height or scroll-progress variable. At 390 x 844 the section is 390 x 844px and the 370.47px copy block is centred at viewport y 422px. At 1280 x 900 the section is 1280 x 900px and the 488.78px copy block is centred at viewport y 450px. Computed alignment is `flex`, `align-items: center`, `justify-content: center`; computed section position is `relative`.
+
+The sequence starts when the existing white swell completes and the light world becomes active. Scrolling back above the burst resets every value to zero. Crossing down again created a later sequence start timestamp in both measured viewports, confirming that the sequence replays from t 0.
+
+### Measured sequence
+The running page recorded the first active animation frame for each element from its own t 0. Browser sampling can land up to one display frame after an authored threshold.
+
+| element | specified | 390 measured | 1280 measured | behavior |
+| --- | ---: | ---: | ---: | --- |
+| ink begins | 0ms | 25.5ms | 12.9ms | two phone lines complete consecutively by 1,400ms; desktop uses one continuous line |
+| `SO WE JOINED` | 2,400ms | 2,408.7ms | 2,412.8ms | opacity 0 to 1, scale 1.05 to 1.00 and 4px downward settle over 380ms |
+| `ALL THREE.` | 2,580ms | 2,592.2ms | 2,596.2ms | same 380ms weighted landing |
+| note begins | 3,960ms | 3,975.4ms | 3,962.8ms | mask writes through 5,360ms |
+| `Get in` | 5,560ms | 5,575.4ms | 5,562.7ms | fades and rises 12px over 420ms |
+
+The one-second holds remain from 1,400 to 2,400ms and 2,960 to 3,960ms.
+
+### Smooth writing and button glow
+Both handwritten moments are ordinary filled DOM text, selectable and present directly in the accessibility tree. A 200-percent linear mask moves left to right with a 40px soft edge. A 6px round #004EFD dot follows the measured leading edge and fades during the last 200ms of each line. One requestAnimationFrame loop drives both handwritten lines, both block lines and the button. The former SVG text, clip path, glyph outline stroke, dash array and dash offset implementation was deleted. A cover-code grep returns no `stroke-dasharray` or `stroke-dashoffset`.
+
+The `Get in` button remains #0A0A0F with an 18px white label, 64px height, auto width, 40px side padding, 240px minimum and 12px radius. Two painted #004EFD layers sit behind it at the same radius: a tight 12px blur at scale 1.04 and a wide 26px blur at scale 1.14. Their opacity pulses from 0.30 to 0.85 over 2,000ms with the wide layer offset 400ms. Only opacity loops after paint. Hover holds both at 0.85 while the button lifts 2px; press scales the button to 0.97.
+
+### Typography
+At 390:
+- `Everyone argues over` and `which industry is best.`: Caveat 500, 28px, #004EFD.
+- `SO WE JOINED`: Archivo 800, 40px, #0A0A0F.
+- `ALL THREE.`: Archivo 800, 40px, #004EFD.
+- `Where being a sales rep is not the end goal.`: Caveat 500, 20px, #0A0A0F.
+- `Get in`: Archivo 600, 18px, #FFFFFF on #0A0A0F.
+
+At 1280:
+- `Everyone argues over which industry is best.`: Caveat 500, 52px, #004EFD.
+- `SO WE JOINED`: Archivo 800, 80px, #0A0A0F.
+- `ALL THREE.`: Archivo 800, 80px, #004EFD.
+- `Where being a sales rep is not the end goal.`: Caveat 500, 28px, #0A0A0F.
+- `Get in`: Archivo 600, 18px, #FFFFFF on #0A0A0F.
+
+### Performance, reduced motion and regression proof
+- Across the full six-second phone sequence, statement callback work measured 0.000ms median, 0.100ms p95 and 1.900ms maximum. Nothing in the statement callback exceeded 16ms. Browser animation frames remained display-synchronised at 16.7ms median and 16.8ms p95.
+- `will-change` is present only while each sequence part is active and clears at completion. Entrances use transform and opacity. The mask position is driven by the same frame loop. Glow blur is fixed after paint; only glow opacity animates. No layout property, blur amount or colour animates.
+- Under reduced motion, the section remains 100svh and non-sticky. Both handwritten lines have no mask, the pen dots and both glow layers are removed, both block lines and the button are fully visible, and no statement timeline runs.
+- Pass 190 flat-surface row proof at 390 remains below the 2 percent threshold: p 0.60 is 0.448 percent at row 393; p 0.85 is 0.392 percent at row 690.
+- `bunx tsgo --noEmit -p tsconfig.app.json`: clean.
+- Automatic production build: clean, latest result `build OK` at 2026-09-15T07:18:33Z.
+- Shell gzip delta against HEAD: `Index.tsx` +10 bytes, `PenLine.tsx` +12 bytes and `index.css` +10 bytes; focused total +32 bytes.
+- Added lines contain no em dash and no emoji.
+- Read-only baselines after verification: profiles 536, applications 13 and earnings_goals 0 are unchanged. `chat_messages` remains 717, the same external one-row increase first recorded in Pass 191; this pass made no data writes against the requested 716 baseline.
+- No new dependency, permission change, data write or publication. The site was not published.
+
 ## Pass 192 - scroll statement and public palette
 
 ### Scroll sequence

@@ -2166,18 +2166,10 @@ html[data-appearance='light'] .btn-gradient {
   pointer-events: auto;
 }
 .cover-statement {
-  height: 220svh;
-}
-.cover-statement-sticky {
-  position: sticky;
-  top: 0;
   display: flex;
   min-height: 100svh;
   align-items: center;
   justify-content: center;
-}
-@media (min-width: 700px) {
-  .cover-statement { height: 200svh; }
 }
 .cover-headline {
   font-family: 'Archivo', system-ui, -apple-system, sans-serif;
@@ -2194,50 +2186,53 @@ html[data-appearance='light'] .btn-gradient {
   .cover-statement-body { font-size: 19px; }
 }
 
-/* Handwritten lines share one measured SVG mechanism and sequence by delay. */
+/* Filled, selectable handwriting revealed by a soft 40px mask. */
 .pen-lines { display: flex; flex-direction: column; align-items: center; }
-.pen-line { display: block; margin: 0 auto; overflow: visible; }
+.pen-line {
+  position: relative;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+}
 .pen-line-text {
+  display: block;
   font-family: 'Caveat', 'Kalam', cursive;
   font-weight: 500;
-  font-size: 64px;
-  fill: #0A0A0F;
+  color: #0A0A0F;
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
+  -webkit-mask-size: calc(var(--pen-width, 100%) + 40px) 100%;
+  mask-size: calc(var(--pen-width, 100%) + 40px) 100%;
+  -webkit-mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%)) 0;
+  mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%)) 0;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
-.pen-line-ghost { fill: transparent; }
-.pen-line-wipe {
-  transform-box: fill-box;
-  transform-origin: left center;
-  transform: scaleX(0);
-}
-.pen-line[data-writing='true'] .pen-line-wipe {
-  animation: pen-write var(--pen-duration, 1800ms) var(--motion-ease-out) var(--pen-delay, 0ms) both;
-}
-.pen-line[data-scroll-writing='true'] .pen-line-wipe {
-  animation: none;
-  transform: scaleX(var(--pen-progress, 0));
-}
-.pen-line[data-scroll-writing='true'] .pen-line-ink {
-  stroke-width: 0.35px;
-  stroke-dasharray: 1000px;
-  stroke-dashoffset: calc(1000px - (var(--pen-progress, 0) * 1000px));
-}
-@keyframes pen-write {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+.pen-line-dot {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 52%;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #004EFD;
+  opacity: clamp(0, calc((1 - var(--pen-progress, 0)) * 7), 1);
+  transform: translate3d(calc(var(--pen-dot-x, 0px) - 3px), -50%, 0);
+  pointer-events: none;
 }
 .cover-pen {
   line-height: 1.2;
   margin-top: 44px;
 }
-.cover-pen .pen-line-text { font-size: clamp(1.25rem, 4vw, 1.75rem); }
-.cover-pen .pen-line-ink { stroke: #0A0A0F; }
+.cover-pen .pen-line-text { font-size: clamp(1.25rem, 4vw, 1.75rem); color: #0A0A0F; }
 .cover-ink-headline .pen-line-text {
   font-size: clamp(1.75rem, 5.5vw, 3.25rem);
-  fill: #004EFD;
+  color: #004EFD;
   letter-spacing: 0;
   text-transform: none;
 }
-.cover-ink-headline .pen-line-ink { stroke: #004EFD; }
 .cover-ink-headline .pen-lines { gap: 0.02em; }
 .cover-block-line {
   display: block;
@@ -2261,14 +2256,42 @@ html[data-appearance='light'] .btn-gradient {
 .cover-block-lines > span {
   display: block;
   opacity: var(--line-progress, 0);
-  transform: translateY(calc((1 - var(--line-progress, 0)) * 105%));
+  transform: translate3d(0, calc((1 - var(--line-progress, 0)) * -4px), 0) scale(calc(1 + (1 - var(--line-progress, 0)) * 0.05));
 }
 .cover-block-lines > span:first-child { --line-progress: var(--payoff-1, 0); }
 .cover-block-lines > span:last-child { --line-progress: var(--payoff-2, 0); }
 .cover-actions {
   opacity: var(--button-progress, 0);
-  transform: translateY(calc((1 - var(--button-progress, 0)) * 12px));
+  transform: translate3d(0, calc((1 - var(--button-progress, 0)) * 12px), 0);
   margin-top: 48px;
+}
+.cover-statement [data-animating='true'],
+.cover-statement [data-animating='true'] .pen-line-text,
+.cover-statement [data-animating='true'] .pen-line-dot { will-change: transform, opacity; }
+.cover-statement [data-animating='true'] .pen-line-text { will-change: mask-position; }
+.cover-get-in-wrap { position: relative; display: inline-flex; isolation: isolate; }
+.cover-get-in-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 12px;
+  background: #004EFD;
+  opacity: 0;
+  pointer-events: none;
+}
+.cover-get-in-glow-tight { filter: blur(12px); transform: scale(1.04); }
+.cover-get-in-glow-wide { filter: blur(26px); transform: scale(1.14); }
+.cover-statement[data-sequence='playing'] .cover-get-in-glow {
+  animation: cover-button-glow 2000ms var(--motion-ease-in-out) 5980ms infinite backwards;
+  will-change: opacity;
+}
+.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 6380ms; }
+@keyframes cover-button-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.85; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .cover-get-in-wrap:hover .cover-get-in-glow { animation: none; opacity: 0.85; }
 }
 .cover-get-in {
   width: auto;
@@ -2383,11 +2406,11 @@ html[data-appearance='light'] .btn-gradient {
   .cover-scroll-cue { display: none !important; }
   .cover-shard { animation: none !important; opacity: 1 !important; transform: none !important; }
   .cover-statement-copy { opacity: 1 !important; transform: none !important; pointer-events: auto; transition: none !important; }
-  .cover-statement { height: auto !important; min-height: 100svh; }
-  .cover-statement-sticky { position: static !important; min-height: 100svh; }
+  .cover-statement { min-height: 100svh; }
   .cover-block-lines > span { animation: none !important; opacity: 1 !important; transform: none !important; }
-  .pen-line-wipe { animation: none !important; transform: scaleX(1) !important; }
-  .pen-line[data-scroll-writing='true'] .pen-line-ink { stroke-dashoffset: 0 !important; }
+  .pen-line-text { -webkit-mask-image: none !important; mask-image: none !important; }
+  .pen-line-dot,
+  .cover-get-in-glow { display: none !important; }
   .cover-actions { animation: none !important; opacity: 1 !important; transform: none !important; }
   .btn-purple { transition: none !important; }
 }
