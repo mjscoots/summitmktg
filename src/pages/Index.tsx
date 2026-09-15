@@ -230,6 +230,7 @@ const Index = () => {
       const ratio = entry?.intersectionRatio || 0;
       statement.dataset.visibility = ratio.toFixed(4);
       visibleEnough = ratio >= 0.6;
+      if (ratio === 0 && (entry?.boundingClientRect.top || 0) >= window.innerHeight * 0.4) reset();
       start();
     }, { threshold: [0, 0.6, 1] });
     observer.observe(statement);
