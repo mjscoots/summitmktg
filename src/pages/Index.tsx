@@ -131,9 +131,9 @@ const Index = () => {
       <div className="cover-progress" ref={progressRef} aria-hidden="true" />
 
       <header className={`public-nav fixed inset-x-0 top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
-        <nav className="mx-auto flex max-w-6xl flex-col items-center gap-1 px-5 py-3 sm:flex-row sm:justify-between sm:px-6">
+        <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 sm:px-6">
           <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
-            <Wordmark variant="compact" height={34} className="h-7 w-auto sm:h-[34px]" />
+            <Wordmark variant="compact" height={28} className="h-7 w-auto" />
           </Link>
           <div className="flex items-center">
             <Link to="/login" className="public-link inline-flex min-h-11 items-center px-3 text-sm font-semibold">
@@ -159,23 +159,30 @@ const Index = () => {
         <section id="statement" className="cover-statement relative isolate flex min-h-[100svh] px-5 text-center sm:px-6">
           <div className="cover-statement-copy mx-auto w-full max-w-6xl" data-in={worldLight ? 'true' : 'false'}>
             <h1 className="cover-headline">
+              <span className="cover-eyebrow">PEST CONTROL. FIBER INTERNET. LIFE INSURANCE.</span>
               <PenLine
                 className="cover-ink-headline"
-                lines={wideInk ? ['EVERYONE ARGUES OVER WHICH INDUSTRY IS BEST.'] : ['EVERYONE ARGUES OVER', 'WHICH INDUSTRY IS BEST.']}
+                lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
                 duration={1600}
+                delay={200}
                 start={worldLight}
               />
-              <span className="reveal-clip cover-block-line"><span className="cover-line-purple block">WE JOINED ALL THREE.</span></span>
+              <span className="reveal-clip cover-block-line">
+                <span className="cover-block-lines">
+                  <span className="cover-line-black">WE JOINED</span>
+                  <span className="cover-line-purple">ALL THREE.</span>
+                </span>
+              </span>
             </h1>
             <PenLine
-              className="cover-pen mt-6"
-              lines={['Trinity.', 'Where being a sales rep is not the end goal.']}
+              className="cover-pen"
+              lines={['Where being a sales rep is not the end goal.']}
               duration={1400}
               delay={2520}
               start={worldLight}
             />
-            <div className="cover-actions mt-9 flex w-full items-center justify-center">
-              <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in inline-flex items-center justify-center gap-2 px-8">
+            <div className="cover-actions flex w-full items-center justify-center">
+              <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in inline-flex items-center justify-center gap-2">
                 Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
