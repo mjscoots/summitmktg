@@ -2254,6 +2254,10 @@ html[data-appearance='light'] .btn-gradient {
   letter-spacing: -0.03em;
   text-transform: uppercase;
 }
+.cover-block-line > .cover-block-lines {
+  opacity: 1;
+  transform: none;
+}
 .cover-block-lines > span {
   display: block;
   opacity: var(--line-progress, 0);
