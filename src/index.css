@@ -2206,14 +2206,14 @@ html[data-appearance='light'] .btn-gradient {
 .pen-line-dot {
   position: absolute;
   z-index: 1;
-  left: 0;
+  left: calc(var(--pen-progress, 0) * 100%);
   top: 52%;
   width: 6px;
   height: 6px;
   border-radius: 9999px;
   background: #004EFD;
   opacity: clamp(0, calc((1 - var(--pen-progress, 0)) * 7), 1);
-  transform: translate3d(calc(var(--pen-progress, 0) * (100% - 6px)), -50%, 0);
+  transform: translate3d(-50%, -50%, 0);
   pointer-events: none;
 }
 .cover-pen {
@@ -2274,13 +2274,11 @@ html[data-appearance='light'] .btn-gradient {
 }
 .cover-get-in-glow-tight { filter: blur(12px); transform: scale(1.04); }
 .cover-get-in-glow-wide { filter: blur(26px); transform: scale(1.14); }
-.cover-statement[data-sequence='playing'] .cover-get-in-glow,
-.cover-statement[data-sequence='complete'] .cover-get-in-glow {
+.cover-statement[data-sequence='playing'] .cover-get-in-glow {
   animation: cover-button-glow 2000ms var(--motion-ease-in-out) 5980ms infinite backwards;
   will-change: opacity;
 }
-.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide,
-.cover-statement[data-sequence='complete'] .cover-get-in-glow-wide { animation-delay: 6380ms; }
+.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 6380ms; }
 @keyframes cover-button-glow {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.85; }

@@ -153,7 +153,7 @@ const Index = () => {
       mark(nodes.note, time >= 3960 && time < 5360);
       mark(nodes.button, time >= 5560 && time < 5980);
       if (time < 5980) frame = requestAnimationFrame(draw);
-      else statement.dataset.sequence = 'complete';
+      else statement.dataset.sequenceComplete = 'true';
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
@@ -222,11 +222,13 @@ const Index = () => {
         <section ref={statementRef} id="statement" className="cover-statement relative isolate px-5 text-center sm:px-6">
           <div className="cover-statement-copy mx-auto w-full max-w-6xl">
             <h1 className="cover-headline">
-              <PenLine
-                className="cover-ink-headline"
-                lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
-                progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
-              />
+              <div data-sequence-part="ink" data-animating="false">
+                <PenLine
+                  className="cover-ink-headline"
+                  lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
+                  progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
+                />
+              </div>
               <span className="reveal-clip cover-block-line">
                 <span className="cover-block-lines">
                   <span className="cover-line-black" data-sequence-part="payoff-1" data-animating="false">SO WE JOINED</span>
