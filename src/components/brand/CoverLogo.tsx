@@ -150,8 +150,10 @@ function CoverLogoBase({ progress, onBurst, onWorldLight }: CoverLogoProps) {
       onBurst(true);
       timers.current.push(window.setTimeout(() => {
         onWorldLight(true);
-        phaseRef.current = 'light';
-        setPhase('light');
+        timers.current.push(window.setTimeout(() => {
+          phaseRef.current = 'light';
+          setPhase('light');
+        }, 80));
       }, 620));
     } else if (crossedUp) {
       timers.current.forEach(window.clearTimeout);
