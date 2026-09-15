@@ -29,8 +29,9 @@ import { PenLine } from '@/components/brand/PenLine';
 const Index = () => {
   const media = useCoverMedia();
   const [scrolled, setScrolled] = useState(false);
-  const heroRef = useRef<HTMLElement | null>(null);
-  const statementRef = useRef<HTMLElement | null>(null);
+  const stageRef = useRef<HTMLElement | null>(null);
+  const statementRef = useRef<HTMLDivElement | null>(null);
+
   const bandRef = useRef<HTMLElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
   // True once the white has covered the screen, false again on the way back.
