@@ -104,9 +104,9 @@ const Index = () => {
     };
   }, []);
 
-  // Pass 194: one guarded clock begins only after the light world and 60 percent
-  // statement visibility are both true. Font and layout measurement stay outside
-  // the animation loop, and resize only refreshes the cached widths.
+  // Pass 195: one guarded clock begins with the burst. Font and layout
+  // measurement stay outside the animation loop, and resize only refreshes the
+  // cached widths.
   useEffect(() => {
     const statement = statementRef.current;
     if (!statement) return;
@@ -116,7 +116,6 @@ const Index = () => {
     let measurementFrame = 0;
     let started = false;
     let fontsReady = false;
-    let visibleEnough = false;
     let penLines: HTMLElement[] = [];
     let penWidths: number[] = [];
     let cancelled = false;
@@ -163,14 +162,13 @@ const Index = () => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
     };
     const start = () => {
-      if (started || !fontsReady || !visibleEnough || !worldLightRef.current || penWidths.length === 0) return;
+      if (started || !fontsReady || !worldLightRef.current || penWidths.length === 0) return;
       started = true;
       const startedAt = performance.now();
       const frameCosts: number[] = [];
       const visibleAt: Record<string, number> = {};
       statement.dataset.sequence = 'playing';
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
-      statement.dataset.sequenceStartVisibility = Number(statement.dataset.visibility || 0).toFixed(4);
       penLines.forEach((line) => {
         const isNote = line.closest('[data-sequence-part="note"]') !== null;
         line.style.setProperty('--pen-opacity', isNote ? '0' : '1');
@@ -179,25 +177,25 @@ const Index = () => {
       const draw = (now: number) => {
         const workStarted = performance.now();
         const time = now - startedAt;
-        const ink = range(time, 0, 1400);
+        const ink = range(time, 380, 1780);
         setProgress('--ink-all', ink);
-        setProgress('--ink-1', range(time, 0, 700));
-        setProgress('--ink-2', range(time, 700, 1400));
-        setProgress('--payoff-1', easeOut(range(time, 2400, 2780)));
-        setProgress('--payoff-2', easeOut(range(time, 2580, 2960)));
-        setProgress('--note-progress', range(time, 3960, 5360));
-        setProgress('--button-progress', easeOut(range(time, 5560, 5980)));
+        setProgress('--ink-1', range(time, 380, 1080));
+        setProgress('--ink-2', range(time, 1080, 1780));
+        setProgress('--payoff-1', easeOut(range(time, 2780, 3160)));
+        setProgress('--payoff-2', easeOut(range(time, 2960, 3340)));
+        setProgress('--note-progress', range(time, 4340, 5740));
+        setProgress('--button-progress', easeOut(range(time, 5940, 6360)));
         penLines.forEach((line, index) => {
           const isNote = line.closest('[data-sequence-part="note"]') !== null;
-          const progress = isNote ? range(time, 3960, 5360) : penLines.length === 2 ? ink : index === 0 ? range(time, 0, 700) : range(time, 700, 1400);
-          line.style.setProperty('--pen-opacity', isNote && time < 3960 ? '0' : '1');
+          const progress = isNote ? range(time, 4340, 5740) : penLines.length === 2 ? ink : index === 0 ? range(time, 380, 1080) : range(time, 1080, 1780);
+          line.style.setProperty('--pen-opacity', isNote && time < 4340 ? '0' : '1');
           line.style.setProperty('--pen-dot-x', `${(penWidths[index] * progress).toFixed(2)}px`);
         });
-        mark(nodes.ink, time < 1400);
-        mark(nodes.payoffOne, time >= 2300 && time < 2780);
-        mark(nodes.payoffTwo, time >= 2480 && time < 2960);
-        mark(nodes.note, time >= 3860 && time < 5360);
-        mark(nodes.button, time >= 5460 && time < 5980);
+        mark(nodes.ink, time >= 280 && time < 1780);
+        mark(nodes.payoffOne, time >= 2680 && time < 3160);
+        mark(nodes.payoffTwo, time >= 2860 && time < 3340);
+        mark(nodes.note, time >= 4240 && time < 5740);
+        mark(nodes.button, time >= 5840 && time < 6360);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;
@@ -205,12 +203,12 @@ const Index = () => {
           }
         };
         recordVisible('ink', ink > 0);
-        recordVisible('payoffOne', time >= 2400);
-        recordVisible('payoffTwo', time >= 2580);
-        recordVisible('note', time >= 3960);
-        recordVisible('button', time >= 5560);
+        recordVisible('payoffOne', time >= 2780);
+        recordVisible('payoffTwo', time >= 2960);
+        recordVisible('note', time >= 4340);
+        recordVisible('button', time >= 5940);
         frameCosts.push(performance.now() - workStarted);
-        if (time < 5980) frame = requestAnimationFrame(draw);
+        if (time < 6360) frame = requestAnimationFrame(draw);
         else {
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
@@ -226,14 +224,6 @@ const Index = () => {
     resetStatementRef.current = reset;
     remeasureStatementRef.current = measure;
     reset();
-    const observer = new IntersectionObserver(([entry]) => {
-      const ratio = entry?.intersectionRatio || 0;
-      statement.dataset.visibility = ratio.toFixed(4);
-      visibleEnough = ratio >= 0.6;
-      if (ratio === 0 && (entry?.boundingClientRect.top || 0) >= window.innerHeight * 0.4) reset();
-      start();
-    }, { threshold: [0, 0.6, 1] });
-    observer.observe(statement);
     void document.fonts.ready.then(() => {
       if (cancelled) return;
       measurementFrame = requestAnimationFrame(() => {
@@ -246,7 +236,6 @@ const Index = () => {
       cancelled = true;
       cancelAnimationFrame(frame);
       cancelAnimationFrame(measurementFrame);
-      observer.disconnect();
     };
   }, []);
 

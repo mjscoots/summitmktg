@@ -145,11 +145,11 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
       timers.current = [];
       phaseRef.current = 'burst';
       setPhase('burst');
+      onWorldLight(true);
       timers.current.push(window.setTimeout(() => {
-        onWorldLight(true);
         phaseRef.current = 'light';
         setPhase('light');
-      }, 900));
+      }, 620));
     } else if (crossedUp) {
       timers.current.forEach(window.clearTimeout);
       timers.current = [];
@@ -159,7 +159,7 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
       timers.current.push(window.setTimeout(() => {
         phaseRef.current = 'ready';
         setPhase('ready');
-      }, 500));
+      }, 620));
     }
   }, [onWorldLight, progress, reduced]);
 

@@ -76,3 +76,9 @@
 - [x] Start once at 60 percent statement visibility and preserve replay on return
 - [x] Keep the mountain scene mounted and active through the statement
 - [x] Capture both widths, measure frames and seam, append the report
+
+## Pass 195 - burst to writing handoff
+- [ ] Replace the live blur swell with a pre-painted radial edge and transform-only scale
+- [ ] Start the guarded statement clock with the burst and retime the sequence
+- [ ] Capture the first 1400ms and full monotonic sequence at both widths
+- [ ] Measure burst frames, seam, reduced motion, gzip and baselines; append the report
