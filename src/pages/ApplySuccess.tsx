@@ -41,7 +41,7 @@ const ApplySuccess = () => {
             href={schedulingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-xl bg-[#6D3BFF] px-6 text-sm font-bold text-white transition-opacity hover:opacity-90"
+            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-xl bg-[#0A0A0F] px-6 text-sm font-bold text-white transition-opacity hover:opacity-90"
           >
             Open the scheduling page
           </a>

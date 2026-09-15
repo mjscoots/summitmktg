@@ -52,3 +52,10 @@
 - [x] Put the cover nav in one 56px row at every width
 - [x] Measure 360, 390, 430 and 1280, reduced motion and the Pass 190 seam
 - [x] Typecheck, automatic production build and report, no publish
+
+## Pass 192 - scroll statement and public palette
+- [x] Drive every statement reveal directly from reversible section progress
+- [x] Remove the statement eyebrow and change the payoff to SO WE JOINED / ALL THREE.
+- [x] Replace public purple with blue, black and white without changing the signed-in app
+- [x] Measure six progress checkpoints, four widths, reduced motion, frame cost and seam proof
+- [x] Typecheck, automatic production build and report, no publish

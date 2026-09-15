@@ -89,9 +89,9 @@ function buildSteps(kind: 'rookie' | 'vet'): Step[] {
 const choiceBase =
   'flex min-h-[64px] w-full items-center justify-center rounded-xl border px-4 text-base font-semibold transition-colors sm:w-[420px]';
 const primaryBase =
-  'flex min-h-[64px] w-full items-center justify-center gap-2 rounded-xl bg-[#6D3BFF] px-4 text-[18px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-[420px]';
+  'flex min-h-[64px] w-full items-center justify-center gap-2 rounded-xl bg-[#0A0A0F] px-4 text-[18px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-[420px]';
 const inputBase =
-  'min-h-[56px] w-full rounded-xl border border-[#E4E4EC] bg-white px-4 text-base text-[#0A0A0F] outline-none placeholder:text-[#8A8A99] focus:border-[#6D3BFF] sm:w-[420px]';
+  'min-h-[56px] w-full rounded-xl border border-[#E4E4EC] bg-white px-4 text-base text-[#0A0A0F] outline-none placeholder:text-[#8A8A99] focus:border-[#004EFD] sm:w-[420px]';
 
 export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
   const navigate = useNavigate();
@@ -292,7 +292,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
           </button>
           <div className="h-[4px] flex-1 rounded-full bg-[#E4E4EC]">
             <div
-              className="apply-progress h-[4px] rounded-full bg-[#6D3BFF]"
+              className="apply-progress h-[4px] rounded-full bg-[#004EFD]"
               style={{ width: `${Math.round(progress * 100)}%` }}
             />
           </div>
@@ -364,7 +364,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
                         )
                       }
                       className={`${choiceBase} ${
-                        on ? 'border-[#6D3BFF] bg-[#6D3BFF] text-white' : 'border-[#E4E4EC] bg-white text-[#0A0A0F]'
+                        on ? 'border-[#0A0A0F] bg-[#0A0A0F] text-white' : 'border-[#E4E4EC] bg-white text-[#0A0A0F]'
                       }`}
                     >
                       {option}
@@ -382,7 +382,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
                       aria-pressed={on}
                       onClick={() => pickSingle(step.id, option)}
                       className={`${choiceBase} ${
-                        on ? 'border-[#6D3BFF] bg-[#6D3BFF] text-white' : 'border-[#E4E4EC] bg-white text-[#0A0A0F]'
+                        on ? 'border-[#0A0A0F] bg-[#0A0A0F] text-white' : 'border-[#E4E4EC] bg-white text-[#0A0A0F]'
                       }`}
                     >
                       {option}
@@ -440,7 +440,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
                 <button
                   type="button"
                   onClick={goNext}
-                  className="min-h-11 text-[15px] font-semibold text-[#6D3BFF] underline-offset-4 hover:underline"
+                  className="min-h-11 text-[15px] font-semibold text-[#0A0A0F] underline underline-offset-4"
                 >
                   Skip
                 </button>

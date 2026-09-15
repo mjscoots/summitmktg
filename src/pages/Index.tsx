@@ -31,6 +31,7 @@ const Index = () => {
   const [scrolled, setScrolled] = useState(false);
   const [sceneOn, setSceneOn] = useState(true);
   const heroRef = useRef<HTMLElement | null>(null);
+  const statementRef = useRef<HTMLElement | null>(null);
   const bandRef = useRef<HTMLElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
   // True once the white has covered the screen, false again on the way back.
@@ -82,6 +83,21 @@ const Index = () => {
         const rect = band.getBoundingClientRect();
         const travel = Math.max(1, window.innerHeight + rect.height);
         setBandProgress(Math.min(1, Math.max(0, (window.innerHeight - rect.top) / travel)));
+      }
+
+      const statement = statementRef.current;
+      if (statement && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const rect = statement.getBoundingClientRect();
+        const q = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height - window.innerHeight)));
+        const range = (from: number, to: number) => Math.min(1, Math.max(0, (q - from) / (to - from)));
+        statement.style.setProperty('--statement-q', q.toFixed(4));
+        statement.style.setProperty('--ink-all', range(0.05, 0.30).toFixed(4));
+        statement.style.setProperty('--ink-1', range(0.05, 0.175).toFixed(4));
+        statement.style.setProperty('--ink-2', range(0.175, 0.30).toFixed(4));
+        statement.style.setProperty('--payoff-1', range(0.34, 0.40).toFixed(4));
+        statement.style.setProperty('--payoff-2', range(0.40, 0.46).toFixed(4));
+        statement.style.setProperty('--note-progress', range(0.52, 0.74).toFixed(4));
+        statement.style.setProperty('--button-progress', range(0.78, 0.86).toFixed(4));
       }
     };
     const onScroll = () => {
@@ -156,36 +172,35 @@ const Index = () => {
         </section>
 
         {/* Screen two: the statement never shares space with the logo. */}
-        <section id="statement" className="cover-statement relative isolate flex min-h-[100svh] px-5 text-center sm:px-6">
-          <div className="cover-statement-copy mx-auto w-full max-w-6xl" data-in={worldLight ? 'true' : 'false'}>
+        <section ref={statementRef} id="statement" className="cover-statement relative isolate px-5 text-center sm:px-6">
+          <div className="cover-statement-sticky">
+          <div className="cover-statement-copy mx-auto w-full max-w-6xl">
             <h1 className="cover-headline">
-              <span className="cover-eyebrow">PEST CONTROL. FIBER INTERNET. LIFE INSURANCE.</span>
               <PenLine
                 className="cover-ink-headline"
                 lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
-                duration={1600}
-                delay={200}
-                start={worldLight}
+                start={false}
+                progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
               />
               <span className="reveal-clip cover-block-line">
                 <span className="cover-block-lines">
-                  <span className="cover-line-black">WE JOINED</span>
-                  <span className="cover-line-purple">ALL THREE.</span>
+                  <span className="cover-line-black">SO WE JOINED</span>
+                  <span className="cover-line-blue">ALL THREE.</span>
                 </span>
               </span>
             </h1>
             <PenLine
               className="cover-pen"
               lines={['Where being a sales rep is not the end goal.']}
-              duration={1400}
-              delay={2520}
-              start={worldLight}
+              start={false}
+              progressVariables={['--note-progress']}
             />
             <div className="cover-actions flex w-full items-center justify-center">
               <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in inline-flex items-center justify-center gap-2">
                 Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
+          </div>
           </div>
         </section>
 

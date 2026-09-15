@@ -186,13 +186,12 @@ export function AskSheet({ watchId }: SheetProps) {
     returnTo.current?.focus?.();
   }, []);
 
-  // 1,500ms after the statement has been fully in view, or the moment the
-  // visitor scrolls past it, whichever lands first.
+  // The sheet waits until the statement sequence has passed, so it never
+  // interrupts the scroll-controlled copy.
   useEffect(() => {
     if (seen()) return;
     const node = document.getElementById(watchId);
     if (!node) return;
-    let timer = 0;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -200,18 +199,7 @@ export function AskSheet({ watchId }: SheetProps) {
           // Scrolled past: the statement has mostly left the top of the screen.
           const past = entry.boundingClientRect.bottom < window.innerHeight * 0.5;
           if (past) {
-            window.clearTimeout(timer);
             setOpen(true);
-            return;
-          }
-          // Fully in view means the whole element, or the whole viewport when
-          // the element is taller than the screen.
-          const need = Math.min(entry.boundingClientRect.height, window.innerHeight) - 2;
-          if (entry.intersectionRect.height >= need) {
-            if (!timer) timer = window.setTimeout(() => setOpen(true), 1500);
-          } else {
-            window.clearTimeout(timer);
-            timer = 0;
           }
         });
       },
@@ -220,7 +208,6 @@ export function AskSheet({ watchId }: SheetProps) {
     observer.observe(node);
     return () => {
       observer.disconnect();
-      window.clearTimeout(timer);
     };
   }, [watchId]);
 
