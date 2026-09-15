@@ -287,51 +287,53 @@ const Index = () => {
       <AskSheet watchId="statement" />
 
       <main className="relative flex-1">
-        {/* Screen one: only the assembled logo in the dark world. */}
-        <section ref={heroRef} className="cover-open cover-hero relative isolate px-5 sm:px-6">
-          <CoverLogo progress={heroProgress} onBurst={onBurst} onWorldLight={onWorldLight} />
-          <div className="cover-scroll-cue" data-hidden={heroProgress > 0.04 ? 'true' : 'false'} aria-hidden="true">
-            <span />
+        {/* Pass 197: one stage. The logo assembly, the burst and the statement all
+            happen inside a single pinned screen, so nothing is ever half on. */}
+        <section ref={stageRef} className="cover-stage relative isolate">
+          <div className="cover-stage-pin cover-open cover-hero relative isolate px-5 sm:px-6">
+            <CoverLogo progress={heroProgress} onBurst={onBurst} onWorldLight={onWorldLight} />
+            <div className="cover-scroll-cue" data-hidden={heroProgress > 0.04 ? 'true' : 'false'} aria-hidden="true">
+              <span />
+            </div>
+
+            <div ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
+              <div className="cover-statement-copy mx-auto w-full max-w-6xl">
+                <h1 className="cover-headline">
+                  <div data-sequence-part="ink" data-animating="false">
+                    <PenLine
+                      className="cover-ink-headline"
+                      lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
+                      progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
+                    />
+                  </div>
+                  <span className="reveal-clip cover-block-line">
+                    <span className="cover-block-lines">
+                      <span className="cover-line-black" data-sequence-part="payoff-1" data-animating="false">SO WE JOINED</span>
+                      <span className="cover-line-blue" data-sequence-part="payoff-2" data-animating="false">ALL THREE.</span>
+                    </span>
+                  </span>
+                </h1>
+                <div data-sequence-part="note" data-animating="false">
+                  <PenLine
+                    className="cover-pen"
+                    lines={['Where being a sales rep is not the end goal.']}
+                    progressVariables={['--note-progress']}
+                  />
+                </div>
+                <div className="cover-actions flex w-full items-center justify-center" data-sequence-part="button" data-animating="false">
+                  <span className="cover-get-in-wrap">
+                    <span className="cover-get-in-glow cover-get-in-glow-wide" aria-hidden="true" />
+                    <span className="cover-get-in-glow cover-get-in-glow-tight" aria-hidden="true" />
+                    <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
+                      Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="min-h-[100svh]" aria-hidden="true" />
         </section>
 
-        {/* Screen two: the statement never shares space with the logo. */}
-        <section ref={statementRef} id="statement" className="cover-statement relative isolate px-5 text-center sm:px-6">
-          <div className="cover-statement-copy mx-auto w-full max-w-6xl">
-            <h1 className="cover-headline">
-              <div data-sequence-part="ink" data-animating="false">
-                <PenLine
-                  className="cover-ink-headline"
-                  lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
-                  progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
-                />
-              </div>
-              <span className="reveal-clip cover-block-line">
-                <span className="cover-block-lines">
-                  <span className="cover-line-black" data-sequence-part="payoff-1" data-animating="false">SO WE JOINED</span>
-                  <span className="cover-line-blue" data-sequence-part="payoff-2" data-animating="false">ALL THREE.</span>
-                </span>
-              </span>
-            </h1>
-            <div data-sequence-part="note" data-animating="false">
-              <PenLine
-                className="cover-pen"
-                lines={['Where being a sales rep is not the end goal.']}
-                progressVariables={['--note-progress']}
-              />
-            </div>
-            <div className="cover-actions flex w-full items-center justify-center" data-sequence-part="button" data-animating="false">
-              <span className="cover-get-in-wrap">
-                <span className="cover-get-in-glow cover-get-in-glow-wide" aria-hidden="true" />
-                <span className="cover-get-in-glow cover-get-in-glow-tight" aria-hidden="true" />
-                <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
-                  Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </span>
-            </div>
-          </div>
-        </section>
 
         <ThreeDoorSection />
 
