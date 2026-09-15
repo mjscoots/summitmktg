@@ -69,4 +69,4 @@
 - [x] Replace scroll progress and sticky layout with a replayable six second timeline
 - [x] Replace SVG handwriting with selectable text, soft masks and one shared animation frame loop
 - [x] Add the two-layer blue button glow and reduced-motion fallback
-- [ ] Measure timing, frames, centring, seam, gzip and baselines; append the report
+- [x] Measure timing, frames, centring, seam, gzip and baselines; append the report
