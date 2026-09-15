@@ -2185,6 +2185,7 @@ html[data-appearance='light'] .btn-gradient {
   line-height: 1.3;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  white-space: nowrap;
   opacity: 0;
 }
 .cover-statement-copy[data-in='true'] .cover-eyebrow {
@@ -2234,6 +2235,8 @@ html[data-appearance='light'] .btn-gradient {
 .cover-ink-headline .pen-line-text {
   font-size: clamp(1.75rem, 5.5vw, 3.25rem);
   fill: #004EFD;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .cover-ink-headline .pen-lines { gap: 0.02em; }
 .cover-block-line {
@@ -2248,6 +2251,7 @@ html[data-appearance='light'] .btn-gradient {
   font-size: clamp(2.5rem, 8.5vw, 5rem);
   font-weight: 800;
   line-height: 0.92;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 .cover-block-lines > span { display: block; }
