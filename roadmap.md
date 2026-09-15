@@ -45,3 +45,10 @@
 - [x] Light world tint is a falloff to pure white by 60vh, nav band no longer a bordered box
 - [x] Statement centred with the space above the headline capped at 18vh and 20vh
 - [x] Pixel proof at 390 and 1280, no surface step above 0.60 percent, report written
+
+## Pass 191 - statement composition
+- [x] Rebalance the setup, two-line payoff, single support note and button
+- [x] Add the industry eyebrow and keep its lower-page instance
+- [x] Put the cover nav in one 56px row at every width
+- [x] Measure 360, 390, 430 and 1280, reduced motion and the Pass 190 seam
+- [x] Typecheck, automatic production build and report, no publish

@@ -5246,3 +5246,56 @@ Statement: no horizontal edge greater than 2 percent luminance exists anywhere i
 - Shell gzip: JS `index-J92V-V1q.js` 16,290 bytes (Pass 189 16,274, plus 16), CSS `index-DoFDUFIB.css` 32,750 bytes (Pass 189 32,597, plus 153).
 - Baselines unchanged: profiles 536, chat_messages 716, applications 13, earnings_goals 0.
 - No copy change, no permission change, no data write, no new dependency. The site was not published.
+
+## Pass 191 - statement composition
+
+### Statement at 390, top to bottom
+Measured in Chromium at 390 x 844 after every delayed entrance completed. Gaps are optical bounding-box gaps; the authored layout gaps are included where SVG glyph bounds add a few pixels.
+
+| line | face | rendered size | colour | measured gap above |
+| --- | --- | --- | --- | --- |
+| `PEST CONTROL. FIBER INTERNET. LIFE INSURANCE.` | Archivo 500 uppercase | 12px | #6E7288 | 151.91px from statement top |
+| `Everyone argues over` | Caveat 600 | 28px | #004EFD | 21.99px after eyebrow, including its 16px margin |
+| `which industry is best.` | Caveat 600 | 28px | #004EFD | 12.85px between measured glyph boxes |
+| `WE JOINED` | Archivo 800 uppercase | 40px | #0A0A0F | 33.99px, authored group gap 28px |
+| `ALL THREE.` | Archivo 800 uppercase | 40px | #6D3BFF | 0px, same headline at line-height 0.92 |
+| `Where being a sales rep is not the end goal.` | Caveat 600 | 44px | #0A0A0F | 46.98px, authored group gap 44px |
+| `Get in` | Archivo 600 | 18px | #FFFFFF | 51.01px, authored group gap 48px |
+
+### Statement at 1280, top to bottom
+Measured in Chromium at 1280 x 900 after every delayed entrance completed.
+
+| line | face | rendered size | colour | measured gap above |
+| --- | --- | --- | --- | --- |
+| `PEST CONTROL. FIBER INTERNET. LIFE INSURANCE.` | Archivo 500 uppercase | 12px | #6E7288 | 180px from statement top |
+| `Everyone argues over which industry is best.` | Caveat 600 | 52px | #004EFD | 22px after eyebrow, including its 16px margin |
+| `WE JOINED` | Archivo 800 uppercase | 80px | #0A0A0F | 45.99px, authored group gap 40px |
+| `ALL THREE.` | Archivo 800 uppercase | 80px | #6D3BFF | 0px, same headline at line-height 0.92 |
+| `Where being a sales rep is not the end goal.` | Caveat 600 | 57.6px | #0A0A0F | 66px, authored group gap 60px |
+| `Get in` | Archivo 600 | 18px | #FFFFFF | 69.99px, authored group gap 64px |
+
+The setup uses `clamp(1.75rem, 5.5vw, 3.25rem)` and sentence case. The payoff uses `clamp(2.5rem, 8.5vw, 5rem)`, Archivo 800, uppercase and line-height 0.92. The standalone `Trinity.` line is gone. The support note is one line of copy in one `PenLine`; its existing face, colour, scale and timing remain.
+
+### Breaks, controls and contrast
+- At 360, 390, 430 and 1280 the payoff DOM and rendered layout contain exactly two lines: `WE JOINED` then `ALL THREE.`. `THREE.` is never orphaned.
+- Button at 390: 240 x 64px. Button at 1280: 240 x 64px. Both are auto width with a 240px minimum, 40px horizontal padding, 12px radius, #6D3BFF fill, #FFFFFF 18px label and a 2px inset #4D24C7 bottom edge. It is centred and never full bleed.
+- Nav at 390: one row, 390 x 56px. Logo is left at 28px tall; `Sign in` is right in a 68 x 44px target. Both are vertically centred.
+- WCAG contrast on white: #004EFD is 5.99:1, #0A0A0F is 19.75:1 and #6D3BFF is 5.65:1. All exceed 4.5:1.
+
+### Motion and reduced motion
+- Industry eyebrow: 300ms linear fade beginning with the light world. The ink starts 200ms later.
+- Setup ink: unchanged left-to-right write duration 1,600ms, with the requested 200ms delay after the eyebrow begins.
+- Payoff reveal: unchanged 520ms reveal at 1,800ms.
+- Support note: unchanged 1,400ms write at 2,520ms.
+- Button: unchanged 400ms entrance at 2,920ms.
+- Under `prefers-reduced-motion: reduce`, measured animation names for eyebrow, ink, payoff and button are all `none`; the statement transition duration is `0s` and all content is visible immediately.
+
+### Seam regression and verification
+- Re-ran the Pass 190 flat-surface row test at 390. At p 0.60 the largest jump is 0.20 percent at row 332. At p 0.85 it is 0.68 percent at row 669. Both remain below the 2 percent threshold, so the seam proof still holds.
+- Screenshots captured at 390 x 844 and 1280 x 900 after all delayed entrances. No horizontal overflow at 360, 390, 430 or 1280.
+- `bunx tsgo --noEmit -p tsconfig.app.json`: clean.
+- Automatic production build: clean, latest build log is `build OK` at 2026-09-15T06:59:56Z.
+- Shell gzip check: the focused source scopes are 3,655 bytes for `Index.tsx` and 17,533 bytes for `index.css`; delta 0 bytes against the post-build tracked snapshot. Pass 190's production references remain JS 16,290 bytes and CSS 32,750 bytes; the automatic harness does not retain its production asset directory for a second shell measurement.
+- Added lines contain no em dash and no emoji.
+- Baseline read after the no-write run: profiles 536, applications 13 and earnings_goals 0 are unchanged. `chat_messages` is 717, one above the requested 716 baseline. This pass made no data writes, so that row arrived externally during the run and was not altered or removed.
+- No new dependency, permission change, data write or publication. The site was not published.
