@@ -20,6 +20,8 @@ export interface PenLineProps {
   lines?: readonly string[];
   duration?: number;
   delay?: number;
+  /** CSS variables that reveal each line from scroll progress, instead of time. */
+  progressVariables?: readonly string[];
 }
 
 interface DrawnLineProps {
@@ -27,9 +29,10 @@ interface DrawnLineProps {
   start: boolean;
   duration: number;
   delay: number;
+  progressVariable?: string;
 }
 
-function DrawnLine({ line, start, duration, delay }: DrawnLineProps) {
+function DrawnLine({ line, start, duration, delay, progressVariable }: DrawnLineProps) {
   const textRef = useRef<SVGTextElement | null>(null);
   const [box, setBox] = useState<{ w: number; h: number; x: number; y: number } | null>(null);
   const clipId = `pen-${useId().replace(/:/g, '')}`;
@@ -67,6 +70,7 @@ function DrawnLine({ line, start, duration, delay }: DrawnLineProps) {
         maxWidth: `${Math.round(box.w + pad * 2)}px`,
         '--pen-duration': `${duration}ms`,
         '--pen-delay': `${delay}ms`,
+        '--pen-progress': progressVariable ? `var(${progressVariable}, 0)` : undefined,
       } as React.CSSProperties
     : { visibility: 'hidden' as const };
 
@@ -75,6 +79,7 @@ function DrawnLine({ line, start, duration, delay }: DrawnLineProps) {
       className="pen-line"
       aria-hidden="true"
       data-writing={start && box ? 'true' : 'false'}
+      data-scroll-writing={progressVariable ? 'true' : undefined}
       viewBox={vb}
       width="100%"
       style={style}
@@ -109,6 +114,7 @@ function PenLineBase({
   lines = ['Where being a sales rep is not the end goal.'],
   duration = 1800,
   delay = 0,
+  progressVariables,
 }: PenLineProps) {
   const perLine = duration / Math.max(1, lines.length);
   return (
@@ -122,6 +128,7 @@ function PenLineBase({
             start={start}
             duration={perLine}
             delay={delay + perLine * index}
+            progressVariable={progressVariables?.[index]}
           />
         ))}
       </span>

@@ -248,7 +248,7 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0, l
           if (p.x > width + 4) p.x = -4;
           const fade = Math.min(1, p.life / PARTICLE_FADE);
           ctx.globalAlpha = (p.violet ? 0.08 : 0.1) * fade;
-          ctx.fillStyle = p.violet ? '#B69CFF' : '#FFFFFF';
+          ctx.fillStyle = p.violet ? '#6FA8FF' : '#FFFFFF';
           ctx.beginPath();
           ctx.arc(p.x + px * p.depth * 3, p.y + py * p.depth * 3, p.r, 0, Math.PI * 2);
           ctx.fill();

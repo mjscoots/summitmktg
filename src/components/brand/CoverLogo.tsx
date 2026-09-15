@@ -213,7 +213,7 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
         <defs>
           <linearGradient id={`${id}-fill`} x1="0" y1="1" x2="0" y2="0">
             <stop offset="0" stopColor={LOGO_BLUE} />
-            <stop offset="1" stopColor="#B69CFF" />
+            <stop offset="1" stopColor="#6FA8FF" />
           </linearGradient>
           <clipPath id={`${id}-fill-clip`}>
             <rect x={VIEW_X} y={VIEW_Y + VIEW_H * (1 - fill)} width={VIEW_W} height={VIEW_H * fill} />
