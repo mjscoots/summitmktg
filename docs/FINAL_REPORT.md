@@ -5680,3 +5680,67 @@ Recruiting, and a helper line stating that blank keeps the row under Links.
 - No em dashes and no emoji in added lines.
 - Baselines: profiles 536, chat_messages 717, applications 13, earnings_goals 0 unchanged. managed_links 7 to 23 by design.
 - The site was not published.
+
+## Pass 197: one pinned stage for the cover
+
+### The framing fix
+The hero and the statement were two separate screens, so the burst fired while the
+visitor was a third of the way down screen one and the copy was still below the
+fold. They are now one section, 260svh tall, holding one sticky container 100svh
+tall. The shard assembly, the logo fill, the burst, the white swell and the whole
+written statement all happen inside that pinned screen, so the copy is dead centre
+at every moment. The container unpins at the end of the section and the page
+continues into the industries unchanged. Entry is scroll: s is progress through the
+section, the fill runs s 0 to 0.30, the burst fires once at s 0.34, and from that
+frame the timed sequence runs with no change to its timings.
+
+### Section and sticky heights
+- 390 x 844: section 2194.4px (260svh), pinned child 844px, position sticky.
+- 1280 x 900: section 2340px (260svh), pinned child 900px, position sticky.
+
+### Copy centring at every capture (copy block centre vs viewport centre)
+390 x 844, viewport centre 422px, copy block top 236.8 bottom 607.2 at every capture:
+s 0.10 delta 0.0px, burst 0.0, +0.5s 0.0, +1.5s 0.0, +3.0s 0.0, +5.0s 0.0, +6.5s 0.0.
+1280 x 900, viewport centre 450px, copy block top 201.6 bottom 698.4 at every capture:
+s 0.10 delta -0.0px, burst -0.0, +0.5s -0.0, +1.5s -0.0, +3.0s -0.0, +5.0s -0.0, +6.5s -0.0.
+The copy is centred within 24px at every capture at both widths, in fact within 1px,
+because the stage never moves while it is pinned. No visible part of the copy is
+clipped by a viewport edge at any capture: every visible block sits inside 0 to 844
+at 390 and inside 0 to 900 at 1280.
+
+### Measured sequence timings (authored vs measured, 390 / 1280)
+ink 380: 382.6 / 381.4. SO WE JOINED 2780: 2782.5 / 2797.9. ALL THREE. 2960:
+2965.8 / 2981.2. note 4340: 4349.1 / 4364.5. Get in 5940: 5949.0 / 5947.8. Ink
+completes at 1780 and the note completes at 5740 by the same clock. Sampling can
+land one or two frames late; nothing in the timing table changed this pass.
+
+### Reverse and replay
+Scrolling back to s 0.10 returns the statement to sequence idle with every block
+reset, and coming down again past s 0.34 restarts it: sequence playing with ink at
+396.5ms (390) and 390.7ms (1280) from the new zero.
+
+### Frames at 390
+Across the assembly, the burst and the full sequence: 552 frames, median 16.7ms,
+p95 16.8ms, max 33.4ms in headless Chromium. Sequence per frame work median 0.100ms,
+p95 0.200ms.
+
+### Surface, mountains, reduced motion
+The Pass 190 one surface treatment still holds: in copy free bands the largest
+adjacent row difference is 0.478% at p 0.60 and 0.653% at p 0.60 on desktop, with
+no seam line anywhere; the larger readings in the raw sweep trace to card and text
+edges, confirmed by screenshot. The mountain canvas measures full viewport height
+behind the statement at every capture and is never unmounted. With reduced motion
+the pinned child is position static, the section is auto height, sequence is
+reduced, and all five blocks plus all three handwriting lines report opacity 1.
+
+### Type polish
+Ink line clamp(1.75rem, 5.6vw, 3rem). SO WE JOINED and ALL THREE. clamp(2.5rem,
+9vw, 5.5rem), line height 0.9, letter spacing -0.03em. Note clamp(1.25rem, 4vw,
+1.75rem). Gaps 28/40, 44/60 and 48/64 phone and desktop. No copy or palette change.
+
+### Build
+Typecheck clean, production build clean in 13.98s. Shell index gzip 16,311 bytes,
+stylesheet gzip 33,232 bytes; the pass adds markup and CSS only, no new npm
+dependencies. No em dashes and no emoji in added lines. Baselines unchanged:
+profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23.
+No data writes and no permission changes. The site was not published.

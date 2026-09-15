@@ -89,3 +89,4 @@
 - [x] Sixteen operating resource rows inserted
 - [x] tel: links tappable
 - [x] Report in docs/FINAL_REPORT.md
+- [x] Pass 197: single pinned cover stage, burst at s 0.34, type polish, report
