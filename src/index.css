@@ -2139,8 +2139,8 @@ html[data-appearance='light'] .btn-gradient {
   position: fixed;
   left: var(--swell-x, 50vw);
   top: var(--swell-y, 50vh);
-  width: 200vmax;
-  height: 200vmax;
+  width: 100vmax;
+  height: 100vmax;
   margin: 0;
   background: radial-gradient(circle, #FFFFFF 0%, #FFFFFF 88%, rgba(255, 255, 255, 0) 100%);
   z-index: 25;
@@ -2149,14 +2149,14 @@ html[data-appearance='light'] .btn-gradient {
   transform-origin: center;
   will-change: transform;
 }
-.cover-swell[data-state='burst'] { animation: cover-swell-out 620ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-.cover-swell[data-state='reverse'] { animation: cover-swell-in 620ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.cover-swell[data-state='burst'] { animation: cover-swell-out 620ms cubic-bezier(0.25, 0.8, 0.25, 1) both; }
+.cover-swell[data-state='reverse'] { animation: cover-swell-in 620ms cubic-bezier(0.25, 0.8, 0.25, 1) both; }
 @keyframes cover-swell-out {
   from { transform: translate3d(-50%, -50%, 0) scale(0); }
-  to { transform: translate3d(-50%, -50%, 0) scale(1); }
+  to { transform: translate3d(-50%, -50%, 0) scale(1.7); }
 }
 @keyframes cover-swell-in {
-  from { transform: translate3d(-50%, -50%, 0) scale(1); }
+  from { transform: translate3d(-50%, -50%, 0) scale(1.7); }
   to { transform: translate3d(-50%, -50%, 0) scale(0); }
 }
 
