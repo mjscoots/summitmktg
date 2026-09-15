@@ -2231,7 +2231,7 @@ html[data-appearance='light'] .btn-gradient {
   line-height: 1.2;
   margin-top: 44px;
 }
-.cover-pen .pen-line-text { font-size: clamp(1.75rem, 4.5vw, 3.25rem); }
+.cover-pen .pen-line-text { font-size: clamp(44px, 4.5vw, 64px); }
 .cover-ink-headline .pen-line-text {
   font-size: clamp(1.75rem, 5.5vw, 3.25rem);
   fill: #004EFD;
