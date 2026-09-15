@@ -31,9 +31,14 @@ interface ManagedLink {
   description: string | null;
   icon: string | null;
   target_role: string;
+  category: string | null;
   display_order: number;
   is_active: boolean;
 }
+
+/** Group order on the Links tab. Rows with no category come first. */
+const LINK_GROUPS = ['One Stop', 'Apps and setup', 'Pest sales training', 'Interviews', 'Recruiting'];
+
 
 interface PhoneEntry {
   id: string;
