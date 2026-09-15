@@ -5299,3 +5299,77 @@ The setup uses `clamp(1.75rem, 5.5vw, 3.25rem)` and sentence case. The payoff us
 - Added lines contain no em dash and no emoji.
 - Baseline read after the no-write run: profiles 536, applications 13 and earnings_goals 0 are unchanged. `chat_messages` is 717, one above the requested 716 baseline. This pass made no data writes, so that row arrived externally during the run and was not altered or removed.
 - No new dependency, permission change, data write or publication. The site was not published.
+
+## Pass 192 - scroll statement and public palette
+
+### Scroll sequence
+`#statement` now computes q directly from its measured scroll position. q is 0 when the section top reaches the viewport top and 1 when its bottom reaches the viewport bottom. One passive scroll listener schedules one animation frame, which writes CSS progress variables. There are no timers, autonomous animations or autoplay in the statement. Every value is a pure function of q, so scrolling backward reverses the ink, payoff, note and button at the same thresholds.
+
+The phone section is 220svh: 1,856.8px at a 390 x 844 viewport. Its sticky container is 844px, exactly 100svh. The desktop section is 200svh: 1,800px at a 1280 x 900 viewport. Its sticky container is 900px, exactly 100svh. The sticky position is used only by `.cover-statement-sticky`.
+
+At both 390 and 1280, the measured states are:
+
+| q | ink headline | block headline | handwritten note | Get in |
+| --- | --- | --- | --- | --- |
+| 0.10 | Writing. At 390 the first line is 40 percent drawn and the second has not started. At 1280 the single line is 20 percent drawn. | Hidden | Hidden | Hidden, 12px low |
+| 0.30 | Complete | Hidden | Hidden | Hidden, 12px low |
+| 0.45 | Complete | `SO WE JOINED` complete; `ALL THREE.` is 83 percent revealed | Hidden | Hidden, 12px low |
+| 0.60 | Complete | Both lines complete | 36 percent written | Hidden, 12px low |
+| 0.80 | Complete | Both lines complete | Complete | 25 percent visible and 9px low |
+| 0.95 | Complete | Both lines complete | Complete | Fully visible at its resting position |
+
+A forward q 0.80, backward q 0.30, then forward q 0.80 run returned identical values at both q positions. This proves each step reverses on backward scrolling and returns without retained timer state.
+
+### Copy and typography
+The small industries line above the ink was removed. The lower industries copy remains unchanged.
+
+At 390:
+- `Everyone argues over` and `which industry is best.`: Caveat 500, 28px, #004EFD. The two SVG lines draw consecutively from q 0.05 through 0.30.
+- `SO WE JOINED`: Archivo 800 uppercase, 40px, #0A0A0F, 36px line height, -1.2px measured letter spacing.
+- `ALL THREE.`: Archivo 800 uppercase, 40px, #004EFD, 36px line height, -1.2px measured letter spacing.
+- `Where being a sales rep is not the end goal.`: Caveat 500, 20px, #0A0A0F.
+- `Get in`: Archivo 600, 18px, #FFFFFF on #0A0A0F.
+
+At 1280:
+- `Everyone argues over which industry is best.`: Caveat 500, 52px, #004EFD.
+- `SO WE JOINED`: Archivo 800 uppercase, 80px, #0A0A0F, 72px line height, -2.4px measured letter spacing.
+- `ALL THREE.`: Archivo 800 uppercase, 80px, #004EFD, 72px line height, -2.4px measured letter spacing.
+- `Where being a sales rep is not the end goal.`: Caveat 500, 28px, #0A0A0F.
+- `Get in`: Archivo 600, 18px, #FFFFFF on #0A0A0F.
+
+The authored type rules are Caveat 500 at `clamp(1.75rem, 5.5vw, 3.25rem)` for the ink and `clamp(1.25rem, 4vw, 1.75rem)` for the note. The block headline is Archivo 800 with line-height 0.9 and letter-spacing -0.03em. At 360, 390, 430 and 1280 it renders as exactly two lines, `SO WE JOINED` then `ALL THREE.`, with no orphan.
+
+### Public palette replacement map
+A route-scoped grep across the public pages and their recruiting, application and brand components returns zero `#6D3BFF` and zero `#B69CFF` matches. The remaining violet values in the global signed-in design tokens were intentionally not changed.
+
+- `ALL THREE.`: #6D3BFF to #004EFD.
+- Cover logo fill endpoint: #B69CFF to #6FA8FF, producing #004EFD to #6FA8FF.
+- Public mountain particles: #B69CFF to #6FA8FF.
+- Statement, question sheet and final-band primary buttons: #6D3BFF to #0A0A0F with white labels.
+- Application primary, Continue and scheduling buttons: #6D3BFF to #0A0A0F with white labels.
+- Question-sheet selected answers: #6D3BFF fill and border to #0A0A0F with white text.
+- Application selected answers: #6D3BFF fill and border to #0A0A0F with white text.
+- Cover progress hairline: #6D3BFF to #004EFD.
+- Application progress bar: #6D3BFF to #004EFD.
+- Question progress dot: #6D3BFF to #004EFD.
+- Public section and door underlines: #6D3BFF to #004EFD.
+- Public section titles: blue to #0A0A0F.
+- Public gradient text: #6D3BFF to #004EFD.
+- Application focus border: #6D3BFF to #004EFD.
+- Application Skip link: #6D3BFF to underlined #0A0A0F.
+- Footer mountain mark and cover scroll cue dot already used #004EFD and remain there.
+- Body text and public links remain black; links retain their underline.
+
+Contrast on white is 5.99:1 for #004EFD and 19.75:1 for #0A0A0F. Both exceed the 4.5:1 WCAG AA threshold for normal text.
+
+### Performance, motion and regression proof
+- Instrumented 271 statement animation-frame callbacks at 390. Median callback work was 0.10ms and p95 was 0.30ms, below the requested 8ms median limit.
+- Under `prefers-reduced-motion: reduce`, the statement measures 100svh instead of 220svh, its container is `position: static`, both writing wipes are fully open, both payoff lines and the button are fully visible, and no statement animation runs.
+- Re-ran the Pass 190 flat-row test at 390 using the same low-variance row filter. At p 0.60 the largest jump is 0.196 percent at row 332. At p 0.85 it is 0.679 percent at row 669. Both remain below the 2 percent threshold.
+- Measured screenshots were captured at all six q checkpoints at 390 and 1280, plus line-break checks at 360 and 430.
+- `bunx tsgo --noEmit -p tsconfig.app.json`: clean.
+- Automatic production build: clean, latest result `build OK` at 2026-09-15T07:08:27Z.
+- Shell gzip delta against HEAD: `Index.tsx` 3,829 to 3,839 bytes, +10 bytes; `index.css` 17,540 to 17,550 bytes, +10 bytes; focused total +20 bytes.
+- Added lines contain no em dash and no emoji.
+- Read-only baselines after verification: profiles 536, applications 13 and earnings_goals 0 are unchanged. `chat_messages` remains 717, the same external one-row increase recorded in Pass 191. This pass made no data writes.
+- No new dependency, permission change, data write or publication. The site was not published.
