@@ -130,6 +130,8 @@ const Index = () => {
       note: statement.querySelector<HTMLElement>('[data-sequence-part="note"]'),
       button: statement.querySelector<HTMLElement>('[data-sequence-part="button"]'),
     };
+    const penLines = Array.from(statement.querySelectorAll<HTMLElement>('.pen-line'));
+    const penWidths = penLines.map((line) => line.getBoundingClientRect().width);
     const mark = (node: HTMLElement | null, active: boolean) => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
     };
@@ -147,6 +149,14 @@ const Index = () => {
       setProgress('--payoff-2', easeOut(range(time, 2580, 2960)));
       setProgress('--note-progress', range(time, 3960, 5360));
       setProgress('--button-progress', easeOut(range(time, 5560, 5980)));
+      penLines.forEach((line, index) => {
+        const progress = index === penLines.length - 1
+          ? range(time, 3960, 5360)
+          : wideInk
+            ? ink
+            : index === 0 ? range(time, 0, 700) : range(time, 700, 1400);
+        line.style.setProperty('--pen-dot-x', `${(penWidths[index] * progress).toFixed(2)}px`);
+      });
       mark(nodes.ink, time < 1400);
       mark(nodes.payoffOne, time >= 2400 && time < 2780);
       mark(nodes.payoffTwo, time >= 2580 && time < 2960);
@@ -157,7 +167,7 @@ const Index = () => {
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, [worldLight]);
+  }, [wideInk, worldLight]);
 
   // The canvas only runs while the hero or the final band is on screen.
   useEffect(() => {

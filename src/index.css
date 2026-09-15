@@ -2200,20 +2200,26 @@ html[data-appearance='light'] .btn-gradient {
   font-family: 'Caveat', 'Kalam', cursive;
   font-weight: 500;
   color: #0A0A0F;
-  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(var(--pen-progress, 0) * 100% - 40px), transparent calc(var(--pen-progress, 0) * 100%));
-  mask-image: linear-gradient(to right, #000 0, #000 calc(var(--pen-progress, 0) * 100% - 40px), transparent calc(var(--pen-progress, 0) * 100%));
+  -webkit-mask-image: linear-gradient(to right, transparent 0, transparent calc(50% - 40px), #000 50%, #000 100%);
+  mask-image: linear-gradient(to right, transparent 0, transparent calc(50% - 40px), #000 50%, #000 100%);
+  -webkit-mask-size: 200% 100%;
+  mask-size: 200% 100%;
+  -webkit-mask-position: calc((1 - var(--pen-progress, 0)) * 100%) 0;
+  mask-position: calc((1 - var(--pen-progress, 0)) * 100%) 0;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 .pen-line-dot {
   position: absolute;
   z-index: 1;
-  left: calc(var(--pen-progress, 0) * 100%);
+  left: 0;
   top: 52%;
   width: 6px;
   height: 6px;
   border-radius: 9999px;
   background: #004EFD;
   opacity: clamp(0, calc((1 - var(--pen-progress, 0)) * 7), 1);
-  transform: translate3d(-50%, -50%, 0);
+  transform: translate3d(calc(var(--pen-dot-x, 0px) - 3px), -50%, 0);
   pointer-events: none;
 }
 .cover-pen {
@@ -2262,6 +2268,7 @@ html[data-appearance='light'] .btn-gradient {
 .cover-statement [data-animating='true'],
 .cover-statement [data-animating='true'] .pen-line-text,
 .cover-statement [data-animating='true'] .pen-line-dot { will-change: transform, opacity; }
+.cover-statement [data-animating='true'] .pen-line-text { will-change: mask-position; }
 .cover-get-in-wrap { position: relative; display: inline-flex; isolation: isolate; }
 .cover-get-in-glow {
   position: absolute;
