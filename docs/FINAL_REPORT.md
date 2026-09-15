@@ -1,3 +1,78 @@
+## Pass 195 - burst to writing handoff
+
+### Diagnosis and repair
+Before this pass the swell was a fixed `200vmax` circle with a solid white fill and `filter: blur(60px)`. Its keyframes already changed only `transform`, from `translate(-50%, -50%) scale(0)` to `scale(1)`, but the live blur forced the browser to repaint the feathered layer while it scaled. No clip-path radius, width, height, border radius or box-shadow spread was animated. The live filter was the paint cost.
+
+The prior handoff also had two serial waits. `CoverLogo` did not call `onWorldLight(true)` until its 900ms timer ended, and the Pass 194 statement start still required `visibleEnough = ratio >= 0.6`. Those conditions created the stationary white beat before handwriting.
+
+The swell is now quoted in code as:
+
+```text
+background: radial-gradient(circle, #FFFFFF 0%, #FFFFFF 88%, rgba(255, 255, 255, 0) 100%);
+transform: translate3d(-50%, -50%, 0) scale(0);
+animation: cover-swell-out 620ms cubic-bezier(0.25, 0.8, 0.25, 1) both;
+```
+
+Its only animated property is `transform`, ending at `translate3d(-50%, -50%, 0) scale(1.7)`. The 88 to 100 percent feather is painted by the radial gradient and is never re-blurred. The layer has no filter, animated size, animated border radius, clip-path or box shadow. Reverse uses the same 620ms transform motion from scale 1.7 to 0. Shards and `onBurst(true)` are dispatched in the same crossed-down branch and therefore begin on the same frame.
+
+The burst and final light state are now separate signals. The guarded statement clock starts from `onBurst(true)`, not from statement intersection. The light-world state lands at 620ms and the swell remains for an 80ms overlap before unmounting, avoiding a blank exposure between the animated layer and the light surface. Font readiness, the post-font layout pass, cached line widths, hidden stylesheet default, once-per-crossing guard, resize-only remeasurement and replay reset from Pass 194 are unchanged.
+
+### First 1400ms capture proof
+Screenshots are in `/tmp/browser/p195/proof/`. Each capture used a fresh page and crossed the burst once. Headless screenshot setup can land after its requested target; both the target and sampled elapsed time are reported. White coverage counts pixels at RGB 248 or brighter. The later percentage falls when the pre-painted swell hands off to the intentional light world with visible grey mountains and blue particles, not because the page returns dark.
+
+| target | 390 sampled / white / ink | 1280 sampled / white / ink |
+| ---: | --- | --- |
+| 0ms | 200ms / 59.41% / no | 322ms / 48.34% / no |
+| 100ms | 188ms / 98.21% / no | 317ms / 71.70% / no |
+| 200ms | 300ms / 99.79% / no | 364ms / 99.91% / no |
+| 300ms | 368ms / 99.80% / no | 488ms / 99.91% / yes |
+| 400ms | 483ms / 99.78% / yes | 581ms / 99.91% / yes |
+| 500ms | 609ms / 99.71% / yes | 793ms / 99.83% / yes |
+| 600ms | 780ms / 99.63% / yes | 998ms / 99.79% / yes |
+| 700ms | 915ms / 39.83% / yes | 1190ms / 32.81% / yes |
+| 800ms | 962ms / 39.84% / yes | 1249ms / 32.81% / yes |
+| 900ms | 1062ms / 44.49% / yes | 1305ms / 37.74% / yes |
+| 1000ms | 1138ms / 44.48% / yes | 1400ms / 37.75% / yes |
+| 1100ms | 1198ms / 44.47% / yes | 1401ms / 37.74% / yes |
+| 1200ms | 1336ms / 44.42% / yes | 1584ms / 37.74% / yes |
+| 1300ms | 1451ms / 44.35% / yes | 1733ms / 37.74% / yes |
+| 1400ms | 1498ms / 44.32% / yes | 1679ms / 37.74% / yes |
+
+The authored handoff has no frame where the white has stopped moving and ink has not begun. The swell transforms from 0 through 620ms; the ink begins at 380ms, creating a 240ms overlap. Captures at 390 show the first blue letters under the arriving white at the 400ms target. The equivalent desktop capture also shows ink during the swell.
+
+### Full measured sequence
+The running page recorded the first active animation frame for each element. Browser sampling may land one display frame after the authored threshold.
+
+| element | authored | 390 measured | 1280 measured |
+| --- | ---: | ---: | ---: |
+| ink begins | 380ms | 383.7ms | 383.0ms |
+| ink completes | 1780ms | 1780ms authored | 1780ms authored |
+| first hold | 1780 to 2780ms | 1000ms | 1000ms |
+| SO WE JOINED lands | 2780ms | 2783.6ms | 2782.9ms |
+| ALL THREE. lands | 2960ms | 2966.8ms | 2966.2ms |
+| second hold ends | 4340ms | 4340ms authored | 4340ms authored |
+| note begins | 4340ms | 4350.1ms | 4349.5ms |
+| note completes | 5740ms | 5740ms authored | 5740ms authored |
+| Get in begins | 5940ms | 5950.1ms | 5949.5ms |
+| Get in settles and glow begins | 6360ms | 6360ms authored | 6360ms authored |
+
+The full 200ms series at both widths was monotonic for all five progress values. Nothing appeared and then disappeared. Scrolling above the burst returned the sequence to `idle`; crossing down again produced a new start time. Resize did not replace the active start time. This preserves the Pass 194 flash fix and replay behavior.
+
+### Smoothness, mountains and regressions
+Across the 390 burst and swell, five isolated runs measured a 16.6 to 16.7ms median frame interval. Headless Chromium p95 ranged from 19.6 to 36.0ms, with screenshot-free maxima from 30.4 to 42.1ms. The statement callback remained 0.100ms median, 0.200ms p95 and 0.800ms maximum. The swell itself is compositor-only; the measured long frames include Chromium canvas and capture-environment scheduling and are reported without hiding them.
+
+The fixed mountain canvas remained mounted in all capture and monotonic checks. `/tmp/browser/p195/proof/mountains-390.png` shows the light grey range behind the completed statement. No scene lifecycle code from Pass 194 changed.
+
+The Pass 190 flat-row test remains below its 2 percent threshold: p 0.60 = 0.196 percent at row 106; p 0.85 = 1.070 percent at row 668.
+
+With reduced motion, the sequence remains `reduced`; handwriting is fully visible with no mask, and the swell is not rendered. The mountain canvas remains present. This matches the existing reduced-motion behavior and introduces no timed burst motion.
+
+- Typecheck: `bunx tsgo --noEmit -p tsconfig.app.json` clean.
+- Automatic production build: clean, latest `build OK` at 2026-09-15T08:29:16Z.
+- Shell gzip delta against HEAD: `Index.tsx` +10 bytes, `CoverLogo.tsx` +14 bytes, `index.css` +10 bytes.
+- Added lines contain no em dash and no emoji.
+- Read-only baselines: profiles 536, chat_messages 717, applications 13, earnings_goals 0.
+- No dependency, data, permission or publication change. The site was not published.
 ## Pass 194 - statement bug fixes
 
 ### Cause found before the fix
