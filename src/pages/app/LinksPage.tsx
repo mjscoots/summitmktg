@@ -526,6 +526,21 @@ export default function LinksPage() {
                             </SelectContent>
                           </Select>
                         </div>
+                        <div>
+                          <Input
+                            placeholder="Category (optional)"
+                            value={category}
+                            onChange={e => setCategory(e.target.value)}
+                            list="link-category-suggestions"
+                          />
+                          <datalist id="link-category-suggestions">
+                            {LINK_GROUPS.map(name => <option key={name} value={name} />)}
+                          </datalist>
+                          <p className="text-[10px] text-muted-foreground mt-1">
+                            Leave blank to keep it under Links. Suggestions: {LINK_GROUPS.join(', ')}.
+                          </p>
+                        </div>
+
                         <Button onClick={handleSave} className="w-full">{editingLink ? 'Update' : 'Add Link'}</Button>
                       </div>
                     </DialogContent>
