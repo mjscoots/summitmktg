@@ -2243,7 +2243,7 @@ html[data-appearance='light'] .btn-gradient {
 }
 .cover-pen .pen-line-text { font-size: clamp(1.25rem, 4vw, 1.75rem); color: #0A0A0F; }
 .cover-ink-headline .pen-line-text {
-  font-size: clamp(1.75rem, 5.5vw, 3.25rem);
+  font-size: clamp(1.75rem, 5.6vw, 3rem);
   color: #004EFD;
   letter-spacing: 0;
   text-transform: none;
@@ -2258,7 +2258,7 @@ html[data-appearance='light'] .btn-gradient {
   flex-direction: column;
   align-items: center;
   font-family: 'Archivo', system-ui, -apple-system, sans-serif;
-  font-size: clamp(2.5rem, 8.5vw, 5rem);
+  font-size: clamp(2.5rem, 9vw, 5.5rem);
   font-weight: 800;
   line-height: 0.9;
   letter-spacing: -0.03em;
@@ -2421,7 +2421,9 @@ html[data-appearance='light'] .btn-gradient {
   .cover-scroll-cue { display: none !important; }
   .cover-shard { animation: none !important; opacity: 1 !important; transform: none !important; }
   .cover-statement-copy { opacity: 1 !important; transform: none !important; pointer-events: auto; transition: none !important; }
-  .cover-statement { min-height: 100svh; }
+  .cover-stage { height: auto; }
+  .cover-stage-pin { position: static; height: auto; min-height: 100svh; }
+  .cover-statement { position: static; inset: auto; min-height: 100svh; }
   .cover-block-lines > span { animation: none !important; opacity: 1 !important; transform: none !important; }
   .pen-line { opacity: 1 !important; }
   .pen-line-text { -webkit-mask-image: none !important; mask-image: none !important; }
