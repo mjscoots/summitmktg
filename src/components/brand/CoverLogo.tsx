@@ -5,8 +5,8 @@ const VIEW_X = 171;
 const VIEW_Y = 282;
 const VIEW_W = 1625;
 const VIEW_H = 281;
-const FILL_END = 0.32;
-export const BURST_AT = 0.36;
+const FILL_END = 0.30;
+export const BURST_AT = 0.34;
 
 type Phase = 'assemble' | 'ready' | 'burst' | 'light' | 'reverse';
 
