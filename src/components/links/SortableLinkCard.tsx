@@ -117,16 +117,19 @@ export function SortableLinkCard({ link, isAdmin, isReordering, onEdit, onDelete
     );
   }
 
+  // A tel: link must open the phone dialer, so it never gets a new browser tab.
+  const isTel = link.url.trim().toLowerCase().startsWith('tel:');
+
   return (
     <a
       ref={setNodeRef}
       style={style}
-      href={link.url}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={sanitizeUrl(link.url)}
+      {...(isTel ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
       className="group block"
     >
       {cardContent}
     </a>
   );
+
 }
