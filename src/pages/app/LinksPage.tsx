@@ -188,11 +188,25 @@ export default function LinksPage() {
 
   useEffect(() => { fetchLinks(); fetchPhones(); fetchEmails(); }, []);
 
-  const filteredLinks = links;
+  // The audience saved on a link decides who sees it. Admins and owners keep
+  // seeing every row so they can manage the list.
+  const filteredLinks = links.filter(l => {
+    if (seesEverything) return true;
+    if (l.target_role === 'manager') return isManagerUp;
+    if (l.target_role === 'rookie') return !isManagerUp;
+    return true;
+  });
+
+  const linkGroups = [
+    { name: 'Links', items: filteredLinks.filter(l => !l.category) },
+    ...LINK_GROUPS.map(name => ({ name, items: filteredLinks.filter(l => l.category === name) })),
+    ...Array.from(new Set(filteredLinks.map(l => l.category).filter((c): c is string => !!c && !LINK_GROUPS.includes(c))))
+      .map(name => ({ name, items: filteredLinks.filter(l => l.category === name) })),
+  ].filter(g => g.items.length > 0);
 
   // ── Link CRUD ──
   const resetForm = () => {
-    setTitle(''); setUrl(''); setDescription(''); setTargetRole('all'); setIcon('link');
+    setTitle(''); setUrl(''); setDescription(''); setTargetRole('all'); setIcon('link'); setCategory('');
     setEditingLink(null);
   };
 
@@ -201,14 +215,14 @@ export default function LinksPage() {
     if (editingLink) {
       const { error } = await supabase
         .from('managed_links')
-        .update({ title, url, description: description || null, target_role: targetRole, icon })
+        .update({ title, url, description: description || null, target_role: targetRole, icon, category: category.trim() || null })
         .eq('id', editingLink.id);
       if (error) { toast.error('Failed to update link'); return; }
       toast.success('Link updated');
     } else {
       const { error } = await supabase
         .from('managed_links')
-        .insert({ title, url, description: description || null, target_role: targetRole, icon, display_order: links.length });
+        .insert({ title, url, description: description || null, target_role: targetRole, icon, category: category.trim() || null, display_order: links.length });
       if (error) { toast.error('Failed to add link'); return; }
       toast.success('Link added');
     }
@@ -231,8 +245,10 @@ export default function LinksPage() {
     setDescription(link.description || '');
     setTargetRole(link.target_role);
     setIcon(link.icon || 'link');
+    setCategory(link.category || '');
     setShowAdd(true);
   };
+
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
