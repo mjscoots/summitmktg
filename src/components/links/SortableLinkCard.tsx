@@ -3,6 +3,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Link2, BookOpen, Users, Globe, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { sanitizeUrl } from '@/lib/sanitizeUrl';
+
 
 interface ManagedLink {
   id: string;
