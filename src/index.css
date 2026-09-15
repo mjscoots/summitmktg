@@ -2623,6 +2623,8 @@ html[data-appearance='light'] .btn-gradient {
   transition: background-color 300ms linear;
 }
 .cover-hero,
+.cover-stage,
+.cover-stage-pin,
 .cover-statement,
 .public-world > main {
   background: transparent;
