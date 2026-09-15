@@ -41,11 +41,17 @@ const Index = () => {
   const [bandProgress, setBandProgress] = useState(0);
   const [wideInk, setWideInk] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1100);
   const worldLightRef = useRef(false);
+  const burstActiveRef = useRef(false);
   const startStatementRef = useRef<() => void>(() => undefined);
   const resetStatementRef = useRef<() => void>(() => undefined);
   const remeasureStatementRef = useRef<() => void>(() => undefined);
   const tiltAsked = useRef(false);
   const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
+  const onBurst = useCallback((active: boolean) => {
+    burstActiveRef.current = active;
+    if (active) startStatementRef.current();
+    else resetStatementRef.current();
+  }, []);
   usePublicMotion();
 
   useEffect(() => {
@@ -162,7 +168,7 @@ const Index = () => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
     };
     const start = () => {
-      if (started || !fontsReady || !worldLightRef.current || penWidths.length === 0) return;
+      if (started || !fontsReady || !burstActiveRef.current || penWidths.length === 0) return;
       started = true;
       const startedAt = performance.now();
       const frameCosts: number[] = [];
@@ -241,8 +247,6 @@ const Index = () => {
 
   useEffect(() => {
     worldLightRef.current = worldLight;
-    if (worldLight) startStatementRef.current();
-    else resetStatementRef.current();
   }, [worldLight]);
 
   useEffect(() => {
@@ -285,7 +289,7 @@ const Index = () => {
       <main className="relative flex-1">
         {/* Screen one: only the assembled logo in the dark world. */}
         <section ref={heroRef} className="cover-open cover-hero relative isolate px-5 sm:px-6">
-          <CoverLogo progress={heroProgress} onWorldLight={onWorldLight} />
+          <CoverLogo progress={heroProgress} onBurst={onBurst} onWorldLight={onWorldLight} />
           <div className="cover-scroll-cue" data-hidden={heroProgress > 0.04 ? 'true' : 'false'} aria-hidden="true">
             <span />
           </div>

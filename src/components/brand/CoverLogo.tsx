@@ -24,6 +24,7 @@ interface Shard {
 
 export interface CoverLogoProps {
   progress: number;
+  onBurst: (active: boolean) => void;
   onWorldLight: (light: boolean) => void;
 }
 
@@ -88,7 +89,7 @@ function makeShards(count: 28 | 56): Shard[] {
   return shards;
 }
 
-function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
+function CoverLogoBase({ progress, onBurst, onWorldLight }: CoverLogoProps) {
   const logoRef = useRef<HTMLDivElement | null>(null);
   const reduced = useRef(!shouldRunOpening()).current;
   const [desktop, setDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 700);
@@ -134,6 +135,7 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
     const crossedUp = previousProgress.current >= BURST_AT && progress < BURST_AT;
     previousProgress.current = progress;
     if (reduced) {
+      onBurst(progress >= BURST_AT);
       onWorldLight(progress >= BURST_AT);
       const next = progress >= BURST_AT ? 'light' : 'ready';
       phaseRef.current = next;
@@ -145,14 +147,16 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
       timers.current = [];
       phaseRef.current = 'burst';
       setPhase('burst');
-      onWorldLight(true);
+      onBurst(true);
       timers.current.push(window.setTimeout(() => {
+        onWorldLight(true);
         phaseRef.current = 'light';
         setPhase('light');
       }, 620));
     } else if (crossedUp) {
       timers.current.forEach(window.clearTimeout);
       timers.current = [];
+      onBurst(false);
       onWorldLight(false);
       phaseRef.current = 'reverse';
       setPhase('reverse');
@@ -161,7 +165,7 @@ function CoverLogoBase({ progress, onWorldLight }: CoverLogoProps) {
         setPhase('ready');
       }, 620));
     }
-  }, [onWorldLight, progress, reduced]);
+  }, [onBurst, onWorldLight, progress, reduced]);
 
   useEffect(() => () => timers.current.forEach(window.clearTimeout), []);
 
