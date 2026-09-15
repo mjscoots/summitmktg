@@ -79,11 +79,14 @@ export function SortableLinkCard({ link, isAdmin, isReordering, onEdit, onDelete
           {link.description && (
             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{link.description}</p>
           )}
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant="outline" className="text-[9px] text-muted-foreground/60">
-              {link.target_role === 'all' ? 'Everyone' : link.target_role === 'rookie' ? 'Rookie' : 'Manager'}
-            </Badge>
-          </div>
+          {link.target_role !== 'all' && (
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-[9px] text-muted-foreground/60">
+                {link.target_role === 'rookie' ? 'Rookies only' : 'Managers only'}
+              </Badge>
+            </div>
+          )}
+
         </div>
       </div>
 
