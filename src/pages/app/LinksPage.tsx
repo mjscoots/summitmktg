@@ -127,6 +127,8 @@ export default function LinksPage() {
   const [description, setDescription] = useState('');
   const [targetRole, setTargetRole] = useState<string>('all');
   const [icon, setIcon] = useState('link');
+  const [category, setCategory] = useState('');
+
 
   // Phone form state
   const [showAddPhone, setShowAddPhone] = useState(false);
