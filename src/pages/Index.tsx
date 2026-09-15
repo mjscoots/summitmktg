@@ -83,9 +83,19 @@ const Index = () => {
       frame = 0;
       const y = el ? el.scrollTop : window.scrollY;
       setScrolled(y > 40);
-      const nextHeroProgress = Math.min(1, Math.max(0, y / Math.max(1, window.innerHeight)));
+      // s is progress through the pinned stage, so the logo, the burst and the
+      // statement all read from the same travel.
+      const stage = stageRef.current;
+      let nextHeroProgress = 0;
+      if (stage) {
+        const rect = stage.getBoundingClientRect();
+        const travel = Math.max(1, rect.height - window.innerHeight);
+        nextHeroProgress = Math.min(1, Math.max(0, -rect.top / travel));
+        stage.dataset.stageProgress = nextHeroProgress.toFixed(4);
+      }
       setHeroProgress(nextHeroProgress);
-      heroRef.current?.style.setProperty('--bridge-opacity', String(Math.min(0.1, Math.max(0, (nextHeroProgress - 0.18) / 0.18 * 0.1))));
+      stage?.style.setProperty('--bridge-opacity', String(Math.min(0.1, Math.max(0, (nextHeroProgress - 0.18) / 0.16 * 0.1))));
+
 
       const scroller = el || document.documentElement;
       const span = Math.max(1, scroller.scrollHeight - window.innerHeight);
