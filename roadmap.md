@@ -82,3 +82,10 @@
 - [x] Start the guarded statement clock with the burst and retime the sequence
 - [x] Capture the first 1400ms and full monotonic sequence at both widths
 - [x] Measure burst frames, seam, reduced motion, gzip and baselines; append the report
+
+## Pass 196 - Resources page
+- [x] Audience gate on managed_links made real
+- [x] category column added and Links tab grouped
+- [x] Sixteen operating resource rows inserted
+- [x] tel: links tappable
+- [x] Report in docs/FINAL_REPORT.md
