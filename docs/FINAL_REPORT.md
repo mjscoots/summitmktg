@@ -1,3 +1,84 @@
+## Pass 194 - statement bug fixes
+
+### Cause found before the fix
+The flash was a real first-paint ordering bug. `.pen-line` had opacity 1 before setup, while `--pen-width` was empty and the mask depended on the fallback `100%`. The sequence effect then measured immediately with `getBoundingClientRect()`, without waiting for `document.fonts.ready`, and replaced that fallback with a pixel width. If Caveat landed between those paints, the mask geometry changed after visible fallback text had already painted. The pre-fix phone trace recorded all three lines at opacity 1 with empty `--pen-width`; after setup those widths became 198px, 216px and 300px. This is the path that produced visible text, a hide or jump when the real width landed, then the write.
+
+Two related checks also found one restart risk and ruled out one suspected cause:
+- The old sequence effect depended on `[wideInk, worldLight]`. A width-mode change tore down and recreated the effect, set a new `startedAt`, and restarted the clock. Resize now only remeasures cached widths and the measured `data-sequence-started` value remained unchanged.
+- Every supplied pen progress variable already defaulted to 0, so a progress default of 1 was not the cause.
+
+The repaired first paint is stylesheet-owned: every `.pen-line` starts at opacity 0. After `document.fonts.ready`, one layout frame is allowed, widths are measured and cached, and `data-pen-measured` is set. Measurement alone still leaves every line at opacity 0. The opening ink is enabled only when the guarded clock starts; the note remains opacity 0 until 3960ms. No layout read occurs in the animation loop. A resize runs the same measurement function outside the loop and does not reset progress or time.
+
+### Trigger, replay and scene lifetime
+The trigger now requires both the light world and at least 60 percent statement intersection. The later condition wins. In the measured run the statement was already fully visible when the light world completed, so the recorded start visibility was 1.0000 at both 390 and 1280. This satisfies the 0.60 threshold without beginning while the visitor is still entering the screen. A `started` guard prevents renders, font completion, resize and repeated observer callbacks from creating another clock.
+
+Going back above the burst changes the sequence to `idle`, clears progress, and removes the prior start stamp. Returning produced a new start stamp in the replay check, 2616.70ms then 4685.90ms. Scrolling back and returning therefore replays from the top.
+
+The missing mountains came from the old hero/final-band observer in `Index.tsx`:
+
+```text
+setSceneOn(seen.size > 0);
+{sceneOn && <MountainScene ... />}
+```
+
+When neither the hero nor final band intersected, this unmounted the canvas throughout the statement. That observer and conditional render are gone. `MountainScene` now remains mounted from the hero through the statement and all later public sections. Its own visibility observer only pauses for a hidden tab or when the fixed canvas itself is offscreen, which does not happen while the page is visible. The Pass 190 lower 30 percent canvas mask remains unchanged. Phone captures show the light grey range behind the copy at every one of the 32 checkpoints.
+
+### Captures every 200ms
+Full screenshots are under `/tmp/browser/p194/final-390/` and `/tmp/browser/p194/final-1280/`. Visibility below means the element has nonzero authored progress and nonzero opacity. Once an item appears, it remains present in every later capture. No handwritten line is visible before its step, and no element appears, disappears and reappears in either set.
+
+| target ms | 390 visible | 1280 visible |
+| ---: | --- | --- |
+| 0 | ink line 1 begins | no text yet, first sampled frame precedes nonzero progress |
+| 200 | ink line 1 | ink headline |
+| 400 | ink line 1 | ink headline |
+| 600 | ink line 1 | ink headline |
+| 800 | ink lines 1 and 2 | ink headline |
+| 1000 | ink lines 1 and 2 | ink headline |
+| 1200 | ink lines 1 and 2 | ink headline |
+| 1400 | completed ink | completed ink |
+| 1600 | completed ink | completed ink |
+| 1800 | completed ink | completed ink |
+| 2000 | completed ink | completed ink |
+| 2200 | completed ink | completed ink |
+| 2400 | ink and SO WE JOINED | ink and SO WE JOINED |
+| 2600 | ink and both payoff lines | ink and both payoff lines |
+| 2800 | ink and both payoff lines | ink and both payoff lines |
+| 3000 | ink and both payoff lines | ink and both payoff lines |
+| 3200 | ink and both payoff lines | ink and both payoff lines |
+| 3400 | ink and both payoff lines | ink and both payoff lines |
+| 3600 | ink and both payoff lines | ink and both payoff lines |
+| 3800 | ink and both payoff lines | ink, both payoff lines and first sampled note pixels |
+| 4000 | ink, both payoff lines and note | ink, both payoff lines and note |
+| 4200 | ink, both payoff lines and note | ink, both payoff lines and note |
+| 4400 | ink, both payoff lines and note | ink, both payoff lines and note |
+| 4600 | ink, both payoff lines and note | ink, both payoff lines and note |
+| 4800 | ink, both payoff lines and note | ink, both payoff lines and note |
+| 5000 | ink, both payoff lines and note | ink, both payoff lines and note |
+| 5200 | ink, both payoff lines and note | ink, both payoff lines and note |
+| 5400 | ink, both payoff lines and note | ink, both payoff lines, note and first sampled button pixels |
+| 5600 | ink, payoff, note and Get in | ink, payoff, note and Get in |
+| 5800 | ink, payoff, note and Get in | ink, payoff, note and Get in |
+| 6000 | complete screen | complete screen |
+| 6200 | complete screen | complete screen |
+
+Sampling can occur after its nominal target when screenshot encoding occupies the browser thread. The implementation thresholds remain unchanged at 0, 1400, 2400, 2580, 3960, 5360, 5560 and 5980ms. The 390 screenshots show line one before line two; the 1280 ink is one authored line.
+
+### Smoothness and reduced motion
+The loop writes only custom properties consumed by opacity, transform and mask position. It never toggles display or visibility. `will-change` is enabled 100ms before each delayed step, remains through the step, and is cleared when the step ends. Width reads occur only in the font-ready or resize measurement function.
+
+At 390 across the six-second sequence, browser frames measured 16.7ms median and 16.8ms p95. The statement callback itself measured 0.100ms median, 0.200ms p95 and 1.900ms maximum. No callback exceeded 16ms.
+
+With reduced motion, `data-sequence` is `reduced`; all three handwriting lines have opacity 1 and no mask, both payoff lines and the button have opacity 1, and the pen dots and button glow are removed. The mountain canvas remains present.
+
+### Regression and release checks
+- Pass 190 flat-surface test at 390: p 0.60 = 0.392 percent at row 689; p 0.85 = 0.392 percent at row 689. Both remain below the 2 percent seam threshold.
+- Cover handwriting grep: no `stroke-dasharray` or `stroke-dashoffset` in `Index.tsx` or `PenLine.tsx`.
+- Typecheck: `bunx tsgo --noEmit -p tsconfig.app.json` clean.
+- Automatic production build: clean, latest `build OK` at 2026-09-15T08:19:49Z.
+- Shell gzip delta against HEAD: `src/pages/Index.tsx` +10 bytes; `src/index.css` +10 bytes.
+- Added lines contain no em dash and no emoji.
+- Read-only baseline query: profiles 536, chat_messages 717, applications 13, earnings_goals 0.
+- No new dependency, copy change, palette change, permission change, data write or publication.
 # Summit Platform — Running Final Report
 
 _Report file created in Pass 34; earlier pass reports were delivered in chat. Append new passes below._

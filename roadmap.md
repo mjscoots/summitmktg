@@ -70,3 +70,9 @@
 - [x] Replace SVG handwriting with selectable text, soft masks and one shared animation frame loop
 - [x] Add the two-layer blue button glow and reduced-motion fallback
 - [x] Measure timing, frames, centring, seam, gzip and baselines; append the report
+
+## Pass 194 - statement bug fixes
+- [x] Prove and remove the handwriting first-paint flash
+- [x] Start once at 60 percent statement visibility and preserve replay on return
+- [x] Keep the mountain scene mounted and active through the statement
+- [x] Capture both widths, measure frames and seam, append the report

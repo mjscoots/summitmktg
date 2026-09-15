@@ -2194,7 +2194,9 @@ html[data-appearance='light'] .btn-gradient {
   width: max-content;
   max-width: 100%;
   margin: 0 auto;
+  opacity: 0;
 }
+.pen-line[data-pen-measured='true'] { opacity: var(--pen-opacity, 0); }
 .pen-line-text {
   display: block;
   font-family: 'Caveat', 'Kalam', cursive;
@@ -2408,6 +2410,7 @@ html[data-appearance='light'] .btn-gradient {
   .cover-statement-copy { opacity: 1 !important; transform: none !important; pointer-events: auto; transition: none !important; }
   .cover-statement { min-height: 100svh; }
   .cover-block-lines > span { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .pen-line { opacity: 1 !important; }
   .pen-line-text { -webkit-mask-image: none !important; mask-image: none !important; }
   .pen-line-dot,
   .cover-get-in-glow { display: none !important; }
