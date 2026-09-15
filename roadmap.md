@@ -63,4 +63,4 @@
 ## Rookie application admin handoff
 - [x] Trace the public rookie form through the protected submission function to the admin Applications inbox
 - [x] Allow the current preview, published Trinity URL and Trinity custom domains to submit
-- [ ] Deploy the submission function and verify the live handoff without creating an application
+- [x] Deploy the submission function and verify the live handoff without creating an application
