@@ -250,23 +250,27 @@ export default function LinksPage() {
   };
 
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  // Dragging reorders inside one group only, reusing that group's own slots.
+  const handleGroupDragEnd = async (groupItems: ManagedLink[], event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = filteredLinks.findIndex(l => l.id === active.id);
-    const newIndex = filteredLinks.findIndex(l => l.id === over.id);
-    const reordered = arrayMove(filteredLinks, oldIndex, newIndex);
-    const updatedLinks = links.map(l => {
-      const newPos = reordered.findIndex(r => r.id === l.id);
-      return newPos >= 0 ? { ...l, display_order: newPos } : l;
-    });
-    setLinks(updatedLinks.sort((a, b) => a.display_order - b.display_order));
-    const updates = reordered.map((link, idx) =>
-      supabase.from('managed_links').update({ display_order: idx }).eq('id', link.id)
+    const oldIndex = groupItems.findIndex(l => l.id === active.id);
+    const newIndex = groupItems.findIndex(l => l.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const slots = groupItems.map(l => l.display_order);
+    const reordered = arrayMove(groupItems, oldIndex, newIndex);
+    const nextOrder = new Map(reordered.map((l, idx) => [l.id, slots[idx]]));
+    setLinks(links
+      .map(l => (nextOrder.has(l.id) ? { ...l, display_order: nextOrder.get(l.id)! } : l))
+      .sort((a, b) => a.display_order - b.display_order));
+    const results = await Promise.all(
+      reordered.map((link, idx) =>
+        supabase.from('managed_links').update({ display_order: slots[idx] }).eq('id', link.id)
+      )
     );
-    const results = await Promise.all(updates);
     if (results.some(r => r.error)) { toast.error('Failed to save order'); fetchLinks(); }
   };
+
 
   // ── Phone CRUD ──
   const resetPhoneForm = () => {
