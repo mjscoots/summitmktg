@@ -2165,12 +2165,25 @@ html[data-appearance='light'] .btn-gradient {
 .cover-statement-copy {
   pointer-events: auto;
 }
+/* Pass 197: one stage. The section supplies the scroll, the pinned child holds
+   the screen still, and the statement is centred inside that still screen. */
+.cover-stage {
+  height: 260svh;
+}
+.cover-stage-pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: visible;
+}
 .cover-statement {
+  position: absolute;
+  inset: 0;
   display: flex;
-  min-height: 100svh;
   align-items: center;
   justify-content: center;
 }
+
 .cover-headline {
   font-family: 'Archivo', system-ui, -apple-system, sans-serif;
 }
