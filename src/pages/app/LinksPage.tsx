@@ -636,23 +636,33 @@ export default function LinksPage() {
                 {isAdmin && <p className="text-xs text-muted-foreground/60 mt-1">Click "Add Link" to get started</p>}
               </Card>
             ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={filteredLinks.map(l => l.id)} strategy={rectSortingStrategy}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {filteredLinks.map(link => (
-                      <SortableLinkCard
-                        key={link.id}
-                        link={link}
-                        isAdmin={isAdmin}
-                        isReordering={isReordering}
-                        onEdit={openEdit}
-                        onDelete={handleDelete}
-                      />
-                    ))}
+              <div className="space-y-6">
+                {linkGroups.map(group => (
+                  <div key={group.name}>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2">
+                      {group.name}
+                    </p>
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleGroupDragEnd(group.items, e)}>
+                      <SortableContext items={group.items.map(l => l.id)} strategy={rectSortingStrategy}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {group.items.map(link => (
+                            <SortableLinkCard
+                              key={link.id}
+                              link={link}
+                              isAdmin={isAdmin}
+                              isReordering={isReordering}
+                              onEdit={openEdit}
+                              onDelete={handleDelete}
+                            />
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
                   </div>
-                </SortableContext>
-              </DndContext>
+                ))}
+              </div>
             )}
+
           </>
         )}
 
