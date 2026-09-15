@@ -78,7 +78,7 @@
 - [x] Capture both widths, measure frames and seam, append the report
 
 ## Pass 195 - burst to writing handoff
-- [ ] Replace the live blur swell with a pre-painted radial edge and transform-only scale
-- [ ] Start the guarded statement clock with the burst and retime the sequence
-- [ ] Capture the first 1400ms and full monotonic sequence at both widths
-- [ ] Measure burst frames, seam, reduced motion, gzip and baselines; append the report
+- [x] Replace the live blur swell with a pre-painted radial edge and transform-only scale
+- [x] Start the guarded statement clock with the burst and retime the sequence
+- [x] Capture the first 1400ms and full monotonic sequence at both widths
+- [x] Measure burst frames, seam, reduced motion, gzip and baselines; append the report
