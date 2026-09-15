@@ -2217,7 +2217,6 @@ html[data-appearance='light'] .btn-gradient {
   transform: scaleX(var(--pen-progress, 0));
 }
 .pen-line[data-scroll-writing='true'] .pen-line-ink {
-  stroke: currentColor;
   stroke-width: 0.35px;
   stroke-dasharray: 1000px;
   stroke-dashoffset: calc(1000px - (var(--pen-progress, 0) * 1000px));
@@ -2231,12 +2230,14 @@ html[data-appearance='light'] .btn-gradient {
   margin-top: 44px;
 }
 .cover-pen .pen-line-text { font-size: clamp(1.25rem, 4vw, 1.75rem); }
+.cover-pen .pen-line-ink { stroke: #0A0A0F; }
 .cover-ink-headline .pen-line-text {
   font-size: clamp(1.75rem, 5.5vw, 3.25rem);
   fill: #004EFD;
   letter-spacing: 0;
   text-transform: none;
 }
+.cover-ink-headline .pen-line-ink { stroke: #004EFD; }
 .cover-ink-headline .pen-lines { gap: 0.02em; }
 .cover-block-line {
   display: block;
@@ -2598,15 +2599,13 @@ html[data-appearance='light'] .btn-gradient {
 /* The statement sits in its own screen with the space above the headline capped,
    so the copy reads near the middle instead of a screen of empty white. */
 .cover-statement {
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 18vh;
-  padding-bottom: 8vh;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 @media (min-width: 700px) {
   .cover-statement {
-    padding-top: 20vh;
-    padding-bottom: 10vh;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 /* The nav over the cover is a wash that fades out, never a bordered band, so the
