@@ -172,10 +172,12 @@ html.light .site-grain {
 
   /* ━━━ LIGHT APPEARANCE - the Life workspace and an explicit light choice.
      White base, black primary, one blue accent, no gradient. ━━━ */
+  /* Pass 219 - .gold-world is deliberately absent here. The public cover is
+     built dark first with a white-filled logo, so letting an explicit light
+     app-look repaint it turned the stage near white and the logo invisible. */
   html[data-appearance='light'],
   html[data-appearance='light'] .light,
-  html[data-appearance='light'] .dark,
-  html[data-appearance='light'] .gold-world {
+  html[data-appearance='light'] .dark {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
