@@ -5744,3 +5744,54 @@ stylesheet gzip 33,232 bytes; the pass adds markup and CSS only, no new npm
 dependencies. No em dashes and no emoji in added lines. Baselines unchanged:
 profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23.
 No data writes and no permission changes. The site was not published.
+
+## Pass 198: faster fixed opening
+
+### Fixed final layout
+The statement reserves its complete four-row layout before the first visible character. Every reveal changes only opacity or transform inside that reserved space. Measurements across burst, mid-ink, ink complete, both payoff arrivals, mid-note, button arrival and completion:
+
+| viewport | ink top | payoff top | note top | button top | maximum movement |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 390 x 844 | 251.938px | 353.016px | 466.453px | 528.047px | 0.000px |
+| 1280 x 900 | 221.125px | 317.125px | 534.063px | 614.859px | 0.000px |
+
+Not one block moves by more than 1px from first frame to last. The measured movement is zero.
+
+### Shorter stage and timing
+The stage is 160svh and the sticky child remains 100svh. At 390 x 844 the measured section is 1350.391px, travel is 506.391px and the scroll after the s 0.60 burst is 202.556px. At 1280 x 900 the section is 1440px, travel is 540px and post-burst scroll is 216px.
+
+The single clock now measures:
+
+| event | specified | 390 measured | 1280 measured |
+| --- | ---: | ---: | ---: |
+| ink begins | 0ms | 25.7ms | 36.8ms |
+| ink completes | 900ms | 900ms authored | 900ms authored |
+| SO WE JOINED | 1300ms | 1309.0ms | 1303.4ms |
+| ALL THREE. | 1450ms | 1459.0ms | 1470.2ms |
+| note begins | 1850ms | 1859.0ms | 1853.4ms |
+| note completes | 2700ms | 2700ms authored | 2700ms authored |
+| Get in begins | 2900ms | 2908.9ms | 2903.4ms |
+| Get in settles | 3220ms | 3220ms authored | 3220ms authored |
+| glow starts and sequence ends | 3300ms | 3300ms authored | 3300ms authored |
+
+The first hold is 400ms and the second hold is 400ms. Total authored duration is 3.3 seconds.
+
+### Character typing, colour and type
+Both Caveat 500 lines remain complete readable strings in the document. A separate visual copy splits each line into characters. Each character fades from opacity 0 to 1 over 90ms, with even stagger inside its line window: 18.95ms and 16.36ms for the two phone ink lines, 18.84ms for the desktop ink line and 17.67ms for the note. One animation-frame clock supplies one progress variable per line. The capture `390-partial-character-proof.png` shows a partial second line with no travelling band and no dot.
+
+Cover-only code grep returns no mask image, pen dot, stroke dasharray or stroke dashoffset. Running computed styles also return mask-image none and zero pen-dot elements.
+
+Computed colours on the running page are ink rgb(10, 10, 15), both payoff lines rgb(0, 78, 253), note rgb(10, 10, 15), and button rgb(10, 10, 15). Exactly one statement element, the two-line payoff block, is blue. The button glow remains blue decoration. Contrast on white is 5.99:1 for #004EFD and 19.75:1 for #0A0A0F.
+
+Payoff is clamp(2.75rem, 10vw, 6rem), line height 0.88 and letter spacing -0.04em. Ink is clamp(1.5rem, 4.8vw, 2.5rem). Note is clamp(1.125rem, 3.4vw, 1.5rem). Gaps are 24/32, 36/48 and 40/52px on phone/desktop.
+
+### Regression proof
+- At 390 across the sequence, frame interval median is 16.7ms and p95 is 16.8ms. Sequence callback median is 0.0ms and p95 is 0.1ms.
+- Pass 190 adjacent-row seam checks remain below 2 percent: 390 p 0.60 is 0.558 percent and p 0.85 is 0.192 percent; 1280 p 0.60 is 0.656 percent and p 0.85 is 0.510 percent.
+- The mountain canvas remains mounted and visible behind the copy in every capture.
+- Reduced motion has a static pin, auto-height stage, reduced sequence state, all characters visible and all blocks visible.
+- Typecheck and automatic production build are clean. Latest build record is build OK.
+- Shell gzip delta against HEAD: Index.tsx +10 bytes, index.css +10 bytes, CoverLogo.tsx +14 bytes, PenLine.tsx +12 bytes.
+- Added lines contain no em dashes and no emoji.
+- Read-only baselines are unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23.
+- No dependency, data, permission or publication change. The site was not published.
