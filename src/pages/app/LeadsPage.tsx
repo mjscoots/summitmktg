@@ -161,7 +161,10 @@ export default function LeadsPage() {
     });
   }, [staff]);
 
-  const visible = rows;
+  const visible = useMemo(() => {
+    const base = clientTag ? rows.filter((r) => (r.tags || []).includes(clientTag)) : rows;
+    return sort === 'rank' ? [...base].sort(byRankThenColdest) : base;
+  }, [rows, clientTag, sort]);
 
   // Call mode works the exact list the This week section shows, so the two counts agree.
   const callable = useMemo(
@@ -251,7 +254,9 @@ export default function LeadsPage() {
 
           <PageHeader
             title="Leads"
-            context={`People who are out and not coming back. ${visible.length} shown.`}
+            context={`People who are out and not coming back. ${visible.length}${
+              leadTotal != null ? ` of ${leadTotal}` : ''
+            } shown.`}
             action={
               <>
                 <button
