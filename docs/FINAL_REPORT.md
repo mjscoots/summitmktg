@@ -6645,7 +6645,12 @@ Working case in the open room, all four events arrived after the change:
   from the list (no refresh) - asserted by `uiDeletedMatchesProbe: true` and
   `msgsStillHasProbe: false`.
 - reaction add: INSERT payload received, reaction tally for that message went +1.
-- reaction remove: DELETE payload received, tally returned to 0 (net 0 across the pair).
+- reaction remove: DELETE payload received, but it carries only `{ id }` - chat_reactions is
+  REPLICA IDENTITY DEFAULT, so `old.message_id` and `old.emoji` are absent and the handler's
+  removal branch returns early on `!target`. This is pre-existing behaviour, unchanged by this
+  pass and not caused by it: removal of someone else's reaction has never applied live, it only
+  appears after a reload. Fixing it needs REPLICA IDENTITY FULL on chat_reactions, which is
+  outside this pass. Reported rather than papered over.
 
 Row counts: chat_messages 717 before / 717 after, chat_reactions 155 before / 155 after,
 people_leads 1379. Zero rows matching the probe content remain. Typecheck clean, build OK.
