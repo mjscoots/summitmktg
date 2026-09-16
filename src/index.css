@@ -1263,7 +1263,7 @@ body {
 }
 
 /* Depth belongs to navigation and section entrances, not card interiors. */
-.app-shell-header {
+.flex-1 > header.sticky {
   background: linear-gradient(
     to bottom,
     hsl(var(--background) / 0.98),

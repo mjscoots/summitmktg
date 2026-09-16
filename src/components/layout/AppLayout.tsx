@@ -45,7 +45,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
             <AppSidebar />
             <div className="flex-1 flex flex-col min-w-0">
               {/* Desktop top bar */}
-              <header className="app-shell-header hidden lg:flex sticky top-0 z-40 h-14 items-center justify-between px-8 backdrop-blur-xl">
+              <header className="hidden lg:flex sticky top-0 z-40 h-14 items-center justify-between bg-background/95 px-8 backdrop-blur-xl">
                 <button onClick={() => navigate('/app')} className="flex items-center" aria-label="Trinity home">
                   <Wordmark variant="compact" height={36} />
                 </button>
@@ -57,7 +57,7 @@ export function AppLayout({ children, fullHeight }: AppLayoutProps) {
               </header>
 
               {/* Mobile header - the workspace control replaces the sidebar */}
-              <header className="app-shell-header lg:hidden sticky top-0 z-40 px-5 py-2 backdrop-blur-xl">
+              <header className="lg:hidden sticky top-0 z-40 bg-background/95 px-5 py-2 backdrop-blur-xl">
                 <div className="flex items-center justify-between gap-1">
                   <div className="flex min-w-0 items-center gap-2">
                     <button onClick={() => navigate('/app')} className="flex flex-shrink-0 items-center" aria-label="Trinity home">
