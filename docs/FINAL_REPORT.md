@@ -6597,3 +6597,56 @@ e. Cover regression: sweep 0 to 3758 in 100px steps, 38 steps, on the real scrol
 f. people_leads 1379 before and 1379 after. Other baselines unchanged: profiles 536, chat_messages 717, applications 13, managed_links 23, rep_vertical_enrollments 45.
 
 Light mode was not re-tuned. Typecheck and production build clean.
+
+## Pass 216 - scope chat realtime subscriptions
+
+Claim verified in code before changing anything. In `src/components/dashboard/CommunityChat.tsx`
+the INSERT and UPDATE handlers carried `filter: channel=eq.${activeChannel}`; the DELETE handler
+and the `chat_reactions` wildcard handler carried no filter. The claim was true.
+
+Before:
+```
+.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' }, ...)
+.on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, ...)
+```
+After:
+```
+.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages', filter: `channel=eq.${activeChannel}` }, ...)
+.on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, ...)   // unchanged, see below
+```
+
+Enabling the DELETE filter required `ALTER TABLE public.chat_messages REPLICA IDENTITY FULL`
+(was `d`/default). With default replica identity the deleted row carries only the primary key,
+so a `channel` filter would have matched nothing and deletes would have stopped arriving entirely.
+Schema only - no rows written.
+
+chat_reactions cannot be filtered server side: its columns are id, message_id, user_id, emoji,
+created_at. No column carries the room. Filtering it would need a denormalised `channel` column
+on chat_reactions, populated by a trigger from the parent message and backfilled - a schema plus
+data change outside this pass. The existing client side guard is left as it was and is NOT
+claimed as a filter.
+
+Measurement: real realtime client (supabase-js, authenticated session), subscribed to room
+`general`, counting handler invocations. Traffic in room `wins`: insert message, add reaction,
+remove reaction, delete message. Realtime never emits aborted transactions, so a rollback-only
+probe emits nothing measurable; probes are therefore commit-then-remove and net zero rows.
+
+| traffic room | insert | update | delete | reaction | total delivered |
+| --- | --- | --- | --- | --- | --- |
+| wins (before) | 0 | 0 | 1 | 2 | 3 |
+| wins (after) | 0 | 0 | 0 | 2 | 2 |
+| general (after, working case) | 1 | 0 | 1 | 2 | 4 |
+
+Cross-room deletes: 1 -> 0. Cross-room reactions remain 2 for the reason stated above.
+
+Working case in the open room, all four events arrived after the change:
+- insert: payload received, id appended to the client's message list.
+- delete: payload received, `payload.old.id` matched the probe message and the id was removed
+  from the list (no refresh) - asserted by `uiDeletedMatchesProbe: true` and
+  `msgsStillHasProbe: false`.
+- reaction add: INSERT payload received, reaction tally for that message went +1.
+- reaction remove: DELETE payload received, tally returned to 0 (net 0 across the pair).
+
+Row counts: chat_messages 717 before / 717 after, chat_reactions 155 before / 155 after,
+people_leads 1379. Zero rows matching the probe content remain. Typecheck clean, build OK.
+Not published.
