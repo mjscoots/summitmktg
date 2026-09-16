@@ -891,9 +891,10 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
 
 
-        {!loading && channelMessages.map((msg, idx) => {
-          const prev = idx > 0 ? channelMessages[idx - 1] : null;
-          const next = idx < channelMessages.length - 1 ? channelMessages[idx + 1] : null;
+        {!loading && renderedMessages.map((msg, idx) => {
+          const prev = idx > 0 ? renderedMessages[idx - 1] : null;
+          const next = idx < renderedMessages.length - 1 ? renderedMessages[idx + 1] : null;
+
           const showDate = !prev || !isSameDay(new Date(msg.created_at), new Date(prev.created_at));
           const grouped = isSameSender(msg, prev);
           const isLastInGroup = !next || !isSameSender(next, msg);
