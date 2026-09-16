@@ -172,3 +172,10 @@
 - [x] Matched count next to the board total
 - [x] Original sheet line in the lead detail, manager and above
 - [x] Default board view no longer hides the imported leads; no-hire rows hidden unless asked for
+
+## Pass 214 - site texture and contrast
+- [ ] Add one non-interactive grain layer across every route
+- [ ] Widen semantic surface separation in both appearances
+- [ ] Add restrained fades to the app shell and page headers
+- [ ] Measure shared text, button, badge and chip contrast in both appearances
+- [ ] Verify cover behavior, screenshots, build and unchanged row count

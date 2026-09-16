@@ -61,6 +61,10 @@ type Palette = {
   primary: string;
   primaryDeep: string;
   primaryForeground: string;
+  destructive: string;
+  destructiveForeground: string;
+  warning: string;
+  warningForeground: string;
   /** Identity accent for the workspace-owned spots. */
   workspaceAccent: string;
   wordmark: { bg: string; accent: string; outline: string; letters: string };
@@ -71,18 +75,22 @@ type Palette = {
 const MONO_DARK = {
   mode: 'dark' as const,
   background: '0 0% 0%',
-  surface: '240 18% 3%',
-  surfaceElevated: '240 18% 7%',
+  surface: '240 18% 6%',
+  surfaceElevated: '240 18% 12%',
   surfaceSunken: '0 0% 0%',
   foreground: '0 0% 100%',
   secondaryText: '231 12% 67%',
-  muted: '229 9% 51%',
+  muted: '229 9% 56%',
   border: '240 16% 12%',
   borderSubtle: '240 16% 12%',
   borderStrong: '240 16% 18%',
   primary: '215 100% 61%',
   primaryDeep: '215 100% 61%',
   primaryForeground: '0 0% 0%',
+  destructive: '358 100% 68%',
+  destructiveForeground: '0 0% 0%',
+  warning: '42 100% 47%',
+  warningForeground: '0 0% 0%',
 };
 
 const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
@@ -103,19 +111,23 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
   life: {
     mode: 'light',
     background: '0 0% 100%',
-    surface: '240 18% 97%',
-    surfaceElevated: '0 0% 100%',
+    surface: '240 18% 96%',
+    surfaceElevated: '240 18% 90%',
     surfaceSunken: '240 18% 97%',
     foreground: '0 0% 0%',
     secondaryText: '231 14% 36%',
-    muted: '231 11% 48%',
+    muted: '231 11% 42%',
     border: '240 17% 91%',
     borderSubtle: '240 17% 91%',
     borderStrong: '240 17% 87%',
     primary: '0 0% 0%',
     primaryDeep: '0 0% 0%',
     primaryForeground: '0 0% 100%',
-    workspaceAccent: '223 100% 56%',
+    destructive: '358 72% 40%',
+    destructiveForeground: '0 0% 100%',
+    warning: '38 95% 31%',
+    warningForeground: '0 0% 100%',
+    workspaceAccent: '223 100% 42%',
     wordmark: { bg: '#FFFFFF', accent: '#1F5EFF', outline: '#000000', letters: '#000000' },
     texture: 'none',
     textureSize: 'auto',
@@ -126,18 +138,22 @@ const PALETTES: Record<'pest' | 'fiber' | 'life', Palette> = {
 const MONO_LIGHT = {
   mode: 'light' as const,
   background: '0 0% 100%',
-  surface: '240 18% 97%',
-  surfaceElevated: '0 0% 100%',
+  surface: '240 18% 96%',
+  surfaceElevated: '240 18% 90%',
   surfaceSunken: '240 18% 97%',
   foreground: '0 0% 0%',
   secondaryText: '231 14% 36%',
-  muted: '231 11% 48%',
+  muted: '231 11% 42%',
   border: '240 17% 91%',
   borderSubtle: '240 17% 91%',
   borderStrong: '240 17% 87%',
   primary: '0 0% 0%',
   primaryDeep: '0 0% 0%',
   primaryForeground: '0 0% 100%',
+  destructive: '358 72% 40%',
+  destructiveForeground: '0 0% 100%',
+  warning: '38 95% 31%',
+  warningForeground: '0 0% 100%',
 };
 
 /** The light-appearance twin of a dark workspace palette. */
@@ -238,6 +254,12 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
     set('--primary-deep', p.primaryDeep);
     set('--primary-foreground', p.primaryForeground);
     set('--accent-foreground', p.primaryForeground);
+    set('--destructive', p.destructive);
+    set('--destructive-foreground', p.destructiveForeground);
+    set('--success', p.workspaceAccent);
+    set('--success-foreground', p.primaryForeground);
+    set('--warning', p.warning);
+    set('--warning-foreground', p.warningForeground);
     // Identity accent: focus ring, active tab, wordmark, progress.
     set('--ring', p.workspaceAccent);
     set('--workspace-accent', p.workspaceAccent);

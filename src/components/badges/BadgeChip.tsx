@@ -35,7 +35,7 @@ export function BadgeChip({
   const body = (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border border-[#D4AF37]/35 bg-[#D4AF37]/10 text-[#D4AF37]',
+        'inline-flex items-center gap-1 rounded-full border border-[hsl(var(--medal-gold)/0.35)] bg-[hsl(var(--medal-gold)/0.10)] text-foreground',
         showLabel ? 'px-2 py-0.5' : size === 'xs' ? 'p-0.5' : 'p-1'
       )}
     >

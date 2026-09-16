@@ -7,10 +7,10 @@ import {
 } from '@/components/ui/tooltip';
 
 export const TIER_CONFIG = [
-  { name: 'Bronze', threshold: 25, icon: Shield, color: 'text-amber-600', border: 'ring-amber-600/50', bg: 'bg-amber-600/15' },
-  { name: 'Silver', threshold: 50, icon: Award, color: 'text-slate-300', border: 'ring-slate-300/50', bg: 'bg-slate-300/15' },
-  { name: 'Gold', threshold: 75, icon: Star, color: 'text-primary', border: 'ring-yellow-400/50', bg: 'bg-primary/15' },
-  { name: 'Trinity', threshold: 100, icon: Mountain, color: 'text-primary', border: 'ring-primary/50', bg: 'bg-primary/15' },
+  { name: 'Bronze', threshold: 25, icon: Shield, color: 'text-foreground', border: 'ring-[hsl(var(--medal-bronze)/0.50)]', bg: 'bg-[hsl(var(--medal-bronze)/0.15)]' },
+  { name: 'Silver', threshold: 50, icon: Award, color: 'text-foreground', border: 'ring-[hsl(var(--medal-silver)/0.50)]', bg: 'bg-[hsl(var(--medal-silver)/0.15)]' },
+  { name: 'Gold', threshold: 75, icon: Star, color: 'text-foreground', border: 'ring-[hsl(var(--medal-gold)/0.50)]', bg: 'bg-[hsl(var(--medal-gold)/0.15)]' },
+  { name: 'Trinity', threshold: 100, icon: Mountain, color: 'text-foreground', border: 'ring-primary/50', bg: 'bg-primary/15' },
 ] as const;
 
 export type TierName = 'Bronze' | 'Silver' | 'Gold' | 'Trinity' | null;

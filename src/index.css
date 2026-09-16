@@ -11,6 +11,23 @@ html, body, #root {
   max-width: 100vw;
 }
 
+/* One low-opacity grain plate for every route. It is painted below the route
+   tree, never receives input, and uses no fetched asset. */
+.site-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.72'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+#root > .site-grain ~ * {
+  position: relative;
+  z-index: 1;
+}
+
 @layer base {
   :root {
     /* ━━━ PALETTE V6 - black, blue and violet ━━━
@@ -20,21 +37,21 @@ html, body, #root {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
 
-    --card: 240 18% 3%;
+    --card: 240 18% 6%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 240 18% 7%;
+    --popover: 240 18% 12%;
     --popover-foreground: 0 0% 100%;
 
     /* Primary action is the blue to violet gradient with a black label. */
     --primary: 215 100% 61%;
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 240 18% 7%;
+    --secondary: 240 18% 12%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 18% 7%;
-    --muted-foreground: 229 9% 51%;
+    --muted: 240 18% 12%;
+    --muted-foreground: 229 9% 56%;
 
     --accent: 256 100% 81%;
     --accent-foreground: 0 0% 0%;
@@ -68,8 +85,8 @@ html, body, #root {
     --motion-ease: var(--motion-ease-out);
 
     /* ━━━ SURFACE LAYERS ━━━ */
-    --surface: 240 18% 3%;
-    --surface-elevated: 240 18% 7%;
+    --surface: 240 18% 6%;
+    --surface-elevated: 240 18% 12%;
     --surface-sunken: 0 0% 0%;
 
     /* ━━━ BORDER LAYERS ━━━ */
@@ -79,7 +96,7 @@ html, body, #root {
     /* ━━━ TEXT HIERARCHY ━━━ */
     --text-primary: 0 0% 100%;
     --text-secondary: 231 12% 67%;
-    --text-muted: 229 9% 51%;
+    --text-muted: 229 9% 56%;
 
     /* ━━━ BLUE ACCENT - links, focus, active tab, progress ━━━ */
     --ice: 215 100% 61%;
@@ -104,7 +121,7 @@ html, body, #root {
     --manager-glow: 215 100% 61%;
 
     /* Surfaces kept flat where glass tokens are still referenced */
-    --glass-bg: 240 18% 3%;
+    --glass-bg: 240 18% 6%;
     --glass-border: 240 16% 12%;
     --glass-glow: 215 100% 61% / 0;
 
@@ -152,26 +169,26 @@ html, body, #root {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
-    --card: 0 0% 100%;
+    --card: 240 18% 96%;
     --card-foreground: 0 0% 0%;
-    --popover: 0 0% 100%;
+    --popover: 240 18% 90%;
     --popover-foreground: 0 0% 0%;
 
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
-    --accent: 223 100% 56%;
+    --accent: 223 100% 42%;
     --accent-foreground: 0 0% 100%;
 
     --secondary: 240 18% 97%;
     --secondary-foreground: 0 0% 0%;
     --muted: 240 18% 97%;
-    --muted-foreground: 231 11% 48%;
+    --muted-foreground: 231 11% 42%;
 
-    --destructive: 358 72% 48%;
+    --destructive: 358 72% 40%;
     --destructive-foreground: 0 0% 100%;
-    --success: 223 100% 56%;
+    --success: 223 100% 42%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 95% 40%;
+    --warning: 38 95% 31%;
     --warning-foreground: 0 0% 100%;
 
     --border: 240 17% 91%;
@@ -180,25 +197,25 @@ html, body, #root {
 
     --shadow-lift: 0 0 0 0 transparent;
 
-    --surface: 240 18% 97%;
-    --surface-elevated: 0 0% 100%;
-    --surface-sunken: 240 18% 97%;
+    --surface: 240 18% 96%;
+    --surface-elevated: 240 18% 90%;
+    --surface-sunken: 240 18% 96%;
     --border-subtle: 240 17% 91%;
     --border-strong: 240 17% 87%;
 
     --text-primary: 0 0% 0%;
     --text-secondary: 231 14% 36%;
-    --text-muted: 231 11% 48%;
+    --text-muted: 231 11% 42%;
 
-    --ice: 223 100% 56%;
-    --violet: 223 100% 56%;
-    --bubble-blue: 223 100% 56%;
+    --ice: 223 100% 42%;
+    --violet: 223 100% 42%;
+    --bubble-blue: 223 100% 42%;
     --primary-soft: 223 100% 56% / 0.1;
     --primary-muted: 231 14% 36%;
     --primary-glow: 223 100% 56%;
     --primary-deep: 0 0% 0%;
-    --workspace-accent: 223 100% 56%;
-    --fiber-mint: 223 100% 56%;
+    --workspace-accent: 223 100% 42%;
+    --fiber-mint: 223 100% 42%;
 
     --rookie-accent: 223 100% 56%;
     --rookie-glow: 223 100% 56%;
@@ -238,9 +255,9 @@ html, body, #root {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
 
-    --card: 240 18% 3%;
+    --card: 240 18% 6%;
     --card-foreground: 0 0% 100%;
-    --popover: 240 18% 7%;
+    --popover: 240 18% 12%;
     --popover-foreground: 0 0% 100%;
 
     --primary: 215 100% 61%;
@@ -249,33 +266,33 @@ html, body, #root {
     --accent-foreground: 0 0% 0%;
     --ring: 215 100% 61%;
 
-    --secondary: 240 18% 7%;
+    --secondary: 240 18% 12%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 240 18% 7%;
-    --muted-foreground: 229 9% 51%;
+    --muted: 240 18% 12%;
+    --muted-foreground: 229 9% 56%;
 
     --success: 215 100% 61%;
     --success-foreground: 0 0% 0%;
 
     --border: 240 16% 12%;
-    --input: 240 18% 7%;
+    --input: 240 18% 12%;
 
-    --surface: 240 18% 3%;
-    --surface-elevated: 240 18% 7%;
+    --surface: 240 18% 6%;
+    --surface-elevated: 240 18% 12%;
     --surface-sunken: 0 0% 0%;
     --border-subtle: 240 16% 12%;
     --border-strong: 240 16% 18%;
 
     --text-primary: 0 0% 100%;
     --text-secondary: 231 12% 67%;
-    --text-muted: 229 9% 51%;
+    --text-muted: 229 9% 56%;
 
     --primary-soft: 215 100% 61% / 0.12;
     --primary-muted: 231 12% 67%;
     --primary-glow: 215 100% 61%;
     --primary-deep: 0 0% 100%;
 
-    --glass-bg: 240 18% 3%;
+    --glass-bg: 240 18% 6%;
     --glass-border: 240 16% 12%;
     --glass-glow: 215 100% 61% / 0;
 
@@ -1003,8 +1020,8 @@ body {
   .streak-chip {
     @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold;
     border-radius: 9999px;
-    color: hsl(var(--ice));
-    background: hsl(var(--ice) / 0.12);
+    color: hsl(var(--foreground));
+    background: hsl(var(--secondary));
     border: 1px solid hsl(var(--ice) / 0.3);
     font-variant-numeric: tabular-nums;
   }
@@ -1202,8 +1219,8 @@ body {
   .chip-warm {
     @apply inline-flex items-center gap-1 px-2 py-1 text-[11px] font-semibold;
     border-radius: 9999px;
-    color: hsl(var(--celebrate-warm));
-    background: hsl(var(--celebrate-warm) / 0.14);
+    color: hsl(var(--foreground));
+    background: hsl(var(--secondary));
     border: 1px solid hsl(var(--celebrate-warm) / 0.38);
   }
 
@@ -1243,6 +1260,29 @@ body {
     border-radius: 9999px;
     background: linear-gradient(90deg, hsl(var(--workspace-accent)), hsl(var(--celebrate-warm) / 0.6));
   }
+}
+
+/* Depth belongs to navigation and section entrances, not card interiors. */
+.app-shell-header {
+  background: linear-gradient(
+    to bottom,
+    hsl(var(--background) / 0.98),
+    hsl(var(--surface-elevated) / 0.88)
+  );
+}
+
+.page-section-header {
+  position: relative;
+  isolation: isolate;
+}
+
+.page-section-header::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -12px -16px 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, hsl(var(--surface-elevated) / 0.5), transparent 76%);
 }
 
 @layer utilities {
