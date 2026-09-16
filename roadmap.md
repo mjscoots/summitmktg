@@ -90,3 +90,9 @@
 - [x] tel: links tappable
 - [x] Report in docs/FINAL_REPORT.md
 - [x] Pass 197: single pinned cover stage, burst at s 0.34, type polish, report
+
+## Pass 198 - faster fixed opening
+- [x] Reserve all four statement blocks from frame one
+- [x] Shorten the stage and retime the sequence
+- [x] Replace the mask and dot with per-character handwriting
+- [x] Verify motion, layout, surface, reduced motion and baselines; append the report
