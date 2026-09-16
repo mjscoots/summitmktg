@@ -191,7 +191,12 @@ const Index = () => {
         setProgress('--type-1', range(time, 0, 950));
         setProgress('--type-2', range(time, 1150, 2000));
         setProgress('--shatter-progress', easeOut(range(time, 2700, 2920)));
-        setProgress('--brand-progress', easeOut(range(time, 2700, 2960)));
+        const brandProgress = easeOut(range(time, 2700, 2960));
+        const brandScale = time < 2880
+          ? 1.3 - easeOut(range(time, 2700, 2880)) * 0.32
+          : 0.98 + easeOut(range(time, 2880, 2960)) * 0.02;
+        setProgress('--brand-progress', brandProgress);
+        setProgress('--brand-scale', brandScale);
         setProgress('--bold-progress', easeOut(range(time, 3000, 3260)));
         setProgress('--button-progress', easeOut(range(time, 3300, 3600)));
         if (time >= 2700 && statement.dataset.phase !== 'final') {
