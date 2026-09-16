@@ -174,8 +174,8 @@
 - [x] Default board view no longer hides the imported leads; no-hire rows hidden unless asked for
 
 ## Pass 214 - site texture and contrast
-- [ ] Add one non-interactive grain layer across every route
-- [ ] Widen semantic surface separation in both appearances
-- [ ] Add restrained fades to the app shell and page headers
-- [ ] Measure shared text, button, badge and chip contrast in both appearances
-- [ ] Verify cover behavior, screenshots, build and unchanged row count
+- [x] Add one non-interactive grain layer across every route
+- [x] Widen semantic surface separation in both appearances
+- [x] Add restrained fades to the app shell and page headers
+- [x] Measure shared text, button, badge and chip contrast in both appearances
+- [x] Verify cover behavior, screenshots, build and unchanged row count
