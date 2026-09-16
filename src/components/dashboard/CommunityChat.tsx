@@ -553,16 +553,18 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const dividerSetRef = useRef<string | null>(null);
 
   // Place the "New" divider before the first message not yet seen, once per room.
+  // It indexes the rows that draw, so it never lands on an invisible event row.
   useEffect(() => {
     if (loading || dividerSetRef.current === activeChannel) return;
-    if (unreadCapturedRef.current !== activeChannel || channelMessages.length === 0) return;
+    if (unreadCapturedRef.current !== activeChannel || renderedMessages.length === 0) return;
     dividerSetRef.current = activeChannel;
     setDividerId(
-      unreadOnOpen > 0 && unreadOnOpen < channelMessages.length
-        ? channelMessages[channelMessages.length - unreadOnOpen].id
+      unreadOnOpen > 0 && unreadOnOpen < renderedMessages.length
+        ? renderedMessages[renderedMessages.length - unreadOnOpen].id
         : null
     );
-  }, [loading, activeChannel, unreadOnOpen, channelMessages]);
+  }, [loading, activeChannel, unreadOnOpen, renderedMessages]);
+
 
 
   useEffect(() => {
