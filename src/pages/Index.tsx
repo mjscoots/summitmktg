@@ -30,7 +30,7 @@ const Index = () => {
   const media = useCoverMedia();
   const [scrolled, setScrolled] = useState(false);
   const stageRef = useRef<HTMLElement | null>(null);
-  const statementRef = useRef<HTMLDivElement | null>(null);
+  const statementRef = useRef<HTMLElement | null>(null);
 
   const bandRef = useRef<HTMLElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
@@ -41,17 +41,10 @@ const Index = () => {
   // The final band's own progress, which lifts the scene glow.
   const [bandProgress, setBandProgress] = useState(0);
   const worldLightRef = useRef(false);
-  const burstActiveRef = useRef(false);
-  const startStatementRef = useRef<() => void>(() => undefined);
-  const resetStatementRef = useRef<() => void>(() => undefined);
   const remeasureStatementRef = useRef<() => void>(() => undefined);
   const tiltAsked = useRef(false);
   const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
-  const onBurst = useCallback((active: boolean) => {
-    burstActiveRef.current = active;
-    if (active) startStatementRef.current();
-    else resetStatementRef.current();
-  }, []);
+  const onBurst = useCallback(() => undefined, []);
   usePublicMotion();
 
   useEffect(() => {
@@ -81,8 +74,8 @@ const Index = () => {
       frame = 0;
       const y = el ? el.scrollTop : window.scrollY;
       setScrolled(y > 40);
-      // s is progress through the pinned stage, so the logo, the burst and the
-      // statement all read from the same travel.
+      // s is progress through the pinned stage, so the logo and burst read
+      // from the same travel.
       const stage = stageRef.current;
       let nextHeroProgress = 0;
       if (stage) {
@@ -93,7 +86,6 @@ const Index = () => {
       }
       setHeroProgress(nextHeroProgress);
       stage?.style.setProperty('--bridge-opacity', String(Math.min(0.1, Math.max(0, (nextHeroProgress - 0.18) / 0.16 * 0.1))));
-      stage?.style.setProperty('--statement-exit', String(Math.min(1, Math.max(0, (nextHeroProgress - 0.88) / 0.12))));
 
 
       const scroller = el || document.documentElement;
@@ -120,8 +112,8 @@ const Index = () => {
     };
   }, []);
 
-  // One guarded clock begins with the burst. Font and layout measurement stay
-  // outside the animation loop, and resize only refreshes cached widths.
+  // One guarded clock begins the first time the statement is 45 percent visible.
+  // Font and layout measurement stay outside the animation loop.
   useEffect(() => {
     const statement = statementRef.current;
     if (!statement) return;
@@ -130,28 +122,18 @@ const Index = () => {
     let frame = 0;
     let measurementFrame = 0;
     let started = false;
+    let visible = false;
     let fontsReady = false;
     let penLines: HTMLElement[] = [];
     let penWidths: number[] = [];
     let cancelled = false;
-    const reset = () => {
-      cancelAnimationFrame(frame);
-      frame = 0;
-      started = false;
-      ['--type-1', '--type-2', '--shatter-progress', '--brand-progress', '--bold-progress', '--button-progress']
-        .forEach((name) => setProgress(name, 0));
-      statement.dataset.sequence = 'idle';
-      statement.dataset.phase = 'typing';
-      statement.closest<HTMLElement>('.cover-stage-pin')?.removeAttribute('data-impact');
-      delete statement.dataset.sequenceStarted;
-      delete statement.dataset.sequenceComplete;
-      statement.querySelectorAll<HTMLElement>('[data-animating]').forEach((node) => { node.dataset.animating = 'false'; });
-      statement.querySelectorAll<HTMLElement>('.pen-line').forEach((line) => {
-        line.style.setProperty('--pen-opacity', '0');
-      });
-    };
     if (reduced) {
-      statement.dataset.sequence = 'reduced';
+      ['--type-1', '--type-2', '--shatter-progress', '--brand-progress', '--brand-scale', '--bold-progress', '--button-progress']
+        .forEach((name) => setProgress(name, 1));
+      statement.dataset.sequence = 'done';
+      statement.dataset.phase = 'final';
+      statement.dataset.latched = 'true';
+      statement.dataset.sequenceComplete = 'true';
       return;
     }
 
@@ -177,12 +159,14 @@ const Index = () => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
     };
     const start = () => {
-      if (started || !fontsReady || !burstActiveRef.current || penWidths.length === 0) return;
+      if (started || !visible || !fontsReady || penWidths.length === 0) return;
       started = true;
       const startedAt = performance.now();
       const frameCosts: number[] = [];
       const visibleAt: Record<string, number> = {};
       statement.dataset.sequence = 'playing';
+      statement.dataset.latched = 'true';
+      statement.dataset.sequenceStarts = String(Number(statement.dataset.sequenceStarts || '0') + 1);
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
       statement.dataset.lineOneWindow = '0-950';
       statement.dataset.lineTwoWindow = '1150-2000';
@@ -208,7 +192,7 @@ const Index = () => {
         setProgress('--button-progress', easeOut(range(time, 3600, 3900)));
         if (time >= 3000 && statement.dataset.phase !== 'final') {
           statement.dataset.phase = 'final';
-          statement.closest<HTMLElement>('.cover-stage-pin')?.setAttribute('data-impact', 'true');
+          statement.setAttribute('data-impact', 'true');
         }
         mark(nodes.typing, time < 3220);
         mark(nodes.brand, time >= 3000 && time < 3260);
@@ -228,21 +212,29 @@ const Index = () => {
         frameCosts.push(performance.now() - workStarted);
         if (time < 4000) frame = requestAnimationFrame(draw);
         else {
+          ['--type-1', '--type-2', '--shatter-progress', '--brand-progress', '--brand-scale', '--bold-progress', '--button-progress']
+            .forEach((name) => setProgress(name, 1));
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
           statement.dataset.frameMedian = (ordered[Math.floor(ordered.length / 2)] || 0).toFixed(3);
           statement.dataset.frameP95 = percentile.toFixed(3);
           statement.dataset.frameMax = (ordered[ordered.length - 1] || 0).toFixed(3);
           statement.dataset.sequenceComplete = 'true';
+          statement.dataset.sequence = 'done';
           window.dispatchEvent(new CustomEvent('trnty:statement-complete'));
         }
       };
       frame = requestAnimationFrame(draw);
     };
-    startStatementRef.current = start;
-    resetStatementRef.current = reset;
     remeasureStatementRef.current = measure;
-    reset();
+    statement.dataset.sequence = 'idle';
+    statement.dataset.phase = 'typing';
+    statement.querySelectorAll<HTMLElement>('.pen-line').forEach((line) => line.style.setProperty('--pen-opacity', '0'));
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.45);
+      if (visible) start();
+    }, { threshold: [0.45] });
+    observer.observe(statement);
     void document.fonts.ready.then(() => {
       if (cancelled) return;
       measurementFrame = requestAnimationFrame(() => {
@@ -253,6 +245,7 @@ const Index = () => {
     });
     return () => {
       cancelled = true;
+      observer.disconnect();
       cancelAnimationFrame(frame);
       cancelAnimationFrame(measurementFrame);
     };
@@ -296,8 +289,7 @@ const Index = () => {
       <AskSheet watchId="cover-stage" completionId="statement" />
 
       <main className="relative flex-1">
-        {/* One pinned stage. The logo assembly, the burst and the statement all
-            happen inside a single pinned screen, so nothing is ever half on. */}
+        {/* The pinned stage owns only the logo assembly, burst and white swell. */}
         <section ref={stageRef} id="cover-stage" className="cover-stage relative isolate">
           <div className="cover-stage-pin cover-open cover-hero relative isolate px-5 sm:px-6">
             <CoverLogo progress={heroProgress} onBurst={onBurst} onWorldLight={onWorldLight} />
@@ -307,8 +299,11 @@ const Index = () => {
               <span className="cover-scroll-chevron" />
             </div>
 
-            <div ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
-              <div className="cover-statement-copy mx-auto w-full max-w-6xl">
+          </div>
+        </section>
+
+        <section ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
+          <div className="cover-statement-copy mx-auto w-full max-w-6xl">
                 <div className="cover-typing-phase" data-copy-block="typing" data-sequence-part="typing" data-animating="false">
                   <PenLine
                     className="cover-typed-lines"
@@ -335,8 +330,6 @@ const Index = () => {
                     </span>
                   </div>
                 </div>
-              </div>
-            </div>
           </div>
         </section>
 
