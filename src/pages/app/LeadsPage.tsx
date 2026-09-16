@@ -67,7 +67,8 @@ export default function LeadsPage() {
   const [stage, setStage] = useState<string>('all');
   const [hasPhone, setHasPhone] = useState<string>('all');
   const [system, setSystem] = useState<string>('all');
-  const [chip, setChip] = useState<Chip>('out');
+  // The whole board by default: the season-out filter hid every newly imported lead.
+  const [chip, setChip] = useState<Chip>('all');
   const [openLead, setOpenLead] = useState<string | null>(params.get('lead'));
   const [callMode, setCallMode] = useState(false);
   const [scriptsOpen, setScriptsOpen] = useState(false);
