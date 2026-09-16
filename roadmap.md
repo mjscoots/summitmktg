@@ -142,3 +142,11 @@
 - [x] Stagger the brand impact and limit the button glow
 - [x] Verify viewport fit, timing, latch, reduced motion and baselines
 - [x] Keep the site unpublished
+
+## Pass 205 - sign-in hit target and statement reset
+- [x] Restore the fixed navigation stacking and normal statement flow
+- [x] Make the empty toast viewport inert while keeping visible toasts interactive
+- [x] Remove cover typing, line fitting and the unused PenLine component
+- [x] Retune the two-line statement and final composition
+- [x] Verify hit targets, timing, layout, reduced motion, performance and baselines
+- [x] Keep the site unpublished
