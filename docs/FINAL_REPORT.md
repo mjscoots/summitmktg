@@ -5795,3 +5795,33 @@ Payoff is clamp(2.75rem, 10vw, 6rem), line height 0.88 and letter spacing -0.04e
 - Added lines contain no em dashes and no emoji.
 - Read-only baselines are unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23.
 - No dependency, data, permission or publication change. The site was not published.
+
+
+## Pass 200 - cover repair
+
+### Cause and structural fix
+The failure was the self-referential declaration in `PenLine.tsx`: `--shatter-progress: var(--shatter-progress, 0)`. The declaration was invalid at computed-value time, so every character read its fallback and remained visible. Removed lines were the `caret?: boolean` prop, `caret = false`, `--shatter-progress: var(...)`, the per-character `--char-next`, the nonbreaking-space substitution, and the per-character caret element. Added lines write `--pen-shatter: var(<shatterVariable>, 0)`, group non-space tokens in `.pen-word`, retain real spaces as `.pen-character` spans, and render all characters through one indexed helper. Character opacity, X translation, Y translation and rotation now read `--pen-shatter`. `--pen-progress` reads the external `--type-1` or `--type-2` variable and does not read itself. An automated declaration audit found no custom property reading its own name in `PenLine.tsx` or the cover CSS. The only project-wide match is the pre-existing root alias `--motion-ease: var(--motion-ease-out)`, which reads a different name.
+
+The structural floor is `.cover-statement[data-phase='final'] .cover-typing-phase, .cover-statement[data-phase='final'] .cover-typing-phase .pen-line { opacity: 0; visibility: hidden; pointer-events: none; }`. At 2900ms the measured typed-line opacities are `[1, 1]`; at 3100ms they are `[0, 0]`; at 3400ms they remain `[0, 0]` at both widths. With `--shatter-progress` forcibly reset to 0 during the final phase, both lines still measure opacity 0 and visibility hidden.
+
+### Wrapping and caret
+Words are nowrap inline blocks, while each inter-word space remains a real space in its own character span. Both readable and visual layers use `white-space: pre-wrap`. At 390 the first line breaks as `Everyone argues over which industry` / `is best.`. At 1280 it remains `Everyone argues over which industry is best.`. Measured glyph overflow past the line container is 0px at both widths. Grep found no caret prop, caret markup, `.pen-caret` selector or `cover-caret-blink` keyframe in the cover files.
+
+### Timing and motion
+The sequence dataset reads back: line one `0-950`, line two `1150-2000`, slam `3000`, bold line `3300`, button `3600`, sequence end `4000`. Runtime first-visible marks at 390 were 36.8ms, 1153.4ms, 3003.3ms, 3303.4ms and 3603.3ms; at 1280 they were 88.4ms, 1188.3ms, 3004.9ms, 3321.5ms and 3604.9ms. The shatter runs from 3000 to 3220ms, the stage impact remains 5px over 140ms, and glow delays moved to 4000ms and 4400ms.
+
+At 390 the stage is 1181.59px tall with 337.59px of pinned travel. At 1280 it is 1260px tall with 360px of pinned travel. The statement exit measures opacity 1 and translateY 0px at progress 0.85, opacity 0.508 and translateY -19.67px at 0.94 on phone and 0.509/-19.63px on desktop, then opacity 0 and translateY -40px at 1.00.
+
+Phone frame intervals across the burst and complete sequence measured median 16.7ms and p95 16.8ms. The sequence callback measured median 0.0ms and p95 0.1ms.
+
+### Scroll cue and reduced motion
+At both widths the cue bottom is 34px. The label is Archivo 600 at 12px with 4.08px tracking. The track is 2 by 54px, the bead is 2 by 20px with a 1.8-second ease-in-out loop, and the CSS chevron is based on a 14px square with 2px blue borders. The cue begins its 300ms fade when cover progress passes 0.04.
+
+Reduced motion hides the cue, removes sticky staging, shows the final composition, and forces statement-copy opacity 1 with no transform. Pen characters remain available at opacity 1 in the hidden typing phase, with no typing or shatter animation. The scroll exit has no fade or lift.
+
+### Regression proof
+- Typecheck and production build are clean; the latest build record is `build OK`.
+- Added lines contain no em dashes and no emoji.
+- Shell gzip total for the four cover files is 27,898 bytes, up 46 bytes from the 27,852-byte HEAD baseline.
+- Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23.
+- No dependency, compensation, permission, data or publication change. The site was not published.

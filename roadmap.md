@@ -98,13 +98,13 @@
 - [x] Verify motion, layout, surface, reduced motion and baselines; append the report
 
 ## Pass 199 - typed setup and brand slam
-- [ ] Replace the statement with two stable phases and continuous character typing
-- [ ] Add the character shatter, brand impact and final composition
-- [ ] Shorten pinned travel and trigger the question sheet immediately after exit
-- [ ] Verify timing, layout, motion, accessibility and baselines; append the report
+- [x] Replace the statement with two stable phases and continuous character typing
+- [x] Add the character shatter, brand impact and final composition
+- [x] Shorten pinned travel and trigger the question sheet immediately after exit
+- [x] Verify timing, layout, motion, accessibility and baselines; append the report
 
 ## Pass 200 - cover repair
-- [ ] Fix the shatter variable cycle and guarantee phase isolation
-- [ ] Group typed words, remove the caret and rebuild the scroll cue
-- [ ] Retune the sequence and add the scroll-linked statement exit
-- [ ] Verify the cover and append the report
+- [x] Fix the shatter variable cycle and guarantee phase isolation
+- [x] Group typed words, remove the caret and rebuild the scroll cue
+- [x] Retune the sequence and add the scroll-linked statement exit
+- [x] Verify the cover and append the report
