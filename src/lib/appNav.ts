@@ -253,8 +253,18 @@ export interface NavGroup {
 }
 
 /**
- * The More screen: everything the phone bar does not carry, grouped by the
- * job it belongs to and filtered to what this person can open.
+ * The More screen: three groups, no more. Your work is what this workspace
+ * gives this person, Manage is what a manager runs, Account is themselves.
+ * Anything opened less than once a week lives inside one of those screens
+ * instead of taking a row of its own:
+ *   Season and To do -> Home
+ *   Today -> Home, the Today card
+ *   One on one prep, Manager meeting -> Forms tabs
+ *   Roster sweep, War room -> Team
+ *   Rep logistics, Estimate earnings -> Resources
+ *   Manager videos, Scripts, Video library, Ask Trinity -> Training
+ *   Command center -> Settings
+ *   Appearance, Notifications, Account -> Settings
  */
 export function moreGroups(
   vertical: string | null | undefined,
@@ -263,37 +273,27 @@ export function moreGroups(
   const tier = tierOf(role);
   const w = ws(vertical);
 
+  // Screens that are empty by construction for a workspace never appear in it.
   const workspaceKeys =
     w === 'fiber'
       ? ['leaderboard', 'installs', 'stacks', 'industries']
       : w === 'life'
         ? ['pipeline', 'leaderboard', 'industries']
-        : ['leaderboard', 'season', 'missions', 'doors', 'industries'];
+        : ['leaderboard', 'doors', 'industries'];
+
+  const manageKeys =
+    w === 'fiber'
+      ? ['team', 'leads', 'forms', 'recruits', 'admin']
+      : w === 'life'
+        ? ['team', 'forms', 'recruits', 'admin']
+        : ['team', 'leads', 'approvals', 'forms', 'recruits', 'admin'];
 
   const groups: NavGroup[] = [
     { title: 'Your work', items: workspaceKeys.map((k) => ALL[k]) },
-    {
-      title: 'Manage',
-      items: [
-        'today',
-        'team',
-        'leads',
-        'approvals',
-        'forms',
-        'prep',
-        'sweep',
-        'recruits',
-        'warroom',
-        'logistics',
-        'managerVideos',
-        'managerMeeting',
-      ].map((k) => ALL[k]),
-    },
-    {
-      title: 'Settings',
-      items: ['profile', 'appearance', 'notificationSettings', 'account'].map((k) => ALL[k]),
-    },
+    { title: 'Manage', items: manageKeys.map((k) => ALL[k]) },
+    { title: 'Account', items: ['profile', 'settings'].map((k) => ALL[k]) },
   ];
+
 
   return groups
     .map((g) => ({ title: g.title, items: g.items.filter((d) => d && allowed(d, tier)) }))
