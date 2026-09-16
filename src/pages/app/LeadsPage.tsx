@@ -434,6 +434,47 @@ export default function LeadsPage() {
             )}
           </div>
 
+          {tier !== 'sales' && (
+            <div data-testid="lead-filter-row" className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <Select value={rankTag} onValueChange={setRankTag}>
+                <SelectTrigger className="h-10 min-w-0 text-[13px]" aria-label="Rank">
+                  <SelectValue placeholder="Rank" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-[13px]">Rank: any</SelectItem>
+                  {rankOptions.map((o) => (
+                    <SelectItem key={o.tag} value={o.tag} className="text-[13px]">
+                      Rank {tagLabel(o.tag)} · {o.count}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={statusTag} onValueChange={setStatusTag}>
+                <SelectTrigger className="h-10 min-w-0 text-[13px]" aria-label="Status">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-[13px]">Status: any</SelectItem>
+                  {statusOptions.map((o) => (
+                    <SelectItem key={o.tag} value={o.tag} className="text-[13px]">
+                      {tagLabel(o.tag)} · {o.count}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={sort} onValueChange={(v) => setSort(v as 'rank' | 'revenue')}>
+                <SelectTrigger className="col-span-2 h-10 min-w-0 text-[13px] sm:col-span-1" aria-label="Sort">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rank" className="text-[13px]">Sort: rank, coldest first</SelectItem>
+                  <SelectItem value="revenue" className="text-[13px]">Sort: last season revenue</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+
           {staff && scope === 'all' && selected.size > 0 && (
             <div className={cn(CARD, 'mb-3 flex flex-wrap items-center gap-2 p-3')}>
               <p className="text-[13px] font-semibold text-foreground tabular-nums">
