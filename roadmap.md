@@ -179,3 +179,5 @@
 - [x] Add restrained fades to the app shell and page headers
 - [x] Measure shared text, button, badge and chip contrast in both appearances
 - [x] Verify cover behavior, screenshots, build and unchanged row count
+
+- [x] Pass 215: dark surface ladder raised (page->card 1.158, card->raised 1.144), grain made visible in dark (screen blend, 0.05, spread 4-5/255), secondary text raised to 229 9% 60%, light untouched, cover regression 8/8
