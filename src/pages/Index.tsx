@@ -184,6 +184,12 @@ const Index = () => {
       const visibleAt: Record<string, number> = {};
       statement.dataset.sequence = 'playing';
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
+      statement.dataset.lineOneWindow = '0-950';
+      statement.dataset.lineTwoWindow = '1150-2000';
+      statement.dataset.slamAt = '3000';
+      statement.dataset.boldAt = '3300';
+      statement.dataset.buttonAt = '3600';
+      statement.dataset.sequenceEnd = '4000';
       penLines.forEach((line) => line.style.setProperty('--pen-opacity', '1'));
       mark(nodes.typing, true);
       const draw = (now: number) => {

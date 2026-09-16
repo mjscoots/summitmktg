@@ -2263,7 +2263,8 @@ html[data-appearance='light'] .btn-gradient {
   text-align: center;
 }
 .cover-typed-lines .pen-line-readable { color: transparent; }
-.cover-statement[data-phase='final'] .cover-typing-phase { opacity: 0; visibility: hidden; pointer-events: none; }
+.cover-statement[data-phase='final'] .cover-typing-phase,
+.cover-statement[data-phase='final'] .cover-typing-phase .pen-line { opacity: 0; visibility: hidden; pointer-events: none; }
 .cover-final-phase {
   position: absolute;
   inset: 50% auto auto 50%;
