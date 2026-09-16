@@ -1,34 +1,16 @@
-# Pass 168: Premium motion and feel
+# Connect the question sheet to owner follow-up
 
-## Goal
-Polish the existing Pass 167 experience without changing navigation, information architecture, permissions, data sources, or deployment state. All motion will become instant under `prefers-reduced-motion`.
+## Outcome
+A visitor answers the three opening questions, continues into the existing rookie or veteran application, submits their contact details, and creates an in-app notification for the owner with a direct link to the application queue.
 
-## Implementation
+## What will change
+- Keep the current sheet-to-application handoff, including its rookie/veteran routing and location prefill.
+- Preserve the existing protected public submission function, validation, rate limits, and application record.
+- Update the existing new-application notification so it includes the applicant's name, phone, email, location, selected industry, and whether they requested a call.
+- Keep notifications limited to owner and admin accounts and link them to the Applications screen.
+- Verify the full public flow from sheet answers through a successful application submission and confirm the notification appears with the expected details.
 
-### Chat room and composer
-- Refine own bubbles with a workspace-accent two-stop gradient and inner top highlight; keep incoming/AI semantics while adding the requested subtle shadow.
-- Animate only messages received after the room's initial load, and add reaction pop, pressed-bubble lift, blurred context-menu backdrop, and quick-react entrance states.
-- Crossfade and scale the mic/send control, add consistent pressed states, restyle typing dots as a compact incoming bubble, and add the 44px scroll-to-bottom control with unread count.
-- Capture the first unread message at room open, render the one-time divider, and retire it after the reader passes it.
-- Add the restrained workspace glow and low-opacity grain above each existing wallpaper gradient without changing the room header.
-
-### Chat list and bottom navigation
-- Make conversation rows exactly 72px with 48px avatars, online treatment, pinned grouping, requested typography, unread treatment, and press feedback.
-- Reuse the existing pinned/muted channel mechanisms discovered in the codebase; add preference storage only if no existing mechanism exists. Add swipe actions without changing room routing.
-- Convert the six-item phone bar to the translucent rounded pill and animate one shared active indicator between tabs; retain Chat badge and composer-focus hiding.
-
-### More, Settings, Home, and route feel
-- Convert More and Settings sections to Radix Collapsible with animated height, rotating chevrons, 36px icon tiles, and visually distinct neutral Settings tiles.
-- Add a shared premium Home hero to Pest, Fiber, and Life using only each page's already-loaded first name, streak, date, workspace, and period figure; omit any unavailable figure.
-- Key AppLayout content by pathname for the 160ms route transition, tighten AppLayout page headings, enable tabular figures, and provide a restrained global press state for buttons/cards that do not already define one.
-
-### Notification integrity
-- Add one migration that removes notification insertion from `record_daily_login` while preserving login recording.
-- Add a `BEFORE INSERT` trigger that skips duplicate non-null `(user_id, source_key)` notifications.
-- Confirm the client streak writer remains the sole streak notification writer and checklist reminders retain `checklist:<date>:<half>` source keys. No historical deletion or permission expansion.
-
-## Verification
-- Validate authenticated chat, context menu, list, bottom bar, More, and Pest Home at 390px and 1280px, including computed dimensions and reduced-motion behavior.
-- Read back database function/trigger definitions and run the duplicate-source-key proof inside a rollback.
-- Confirm no copy drift, no emoji/em dash in newly added copy, baseline row counts, clean typecheck/build, and shell gzip within 6 KB of 197.3 KB.
-- Append a precise Pass 168 section to `docs/FINAL_REPORT.md`, including data origins, observed values, dedupe delta explanation, and any honest verification limitations. Do not publish.
+## Technical details
+- Reuse `submit-application`, `applications`, and `user_notifications`; no new table or dependency is needed.
+- Change the existing `notify_new_application` database trigger function through a migration.
+- Keep the existing duplicate protection so repeated submissions within 24 hours do not create duplicate application alerts.
