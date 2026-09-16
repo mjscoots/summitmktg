@@ -183,6 +183,10 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const [contextMenu, setContextMenu] = useState<{ position: { x: number; y: number }; msgId: string } | null>(null);
   // Centralized reactions state: { messageId -> { emoji -> { count, mine } } }
   const [reactionsMap, setReactionsMap] = useState<Record<string, Record<string, { count: number; mine: boolean }>>>({});
+  // reaction row id -> what that row was. Realtime strips a DELETE old row to
+  // the primary key when RLS is on (measured), even at REPLICA IDENTITY FULL,
+  // so a removal can only be applied by looking the id up here.
+  const reactionIndexRef = useRef<Record<string, { message_id: string; emoji: string; user_id: string }>>({});
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
 
@@ -332,8 +336,23 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     });
     setProfileMap((prev) => ({ ...prev, ...profiles }));
     setReactionsMap((prev) => ({ ...prev, ...reactions }));
+    // Hydrate the reaction id index for the messages that carry reactions, so a
+    // later DELETE (which arrives as { id } only) can be resolved to a tally.
+    const withReactions = Object.keys(reactions);
+    if (withReactions.length) {
+      (async () => {
+        const { data } = await supabase
+          .from('chat_reactions')
+          .select('id, message_id, emoji, user_id')
+          .in('message_id', withReactions);
+        (data || []).forEach((r: any) => {
+          reactionIndexRef.current[r.id] = { message_id: r.message_id, emoji: r.emoji, user_id: r.user_id };
+        });
+      })();
+    }
     return parsed;
   }, []);
+
 
   // First page for the active channel. A room opened before renders from memory
   // on the first frame and reconciles quietly when the fetch returns.
@@ -475,7 +494,11 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
       // properly needs a denormalised `channel` column on chat_reactions.
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' }, (payload) => {
         const row = payload.new as any;
-        const old = payload.old as any;
+        const oldRaw = payload.old as any;
+        // A DELETE arrives as { id } only, so fall back to the index built from
+        // the loaded page and from live INSERTs.
+        const old = oldRaw?.message_id ? oldRaw : (oldRaw?.id ? reactionIndexRef.current[oldRaw.id] : null);
+        if (row?.id) reactionIndexRef.current[row.id] = { message_id: row.message_id, emoji: row.emoji, user_id: row.user_id };
         const target = row?.message_id || old?.message_id;
         // Only reactions on messages loaded in this channel, and never our own
         // (those are already applied optimistically).
@@ -489,6 +512,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
             return { ...prev, [row.message_id]: msg };
           });
         } else if (payload.eventType === 'DELETE' && old) {
+          if (oldRaw?.id) delete reactionIndexRef.current[oldRaw.id];
           setReactionsMap((prev) => {
             const msg = { ...(prev[old.message_id] || {}) };
             const cur = msg[old.emoji];
