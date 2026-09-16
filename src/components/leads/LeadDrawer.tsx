@@ -222,7 +222,7 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
               <div className="mt-4 flex flex-wrap gap-1.5">
                 {(lead.tags as string[]).map((t) => (
                   <span key={t} className="rounded-full border border-border/60 bg-surface px-2 py-0.5 text-[11px] text-muted-foreground">
-                    {t}
+                    {tagLabel(t)}
                   </span>
                 ))}
               </div>
