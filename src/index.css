@@ -2246,9 +2246,9 @@ html[data-appearance='light'] .btn-gradient {
   width: 2px;
   height: 0.62em;
   background: #0A0A0F;
-  opacity: min(
-    clamp(0, calc((var(--pen-progress, 0) - var(--char-start, 0)) * var(--char-scale, 1)), 1),
-    clamp(0, calc((var(--char-next, 1) - var(--pen-progress, 0)) * var(--char-scale, 1)), 1)
+  opacity: calc(
+    clamp(0, calc((var(--pen-progress, 0) - var(--char-start, 0)) * 1000), 1)
+    - clamp(0, calc((var(--pen-progress, 0) - var(--char-next, 1)) * 1000), 1)
   );
   animation: cover-caret-blink 530ms steps(1, end) infinite;
 }

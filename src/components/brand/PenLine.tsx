@@ -52,7 +52,7 @@ function PenLineBase({
                   const denominator = Math.max(1, characters.length - 1);
                   const start = (characterIndex / denominator) * (1 - characterDuration);
                   const next = characterIndex === characters.length - 1
-                    ? 1
+                    ? 0.999
                     : ((characterIndex + 1) / denominator) * (1 - characterDuration);
                   const globalIndex = lineOffset + characterIndex;
                   const direction = characterIndex < characters.length / 2 ? -1 : 1;
