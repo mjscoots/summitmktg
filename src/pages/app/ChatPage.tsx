@@ -37,11 +37,15 @@ export default function ChatPage() {
 
   const openRoom = useCallback((slug: string) => {
     setSearchOpen(false);
-    const next = new URLSearchParams(window.location.search);
+    const current = new URLSearchParams(window.location.search);
+    const had = current.get('room');
+    const next = new URLSearchParams(current);
     next.set('room', slug);
-    // Replace, so back goes to the list in one step rather than every room visited.
-    setParams(next, { replace: true });
+    // The first room is one step forward from the list. Moving between rooms
+    // replaces, so back is always the list rather than every room visited.
+    setParams(next, { replace: Boolean(had) });
   }, [setParams]);
+
 
 
 
