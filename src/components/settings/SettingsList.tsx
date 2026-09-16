@@ -77,6 +77,16 @@ export function SettingsList() {
       </button>
 
       {(role === 'admin' || role === 'owner') && (
+        <button onClick={() => navigate('/command')} className={row}>
+          <span className={tile}>
+            <Shield className="h-[18px] w-[18px]" strokeWidth={1.75} />
+          </span>
+          <span className="flex-1 truncate text-[15px] text-foreground">Command center</span>
+          <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+        </button>
+      )}
+
+      {(role === 'admin' || role === 'owner') && (
         <button onClick={() => navigate('/admin/requests')} className={row}>
           <span className={tile}>
             <Shield className="h-[18px] w-[18px]" strokeWidth={1.75} />
