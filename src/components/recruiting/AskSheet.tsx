@@ -156,11 +156,10 @@ export function AskSection() {
 interface SheetProps {
   /** The element that has to be seen before the sheet rises. */
   watchId: string;
-  completionId?: string;
 }
 
 /** The sheet: rises once per visit, closes for good when dismissed. */
-export function AskSheet({ watchId, completionId }: SheetProps) {
+export function AskSheet({ watchId }: SheetProps) {
   const ask = useAskAnswers();
   const [open, setOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement | null>(null);
@@ -187,29 +186,32 @@ export function AskSheet({ watchId, completionId }: SheetProps) {
     returnTo.current?.focus?.();
   }, []);
 
-  // Once the sequence is complete, the first scroll beyond the pinned stage
-  // opens the sheet immediately.
+  // The sheet waits until the statement sequence has passed, so it never
+  // interrupts the scroll-controlled copy.
   useEffect(() => {
     if (seen()) return;
     const node = document.getElementById(watchId);
     if (!node) return;
-    const check = () => {
-      if (closedRef.current) return;
-      const complete = !completionId || document.getElementById(completionId)?.dataset.sequenceComplete === 'true';
-      if (complete && node.getBoundingClientRect().bottom <= window.innerHeight) setOpen(true);
-          const node = entry.target as HTMLElement;
-          const isComplete = node.dataset.sequenceComplete === "true";
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (closedRef.current) return;
+          // Trigger immediately when the bottom of the stage moves above the viewport bottom,
+          // provided the sequence is complete.
+          const isComplete = (entry.target as HTMLElement).dataset.sequenceComplete === 'true';
           const past = entry.boundingClientRect.bottom < window.innerHeight;
           if (past && isComplete) {
             setOpen(true);
           }
-    window.addEventListener('trnty:statement-complete', check);
-    check();
+        });
+      },
+      { threshold: [0, 0.5, 0.95, 1] },
+    );
+    observer.observe(node);
     return () => {
-      target.removeEventListener('scroll', check);
-      window.removeEventListener('trnty:statement-complete', check);
+      observer.disconnect();
     };
-  }, [watchId, completionId]);
+  }, [watchId]);
 
   // Escape closes, Tab cycles inside the sheet.
   useEffect(() => {
