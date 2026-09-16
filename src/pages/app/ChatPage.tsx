@@ -51,10 +51,13 @@ export default function ChatPage() {
   }, [refresh, openRoom]);
 
   const backToList = useCallback(() => {
-    setOpenSlug(null);
+    const next = new URLSearchParams(window.location.search);
+    next.delete('room');
+    setParams(next, { replace: true });
     setMembersOpen(false);
     void refresh();
-  }, [refresh]);
+  }, [refresh, setParams]);
+
 
   const active = useMemo(
     () => (openSlug ? channels.find((c) => c.slug === openSlug) || null : null),
