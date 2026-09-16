@@ -200,7 +200,7 @@ const Index = () => {
         setProgress('--payoff-2', easeOut(range(time, 1450, 1770)));
         setProgress('--note-progress', range(time, 1850, 2700));
         setProgress('--button-progress', easeOut(range(time, 2900, 3220)));
-        penLines.forEach((line, index) => {
+        penLines.forEach((line) => {
           const isNote = line.closest('[data-sequence-part="note"]') !== null;
           line.style.setProperty('--pen-opacity', isNote && time < 1850 ? '0' : '1');
         });
@@ -305,7 +305,7 @@ const Index = () => {
 
             <div ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
               <div className="cover-statement-copy mx-auto w-full max-w-6xl">
-                  <div className="cover-copy-ink" data-sequence-part="ink" data-animating="false">
+                  <div className="cover-copy-ink" data-copy-block="ink" data-sequence-part="ink" data-animating="false">
                     <PenLine
                       className="cover-ink-headline"
                       lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
@@ -313,13 +313,13 @@ const Index = () => {
                       windowDurations={wideInk ? [900] : [450, 450]}
                     />
                   </div>
-                  <h1 className="cover-headline cover-block-line">
+                  <h1 className="cover-headline cover-block-line" data-copy-block="payoff">
                     <span className="cover-block-lines">
                       <span className="cover-line-blue" data-sequence-part="payoff-1" data-animating="false">SO WE JOINED</span>
                       <span className="cover-line-blue" data-sequence-part="payoff-2" data-animating="false">ALL THREE.</span>
                     </span>
                   </h1>
-                <div className="cover-copy-note" data-sequence-part="note" data-animating="false">
+                <div className="cover-copy-note" data-copy-block="note" data-sequence-part="note" data-animating="false">
                   <PenLine
                     className="cover-pen"
                     lines={['Where being a sales rep is not the end goal.']}
@@ -327,7 +327,7 @@ const Index = () => {
                     windowDurations={[850]}
                   />
                 </div>
-                <div className="cover-actions flex w-full items-center justify-center" data-sequence-part="button" data-animating="false">
+                <div className="cover-actions flex w-full items-center justify-center" data-copy-block="button" data-sequence-part="button" data-animating="false">
                   <span className="cover-get-in-wrap">
                     <span className="cover-get-in-glow cover-get-in-glow-wide" aria-hidden="true" />
                     <span className="cover-get-in-glow cover-get-in-glow-tight" aria-hidden="true" />
