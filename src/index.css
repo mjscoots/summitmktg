@@ -2163,15 +2163,16 @@ html[data-appearance='light'] .btn-gradient {
 /* Pass 190: the statement paints nothing. The world wrapper owns the surface. */
 
 .cover-statement-copy {
-  display: grid;
-  grid-template-rows: auto auto auto auto;
-  justify-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: auto;
 }
 /* One stage. The section supplies the scroll, the pinned child holds
    the screen still, and the statement is centred inside that still screen. */
 .cover-stage {
-  height: 160svh;
+  height: 150svh;
 }
 .cover-stage-pin {
   position: sticky;
@@ -2224,60 +2225,98 @@ html[data-appearance='light'] .btn-gradient {
 .pen-line-visual {
   position: absolute;
   inset: 0;
-  white-space: nowrap;
+  white-space: pre-wrap;
   pointer-events: none;
   user-select: none;
 }
 .pen-character {
-  display: inline;
-  opacity: clamp(0, calc((var(--pen-progress, 0) - var(--char-start, 0)) * var(--char-scale, 1)), 1);
+  position: relative;
+  display: inline-block;
+  opacity: clamp(0, calc((var(--pen-progress, 0) - var(--char-start, 0)) * var(--char-scale, 1) - var(--shatter-progress, 0)), 1);
+  transform: translate3d(
+    calc(var(--shatter-x, 0px) * var(--shatter-progress, 0)),
+    calc(var(--shatter-y, 0px) * var(--shatter-progress, 0)),
+    0
+  ) rotate(calc(var(--shatter-r, 0deg) * var(--shatter-progress, 0)));
 }
-.cover-pen {
-  line-height: 1.2;
+.pen-caret {
+  position: absolute;
+  left: 100%;
+  top: 19%;
+  width: 2px;
+  height: 0.62em;
+  background: #0A0A0F;
+  opacity: calc(
+    clamp(0, calc((var(--pen-progress, 0) - var(--char-start, 0)) * 1000), 1)
+    - clamp(0, calc((var(--pen-progress, 0) - var(--char-next, 1)) * 1000), 1)
+  );
+  animation: cover-caret-blink 530ms steps(1, end) infinite;
 }
-.cover-pen .pen-line-readable,
-.cover-pen .pen-line-visual { font-size: clamp(1.125rem, 3.4vw, 1.5rem); }
-.cover-ink-headline .pen-line-readable,
-.cover-ink-headline .pen-line-visual {
-  font-size: clamp(1.5rem, 4.8vw, 2.5rem);
+@keyframes cover-caret-blink {
+  0%, 49% { background: #0A0A0F; }
+  50%, 100% { background: transparent; }
+}
+.cover-typing-phase {
+  width: min(100%, 22ch);
+  font-size: clamp(1.75rem, 6vw, 3.25rem);
+  line-height: 1.25;
   color: #0A0A0F;
+}
+.cover-typed-lines .pen-lines { gap: 0.18em; }
+.cover-typed-lines .pen-line {
+  width: 100%;
+  max-width: 100%;
+}
+.cover-typed-lines .pen-line-readable,
+.cover-typed-lines .pen-line-visual {
+  width: 100%;
+  font-size: inherit;
+  line-height: inherit;
   letter-spacing: 0;
-  text-transform: none;
+  text-align: center;
 }
-.cover-pen .pen-line-readable,
-.cover-ink-headline .pen-line-readable { color: transparent; }
-.cover-ink-headline .pen-lines { gap: 0.02em; }
-.cover-block-line {
-  display: block;
-  margin-top: 24px;
-}
-.cover-block-lines {
+.cover-typed-lines .pen-line-readable { color: transparent; }
+.cover-final-phase {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(92vw, 1160px);
+  transform: translate3d(-50%, -50%, 0);
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.cover-brand-slam {
   font-family: 'Archivo', system-ui, -apple-system, sans-serif;
-  font-size: clamp(2.75rem, 10vw, 6rem);
+  font-size: clamp(2.5rem, 11vw, 7rem);
   font-weight: 800;
-  line-height: 0.88;
+  line-height: 0.86;
   letter-spacing: -0.04em;
   text-transform: uppercase;
   color: #004EFD;
+  opacity: var(--brand-progress, 0);
 }
-.cover-block-line > .cover-block-lines {
-  opacity: 1;
-  transform: none;
+.cover-brand-impact { display: block; transform: scale(var(--brand-scale, 1.3)); }
+.cover-brand-impact > span { display: block; }
+.cover-bold-line {
+  max-width: 28ch;
+  margin-top: 28px;
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-size: clamp(1.25rem, 3.6vw, 2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #0A0A0F;
+  opacity: var(--bold-progress, 0);
 }
-.cover-block-lines > span {
+.cover-bold-line > span {
   display: block;
-  opacity: var(--line-progress, 0);
-  transform: translate3d(0, calc((1 - var(--line-progress, 0)) * -4px), 0) scale(calc(1 + (1 - var(--line-progress, 0)) * 0.05));
+  transform: translate3d(0, calc((1 - var(--bold-progress, 0)) * 8px), 0);
 }
-.cover-block-lines > span:first-child { --line-progress: var(--payoff-1, 0); }
-.cover-block-lines > span:last-child { --line-progress: var(--payoff-2, 0); }
 .cover-actions {
   opacity: var(--button-progress, 0);
   transform: none;
-  margin-top: 40px;
+  margin-top: 32px;
 }
 .cover-statement [data-animating='true'],
 .cover-statement [data-animating='true'] .pen-character { will-change: transform, opacity; }
@@ -2294,10 +2333,10 @@ html[data-appearance='light'] .btn-gradient {
 .cover-get-in-glow-tight { filter: blur(12px); transform: scale(1.04); }
 .cover-get-in-glow-wide { filter: blur(26px); transform: scale(1.14); }
 .cover-statement[data-sequence='playing'] .cover-get-in-glow {
-  animation: cover-button-glow 2000ms var(--motion-ease-in-out) 3300ms infinite backwards;
+  animation: cover-button-glow 2000ms var(--motion-ease-in-out) 3700ms infinite backwards;
   will-change: opacity;
 }
-.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 3700ms; }
+.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 4100ms; }
 @keyframes cover-button-glow {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.85; }
@@ -2315,11 +2354,19 @@ html[data-appearance='light'] .btn-gradient {
   box-shadow: inset 0 -2px 0 #000000;
 }
 @media (min-width: 700px) {
-  .cover-block-line { margin-top: 32px; }
-  .cover-actions { margin-top: 52px; }
+  .cover-typing-phase { width: min(100%, 34ch); }
+  .cover-brand-impact > span { display: inline; }
+  .cover-actions { margin-top: 44px; }
+  .cover-bold-line { margin-top: 40px; }
 }
-.cover-copy-note { margin-top: 36px; }
-@media (min-width: 700px) { .cover-copy-note { margin-top: 48px; } }
+@keyframes cover-stage-impact {
+  0% { transform: translate3d(0, 0, 0); }
+  22% { transform: translate3d(5px, 0, 0); }
+  48% { transform: translate3d(-3px, 0, 0); }
+  72% { transform: translate3d(1px, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+.cover-stage-pin[data-impact='true'] { animation: cover-stage-impact 140ms ease-out both; }
 
 /* The hero light bridge rises from p .18 to .36 without moving the burst. */
 .cover-hero::after {
@@ -2422,9 +2469,14 @@ html[data-appearance='light'] .btn-gradient {
   .cover-stage { height: auto; }
   .cover-stage-pin { position: static; height: auto; min-height: 100svh; }
   .cover-statement { position: static; inset: auto; min-height: 100svh; }
-  .cover-block-lines > span { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .cover-typing-phase { display: none !important; }
+  .cover-final-phase { position: static; transform: none; }
+  .cover-brand-slam,
+  .cover-bold-line { animation: none !important; opacity: 1 !important; transform: none !important; }
   .pen-line { opacity: 1 !important; }
   .pen-character { opacity: 1 !important; }
+  .pen-caret { display: none !important; }
+  .cover-stage-pin[data-impact='true'] { animation: none !important; transform: none !important; }
   .cover-get-in-glow { display: none !important; }
   .cover-actions { animation: none !important; opacity: 1 !important; transform: none !important; }
   .btn-purple { transition: none !important; }

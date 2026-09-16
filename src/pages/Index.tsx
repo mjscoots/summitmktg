@@ -40,7 +40,6 @@ const Index = () => {
   const [heroProgress, setHeroProgress] = useState(0);
   // The final band's own progress, which lifts the scene glow.
   const [bandProgress, setBandProgress] = useState(0);
-  const [wideInk, setWideInk] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1100);
   const worldLightRef = useRef(false);
   const burstActiveRef = useRef(false);
   const startStatementRef = useRef<() => void>(() => undefined);
@@ -57,7 +56,6 @@ const Index = () => {
 
   useEffect(() => {
     const resize = () => {
-      setWideInk(window.innerWidth >= 1100);
       requestAnimationFrame(() => remeasureStatementRef.current());
     };
     window.addEventListener('resize', resize);
@@ -139,9 +137,11 @@ const Index = () => {
       cancelAnimationFrame(frame);
       frame = 0;
       started = false;
-      ['--ink-all', '--ink-1', '--ink-2', '--payoff-1', '--payoff-2', '--note-progress', '--button-progress']
+      ['--type-1', '--type-2', '--shatter-progress', '--brand-progress', '--bold-progress', '--button-progress']
         .forEach((name) => setProgress(name, 0));
       statement.dataset.sequence = 'idle';
+      statement.dataset.phase = 'typing';
+      statement.closest<HTMLElement>('.cover-stage-pin')?.removeAttribute('data-impact');
       delete statement.dataset.sequenceStarted;
       delete statement.dataset.sequenceComplete;
       statement.querySelectorAll<HTMLElement>('[data-animating]').forEach((node) => { node.dataset.animating = 'false'; });
@@ -158,10 +158,9 @@ const Index = () => {
     const range = (time: number, from: number, to: number) => clamp((time - from) / (to - from));
     const easeOut = (value: number) => 1 - Math.pow(1 - value, 4);
     const nodes = {
-      ink: statement.querySelector<HTMLElement>('[data-sequence-part="ink"]'),
-      payoffOne: statement.querySelector<HTMLElement>('[data-sequence-part="payoff-1"]'),
-      payoffTwo: statement.querySelector<HTMLElement>('[data-sequence-part="payoff-2"]'),
-      note: statement.querySelector<HTMLElement>('[data-sequence-part="note"]'),
+      typing: statement.querySelector<HTMLElement>('[data-sequence-part="typing"]'),
+      brand: statement.querySelector<HTMLElement>('[data-sequence-part="brand"]'),
+      bold: statement.querySelector<HTMLElement>('[data-sequence-part="bold"]'),
       button: statement.querySelector<HTMLElement>('[data-sequence-part="button"]'),
     };
     const measure = () => {
@@ -184,44 +183,43 @@ const Index = () => {
       const visibleAt: Record<string, number> = {};
       statement.dataset.sequence = 'playing';
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
-      penLines.forEach((line) => {
-        const isNote = line.closest('[data-sequence-part="note"]') !== null;
-        line.style.setProperty('--pen-opacity', isNote ? '0' : '1');
-      });
-      mark(nodes.ink, true);
+      penLines.forEach((line) => line.style.setProperty('--pen-opacity', '1'));
+      mark(nodes.typing, true);
       const draw = (now: number) => {
         const workStarted = performance.now();
         const time = now - startedAt;
-        const ink = range(time, 0, 900);
-        setProgress('--ink-all', ink);
-        setProgress('--ink-1', range(time, 0, 450));
-        setProgress('--ink-2', range(time, 450, 900));
-        setProgress('--payoff-1', easeOut(range(time, 1300, 1620)));
-        setProgress('--payoff-2', easeOut(range(time, 1450, 1770)));
-        setProgress('--note-progress', range(time, 1850, 2700));
-        setProgress('--button-progress', easeOut(range(time, 2900, 3220)));
-        penLines.forEach((line) => {
-          const isNote = line.closest('[data-sequence-part="note"]') !== null;
-          line.style.setProperty('--pen-opacity', isNote && time < 1850 ? '0' : '1');
-        });
-        mark(nodes.ink, time < 900);
-        mark(nodes.payoffOne, time >= 1200 && time < 1620);
-        mark(nodes.payoffTwo, time >= 1350 && time < 1770);
-        mark(nodes.note, time >= 1750 && time < 2700);
-        mark(nodes.button, time >= 2800 && time < 3220);
+        setProgress('--type-1', range(time, 0, 950));
+        setProgress('--type-2', range(time, 1150, 2000));
+        setProgress('--shatter-progress', easeOut(range(time, 2700, 2920)));
+        const brandProgress = easeOut(range(time, 2700, 2960));
+        const brandScale = time < 2880
+          ? 1.3 - easeOut(range(time, 2700, 2880)) * 0.32
+          : 0.98 + easeOut(range(time, 2880, 2960)) * 0.02;
+        setProgress('--brand-progress', brandProgress);
+        setProgress('--brand-scale', brandScale);
+        setProgress('--bold-progress', easeOut(range(time, 3000, 3260)));
+        setProgress('--button-progress', easeOut(range(time, 3300, 3600)));
+        if (time >= 2700 && statement.dataset.phase !== 'final') {
+          statement.dataset.phase = 'final';
+          statement.closest<HTMLElement>('.cover-stage-pin')?.setAttribute('data-impact', 'true');
+        }
+        mark(nodes.typing, time < 2920);
+        mark(nodes.brand, time >= 2700 && time < 2960);
+        mark(nodes.bold, time >= 3000 && time < 3260);
+        mark(nodes.button, time >= 3300 && time < 3600);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;
             statement.dataset[`${key}VisibleAt`] = time.toFixed(1);
           }
         };
-        recordVisible('ink', ink > 0);
-        recordVisible('payoffOne', time >= 1300);
-        recordVisible('payoffTwo', time >= 1450);
-        recordVisible('note', time >= 1850);
-        recordVisible('button', time >= 2900);
+        recordVisible('typingOne', time > 0);
+        recordVisible('typingTwo', time >= 1150);
+        recordVisible('brand', time >= 2700);
+        recordVisible('bold', time >= 3000);
+        recordVisible('button', time >= 3300);
         frameCosts.push(performance.now() - workStarted);
-        if (time < 3300) frame = requestAnimationFrame(draw);
+        if (time < 3700) frame = requestAnimationFrame(draw);
         else {
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
@@ -229,6 +227,7 @@ const Index = () => {
           statement.dataset.frameP95 = percentile.toFixed(3);
           statement.dataset.frameMax = (ordered[ordered.length - 1] || 0).toFixed(3);
           statement.dataset.sequenceComplete = 'true';
+          window.dispatchEvent(new CustomEvent('trnty:statement-complete'));
         }
       };
       frame = requestAnimationFrame(draw);
@@ -255,10 +254,6 @@ const Index = () => {
   useEffect(() => {
     worldLightRef.current = worldLight;
   }, [worldLight]);
-
-  useEffect(() => {
-    requestAnimationFrame(() => remeasureStatementRef.current());
-  }, [wideInk]);
 
   return (
     <div
@@ -291,12 +286,12 @@ const Index = () => {
         </nav>
       </header>
 
-      <AskSheet watchId="statement" />
+      <AskSheet watchId="cover-stage" completionId="statement" />
 
       <main className="relative flex-1">
         {/* One pinned stage. The logo assembly, the burst and the statement all
             happen inside a single pinned screen, so nothing is ever half on. */}
-        <section ref={stageRef} className="cover-stage relative isolate">
+        <section ref={stageRef} id="cover-stage" className="cover-stage relative isolate">
           <div className="cover-stage-pin cover-open cover-hero relative isolate px-5 sm:px-6">
             <CoverLogo progress={heroProgress} onBurst={onBurst} onWorldLight={onWorldLight} />
             <div className="cover-scroll-cue" data-hidden={heroProgress > 0.04 ? 'true' : 'false'} aria-hidden="true">
@@ -305,36 +300,32 @@ const Index = () => {
 
             <div ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
               <div className="cover-statement-copy mx-auto w-full max-w-6xl">
-                  <div className="cover-copy-ink" data-copy-block="ink" data-sequence-part="ink" data-animating="false">
-                    <PenLine
-                      className="cover-ink-headline"
-                      lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
-                      progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
-                      windowDurations={wideInk ? [900] : [450, 450]}
-                    />
-                  </div>
-                  <h1 className="cover-headline cover-block-line" data-copy-block="payoff">
-                    <span className="cover-block-lines">
-                      <span className="cover-line-blue" data-sequence-part="payoff-1" data-animating="false">SO WE JOINED</span>
-                      <span className="cover-line-blue" data-sequence-part="payoff-2" data-animating="false">ALL THREE.</span>
-                    </span>
-                  </h1>
-                <div className="cover-copy-note" data-copy-block="note" data-sequence-part="note" data-animating="false">
+                <div className="cover-typing-phase" data-copy-block="typing" data-sequence-part="typing" data-animating="false">
                   <PenLine
-                    className="cover-pen"
-                    lines={['Where being a sales rep is not the end goal.']}
-                    progressVariables={['--note-progress']}
-                    windowDurations={[850]}
+                    className="cover-typed-lines"
+                    lines={['Everyone argues over which industry is best.', 'So we joined ALL THREE.']}
+                    progressVariables={['--type-1', '--type-2']}
+                    windowDurations={[950, 850]}
+                    caret
+                    shatterVariable="--shatter-progress"
                   />
                 </div>
-                <div className="cover-actions flex w-full items-center justify-center" data-copy-block="button" data-sequence-part="button" data-animating="false">
-                  <span className="cover-get-in-wrap">
-                    <span className="cover-get-in-glow cover-get-in-glow-wide" aria-hidden="true" />
-                    <span className="cover-get-in-glow cover-get-in-glow-tight" aria-hidden="true" />
-                    <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
-                      Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                  </span>
+                <div className="cover-final-phase">
+                  <h1 className="cover-brand-slam" data-copy-block="brand" data-sequence-part="brand" data-animating="false">
+                    <span className="cover-brand-impact"><span>TRINITY</span> <span>MARKETING</span></span>
+                  </h1>
+                  <p className="cover-bold-line" data-copy-block="bold" data-sequence-part="bold" data-animating="false">
+                    <span>Where being a sales rep is not the end goal.</span>
+                  </p>
+                  <div className="cover-actions flex w-full items-center justify-center" data-copy-block="button" data-sequence-part="button" data-animating="false">
+                    <span className="cover-get-in-wrap">
+                      <span className="cover-get-in-glow cover-get-in-glow-wide" aria-hidden="true" />
+                      <span className="cover-get-in-glow cover-get-in-glow-tight" aria-hidden="true" />
+                      <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
+                        Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </Link>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

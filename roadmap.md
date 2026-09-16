@@ -96,3 +96,9 @@
 - [x] Shorten the stage and retime the sequence
 - [x] Replace the mask and dot with per-character handwriting
 - [x] Verify motion, layout, surface, reduced motion and baselines; append the report
+
+## Pass 199 - typed setup and brand slam
+- [ ] Replace the statement with two stable phases and continuous character typing
+- [ ] Add the character shatter, brand impact and final composition
+- [ ] Shorten pinned travel and trigger the question sheet immediately after exit
+- [ ] Verify timing, layout, motion, accessibility and baselines; append the report
