@@ -10,6 +10,7 @@ import { isStaffTier, type Tier } from '@/lib/tiers';
 import BeforeTheyLeft from '@/components/leads/BeforeTheyLeft';
 import OutcomeBar from '@/components/leads/OutcomeBar';
 import ReSignScriptsSheet, { ScriptsButton } from '@/components/leads/ReSignScriptsSheet';
+import { sourceLabel, tagLabel } from '@/lib/leadTags';
 
 import {
   CALL_OUTCOMES,
