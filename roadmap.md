@@ -102,3 +102,9 @@
 - [ ] Add the character shatter, brand impact and final composition
 - [ ] Shorten pinned travel and trigger the question sheet immediately after exit
 - [ ] Verify timing, layout, motion, accessibility and baselines; append the report
+
+## Pass 200 - cover repair
+- [ ] Fix the shatter variable cycle and guarantee phase isolation
+- [ ] Group typed words, remove the caret and rebuild the scroll cue
+- [ ] Retune the sequence and add the scroll-linked statement exit
+- [ ] Verify the cover and append the report

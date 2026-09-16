@@ -93,6 +93,7 @@ const Index = () => {
       }
       setHeroProgress(nextHeroProgress);
       stage?.style.setProperty('--bridge-opacity', String(Math.min(0.1, Math.max(0, (nextHeroProgress - 0.18) / 0.16 * 0.1))));
+      stage?.style.setProperty('--statement-exit', String(Math.min(1, Math.max(0, (nextHeroProgress - 0.88) / 0.12))));
 
 
       const scroller = el || document.documentElement;
@@ -190,23 +191,23 @@ const Index = () => {
         const time = now - startedAt;
         setProgress('--type-1', range(time, 0, 950));
         setProgress('--type-2', range(time, 1150, 2000));
-        setProgress('--shatter-progress', easeOut(range(time, 2700, 2920)));
-        const brandProgress = easeOut(range(time, 2700, 2960));
-        const brandScale = time < 2880
-          ? 1.3 - easeOut(range(time, 2700, 2880)) * 0.32
-          : 0.98 + easeOut(range(time, 2880, 2960)) * 0.02;
+        setProgress('--shatter-progress', easeOut(range(time, 3000, 3220)));
+        const brandProgress = easeOut(range(time, 3000, 3260));
+        const brandScale = time < 3180
+          ? 1.3 - easeOut(range(time, 3000, 3180)) * 0.32
+          : 0.98 + easeOut(range(time, 3180, 3260)) * 0.02;
         setProgress('--brand-progress', brandProgress);
         setProgress('--brand-scale', brandScale);
-        setProgress('--bold-progress', easeOut(range(time, 3000, 3260)));
-        setProgress('--button-progress', easeOut(range(time, 3300, 3600)));
-        if (time >= 2700 && statement.dataset.phase !== 'final') {
+        setProgress('--bold-progress', easeOut(range(time, 3300, 3560)));
+        setProgress('--button-progress', easeOut(range(time, 3600, 3900)));
+        if (time >= 3000 && statement.dataset.phase !== 'final') {
           statement.dataset.phase = 'final';
           statement.closest<HTMLElement>('.cover-stage-pin')?.setAttribute('data-impact', 'true');
         }
-        mark(nodes.typing, time < 2920);
-        mark(nodes.brand, time >= 2700 && time < 2960);
-        mark(nodes.bold, time >= 3000 && time < 3260);
-        mark(nodes.button, time >= 3300 && time < 3600);
+        mark(nodes.typing, time < 3220);
+        mark(nodes.brand, time >= 3000 && time < 3260);
+        mark(nodes.bold, time >= 3300 && time < 3560);
+        mark(nodes.button, time >= 3600 && time < 3900);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;
@@ -215,11 +216,11 @@ const Index = () => {
         };
         recordVisible('typingOne', time > 0);
         recordVisible('typingTwo', time >= 1150);
-        recordVisible('brand', time >= 2700);
-        recordVisible('bold', time >= 3000);
-        recordVisible('button', time >= 3300);
+        recordVisible('brand', time >= 3000);
+        recordVisible('bold', time >= 3300);
+        recordVisible('button', time >= 3600);
         frameCosts.push(performance.now() - workStarted);
-        if (time < 3700) frame = requestAnimationFrame(draw);
+        if (time < 4000) frame = requestAnimationFrame(draw);
         else {
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
@@ -295,7 +296,9 @@ const Index = () => {
           <div className="cover-stage-pin cover-open cover-hero relative isolate px-5 sm:px-6">
             <CoverLogo progress={heroProgress} onBurst={onBurst} onWorldLight={onWorldLight} />
             <div className="cover-scroll-cue" data-hidden={heroProgress > 0.04 ? 'true' : 'false'} aria-hidden="true">
-              <span />
+              <span className="cover-scroll-label">Scroll</span>
+              <span className="cover-scroll-track"><span className="cover-scroll-bead" /></span>
+              <span className="cover-scroll-chevron" />
             </div>
 
             <div ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
@@ -306,7 +309,6 @@ const Index = () => {
                     lines={['Everyone argues over which industry is best.', 'So we joined ALL THREE.']}
                     progressVariables={['--type-1', '--type-2']}
                     windowDurations={[950, 850]}
-                    caret
                     shatterVariable="--shatter-progress"
                   />
                 </div>
