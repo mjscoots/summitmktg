@@ -166,6 +166,7 @@ const Index = () => {
       const visibleAt: Record<string, number> = {};
       statement.dataset.sequence = 'playing';
       statement.dataset.latched = 'true';
+      statement.dataset.sequenceStarts = String(Number(statement.dataset.sequenceStarts || '0') + 1);
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
       statement.dataset.lineOneWindow = '0-950';
       statement.dataset.lineTwoWindow = '1150-2000';
