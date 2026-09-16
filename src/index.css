@@ -541,6 +541,22 @@ html[data-appearance='light'] {
   --range-5: #F5F5F5;
 }
 
+/* Pass 219 - the public site is dark whatever app-look the visitor picked, so
+   the wordmark letters and the range keep their black-world values there. */
+html[data-appearance='light'] .gold-world {
+  --wordmark-bg: #000000;
+  --wordmark-accent: #3A8DFF;
+  --wordmark-outline: #FFFFFF;
+  --wordmark-letters: #FFFFFF;
+
+  --range-1: #1C1C1C;
+  --range-2: #161616;
+  --range-3: #101010;
+  --range-4: #0A0A0A;
+  --range-5: #050505;
+}
+
+
 
 :root[data-workspace='pest'] .progress-track,
 :root[data-workspace='fiber'] .progress-track {
