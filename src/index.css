@@ -2163,12 +2163,15 @@ html[data-appearance='light'] .btn-gradient {
 /* Pass 190: the statement paints nothing. The world wrapper owns the surface. */
 
 .cover-statement-copy {
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  justify-items: center;
   pointer-events: auto;
 }
-/* Pass 197: one stage. The section supplies the scroll, the pinned child holds
+/* One stage. The section supplies the scroll, the pinned child holds
    the screen still, and the statement is centred inside that still screen. */
 .cover-stage {
-  height: 260svh;
+  height: 160svh;
 }
 .cover-stage-pin {
   position: sticky;
@@ -2199,7 +2202,7 @@ html[data-appearance='light'] .btn-gradient {
   .cover-statement-body { font-size: 19px; }
 }
 
-/* Filled, selectable handwriting revealed by a soft 40px mask. */
+/* Selectable handwriting revealed character by character. */
 .pen-lines { display: flex; flex-direction: column; align-items: center; }
 .pen-line {
   position: relative;
@@ -2210,59 +2213,53 @@ html[data-appearance='light'] .btn-gradient {
   opacity: 0;
 }
 .pen-line[data-pen-measured='true'] { opacity: var(--pen-opacity, 0); }
-.pen-line-text {
+.pen-line-readable,
+.pen-line-visual {
   display: block;
   font-family: 'Caveat', 'Kalam', cursive;
   font-weight: 500;
   color: #0A0A0F;
-  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
-  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%);
-  -webkit-mask-size: calc(var(--pen-width, 100%) + 40px) 100%;
-  mask-size: calc(var(--pen-width, 100%) + 40px) 100%;
-  -webkit-mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%)) 0;
-  mask-position: calc(var(--pen-dot-x, 0px) - var(--pen-width, 100%)) 0;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
 }
-.pen-line-dot {
+.pen-line-readable { color: transparent; }
+.pen-line-visual {
   position: absolute;
-  z-index: 1;
-  left: 0;
-  top: 52%;
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background: #004EFD;
-  opacity: clamp(0, calc((1 - var(--pen-progress, 0)) * 7), 1);
-  transform: translate3d(calc(var(--pen-dot-x, 0px) - 3px), -50%, 0);
+  inset: 0;
+  white-space: nowrap;
   pointer-events: none;
+  user-select: none;
+}
+.pen-character {
+  display: inline;
+  opacity: clamp(0, calc((var(--pen-progress, 0) - var(--char-start, 0)) * var(--char-scale, 1)), 1);
 }
 .cover-pen {
   line-height: 1.2;
-  margin-top: 44px;
 }
-.cover-pen .pen-line-text { font-size: clamp(1.25rem, 4vw, 1.75rem); color: #0A0A0F; }
-.cover-ink-headline .pen-line-text {
-  font-size: clamp(1.75rem, 5.6vw, 3rem);
-  color: #004EFD;
+.cover-pen .pen-line-readable,
+.cover-pen .pen-line-visual { font-size: clamp(1.125rem, 3.4vw, 1.5rem); }
+.cover-ink-headline .pen-line-readable,
+.cover-ink-headline .pen-line-visual {
+  font-size: clamp(1.5rem, 4.8vw, 2.5rem);
+  color: #0A0A0F;
   letter-spacing: 0;
   text-transform: none;
 }
 .cover-ink-headline .pen-lines { gap: 0.02em; }
 .cover-block-line {
   display: block;
-  margin-top: 28px;
+  margin-top: 24px;
 }
 .cover-block-lines {
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: 'Archivo', system-ui, -apple-system, sans-serif;
-  font-size: clamp(2.5rem, 9vw, 5.5rem);
+  font-size: clamp(2.75rem, 10vw, 6rem);
   font-weight: 800;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
   text-transform: uppercase;
+  color: #004EFD;
 }
 .cover-block-line > .cover-block-lines {
   opacity: 1;
@@ -2278,12 +2275,10 @@ html[data-appearance='light'] .btn-gradient {
 .cover-actions {
   opacity: var(--button-progress, 0);
   transform: translate3d(0, calc((1 - var(--button-progress, 0)) * 12px), 0);
-  margin-top: 48px;
+  margin-top: 40px;
 }
 .cover-statement [data-animating='true'],
-.cover-statement [data-animating='true'] .pen-line-text,
-.cover-statement [data-animating='true'] .pen-line-dot { will-change: transform, opacity; }
-.cover-statement [data-animating='true'] .pen-line-text { will-change: mask-position; }
+.cover-statement [data-animating='true'] .pen-character { will-change: transform, opacity; }
 .cover-get-in-wrap { position: relative; display: inline-flex; isolation: isolate; }
 .cover-get-in-glow {
   position: absolute;
@@ -2297,10 +2292,10 @@ html[data-appearance='light'] .btn-gradient {
 .cover-get-in-glow-tight { filter: blur(12px); transform: scale(1.04); }
 .cover-get-in-glow-wide { filter: blur(26px); transform: scale(1.14); }
 .cover-statement[data-sequence='playing'] .cover-get-in-glow {
-  animation: cover-button-glow 2000ms var(--motion-ease-in-out) 6360ms infinite backwards;
+  animation: cover-button-glow 2000ms var(--motion-ease-in-out) 3300ms infinite backwards;
   will-change: opacity;
 }
-.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 6760ms; }
+.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 3700ms; }
 @keyframes cover-button-glow {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.85; }
@@ -2318,10 +2313,11 @@ html[data-appearance='light'] .btn-gradient {
   box-shadow: inset 0 -2px 0 #000000;
 }
 @media (min-width: 700px) {
-  .cover-block-line { margin-top: 40px; }
-  .cover-pen { margin-top: 60px; }
-  .cover-actions { margin-top: 64px; }
+  .cover-block-line { margin-top: 32px; }
+  .cover-actions { margin-top: 52px; }
 }
+.cover-copy-note { margin-top: 36px; }
+@media (min-width: 700px) { .cover-copy-note { margin-top: 48px; } }
 
 /* The hero light bridge rises from p .18 to .36 without moving the burst. */
 .cover-hero::after {
@@ -2426,8 +2422,7 @@ html[data-appearance='light'] .btn-gradient {
   .cover-statement { position: static; inset: auto; min-height: 100svh; }
   .cover-block-lines > span { animation: none !important; opacity: 1 !important; transform: none !important; }
   .pen-line { opacity: 1 !important; }
-  .pen-line-text { -webkit-mask-image: none !important; mask-image: none !important; }
-  .pen-line-dot,
+  .pen-character { opacity: 1 !important; }
   .cover-get-in-glow { display: none !important; }
   .cover-actions { animation: none !important; opacity: 1 !important; transform: none !important; }
   .btn-purple { transition: none !important; }

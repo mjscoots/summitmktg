@@ -121,9 +121,8 @@ const Index = () => {
     };
   }, []);
 
-  // Pass 195: one guarded clock begins with the burst. Font and layout
-  // measurement stay outside the animation loop, and resize only refreshes the
-  // cached widths.
+  // One guarded clock begins with the burst. Font and layout measurement stay
+  // outside the animation loop, and resize only refreshes cached widths.
   useEffect(() => {
     const statement = statementRef.current;
     if (!statement) return;
@@ -148,7 +147,6 @@ const Index = () => {
       statement.querySelectorAll<HTMLElement>('[data-animating]').forEach((node) => { node.dataset.animating = 'false'; });
       statement.querySelectorAll<HTMLElement>('.pen-line').forEach((line) => {
         line.style.setProperty('--pen-opacity', '0');
-        line.style.setProperty('--pen-dot-x', '0px');
       });
     };
     if (reduced) {
@@ -194,25 +192,23 @@ const Index = () => {
       const draw = (now: number) => {
         const workStarted = performance.now();
         const time = now - startedAt;
-        const ink = range(time, 380, 1780);
+        const ink = range(time, 0, 900);
         setProgress('--ink-all', ink);
-        setProgress('--ink-1', range(time, 380, 1080));
-        setProgress('--ink-2', range(time, 1080, 1780));
-        setProgress('--payoff-1', easeOut(range(time, 2780, 3160)));
-        setProgress('--payoff-2', easeOut(range(time, 2960, 3340)));
-        setProgress('--note-progress', range(time, 4340, 5740));
-        setProgress('--button-progress', easeOut(range(time, 5940, 6360)));
+        setProgress('--ink-1', range(time, 0, 450));
+        setProgress('--ink-2', range(time, 450, 900));
+        setProgress('--payoff-1', easeOut(range(time, 1300, 1620)));
+        setProgress('--payoff-2', easeOut(range(time, 1450, 1770)));
+        setProgress('--note-progress', range(time, 1850, 2700));
+        setProgress('--button-progress', easeOut(range(time, 2900, 3220)));
         penLines.forEach((line, index) => {
           const isNote = line.closest('[data-sequence-part="note"]') !== null;
-          const progress = isNote ? range(time, 4340, 5740) : penLines.length === 2 ? ink : index === 0 ? range(time, 380, 1080) : range(time, 1080, 1780);
-          line.style.setProperty('--pen-opacity', isNote && time < 4340 ? '0' : '1');
-          line.style.setProperty('--pen-dot-x', `${(penWidths[index] * progress).toFixed(2)}px`);
+          line.style.setProperty('--pen-opacity', isNote && time < 1850 ? '0' : '1');
         });
-        mark(nodes.ink, time >= 280 && time < 1780);
-        mark(nodes.payoffOne, time >= 2680 && time < 3160);
-        mark(nodes.payoffTwo, time >= 2860 && time < 3340);
-        mark(nodes.note, time >= 4240 && time < 5740);
-        mark(nodes.button, time >= 5840 && time < 6360);
+        mark(nodes.ink, time < 900);
+        mark(nodes.payoffOne, time >= 1200 && time < 1620);
+        mark(nodes.payoffTwo, time >= 1350 && time < 1770);
+        mark(nodes.note, time >= 1750 && time < 2700);
+        mark(nodes.button, time >= 2800 && time < 3220);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;
@@ -220,12 +216,12 @@ const Index = () => {
           }
         };
         recordVisible('ink', ink > 0);
-        recordVisible('payoffOne', time >= 2780);
-        recordVisible('payoffTwo', time >= 2960);
-        recordVisible('note', time >= 4340);
-        recordVisible('button', time >= 5940);
+        recordVisible('payoffOne', time >= 1300);
+        recordVisible('payoffTwo', time >= 1450);
+        recordVisible('note', time >= 1850);
+        recordVisible('button', time >= 2900);
         frameCosts.push(performance.now() - workStarted);
-        if (time < 6360) frame = requestAnimationFrame(draw);
+        if (time < 3300) frame = requestAnimationFrame(draw);
         else {
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
@@ -298,7 +294,7 @@ const Index = () => {
       <AskSheet watchId="statement" />
 
       <main className="relative flex-1">
-        {/* Pass 197: one stage. The logo assembly, the burst and the statement all
+        {/* One pinned stage. The logo assembly, the burst and the statement all
             happen inside a single pinned screen, so nothing is ever half on. */}
         <section ref={stageRef} className="cover-stage relative isolate">
           <div className="cover-stage-pin cover-open cover-hero relative isolate px-5 sm:px-6">
@@ -309,26 +305,26 @@ const Index = () => {
 
             <div ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
               <div className="cover-statement-copy mx-auto w-full max-w-6xl">
-                <h1 className="cover-headline">
-                  <div data-sequence-part="ink" data-animating="false">
+                  <div className="cover-copy-ink" data-sequence-part="ink" data-animating="false">
                     <PenLine
                       className="cover-ink-headline"
                       lines={wideInk ? ['Everyone argues over which industry is best.'] : ['Everyone argues over', 'which industry is best.']}
                       progressVariables={wideInk ? ['--ink-all'] : ['--ink-1', '--ink-2']}
+                      windowDurations={wideInk ? [900] : [450, 450]}
                     />
                   </div>
-                  <span className="reveal-clip cover-block-line">
+                  <h1 className="cover-headline cover-block-line">
                     <span className="cover-block-lines">
-                      <span className="cover-line-black" data-sequence-part="payoff-1" data-animating="false">SO WE JOINED</span>
+                      <span className="cover-line-blue" data-sequence-part="payoff-1" data-animating="false">SO WE JOINED</span>
                       <span className="cover-line-blue" data-sequence-part="payoff-2" data-animating="false">ALL THREE.</span>
                     </span>
-                  </span>
-                </h1>
-                <div data-sequence-part="note" data-animating="false">
+                  </h1>
+                <div className="cover-copy-note" data-sequence-part="note" data-animating="false">
                   <PenLine
                     className="cover-pen"
                     lines={['Where being a sales rep is not the end goal.']}
                     progressVariables={['--note-progress']}
+                    windowDurations={[850]}
                   />
                 </div>
                 <div className="cover-actions flex w-full items-center justify-center" data-sequence-part="button" data-animating="false">
