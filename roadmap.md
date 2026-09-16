@@ -152,3 +152,5 @@
 - [x] Keep the site unpublished
 
 - Pass 208: dropped duplicate narrow status constraint on rep_vertical_enrollments so approval works; four active-only readers flagged for the owner.
+
+- [x] Pass 210 - industry switcher shows all three doors to a rep in one industry, muted chips route to /app/industries with no writes

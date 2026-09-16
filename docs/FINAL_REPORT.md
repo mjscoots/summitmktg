@@ -6262,3 +6262,81 @@ within 8000ms: it stops the loading state, shows one toast, and leaves the sessi
 - Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0,
   managed_links 23, rep_vertical_enrollments 45.
 - No database changes in this pass. Site not published.
+
+## Pass 210 - the industry switcher for a one industry rep
+
+### Render condition, quoted
+
+Before (src/components/workspace/WorkspaceSegmented.tsx):
+
+    if (workspaces.length < 2 && locked.length === 0) return null;
+    ...
+    {workspaces.length > 1 && ( ...segmented row... )}
+
+After:
+
+    const isStaff = role === 'admin' || role === 'owner';
+    const repRow = !isStaff && workspaces.length >= 1;
+    if (!repRow && workspaces.length < 2 && locked.length === 0) return null;
+
+A non staff person with at least one member workspace now renders one row of all
+three doors. Staff fall through to the unchanged Pass 149 markup.
+
+### The four cases, measured at 390 wide on /app/more
+
+| Case | Chips rendered | Selected | Muted | Muted chip text |
+| --- | --- | --- | --- | --- |
+| Rep, one industry (Pest) | Pest, Fiber, Life | Pest, aria-current true | Fiber, Life, aria-disabled true, opacity 0.55 | "Ask to join" under the name |
+| Rep, two industries (Pest, Fiber, active Fiber) | Pest, Fiber, Life | Fiber, aria-current true | Life only | "Ask to join" |
+| Rep, no industry | none. The person never reaches this screen: the day one onboarding gate renders instead ("Start day one now, so you are ready the moment you are accepted."). Unchanged by this pass. | n/a | n/a | n/a |
+| Owner | Pest, Fiber, exactly as before, plus one locked row for Life reading "Coming" | Pest | n/a | unchanged |
+
+### Muted chip does one thing
+
+Tap on the muted Fiber chip, request list captured across the tap:
+
+- URL after tap: http://localhost:8080/app/industries
+- Writes during the tap, filtered for set_active_vertical, request_vertical_access,
+  apply_to_vertical, withdraw_vertical_request: none, empty list.
+- 13 POST calls were seen in the window, all of them reads issued by the
+  industries screen and the shell it loads (get_industry_hub, get_ladder,
+  get_my_workspaces, my_notification_prefs, get_conversations, record_daily_login).
+  No vertical write of any kind.
+
+### Landing unchanged
+
+A rep with one industry still opens their own workspace: active_vertical decides
+it, set_active_vertical was not touched, VerticalRouteGuard was not touched, no
+route changed. The stubbed rookie session lands on /summer-checklist, which is the
+pre existing rookie gate and is identical before and after this pass.
+
+### Geometry at 390
+
+Each chip 113px wide, 47px tall, row 53px tall. Three chips fit with zero
+horizontal overflow (documentElement.scrollWidth - innerWidth = 0). Tap target
+height 47px, above the 44px floor.
+
+### Keyboard and screen reader
+
+All three chips are real buttons with tabIndex 0 and take focus, proven by
+focusing each in order: [true, true, true]. The unavailable state is not colour
+only: aria-disabled="true" plus aria-label "Fiber Sales, ask to join", and the
+words "Ask to join" are in the accessible text.
+
+### Reduced motion
+
+No new transition was added. The chips keep the existing 0.15s colour transition,
+which the global reduced motion rule collapses to 1e-05s, measured in a
+reduced motion context.
+
+### Checks
+
+- npx tsgo --noEmit -p tsconfig.app.json: clean.
+- Production build: clean, build OK.
+- Shell gzip: src/index.css gzip 18346 bytes, unchanged by this pass. JS bundle
+  total 2,880,930 bytes raw. The only source change is one component, about 2KB
+  of source added.
+- No em dashes and no emoji in the added lines.
+- Baselines unchanged: profiles 536, chat_messages 717, applications 13,
+  earnings_goals 0, managed_links 23, rep_vertical_enrollments 45.
+- Site not published.
