@@ -61,7 +61,7 @@ html.light .site-grain {
     --secondary-foreground: 0 0% 100%;
 
     --muted: 240 18% 16%;
-    --muted-foreground: 229 9% 56%;
+    --muted-foreground: 229 9% 60%;
 
     --accent: 256 100% 81%;
     --accent-foreground: 0 0% 0%;
@@ -106,7 +106,7 @@ html.light .site-grain {
     /* ━━━ TEXT HIERARCHY ━━━ */
     --text-primary: 0 0% 100%;
     --text-secondary: 231 12% 67%;
-    --text-muted: 229 9% 56%;
+    --text-muted: 229 9% 60%;
 
     /* ━━━ BLUE ACCENT - links, focus, active tab, progress ━━━ */
     --ice: 215 100% 61%;
@@ -279,7 +279,7 @@ html.light .site-grain {
     --secondary: 240 18% 16%;
     --secondary-foreground: 0 0% 100%;
     --muted: 240 18% 16%;
-    --muted-foreground: 229 9% 56%;
+    --muted-foreground: 229 9% 60%;
 
     --success: 215 100% 61%;
     --success-foreground: 0 0% 0%;
@@ -295,7 +295,7 @@ html.light .site-grain {
 
     --text-primary: 0 0% 100%;
     --text-secondary: 231 12% 67%;
-    --text-muted: 229 9% 56%;
+    --text-muted: 229 9% 60%;
 
     --primary-soft: 215 100% 61% / 0.12;
     --primary-muted: 231 12% 67%;

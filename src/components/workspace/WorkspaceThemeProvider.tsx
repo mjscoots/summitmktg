@@ -80,7 +80,7 @@ const MONO_DARK = {
   surfaceSunken: '0 0% 0%',
   foreground: '0 0% 100%',
   secondaryText: '231 12% 67%',
-  muted: '229 9% 56%',
+  muted: '229 9% 60%',
   border: '240 16% 20%',
   borderSubtle: '240 16% 20%',
   borderStrong: '240 16% 26%',
