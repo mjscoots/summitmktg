@@ -12,7 +12,6 @@ import { useCoverMedia } from '@/hooks/useCoverMedia';
 import { AskSheet, AskSection } from '@/components/recruiting/AskSheet';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
-import { PenLine } from '@/components/brand/PenLine';
 import { RIDGES } from '@/components/brand/MountainRange';
 
 
@@ -42,20 +41,10 @@ const Index = () => {
   // The final band's own progress, which lifts the scene glow.
   const [bandProgress, setBandProgress] = useState(0);
   const worldLightRef = useRef(false);
-  const remeasureStatementRef = useRef<() => void>(() => undefined);
   const tiltAsked = useRef(false);
   const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
   const onBurst = useCallback(() => undefined, []);
   usePublicMotion();
-
-  useEffect(() => {
-    const resize = () => {
-      requestAnimationFrame(() => remeasureStatementRef.current());
-    };
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
-  }, []);
-
 
   // iOS only hands over device orientation from inside a gesture, and the grant
   // does not survive the session. It is asked for once, on the first tap of the
@@ -120,22 +109,16 @@ const Index = () => {
   }, []);
 
   // One guarded clock begins the first time the statement is 30 percent visible.
-  // Font and layout measurement stay outside the animation loop.
   useEffect(() => {
     const statement = statementRef.current;
     if (!statement) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const setProgress = (name: string, value: number) => statement.style.setProperty(name, value.toFixed(4));
     let frame = 0;
-    let measurementFrame = 0;
     let started = false;
     let visible = false;
-    let fontsReady = false;
-    let penLines: HTMLElement[] = [];
-    let penWidths: number[] = [];
-    let cancelled = false;
     if (reduced) {
-      ['--type-1', '--type-2', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
+      ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
         .forEach((name) => setProgress(name, 1));
       statement.dataset.sequence = 'done';
       statement.dataset.phase = 'final';
@@ -153,38 +136,11 @@ const Index = () => {
       bold: statement.querySelector<HTMLElement>('[data-sequence-part="bold"]'),
       button: statement.querySelector<HTMLElement>('[data-sequence-part="button"]'),
     };
-    const measure = () => {
-      penLines = Array.from(statement.querySelectorAll<HTMLElement>('.pen-line'));
-      const typingWidth = nodes.typing?.getBoundingClientRect().width ?? window.innerWidth - 40;
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      penWidths = penLines.map((line, index) => {
-        const readable = line.querySelector<HTMLElement>('.pen-line-readable');
-        if (!readable || !context) return line.getBoundingClientRect().width;
-        line.style.removeProperty('--pen-fit-size');
-        const styles = getComputedStyle(readable);
-        const baseSize = Number.parseFloat(styles.fontSize);
-        context.font = `${styles.fontWeight} ${baseSize}px ${styles.fontFamily}`;
-        const natural = context.measureText(readable.textContent ?? '').width;
-        const floor = index === 0 ? 15 : 20;
-        const fitted = Math.max(floor, Math.min(baseSize, baseSize * typingWidth * 0.985 / Math.max(1, natural)));
-        line.style.setProperty('--pen-fit-size', `${fitted.toFixed(2)}px`);
-        line.dataset.penNaturalWidth = natural.toFixed(2);
-        line.dataset.penFitSize = fitted.toFixed(2);
-        line.dataset.penFits = String(natural * fitted / baseSize <= typingWidth + 0.5);
-        return natural * fitted / baseSize;
-      });
-      penLines.forEach((line, index) => {
-        line.style.setProperty('--pen-width', `${penWidths[index].toFixed(2)}px`);
-        line.dataset.penMeasured = 'true';
-      });
-      statement.dataset.penMeasured = 'true';
-    };
     const mark = (node: HTMLElement | null, active: boolean) => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
     };
     const start = () => {
-      if (started || !visible || !fontsReady || penWidths.length === 0) return;
+      if (started || !visible) return;
       started = true;
       const startedAt = performance.now();
       const frameCosts: number[] = [];
@@ -193,52 +149,50 @@ const Index = () => {
       statement.dataset.latched = 'true';
       statement.dataset.sequenceStarts = String(Number(statement.dataset.sequenceStarts || '0') + 1);
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
-       statement.dataset.lineOneWindow = '0-1050';
-       statement.dataset.lineTwoWindow = '1350-2250';
-        statement.dataset.slamAt = '3750';
-        statement.dataset.trinityAt = '3750';
-        statement.dataset.marketingAt = '3830';
-       statement.dataset.boldAt = '4250';
-       statement.dataset.buttonAt = '4750';
-       statement.dataset.sequenceEnd = '5300';
-       statement.dataset.cueAt = '5900';
-      penLines.forEach((line) => line.style.setProperty('--pen-opacity', '1'));
+      statement.dataset.lineOneAt = '0';
+      statement.dataset.lineTwoAt = '1100';
+      statement.dataset.slamAt = '2800';
+      statement.dataset.trinityAt = '2800';
+      statement.dataset.marketingAt = '2880';
+      statement.dataset.boldAt = '3300';
+      statement.dataset.buttonAt = '3800';
+      statement.dataset.sequenceEnd = '4300';
+      statement.dataset.cueAt = '4900';
       mark(nodes.typing, true);
       const draw = (now: number) => {
         const workStarted = performance.now();
         const time = now - startedAt;
-        setProgress('--type-1', range(time, 0, 1050));
-        setProgress('--type-2', range(time, 1350, 2250));
-        setProgress('--block-exit', easeOut(range(time, 3750, 3970)));
-        setProgress('--brand-trinity-progress', easeOut(range(time, 3750, 4010)));
-        setProgress('--brand-marketing-progress', easeOut(range(time, 3830, 4010)));
-        setProgress('--bold-progress', easeOut(range(time, 4250, 4510)));
-        setProgress('--button-progress', easeOut(range(time, 4750, 5050)));
-        if (time >= 3750 && statement.dataset.impact !== 'true') {
+        setProgress('--answer-progress', easeOut(range(time, 1100, 1320)));
+        setProgress('--block-exit', easeOut(range(time, 2800, 3020)));
+        setProgress('--brand-trinity-progress', easeOut(range(time, 2800, 3060)));
+        setProgress('--brand-marketing-progress', easeOut(range(time, 2880, 3060)));
+        setProgress('--bold-progress', easeOut(range(time, 3300, 3560)));
+        setProgress('--button-progress', easeOut(range(time, 3800, 4100)));
+        if (time >= 2800 && statement.dataset.impact !== 'true') {
           statement.setAttribute('data-impact', 'true');
         }
-        if (time >= 3970 && statement.dataset.phase !== 'final') statement.dataset.phase = 'final';
-        mark(nodes.typing, time < 3970);
-        mark(nodes.brand, time >= 3750 && time < 4010);
-        mark(nodes.bold, time >= 4250 && time < 4510);
-        mark(nodes.button, time >= 4750 && time < 5050);
+        if (time >= 3020 && statement.dataset.phase !== 'final') statement.dataset.phase = 'final';
+        mark(nodes.typing, time >= 1100 && time < 3020);
+        mark(nodes.brand, time >= 2800 && time < 3060);
+        mark(nodes.bold, time >= 3300 && time < 3560);
+        mark(nodes.button, time >= 3800 && time < 4100);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;
             statement.dataset[`${key}VisibleAt`] = time.toFixed(1);
           }
         };
-        recordVisible('typingOne', time > 0);
-        recordVisible('typingTwo', time >= 1350);
-        recordVisible('brand', time >= 3750);
-        recordVisible('trinity', time >= 3750);
-        recordVisible('marketing', time >= 3830);
-        recordVisible('bold', time >= 4250);
-        recordVisible('button', time >= 4750);
+        recordVisible('lineOne', true);
+        recordVisible('lineTwo', time >= 1100);
+        recordVisible('brand', time >= 2800);
+        recordVisible('trinity', time >= 2800);
+        recordVisible('marketing', time >= 2880);
+        recordVisible('bold', time >= 3300);
+        recordVisible('button', time >= 3800);
         frameCosts.push(performance.now() - workStarted);
-        if (time < 5300) frame = requestAnimationFrame(draw);
+        if (time < 4300) frame = requestAnimationFrame(draw);
         else {
-          ['--type-1', '--type-2', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
+          ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
             .forEach((name) => setProgress(name, 1));
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
@@ -252,28 +206,16 @@ const Index = () => {
       };
       frame = requestAnimationFrame(draw);
     };
-    remeasureStatementRef.current = measure;
     statement.dataset.sequence = 'idle';
     statement.dataset.phase = 'typing';
-    statement.querySelectorAll<HTMLElement>('.pen-line').forEach((line) => line.style.setProperty('--pen-opacity', '0'));
     const observer = new IntersectionObserver(([entry]) => {
       visible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.30);
       if (visible) start();
     }, { threshold: [0.30] });
     observer.observe(statement);
-    void document.fonts.ready.then(() => {
-      if (cancelled) return;
-      measurementFrame = requestAnimationFrame(() => {
-        measure();
-        fontsReady = true;
-        start();
-      });
-    });
     return () => {
-      cancelled = true;
       observer.disconnect();
       cancelAnimationFrame(frame);
-      cancelAnimationFrame(measurementFrame);
     };
   }, []);
 
@@ -331,12 +273,8 @@ const Index = () => {
         <section ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
           <div className="cover-statement-copy mx-auto w-full max-w-6xl">
                 <div className="cover-typing-phase" data-copy-block="typing" data-sequence-part="typing" data-animating="false">
-                  <PenLine
-                    className="cover-typed-lines"
-                    lines={['Everyone argues over which industry is best.', 'So we joined ALL THREE.']}
-                    progressVariables={['--type-1', '--type-2']}
-                    windowDurations={[1050, 900]}
-                  />
+                  <p className="cover-statement-line cover-statement-line-one">Everyone argues over which industry is best.</p>
+                  <p className="cover-statement-line cover-statement-line-two">So we joined ALL THREE.</p>
                 </div>
                 <div className="cover-final-phase">
                   <h1 className="cover-brand-slam" data-copy-block="brand" data-sequence-part="brand" data-animating="false">
