@@ -6010,3 +6010,37 @@ The landing shake is vertical, reaching 6px down and settling in 140ms. Each blu
 The Pass 202 sweep was rerun at both 844px and 900px heights for every width from 360px through 1440px in 40px steps. All 56 cases report zero brand overflow, zero typed-line overflow, zero character overflow and zero composition-height overflow.
 
 At 390 the sequence callback measured 0.000ms median and 0.100ms p95. Reduced motion shows the permanent final composition, hides the typing block and glow, leaves the static floor unanimated, and keeps the cue hidden. Added lines contain no em dashes and no emoji. Typecheck and production build are clean; the latest automatic build record is `build OK`. Current shell gzip sizes are Index.tsx 5,875 bytes, PenLine.tsx 905 bytes, CoverLogo.tsx 3,227 bytes and index.css 18,544 bytes. Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23. No dependency, compensation, permission, data or publication change. The site was not published.
+
+## Pass 205 - sign-in hit target and statement reset
+
+### Item 0: blocking layers
+Before this pass, the later `.public-world > header` rule overrode the header utility and its computed z-index was 1. The explicit `.public-world > header.public-nav` rule now computes to z-index 30 while main and footer remain at 1. The statement had previously been absolute with inset 0, making its transparent box resolve against the full main element. It is now an ordinary flow section with computed position `relative`, authored inset `auto` (reported by Chromium as resolved 0px for a relatively positioned element), minimum height 100svh and z-index `auto`.
+
+`elementFromPoint` at the centre of Sign in returned the Sign in anchor at all eight requested checks: 390 by 844 at root scroll positions 0, 400, 1200 and 2400, and 1280 by 900 at the same four positions. The Get in anchor was also the topmost element at its centre at both representative widths.
+
+At 390, Radix does not mount an empty toast viewport, so the empty state was already inert in the live DOM. The source still allowed a mounted viewport to intercept input, so the viewport now has `pointer-events-none`; each actual toast retains `pointer-events-auto`.
+
+### Statement content and timing
+The cover no longer imports or renders the custom PenLine component. It had no other app consumers, so `src/components/brand/PenLine.tsx` was deleted. Source grep across Index.tsx and the cover CSS returns no PenLine, pen-character, pen-progress, character offset, caret, shatter, `measureText`, canvas measurement, font-ready measurement or fitted-font variable. Both lines are ordinary selectable text and CSS clamps are their only font-size source.
+
+| width | first line | lines | second line | lines |
+| ---: | ---: | ---: | ---: | ---: |
+| 360 | 28px | 2 | 36px | 2 |
+| 390 | 28px | 2 | 36px | 2 |
+| 768 | 47.62px | 2 | 64px | 2 |
+| 1280 | 48px | 2 | 64px | 2 |
+
+The first line computes to opacity 1 before the first animation frame and remains 1 at 16ms. At 390 its measured top was identical at 1000ms and 1400ms, 718.81px in the test document, proving the reserved second-line row prevents movement. The second line starts from opacity 0 and scale 1.22 at 1100ms, is approximately halfway through its hard ease-out at 1210ms, and reaches opacity 1 and scale 1 at 1320ms. Frame sampling landed within one browser frame of each authored point.
+
+At 2800ms the whole upper block begins its single impulse. At 2910ms it is approximately scale 1.057, blur 7.58px and opacity 0.052; at 3020ms it is scale 1.06, blur 8px and opacity 0, then the final-phase rule makes it hidden and non-interactive. There are no per-character vectors.
+
+Both 390 and 1280 read back the same timing marks: first line 0, second line 1100, TRINITY and impulse 2800, MARKETING 2880, bold line 3300, button 3800, clock stop 4300 and cue 4900. Runtime visibility landed at 1115ms, 2815ms, 2882ms, 3315ms and 3815ms respectively at 390, all within one animation frame after their authored marks.
+
+### Layout and regression proof
+The upper and final groups remain centred at 24 and 54 percent of their 100svh statement. At 390 by 844 their centres are 202.56px and 455.76px in local statement coordinates, with 120.18px clear space between the upper copy and final group. At 1280 by 900 the centres are 216px and 486px. The decorative floor remains 151.91px high at 390 and 198px at 1280. It is behind all controls, has pointer events disabled, and never occludes the button or cue; Get in remains the top hit target and the cue remains in the foreground 40px above the foot.
+
+The full sweep covered every width from 360 through 1440 in 40px steps at both 844px and 900px heights, 56 cases total. It found zero document or statement-line horizontal overflow. Wrapping is intentional and no clipping, hyphenation or shrinking is used.
+
+The latch remained permanent: `data-sequence-starts` stayed 1 after root scrolling 3000px down and back. Reduced motion immediately shows the permanent final composition, hides the upper block, cue and glow, and leaves the floor static. The 390 animation loop measured 0.000ms median and 0.100ms p95. The vertical shake, 120svh stage, 0.92 burst, 0.30 observer threshold, three glow pulses and 0.35 resting glow remain in place.
+
+Added lines contain no em dashes and no emoji. Typecheck and the automatic production build are clean with the latest record `build OK`. Shell gzip changed Index.tsx from 5,090 to 5,100 bytes and index.css from 18,336 to 18,346 bytes in the working-tree comparison; the deleted PenLine module removes its payload entirely. Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23. No dependency, compensation, permission, data or publication change. The site was not published.
