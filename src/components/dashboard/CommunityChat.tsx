@@ -418,7 +418,25 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
       .channel(`chat-${activeChannel}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `channel=eq.${activeChannel}` }, async (payload) => {
         const row = payload.new as any;
-        const newMsg: ChatMessage = { ...row, channel: row.channel || 'general', is_pinned: row.is_pinned ?? false };
+        // One shape for every path: a live row is normalised exactly like a
+        // fetched one, with the quoted excerpt taken from the parent we hold.
+        const parent = row.reply_to ? messagesRef.current.find((m) => m.id === row.reply_to) : null;
+        const newMsg: ChatMessage = {
+          id: row.id,
+          user_id: row.user_id,
+          content: row.content,
+          is_ai: !!row.is_ai,
+          created_at: row.created_at,
+          reply_to: row.reply_to ?? null,
+          channel: row.channel || 'general',
+          is_pinned: row.is_pinned ?? false,
+          kind: row.kind || 'text',
+          ref_id: row.ref_id ?? null,
+          meta: row.meta ?? null,
+          reply_sender: parent ? (profileMapRef.current[parent.user_id]?.full_name || null) : null,
+          reply_excerpt: parent ? parent.content : null,
+          edited_at: row.edited_at ?? null,
+        };
         if (!newMsg.is_ai && !profileMapRef.current[newMsg.user_id]) {
           const { data: p } = await supabase
             .from('profiles')
@@ -429,7 +447,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
             setProfileMap((prev) => ({
               ...prev,
               [p.user_id]: {
-                full_name: withArchivedSuffix(p.full_name, (p as any).archived),
+                full_name: withArchivedSuffix(p.full_name || '', (p as any).archived),
                 avatar_url: p.avatar_url,
                 is_active_now: p.is_active_now,
               },
@@ -437,6 +455,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           }
         }
         setMessages((prev) => (prev.some((m) => m.id === newMsg.id) ? prev : [...prev, newMsg]));
+
         if (newMsg.user_id !== user?.id) onNewMessage?.();
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages', filter: `channel=eq.${activeChannel}` }, (payload) => {
