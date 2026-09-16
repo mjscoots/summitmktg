@@ -573,6 +573,26 @@ export default function LeadsPage() {
 
                       </p>
                       <p className="mt-0.5 truncate text-[12px] text-muted-foreground">{line || 'No history yet'}</p>
+                      {(() => {
+                        const chips = [
+                          rankOf(lead.tags) ? `rank-${rankOf(lead.tags)!.toLowerCase()}` : null,
+                          statusTagOf(lead.tags),
+                          posTagOf(lead.tags),
+                        ].filter(Boolean) as string[];
+                        if (chips.length === 0) return null;
+                        return (
+                          <span data-testid="lead-chips" className="mt-1 flex min-w-0 flex-wrap gap-1">
+                            {chips.map((t) => (
+                              <span
+                                key={t}
+                                className="max-w-full truncate rounded-full border border-border/60 bg-surface px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                              >
+                                {tagLabel(t)}
+                              </span>
+                            ))}
+                          </span>
+                        );
+                      })()}
                     </button>
                     {staff && scope === 'all' && (
                       <Select
