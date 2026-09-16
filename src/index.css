@@ -2168,13 +2168,10 @@ html[data-appearance='light'] .btn-gradient {
   align-items: center;
   justify-content: center;
   pointer-events: auto;
-  opacity: calc(1 - var(--statement-exit, 0));
-  transform: translate3d(0, calc(var(--statement-exit, 0) * -40px), 0);
 }
-/* One stage. The section supplies the scroll, the pinned child holds
-   the screen still, and the statement is centred inside that still screen. */
+/* The stage pins only the cover performance. The statement follows in flow. */
 .cover-stage {
-  height: 140svh;
+  height: 130svh;
 }
 .cover-stage-pin {
   position: sticky;
@@ -2183,12 +2180,14 @@ html[data-appearance='light'] .btn-gradient {
   overflow: visible;
 }
 .cover-statement {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  z-index: 2;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.cover-statement[data-latched='true'] { background: #FFFFFF; }
 
 .cover-headline {
   font-family: 'Archivo', system-ui, -apple-system, sans-serif;
@@ -2321,11 +2320,14 @@ html[data-appearance='light'] .btn-gradient {
 }
 .cover-get-in-glow-tight { filter: blur(12px); transform: scale(1.04); }
 .cover-get-in-glow-wide { filter: blur(26px); transform: scale(1.14); }
-.cover-statement[data-sequence='playing'] .cover-get-in-glow {
+.cover-statement[data-sequence='playing'] .cover-get-in-glow,
+.cover-statement[data-sequence='done'] .cover-get-in-glow {
   animation: cover-button-glow 2000ms var(--motion-ease-in-out) 4000ms infinite backwards;
   will-change: opacity;
 }
 .cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 4400ms; }
+.cover-statement[data-sequence='done'] .cover-get-in-glow { animation-delay: 0ms; }
+.cover-statement[data-sequence='done'] .cover-get-in-glow-wide { animation-delay: 400ms; }
 @keyframes cover-button-glow {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.85; }
@@ -2355,7 +2357,7 @@ html[data-appearance='light'] .btn-gradient {
   72% { transform: translate3d(1px, 0, 0); }
   100% { transform: translate3d(0, 0, 0); }
 }
-.cover-stage-pin[data-impact='true'] { animation: cover-stage-impact 140ms ease-out both; }
+.cover-statement[data-impact='true'] { animation: cover-stage-impact 140ms ease-out both; }
 
 /* The hero light bridge rises from p .18 to .36 without moving the burst. */
 .cover-hero::after {
@@ -2485,14 +2487,14 @@ html[data-appearance='light'] .btn-gradient {
   .cover-statement-copy { opacity: 1 !important; transform: none !important; pointer-events: auto; transition: none !important; }
   .cover-stage { height: auto; }
   .cover-stage-pin { position: static; height: auto; min-height: 100svh; }
-  .cover-statement { position: static; inset: auto; min-height: 100svh; }
+  .cover-statement { min-height: 100svh; background: #FFFFFF; }
   .cover-typing-phase { display: none !important; }
   .cover-final-phase { position: static; transform: none; }
   .cover-brand-slam,
   .cover-bold-line { animation: none !important; opacity: 1 !important; transform: none !important; }
   .pen-line { opacity: 1 !important; }
   .pen-character { opacity: 1 !important; }
-  .cover-stage-pin[data-impact='true'] { animation: none !important; transform: none !important; }
+  .cover-statement[data-impact='true'] { animation: none !important; transform: none !important; }
   .cover-get-in-glow { display: none !important; }
   .cover-actions { animation: none !important; opacity: 1 !important; transform: none !important; }
   .btn-purple { transition: none !important; }
@@ -2690,7 +2692,6 @@ html[data-appearance='light'] .btn-gradient {
 .cover-hero,
 .cover-stage,
 .cover-stage-pin,
-.cover-statement,
 .public-world > main {
   background: transparent;
   background-image: none;
