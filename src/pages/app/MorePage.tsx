@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, LogOut, MessageSquare, Settings } from 'lucide-react';
+import { ChevronRight, LogOut, MessageSquare } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -11,7 +11,6 @@ import { moreGroups } from '@/lib/appNav';
 import { WorkspaceSegmented } from '@/components/workspace/WorkspaceSegmented';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { ViewAsSwitcher } from '@/components/layout/ViewAsSwitcher';
-import { SettingsList } from '@/components/settings/SettingsList';
 
 const storeKey = (title: string) => `more:open:${title.toLowerCase().replace(/\s+/g, '-')}`;
 

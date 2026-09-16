@@ -2,7 +2,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { LogOut, User, Shield } from 'lucide-react';
-import { useSeasonHub } from '@/hooks/useSeasonHub';
 import {
   Sidebar,
   SidebarContent,
@@ -37,7 +36,6 @@ export function AppSidebar() {
   const { unreadCount: unreadChat, markRead: markChatRead } = useUnreadChat();
   const adminCounts = useAdminCounts();
   const { newCount: newLeads } = useNewLeads();
-  const { season } = useSeasonHub();
   const { activeVertical } = useWorkspace();
   const { workspaces } = useWorkspace();
   const presidedName = workspaces.find((w) => w.is_president)?.short_name || null;
@@ -102,10 +100,7 @@ export function AppSidebar() {
     return 0;
   };
 
-  // Pest keeps Season only while a season exists.
-  const visibleMainNavItems: NavItem[] = desktopMain(activeVertical).filter(
-    (d) => d.key !== 'season' || (season && activeVertical === 'Pest')
-  );
+  const visibleMainNavItems: NavItem[] = desktopMain(activeVertical);
 
   const managementNavItems = manageFor(activeVertical, role);
 
