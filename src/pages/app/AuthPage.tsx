@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Wordmark } from '@/components/brand/Wordmark';
 import { MountainRange } from '@/components/brand/MountainRange';
 import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
@@ -11,6 +11,7 @@ import { RidgelineMark } from '@/components/brand/RidgelineMark';
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const declinedReason = searchParams.get("reason") === "declined";
   const { signIn, isAuthenticated } = useAuth();
@@ -29,12 +30,27 @@ const AuthPage = () => {
   const [error, setError] = useState("");
   const [awaitingAuthRedirect, setAwaitingAuthRedirect] = useState(false);
 
+  // Pass 209 - honour the path the person was trying to reach. Internal paths
+  // only: one leading slash, never two, so no off-site bounce is possible.
+  const resolveRedirect = (): string => {
+    const from = (location.state as { from?: unknown } | null)?.from;
+    const candidate =
+      typeof from === 'string'
+        ? from
+        : from && typeof from === 'object' && typeof (from as { pathname?: unknown }).pathname === 'string'
+          ? `${(from as { pathname: string }).pathname}${(from as { search?: string }).search ?? ''}${(from as { hash?: string }).hash ?? ''}`
+          : null;
+    if (!candidate) return '/app';
+    if (!candidate.startsWith('/') || candidate.startsWith('//')) return '/app';
+    return candidate;
+  };
+
   // Redirect as soon as auth session is present (profile can hydrate afterward)
   useEffect(() => {
     if (isAuthenticated) {
       setAwaitingAuthRedirect(false);
       setIsLoading(false);
-      navigate("/app", { replace: true });
+      navigate(resolveRedirect(), { replace: true });
     }
   }, [isAuthenticated, navigate]);
 

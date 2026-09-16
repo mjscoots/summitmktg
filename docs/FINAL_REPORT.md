@@ -6199,3 +6199,66 @@ get_my_workspaces returns their vertical with membership_status = approved, and 
 - no em dashes and no emoji in added lines
 - baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23, rep_vertical_enrollments 45 (all 45 still status active)
 - site not published
+
+## Pass 209 - auth and routing path, three fixes
+
+### 1. Leads pool route gate
+
+Before (src/App.tsx line 377):
+```
+<Route path="/app/leads" element={
+  <ProtectedRoute>
+    <LeadsPage />
+```
+After:
+```
+<Route path="/app/leads" element={
+  <ProtectedRoute requiredRole="manager">
+    <LeadsPage />
+```
+
+Full /app route gate list captured by parsing App.tsx (manager gates now: /app/team, /app/leads,
+/app/stacks, /app/calendar, /app/forms, /app/interviews, /app/interviews/1..3, /app/manager-meeting,
+/app/roster/sweep, /app/weekly-one-on-ones, /app/day, /app/one-on-ones/prep, /app/pitch-approvals;
+admin gates on /admin surfaces; every other /app route is signed-in only). Table saved at
+/tmp/browser/pass209/gates.txt.
+
+Runtime test, real session in the browser:
+- Owner account, GET /app/leads: stays on /app/leads, page shell renders with the Leads nav item.
+- Same session with the user_roles response stubbed to a single rookie row, GET /app/leads:
+  hop chain /app/leads -> /app -> /summer-checklist. The identical chain for GET /app is
+  /app -> /app -> /summer-checklist, so the gate bounces the non manager back to /app and /app
+  then applies that account's own normal landing. Leads never renders.
+
+### 2. Sign in honours the attempted path
+
+AuthPage now reads location.state.from and navigates there on the authenticated effect, falling back
+to /app. Only an internal path is accepted: it must start with a single forward slash and must not
+start with two.
+
+- Unauthenticated GET /app/team redirects to /login and history.state carries
+  usr.from = {pathname: "/app/team", search: "", hash: ""}.
+- Session established in that same page: lands on /app/team, not /app.
+- state.from "https://example.com": lands on /app.
+- state.from "//example.com": lands on /app.
+
+### 3. Stalled profile fetch now ends
+
+useAuth gained a second timeout that fires only when a session exists and loading has not resolved
+within 8000ms: it stops the loading state, shows one toast, and leaves the session untouched.
+
+- profiles and user_roles requests held open, session present: loading state ended at 8.29s with
+  console "Auth profile load timeout - releasing loading state".
+- Toast text read from the DOM: "We could not load your account. Refresh to try again."
+- Session key still present in storage afterwards, so a refresh retries. No sign out, no clear.
+- No session behaviour unchanged: the original 4000ms timeout still guards that path only.
+
+### Checks
+
+- typecheck clean, production build clean (build OK).
+- Shell gzip: index bundle 16399 bytes gzipped, total emitted js 2,879,633 bytes. Delta is three
+  small source edits only.
+- No em dashes and no emoji in added lines.
+- Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0,
+  managed_links 23, rep_vertical_enrollments 45.
+- No database changes in this pass. Site not published.

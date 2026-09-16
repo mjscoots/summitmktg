@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, createContext, useContext, ReactNode } fro
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 import { clearAccessStateCache } from '@/hooks/useAccessState';
+import { toast } from 'sonner';
 
 
 
@@ -198,6 +199,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }, 4000);
 
+    // Pass 209 - a stalled profile or role fetch with a live session used to spin
+    // forever. Bound it: stop loading, say so once, keep the session so a refresh
+    // retries instead of signing the person out.
+    const sessionLoadTimeout = setTimeout(() => {
+      if (mounted && isLoadingRef.current && hasActiveSessionRef.current) {
+        console.warn('Auth profile load timeout - releasing loading state');
+        setIsLoading(false);
+        toast.error('We could not load your account. Refresh to try again.');
+      }
+    }, 8000);
+
     const loadUserData = async (userId: string) => {
       try {
         const [userProfile, userRole] = await Promise.all([
@@ -276,6 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
       clearTimeout(loadingTimeout);
+      clearTimeout(sessionLoadTimeout);
       subscription.unsubscribe();
     };
   }, []);

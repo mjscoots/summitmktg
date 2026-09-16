@@ -375,7 +375,7 @@ function LazyFallback() {
 
               {/* Leads - every person who has been part of Trinity (manager and above) */}
               <Route path="/app/leads" element={
-                <ProtectedRoute>
+                <ProtectedRoute requiredRole="manager">
                   <LeadsPage />
                 </ProtectedRoute>
               } />
