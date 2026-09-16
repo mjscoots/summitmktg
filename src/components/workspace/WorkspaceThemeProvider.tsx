@@ -219,10 +219,10 @@ export function WorkspaceThemeProvider({ children }: { children: ReactNode }) {
 
     set('--background', p.background);
     set('--card', p.surface);
-    set('--popover', p.surface);
+    set('--popover', p.surfaceElevated);
     set('--secondary', p.surfaceElevated);
     set('--muted', p.surfaceElevated);
-    set('--input', p.surface);
+    set('--input', p.surfaceElevated);
     set('--foreground', p.foreground);
     set('--card-foreground', p.foreground);
     set('--popover-foreground', p.foreground);
