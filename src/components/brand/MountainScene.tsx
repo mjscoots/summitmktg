@@ -118,7 +118,10 @@ function MountainSceneBase({ className, pointerParallax = true, glowBoost = 0, l
         ranges = ['#E9E9E9', '#EDEDED', '#F0F0F0', '#F3F3F3', '#F5F5F5'];
         return;
       }
-      const styles = getComputedStyle(document.documentElement);
+      // Pass 219 - read from the public world wrapper, not <html>. Reading the
+      // root made an explicit light app-look paint the sky white, which hid the
+      // white-filled cover logo and washed the whole stage out.
+      const styles = getComputedStyle(canvas.closest('.public-world') ?? document.documentElement);
       const bg = styles.getPropertyValue('--background').trim();
       sky = bg ? `hsl(${bg})` : '#000000';
       ranges = ranges.map((fallback, i) => styles.getPropertyValue(`--range-${i + 1}`).trim() || fallback);

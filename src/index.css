@@ -172,10 +172,12 @@ html.light .site-grain {
 
   /* ━━━ LIGHT APPEARANCE - the Life workspace and an explicit light choice.
      White base, black primary, one blue accent, no gradient. ━━━ */
+  /* Pass 219 - .gold-world is deliberately absent here. The public cover is
+     built dark first with a white-filled logo, so letting an explicit light
+     app-look repaint it turned the stage near white and the logo invisible. */
   html[data-appearance='light'],
   html[data-appearance='light'] .light,
-  html[data-appearance='light'] .dark,
-  html[data-appearance='light'] .gold-world {
+  html[data-appearance='light'] .dark {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
@@ -538,6 +540,22 @@ html[data-appearance='light'] {
   --range-4: #F3F3F3;
   --range-5: #F5F5F5;
 }
+
+/* Pass 219 - the public site is dark whatever app-look the visitor picked, so
+   the wordmark letters and the range keep their black-world values there. */
+html[data-appearance='light'] .gold-world {
+  --wordmark-bg: #000000;
+  --wordmark-accent: #3A8DFF;
+  --wordmark-outline: #FFFFFF;
+  --wordmark-letters: #FFFFFF;
+
+  --range-1: #1C1C1C;
+  --range-2: #161616;
+  --range-3: #101010;
+  --range-4: #0A0A0A;
+  --range-5: #050505;
+}
+
 
 
 :root[data-workspace='pest'] .progress-track,
