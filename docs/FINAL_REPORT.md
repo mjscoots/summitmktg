@@ -6562,3 +6562,38 @@ Screenshots were captured for Home, Appearance with a card, and the cover at 390
 
 ### Checks
 Typecheck clean. Production build clean (`build OK`). No new dependency. No database write. `people_leads` before 1379, after 1379. Site not published.
+
+## Pass 215 - dark surface ladder and visible grain
+
+a. Dark surfaces (hue and saturation unchanged, lightness raised)
+- page: hsl(0 0% 0%) unchanged
+- card / surface: 240 18% 6% -> 240 18% 10% (rgb 21,21,30)
+- raised / surface-elevated / secondary / muted: 240 18% 12% -> 240 18% 16% (rgb 33,33,48)
+- popover: 240 18% 12% -> 240 18% 16%
+- border / border-subtle: 240 16% 12% -> 240 16% 20%; border-strong 240 16% 18% -> 240 16% 26%
+- measured page to card: 1.158 (target 1.14, met)
+- measured card to raised: 1.144 (target 1.12, met)
+Raised at 15% measured 1.116 card to raised, below target, so 16% is the value shipped.
+
+b. Grain
+- Root cause of invisibility: mix-blend-mode soft-light resolves to black over a pure black backdrop, and the layer sat at z-index 0 beneath opaque route backgrounds. Measured contribution over a flat black block: spread 0 of 255 (identical pixels with the layer shown and hidden).
+- Fix: blend mode screen in dark, opacity 0.05, layer raised to z-index 9 (still pointer-events none, below nav and dialogs). Light keeps the Pass 214 values exactly: soft-light at 0.035.
+- Measured spread after, five flat blocks: 4, 5, 4, 4, 4 of 255. Above the 3 value threshold, so it stops at 0.05.
+- Text cost: white body text is unchanged at 255. Worst grain pixel lifts a backdrop by 6, which dropped muted secondary text on raised from 4.513 to 4.182. Text was kept and the token was raised instead: --muted-foreground / --text-muted 229 9% 56% -> 229 9% 60%.
+
+c. Dark contrast table, re-measured after the surface change
+- page to card 1.158, card to raised 1.144
+- foreground on card 18.14, on page 21.00
+- text-secondary on card 7.34, on page 8.49
+- muted-foreground on card 5.94, on raised 5.19, on page 6.88
+- primary on card 5.45, on page 6.31
+- primary-foreground on primary 6.31
+Every text row is 4.5 or better. Borders are non-text separators at 1.31 and 1.59 against card, unchanged in intent from Pass 214.
+
+d. Screenshots in dark: /tmp/browser/p215/app_390.png, app_1280.png (signed-in home with cards), home_390.png, home_1280.png (cover).
+
+e. Cover regression: sweep 0 to 3758 in 100px steps, 38 steps, on the real scroll container (#root, which owns the scroll because of the Pass 181 overflow rule). data-latched first true at 500px, true at every step from there to the foot, and still true with data-sequence-starts 1 after returning to the top. Sign in elementFromPoint: PASS at scroll 0, 400, 1200 and 2400 at both 390x844 and 1280x900, eight of eight.
+
+f. people_leads 1379 before and 1379 after. Other baselines unchanged: profiles 536, chat_messages 717, applications 13, managed_links 23, rep_vertical_enrollments 45.
+
+Light mode was not re-tuned. Typecheck and production build clean.
