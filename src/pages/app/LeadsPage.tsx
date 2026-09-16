@@ -540,6 +540,7 @@ export default function LeadsPage() {
           {staff && scope === 'all' && visible.length > 0 && (
             <div className={cn(CARD, 'mb-3 flex flex-wrap items-center gap-2 p-3')}>
               <button
+                data-testid="lead-select-all"
                 onClick={() =>
                   setSelected((prev) =>
                     prev.size === visible.length ? new Set() : new Set(visible.map((r) => r.id))
