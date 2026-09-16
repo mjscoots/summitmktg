@@ -20,6 +20,15 @@ import {
   type LeadRow,
   type LeadScope,
 } from '@/hooks/useLeads';
+import {
+  byRankThenColdest,
+  posTagOf,
+  rankOf,
+  statusTagOf,
+  tagLabel,
+  RANK_PREFIX,
+  STATUS_PREFIX,
+} from '@/lib/leadTags';
 import LeadDrawer from '@/components/leads/LeadDrawer';
 import ThisWeekQueue, { buildWeekQueue } from '@/components/leads/ThisWeekQueue';
 import CallMode from '@/components/leads/CallMode';
