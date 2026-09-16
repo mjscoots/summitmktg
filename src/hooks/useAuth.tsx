@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, createContext, useContext, ReactNode } fro
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 import { clearAccessStateCache } from '@/hooks/useAccessState';
+import { toast } from 'sonner';
 
 
 
@@ -287,6 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
       clearTimeout(loadingTimeout);
+      clearTimeout(sessionLoadTimeout);
       subscription.unsubscribe();
     };
   }, []);
