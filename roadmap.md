@@ -127,3 +127,8 @@
 - [x] Retune the statement clock and prove the 1500ms still hold
 - [x] Add and verify the one-way statement scroll cue
 - [x] Verify latch, reduced motion, frame cost, build, gzip and baselines
+
+## Pass 203 - hero logo inversion
+- [ ] Replace the shared tint with synchronized blue-letter and white-mountain fills
+- [ ] Verify fill colors, shard seams, reverse behavior and burst inheritance
+- [ ] Verify contrast, frame cost, build, gzip and baselines
