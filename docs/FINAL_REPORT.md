@@ -5947,3 +5947,31 @@ The Pass 201 latch remains intact: after scrolling 3000px down and back, `data-s
 - Combined shell gzip for Index.tsx and index.css is 23,831 bytes, unchanged from the HEAD baseline.
 - Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23.
 - No dependency, compensation, permission, data or publication change. The site was not published.
+
+
+## Pass 203 - hero logo fill inversion
+
+### Fill mechanism
+Before, every shard used one clipped group for both paths: `<g className="cover-shard-fill" clipPath={...}>`, and both the letters and mountain were painted with `fill={url(...-fill)}` from the same blue gradient. After, every shard retains its own outer shard clip and contains `<g className="cover-shard-fill" mask={...-fill-mask}>`, with a solid `#004EFD` letter overlay and solid `#FFFFFF` mountain overlay. All shards reference one user-space mask, so one horizontal edge drives both colors. Its feather measures 16.86 SVG units, exactly 6 percent of the 281-unit logo height.
+
+No violet or third fill color remains in CoverLogo. The fill contains only `#004EFD` and `#FFFFFF`; mask luminance uses black and white solely to reveal the two solid overlays.
+
+### Color samples
+Both 390 and 1280 produced the same results:
+
+| Requested fill | Measured fill | Letters below edge | Mountain below edge | Letters above edge | Mountain above edge |
+|---:|---:|---|---|---|---|
+| 0.00 | 0.0000 | #FFFFFF | #004EFD | not visible | not visible |
+| 0.15 | 0.1515 | #004EFD | #FFFFFF | #FFFFFF | #004EFD |
+| 0.50 | 0.4994 | #004EFD | #FFFFFF | #FFFFFF | #004EFD |
+| 0.90 | 0.8979 | #004EFD | #FFFFFF | #FFFFFF | #004EFD |
+| FILL_END | 1.0000 at the burst check | #004EFD | #FFFFFF | fully covered | fully covered |
+
+At progress 0.15, 0.50 and 0.90, eight points across x 333.5, 496.0, 658.5, 821.0, 983.5, 1146.0, 1308.5 and 1471.0 all referenced the same edge and agreed across adjacent shards at 390 and 1280. That is 24 of 24 seam checks per viewport with zero disagreement. The shared edge remained 16.86 units deep at every point.
+
+At the live burst frame, both widths reported phase `burst`, fill 1.0000, letter overlay `#004EFD` and mountain overlay `#FFFFFF`. The flying shards therefore carry the completed inversion. Scrolling back to the top returned fill to 0.0000, mask opacity to 0, visible letters to `#FFFFFF` and the visible mountain to `#004EFD`.
+
+### Contrast and regression proof
+The measured WCAG contrast of `#004EFD` on `#000000` is 3.51:1. The measured contrast of `#FFFFFF` on `#000000` is 21.00:1. The blue letters hold up clearly on black at this large logo size, although 3.51:1 would not meet the 4.5:1 threshold for normal-size body text.
+
+At 390, main-thread frame work across assembly, fill and burst measured 0.100ms median and 0.200ms p95. The navigation Wordmark, favicon files, footer RidgelineMark, shared Wordmark.tsx, burst timing, swell timing, statement screen, cue and latch are untouched. Added lines contain no em dashes and no emoji. Typecheck is clean and the latest automatic production build is `build OK`. CoverLogo.tsx shell gzip is 3,208 bytes, unchanged from the HEAD baseline. Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23. No dependency, compensation, permission, data or publication change. The site was not published.
