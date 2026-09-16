@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Phone, RefreshCw, Users, Inbox, Database, PhoneCall, Check } from 'lucide-react';
+import { Phone, RefreshCw, Users, Inbox, Database, PhoneCall, Check, Undo2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageBackButton } from '@/components/shared/PageBackButton';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -104,6 +114,12 @@ export default function LeadsPage() {
     },
     true
   );
+
+  // A selection that outlives its filter assigns the wrong people. Clear it
+  // whenever any filter input changes.
+  useEffect(() => {
+    setSelected(new Set());
+  }, [scope, search, stage, hasPhone, system, chip, rankTag, statusTag]);
 
   useEffect(() => {
     if (tier === 'sales') return;
