@@ -88,6 +88,14 @@ export default function LeadsPage() {
   >([]);
   const [assignTo, setAssignTo] = useState<string>('');
   const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [lastAssign, setLastAssign] = useState<{
+    ids: string[];
+    requested: number;
+    changed: number;
+    name: string;
+    undone: boolean;
+  } | null>(null);
   const [rankTag, setRankTag] = useState<string>('all');
   const [statusTag, setStatusTag] = useState<string>('all');
   const [sort, setSort] = useState<'rank' | 'revenue'>('rank');
@@ -245,24 +253,47 @@ export default function LeadsPage() {
     }
   };
 
+  const assignTarget = managers.find((m) => m.user_id === assignTo);
+  const assignTargetName =
+    assignTo === 'free' ? 'the free pool (no owner)' : assignTarget?.full_name || 'Unnamed';
+
   const designateSelected = async () => {
     if (selected.size === 0 || !assignTo) return;
+    const ids = Array.from(selected);
     setBusy(true);
-    const { error } = await (supabase.rpc as any)('leads_designate_bulk', {
-      _leads: Array.from(selected),
+    const { data, error } = await (supabase.rpc as any)('leads_designate_bulk', {
+      _leads: ids,
       _to: assignTo === 'free' ? null : assignTo,
     });
     setBusy(false);
-    if (error) toast.error(error.message);
-    else {
-      toast.success(
-        assignTo === 'free'
-          ? `${selected.size} moved to the free pool`
-          : `${selected.size} designated`
-      );
-      setSelected(new Set());
-      reload();
+    setConfirmOpen(false);
+    if (error) {
+      toast.error(error.message);
+      return;
     }
+    const changed = Number(data ?? 0);
+    setLastAssign({ ids, requested: ids.length, changed, name: assignTargetName, undone: false });
+    toast.success(`${changed} assigned to ${assignTargetName}`);
+    setSelected(new Set());
+    reload();
+  };
+
+  const undoLastAssign = async () => {
+    if (!lastAssign || lastAssign.undone) return;
+    setBusy(true);
+    const { data, error } = await (supabase.rpc as any)('leads_designate_bulk', {
+      _leads: lastAssign.ids,
+      _to: null,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const changed = Number(data ?? 0);
+    setLastAssign({ ...lastAssign, undone: true, changed });
+    toast.success(`${changed} put back in the pool`);
+    reload();
   };
 
   return (
@@ -506,31 +537,63 @@ export default function LeadsPage() {
           )}
 
 
+          {staff && scope === 'all' && visible.length > 0 && (
+            <div className={cn(CARD, 'mb-3 flex flex-wrap items-center gap-2 p-3')}>
+              <button
+                onClick={() =>
+                  setSelected((prev) =>
+                    prev.size === visible.length ? new Set() : new Set(visible.map((r) => r.id))
+                  )
+                }
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border/60 px-3 text-[13px] font-semibold text-foreground"
+              >
+                <span
+                  className={cn(
+                    'flex h-5 w-5 items-center justify-center rounded-md border',
+                    selected.size === visible.length && selected.size > 0
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border/70'
+                  )}
+                >
+                  {selected.size === visible.length && selected.size > 0 && (
+                    <Check className="h-3 w-3" />
+                  )}
+                </span>
+                {selected.size === visible.length && selected.size > 0
+                  ? 'Clear all'
+                  : `Select all ${visible.length} these filters match`}
+              </button>
+              <p className="min-w-0 text-[13px] text-muted-foreground tabular-nums">
+                <span className="font-semibold text-foreground">{selected.size}</span> selected
+              </p>
+            </div>
+          )}
+
           {staff && scope === 'all' && selected.size > 0 && (
             <div className={cn(CARD, 'mb-3 flex flex-wrap items-center gap-2 p-3')}>
               <p className="text-[13px] font-semibold text-foreground tabular-nums">
                 {selected.size} selected
               </p>
               <Select value={assignTo} onValueChange={setAssignTo}>
-                <SelectTrigger className="h-10 flex-1 text-[13px] sm:w-[230px] sm:flex-none">
-                  <SelectValue placeholder="Designate to…" />
+                <SelectTrigger className="h-10 min-w-0 flex-1 text-[13px] sm:w-[230px] sm:flex-none">
+                  <SelectValue placeholder="Assign to…" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="free" className="text-[13px]">Free pool (no owner)</SelectItem>
                   {managers.map((m) => (
                     <SelectItem key={m.user_id} value={m.user_id} className="text-[13px]">
                       {m.full_name || 'Unnamed'}
-                      {!m.has_access ? ' · no access' : ''} · {m.designated_count}
+                      {!m.has_access ? ' · no access' : ''} · has {m.designated_count}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <button
-                onClick={designateSelected}
+                onClick={() => setConfirmOpen(true)}
                 disabled={busy || !assignTo}
                 className="inline-flex min-h-10 items-center rounded-xl bg-primary px-3 text-[13px] font-semibold text-primary-foreground disabled:opacity-50"
               >
-                Apply
+                Assign
               </button>
               <button
                 onClick={() => setSelected(new Set())}
@@ -540,6 +603,65 @@ export default function LeadsPage() {
               </button>
             </div>
           )}
+
+          {staff && lastAssign && (
+            <div className={cn(CARD, 'mb-3 flex flex-wrap items-center gap-2 p-3')}>
+              <p className="min-w-0 flex-1 text-[13px] leading-snug text-foreground">
+                {lastAssign.undone ? (
+                  <>Undone. {lastAssign.changed} leads are back in the pool with no owner.</>
+                ) : lastAssign.changed === lastAssign.requested ? (
+                  <>
+                    <span className="font-semibold tabular-nums">{lastAssign.changed}</span> leads
+                    assigned to {lastAssign.name}.
+                  </>
+                ) : (
+                  <>
+                    <span className="font-semibold tabular-nums">{lastAssign.changed}</span> leads
+                    were assigned to {lastAssign.name}, but{' '}
+                    <span className="font-semibold tabular-nums">{lastAssign.requested}</span> were
+                    selected. The difference was left out because those rows are not in the lead
+                    pool.
+                  </>
+                )}
+              </p>
+              {!lastAssign.undone && (
+                <button
+                  onClick={undoLastAssign}
+                  disabled={busy}
+                  className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl border border-border/60 px-3 text-[13px] font-semibold text-foreground disabled:opacity-50"
+                >
+                  <Undo2 className="h-3.5 w-3.5" /> Undo this assignment
+                </button>
+              )}
+              <button
+                onClick={() => setLastAssign(null)}
+                className="min-h-10 shrink-0 rounded-xl px-2 text-[13px] text-muted-foreground"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Assign {selected.size} lead{selected.size === 1 ? '' : 's'} to {assignTargetName}?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {assignTo === 'free'
+                    ? `These ${selected.size} people will have no owner and go back on the open board.`
+                    : `${assignTargetName} becomes the owner of these ${selected.size} people and will see them on their own list. You can undo this straight after.`}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={designateSelected} disabled={busy}>
+                  Yes, assign {selected.size}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           {loading ? (
             <div className="space-y-2">
