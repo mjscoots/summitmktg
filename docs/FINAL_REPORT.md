@@ -6340,3 +6340,30 @@ reduced motion context.
 - Baselines unchanged: profiles 536, chat_messages 717, applications 13,
   earnings_goals 0, managed_links 23, rep_vertical_enrollments 45.
 - Site not published.
+
+## Pass 211 - chat: warm opens, one scroll, honest divider, one message shape, room in the URL
+
+Scope: src/pages/app/ChatPage.tsx, src/components/dashboard/CommunityChat.tsx, new src/lib/chatCache.ts. No database work, no dependency added, no publish.
+
+### 1. Warm room opens and the home skeleton
+Memory cache keyed by channel, five rooms at most, least recently opened evicted (src/lib/chatCache.ts).
+Measured at 390x844 with a real session:
+- Cold open of general: first message painted 402ms, get_channel_messages calls 1, spinner rendered true.
+- Second open of the same room: 27 messages present on the first animation frame after the tap, spinner false, get_channel_messages calls at that frame 0, one refresh fetch completing behind (total 1).
+- Chat home during load: element with data-chat-skeleton="true" observed, six skeleton rows, rather than an empty column.
+
+### 2. Scroll
+scrollToBottom before: doScroll() plus requestAnimationFrame(doScroll) plus setTimeout(doScroll, 100) = three scrollTo calls per incoming message. After: one requestAnimationFrame with one scrollTo = one call. Grep shows a single scrollTo in the helper.
+Reader scrolled up 400px: instrumented container.scrollTo over three seconds recorded scrollTo_calls 0, scrollTop 3049 before and 3049 after. The existing near-bottom guard is untouched.
+
+### 3. Unread divider
+Before, the divider indexed channelMessages, which still holds kind event rows that render null. With rows m1, m2, event e1, m3, m4 and three unread, the old index lands on e1, an event row that draws nothing. The new index reads renderedMessages, the array the thread maps, and lands on m2, a text message. Measured in node against the same arrays: before e1 kind event, after m2 kind text. The live database currently holds zero rows of kind event, so the defect is not reproducible on production data today; the arithmetic is proved directly instead.
+
+### 4. One message shape
+The realtime insert handler now builds the same field set as the RPC path: id, user_id, content, is_ai, created_at, reply_to, channel, is_pinned, kind, ref_id, meta, reply_sender, reply_excerpt, edited_at. A live reply takes its quoted excerpt and sender from the parent already in the list, so the quote survives instead of vanishing. An unknown sender now resolves to an empty name, so the first frame shows the avatar with no name rather than the words Team Member; the profile fetch fills the name in behind. The words Team Member no longer appear in the file.
+
+### 5. Room in the URL
+Open room is now a query parameter. Measured round trip: opening a room gave http://localhost:8080/app/chat?room=general; loading that URL in a fresh browser context landed straight in the room with messages painted. Room to room uses replace, the first open pushes, so one back press from a room returns to the list. LAST_ROOM_KEY is gone: grep across src returns nothing.
+
+### Checks
+Typecheck clean (tsgo, tsconfig.app.json). Production build clean, built in 14.96s. ChatPage chunk 119.50 kB, gzip 33.13 kB; shell index gzip 16399 bytes. No em dashes and no emoji in added lines. Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23, rep_vertical_enrollments 45. Site not published.

@@ -154,3 +154,11 @@
 - Pass 208: dropped duplicate narrow status constraint on rep_vertical_enrollments so approval works; four active-only readers flagged for the owner.
 
 - [x] Pass 210 - industry switcher shows all three doors to a rep in one industry, muted chips route to /app/industries with no writes
+
+## Pass 211 - chat feel
+- [x] Keep the last five opened rooms in memory, warm opens paint with no spinner
+- [x] Skeleton on the chat home while the conversation list loads
+- [x] One scroll per incoming message, never when the reader has scrolled up
+- [x] Unread divider indexes the rows that actually draw
+- [x] One message shape for the fetched and the live path
+- [x] Open room lives in the address, LAST_ROOM_KEY removed
