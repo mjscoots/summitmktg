@@ -114,3 +114,9 @@
 - [x] Start the sequence once from statement visibility and latch its final state
 - [x] Remove the scroll-linked exit and give the latched statement its own white surface
 - [x] Verify scrolling, motion, reduced motion and baselines; append the report
+
+## Rep progress dashboard
+- [ ] Show each rep their industry applications, earnings goal and personal Resource links
+- [ ] Let reps add and manage their own personal Resource links
+- [ ] Add the owner team progress view to Command Center
+- [ ] Apply ownership-safe access rules and verify rep and owner views
