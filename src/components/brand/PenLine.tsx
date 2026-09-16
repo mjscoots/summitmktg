@@ -7,7 +7,6 @@ export interface PenLineProps {
   lines?: readonly string[];
   progressVariables?: readonly string[];
   windowDurations?: readonly number[];
-  caret?: boolean;
   shatterVariable?: string;
 }
 
@@ -21,7 +20,6 @@ function PenLineBase({
   lines = ['Where being a sales rep is not the end goal.'],
   progressVariables,
   windowDurations,
-  caret = false,
   shatterVariable,
 }: PenLineProps) {
   let characterOffset = 0;
@@ -33,8 +31,31 @@ function PenLineBase({
           const windowDuration = windowDurations?.[index] ?? 850;
           const characterDuration = Math.min(1, 90 / windowDuration);
           const characters = Array.from(line);
+          const tokens = line.split(/(\s+)/).filter(Boolean);
           const lineOffset = characterOffset;
           characterOffset += characters.length;
+          let tokenOffset = 0;
+          const renderCharacter = (character: string, characterIndex: number) => {
+            const denominator = Math.max(1, characters.length - 1);
+            const start = (characterIndex / denominator) * (1 - characterDuration);
+            const globalIndex = lineOffset + characterIndex;
+            const direction = characterIndex < characters.length / 2 ? -1 : 1;
+            const distance = 28 + seeded(globalIndex, 1) * 56;
+            return (
+              <span
+                className="pen-character"
+                key={`${characterIndex}-${character}`}
+                style={{
+                  '--char-start': start,
+                  '--shatter-x': `${direction * distance}px`,
+                  '--shatter-y': `${(seeded(globalIndex, 2) - 0.5) * 96}px`,
+                  '--shatter-r': `${(seeded(globalIndex, 3) - 0.5) * 110}deg`,
+                } as React.CSSProperties}
+              >
+                {character}
+              </span>
+            );
+          };
           return (
             <span
               className="pen-line"
@@ -43,34 +64,20 @@ function PenLineBase({
               style={{
                 '--pen-progress': progressVariable ? `var(${progressVariable}, 0)` : 1,
                 '--char-scale': 1 / characterDuration,
-                '--shatter-progress': shatterVariable ? `var(${shatterVariable}, 0)` : 0,
+                '--pen-shatter': shatterVariable ? `var(${shatterVariable}, 0)` : 0,
               } as React.CSSProperties}
             >
               <span className="pen-line-readable">{line}</span>
               <span className="pen-line-visual" aria-hidden="true">
-                {characters.map((character, characterIndex) => {
-                  const denominator = Math.max(1, characters.length - 1);
-                  const start = (characterIndex / denominator) * (1 - characterDuration);
-                  const next = characterIndex === characters.length - 1
-                    ? 0.999
-                    : ((characterIndex + 1) / denominator) * (1 - characterDuration);
-                  const globalIndex = lineOffset + characterIndex;
-                  const direction = characterIndex < characters.length / 2 ? -1 : 1;
-                  const distance = 28 + seeded(globalIndex, 1) * 56;
+                {tokens.map((token, tokenIndex) => {
+                  const startIndex = tokenOffset;
+                  tokenOffset += token.length;
+                  if (/^\s+$/.test(token)) {
+                    return Array.from(token).map((character, index) => renderCharacter(character, startIndex + index));
+                  }
                   return (
-                    <span
-                      className="pen-character"
-                      key={`${characterIndex}-${character}`}
-                      style={{
-                        '--char-start': start,
-                        '--char-next': next,
-                        '--shatter-x': `${direction * distance}px`,
-                        '--shatter-y': `${(seeded(globalIndex, 2) - 0.5) * 96}px`,
-                        '--shatter-r': `${(seeded(globalIndex, 3) - 0.5) * 110}deg`,
-                      } as React.CSSProperties}
-                    >
-                      {character === ' ' ? '\u00A0' : character}
-                      {caret && <span className="pen-caret" aria-hidden="true" />}
+                    <span className="pen-word" key={`${tokenIndex}-${token}`}>
+                      {Array.from(token).map((character, index) => renderCharacter(character, startIndex + index))}
                     </span>
                   );
                 })}
