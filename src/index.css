@@ -2274,7 +2274,7 @@ html[data-appearance='light'] .btn-gradient {
 .cover-block-lines > span:last-child { --line-progress: var(--payoff-2, 0); }
 .cover-actions {
   opacity: var(--button-progress, 0);
-  transform: translate3d(0, calc((1 - var(--button-progress, 0)) * 12px), 0);
+  transform: none;
   margin-top: 40px;
 }
 .cover-statement [data-animating='true'],
