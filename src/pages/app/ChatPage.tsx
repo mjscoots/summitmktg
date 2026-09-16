@@ -10,6 +10,8 @@ import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
 import { ChannelSheet } from '@/components/chat/ChannelSheet';
 import { KnockingNow } from '@/components/chat/KnockingNow';
 import { NewChatSheet } from '@/components/chat/NewChatSheet';
+import { LoadingList } from '@/components/shared/LoadingList';
+
 
 export default function ChatPage() {
   const [params, setParams] = useSearchParams();
@@ -145,8 +147,18 @@ export default function ChatPage() {
         )}
 
         <div className="phone-bar-clear min-h-0 flex-1 overflow-y-auto px-5 py-4">
-          {!loading && <ChatList conversations={channels} onOpen={openRoom} onMuteChanged={refresh} />}
+          {loading ? (
+            <div
+              data-chat-skeleton="true"
+              className="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-border/60 bg-card"
+            >
+              <LoadingList rows={6} />
+            </div>
+          ) : (
+            <ChatList conversations={channels} onOpen={openRoom} onMuteChanged={refresh} />
+          )}
         </div>
+
       </div>
     </AppLayout>
   );
