@@ -132,3 +132,13 @@
 - [x] Replace the shared tint with synchronized blue-letter and white-mountain fills
 - [x] Verify fill colors, shard seams, reverse behavior and burst inheritance
 - [x] Verify contrast, frame cost, build, gzip and baselines
+
+## Pass 204 - statement layout, arrival and finish
+- [x] Separate fixed typing and final-composition zones
+- [x] Fit both typed lines to one line after fonts load
+- [x] Shorten the stage and start the statement sooner
+- [x] Add the static three-layer ridgeline floor
+- [x] Replace character debris with one block exit
+- [x] Stagger the brand impact and limit the button glow
+- [x] Verify viewport fit, timing, latch, reduced motion and baselines
+- [x] Keep the site unpublished

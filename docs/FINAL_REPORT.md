@@ -5975,3 +5975,38 @@ At the live burst frame, both widths reported phase `burst`, fill 1.0000, letter
 The measured WCAG contrast of `#004EFD` on `#000000` is 3.51:1. The measured contrast of `#FFFFFF` on `#000000` is 21.00:1. The blue letters hold up clearly on black at this large logo size, although 3.51:1 would not meet the 4.5:1 threshold for normal-size body text.
 
 At 390, main-thread frame work across assembly, fill and burst measured 0.100ms median and 0.200ms p95. The navigation Wordmark, favicon files, footer RidgelineMark, shared Wordmark.tsx, burst timing, swell timing, statement screen, cue and latch are untouched. Added lines contain no em dashes and no emoji. Typecheck is clean and the latest automatic production build is `build OK`. CoverLogo.tsx shell gzip is 3,208 bytes, unchanged from the HEAD baseline. Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23. No dependency, compensation, permission, data or publication change. The site was not published.
+
+## Pass 204 - statement layout, arrival and finish
+
+### Layout and floor
+The statement now reserves two independent zones from its first frame. At 390 by 844 the typing centre is 202.55px, exactly 24 percent of the viewport, and the final centre is 455.75px, exactly 54 percent. At 1280 by 900 those centres are 216px and 486px. The zones do not change position during the sequence. The gap from the typed block to the brand is 102.93px at 390 by 844, 12.20 percent of the viewport, and 10.14px at 1280 by 900. The cue is independently anchored 40px above the foot at both widths.
+
+The static decorative floor uses three existing ridgeline paths in #F2F2F4, #F7F7F9 and #FBFBFC. Its measured height is 151.91px, 18 percent, at 390 by 844 and 198px, 22 percent, at 1280 by 900. On phone its top is 131.69px below the button. On desktop its top is 46.92px below the button. The cue is above the floor in stacking order and neither the button nor cue is overlapped. The floor has no animation and is aria-hidden.
+
+### Single-line fit and hierarchy
+After `document.fonts.ready`, each line is measured independently and receives a fixed fitted size for the run.
+
+| width | setup line | payoff line | wraps or clips |
+| ---: | ---: | ---: | --- |
+| 360 | 20.96px | 32px | no |
+| 390 | 22.93px | 32px | no |
+| 768 | 46.08px | 50.69px | no |
+| 1280 | 52px | 57.6px | no |
+
+Line one at 390 is 22.93px, above its 15px floor and large enough to carry the screen. Neither line reaches its floor failure case. Both layers use nowrap, have one client rect and remain inside their container.
+
+At 390 the brand is 40px and the bold line is 13.6px. At 1280 they are 88px and 29.92px. The measured ratio is exactly 0.34 at both widths. The brand remains the largest type. The stronger version would set the supporting line in sentence case at weight 500 because bold uppercase under a bold uppercase brand is two shouts. It remains bold uppercase as specified until the owner says otherwise.
+
+### Arrival, timing and motion
+The stage is 120svh. At 390 by 844 it measures 1013px with 169px of pinned travel. `FILL_END` is 0.8433 and `BURST_AT` is 0.92, so fill completion precedes the burst. The burst distance is now 155.48px from the page top, compared with 243.07px at the prior 130svh and 0.72 values. The observer threshold changed from 0.45 to 0.30. Its first-character trigger point is now approximately 422.2px, compared with 590.4px before. The permanent latch remains intact: `data-sequence-starts` stays 1 after scrolling 3000px down and back.
+
+The unchanged timing marks read back at 390 and 1280 as line one `0-1050`, line two `1350-2250`, slam `3750`, bold `4250`, button `4750`, end `5300` and cue `5900`. TRINITY first appeared at 3759.9ms and 3758.7ms; MARKETING appeared at 3843.2ms and 3842.1ms, matching the authored 3750ms and 3830ms impacts within one frame.
+
+Per-character seeded vectors, rotations, shatter variables and shatter plumbing are absent from `PenLine.tsx`, `Index.tsx` and the cover CSS. The whole typed block now exits as one impulse. Its authored progress is 0 at 3750ms, 0.9375 at 3860ms and 1 at 3970ms, corresponding to 0px, -47.48px and -50.64px at 844px height, with scale 1, 1.056 and 1.06, blur 0px, 7.5px and 8px, and opacity 1, 0.0625 and 0. The final-phase rule then removes it structurally.
+
+The landing shake is vertical, reaching 6px down and settling in 140ms. Each blue glow layer runs exactly three 900ms pulses and rests at opacity 0.35; pointer hover still raises it to 0.85.
+
+### Sweep and regression proof
+The Pass 202 sweep was rerun at both 844px and 900px heights for every width from 360px through 1440px in 40px steps. All 56 cases report zero brand overflow, zero typed-line overflow, zero character overflow and zero composition-height overflow.
+
+At 390 the sequence callback measured 0.000ms median and 0.100ms p95. Reduced motion shows the permanent final composition, hides the typing block and glow, leaves the static floor unanimated, and keeps the cue hidden. Added lines contain no em dashes and no emoji. Typecheck and production build are clean; the latest automatic build record is `build OK`. Current shell gzip sizes are Index.tsx 5,875 bytes, PenLine.tsx 905 bytes, CoverLogo.tsx 3,227 bytes and index.css 18,544 bytes. Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23. No dependency, compensation, permission, data or publication change. The site was not published.
