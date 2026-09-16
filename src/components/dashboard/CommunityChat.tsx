@@ -29,6 +29,8 @@ import {
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useChatSkin } from '@/hooks/useChatSkin';
 import { MountainRange } from '@/components/brand/MountainRange';
+import { readRoomCache, writeRoomCache } from '@/lib/chatCache';
+
 
 interface ChatMessage {
   id: string;
@@ -159,17 +161,22 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const { user, profile, role } = useAuth();
   const { activeVertical } = useWorkspace();
   const [activeChannel, setActiveChannel] = useState(channelSlug || 'general');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
+  const firstCache = readRoomCache<ChatMessage>(channelSlug || 'general');
+  const [messages, setMessages] = useState<ChatMessage[]>(firstCache?.messages ?? []);
+  const [loading, setLoading] = useState(!firstCache);
+  const [hasMore, setHasMore] = useState(!!firstCache?.hasMore);
+
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
-  const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
+  const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>(
+    (firstCache?.profiles as Record<string, ProfileInfo>) ?? {}
+  );
   const profileMapRef = useRef<Record<string, ProfileInfo>>({});
+
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
