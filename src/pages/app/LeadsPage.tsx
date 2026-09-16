@@ -437,7 +437,13 @@ export default function LeadsPage() {
 
           {tier !== 'sales' && (
             <div data-testid="lead-filter-row" className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <Select value={rankTag} onValueChange={setRankTag}>
+              <Select
+                value={rankTag}
+                onValueChange={(v) => {
+                  setRankTag(v);
+                  if (v !== 'all') setChip('all');
+                }}
+              >
                 <SelectTrigger className="h-10 min-w-0 text-[13px]" aria-label="Rank">
                   <SelectValue placeholder="Rank" />
                 </SelectTrigger>
@@ -450,7 +456,13 @@ export default function LeadsPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={statusTag} onValueChange={setStatusTag}>
+              <Select
+                value={statusTag}
+                onValueChange={(v) => {
+                  setStatusTag(v);
+                  if (v !== 'all') setChip('all');
+                }}
+              >
                 <SelectTrigger className="h-10 min-w-0 text-[13px]" aria-label="Status">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
