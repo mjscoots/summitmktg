@@ -6071,3 +6071,74 @@ Get in button at its own centre: topmost is A.btn-purple.cover-get-in - still cl
 - No files edited this pass; no em dashes or emoji added.
 - Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23.
 - Site not published.
+
+## Pass 207 - two database function fixes
+
+### 1. my_active_vertical() compared the wrong column
+
+Before (body):
+```sql
+SELECT COALESCE(
+  (SELECT p.active_vertical FROM public.profiles p WHERE p.id = auth.uid()),
+  'Pest')
+```
+After (body):
+```sql
+SELECT COALESCE(
+  (SELECT p.active_vertical FROM public.profiles p WHERE p.user_id = auth.uid()),
+  'Pest')
+```
+Signature, STABLE SECURITY DEFINER, search_path = public and the 'Pest' fallback are unchanged. No grant changes.
+
+Proof the old predicate could never match:
+```sql
+select count(*) total, count(*) filter (where id = user_id) id_eq_user from public.profiles;
+-- total 536, id_eq_user 0
+```
+
+Values returned for real users after the change (jwt sub set per user inside a rolled-back block):
+- c84bd392-7d4a-4f14-a7fe-4c1679397e77: profile Fiber, my_active_vertical Fiber
+- 00baa414-57c8-42e5-a20b-3804412aab58: profile Fiber, my_active_vertical Fiber
+- f8b02a20-a2c9-4619-a306-0d85d346fdc1: profile Pest, my_active_vertical Pest
+- 39dc52e7-d1f4-49d5-b4ea-32e8ee387baa: profile Pest, my_active_vertical Pest
+
+Dependent functions executed without error after the change, one by one: get_workspace_mentionables OK, get_events_feed OK, get_chat_channel_state OK, get_daily_drill OK.
+
+### 2. enroll_vertical_on_approval() could never set the active vertical
+
+Before (tail):
+```sql
+    NEW.active_vertical := COALESCE(NEW.active_vertical, _vert);
+  END IF;
+  RETURN NEW;
+```
+After (tail):
+```sql
+    IF _vert IS NOT NULL AND COALESCE(NEW.active_vertical, '') <> _vert THEN
+      UPDATE public.profiles SET active_vertical = _vert WHERE user_id = NEW.user_id;
+    END IF;
+  END IF;
+  RETURN NEW;
+```
+Measured note, not asserted: the reported COALESCE was only half the reason. This trigger is registered AFTER UPDATE on public.profiles (trg_enroll_vertical_on_approval, timing AFTER), so assigning NEW.active_vertical was discarded regardless of the COALESCE. A first attempt that only replaced the COALESCE with a direct NEW assignment still measured Pest in the probe. The working form is an explicit UPDATE of the same row, guarded to the approval transition already in place, guarded on _vert not null, and guarded on a value change so it does not rewrite a row that is already correct. Status is unchanged by that UPDATE, so the trigger's own OLD.status guard prevents recursion.
+
+Rollback-only probe (single transaction, exception-rolled back):
+```
+result = rollback_probe:Fiber
+profiles 536/536  applications 13/13  enrollments 45/45  profiles with Fiber 2/2  (before/after)
+```
+So a Pest profile taken through pending -> active with a Fiber application landed on active_vertical = Fiber, and nothing persisted.
+
+### Adjacent finding, not fixed in this pass
+public.rep_vertical_enrollments carries two conflicting CHECK constraints on status:
+- rep_vertical_enrollments_status_check allows only interested, onboarding, active
+- rep_vertical_enrollments_status_chk allows interested, applied, approved, onboarding, active, rejected, paused
+
+The trigger writes status 'approved', which the first constraint rejects, so a real approval raises. The probe above had to drop that narrower constraint inside the rolled-back transaction to run at all; the constraint is still present in the database (verified after rollback). Fixing it is a schema change outside the scope of this pass and is flagged for the owner.
+
+### Checks
+- Typecheck and production build clean, build-errors.log newest entry: build OK.
+- No client changes, no other function changes, no grants or revokes, no backfill of active_vertical.
+- No em dashes and no emoji in added lines.
+- Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23.
+- Site not published.
