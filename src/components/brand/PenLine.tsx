@@ -15,7 +15,6 @@ function PenLineBase({
   progressVariables,
   windowDurations,
 }: PenLineProps) {
-  let characterOffset = 0;
   return (
     <p className={className}>
       <span className="pen-lines">
@@ -25,13 +24,10 @@ function PenLineBase({
           const characterDuration = Math.min(1, 90 / windowDuration);
           const characters = Array.from(line);
           const tokens = line.split(/(\s+)/).filter(Boolean);
-          const lineOffset = characterOffset;
-          characterOffset += characters.length;
           let tokenOffset = 0;
           const renderCharacter = (character: string, characterIndex: number) => {
             const denominator = Math.max(1, characters.length - 1);
             const start = (characterIndex / denominator) * (1 - characterDuration);
-            const distance = 28 + seeded(globalIndex, 1) * 56;
             return (
               <span
                 className="pen-character"

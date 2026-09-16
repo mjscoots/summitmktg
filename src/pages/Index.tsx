@@ -119,7 +119,7 @@ const Index = () => {
     };
   }, []);
 
-  // One guarded clock begins the first time the statement is 45 percent visible.
+  // One guarded clock begins the first time the statement is 30 percent visible.
   // Font and layout measurement stay outside the animation loop.
   useEffect(() => {
     const statement = statementRef.current;
