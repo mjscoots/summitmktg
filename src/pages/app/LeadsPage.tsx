@@ -163,9 +163,11 @@ export default function LeadsPage() {
   }, [staff]);
 
   const visible = useMemo(() => {
-    const base = clientTag ? rows.filter((r) => (r.tags || []).includes(clientTag)) : rows;
+    let base = clientTag ? rows.filter((r) => (r.tags || []).includes(clientTag)) : rows;
+    // No hire stays hidden everywhere unless it is asked for by name.
+    if (stage === 'all') base = base.filter((r) => r.stage !== 'excluded');
     return sort === 'rank' ? [...base].sort(byRankThenColdest) : base;
-  }, [rows, clientTag, sort]);
+  }, [rows, clientTag, sort, stage]);
 
   // Call mode works the exact list the This week section shows, so the two counts agree.
   const callable = useMemo(
