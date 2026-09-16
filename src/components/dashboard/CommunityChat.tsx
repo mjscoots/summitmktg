@@ -302,7 +302,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     const parsed: ChatMessage[] = rows.map((r) => {
       if (!r.is_ai && r.user_id) {
         profiles[r.user_id] = {
-          full_name: withArchivedSuffix(r.sender_name || 'Team Member', r.sender_archived),
+          full_name: withArchivedSuffix(r.sender_name || '', r.sender_archived),
           avatar_url: r.sender_avatar ?? null,
           is_active_now: r.sender_active ?? false,
           role: r.sender_role ?? undefined,
@@ -335,24 +335,51 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     return parsed;
   }, []);
 
-  // First page for the active channel
+  // First page for the active channel. A room opened before renders from memory
+  // on the first frame and reconciles quietly when the fetch returns.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const cached = readRoomCache<ChatMessage>(activeChannel);
+    if (cached) {
+      setMessages(cached.messages);
+      setHasMore(cached.hasMore);
+      setProfileMap((prev) => ({ ...(cached.profiles as Record<string, ProfileInfo>), ...prev }));
+      setLoading(false);
+    } else {
       setLoading(true);
       setMessages([]);
+    }
+    (async () => {
       const { data, error } = await (supabase as any).rpc('get_channel_messages', {
         _channel: activeChannel,
         _limit: 50,
       });
       if (cancelled) return;
       if (error || !data || data.error) { setLoading(false); return; }
-      setMessages(absorbPage(data.messages || []));
+      const page = absorbPage(data.messages || []);
+      setMessages((prev) => {
+        // Keep anything newer that arrived live while the fetch was in flight.
+        const ids = new Set(page.map((m) => m.id));
+        const extra = prev.filter((m) => !ids.has(m.id) && (m.channel || 'general') === activeChannel
+          && page.length > 0 && new Date(m.created_at).getTime() > new Date(page[page.length - 1].created_at).getTime());
+        return [...page, ...extra];
+      });
       setHasMore(!!data.has_more);
       setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [activeChannel, absorbPage]);
+
+  // Hold the open room in memory, newest state wins, five rooms at most.
+  useEffect(() => {
+    if (loading) return;
+    writeRoomCache<ChatMessage>(activeChannel, {
+      messages: messages.filter((m) => (m.channel || 'general') === activeChannel),
+      hasMore,
+      profiles: profileMap,
+    });
+  }, [activeChannel, messages, hasMore, profileMap, loading]);
+
 
   const loadOlder = useCallback(async () => {
     const container = containerRef.current;
