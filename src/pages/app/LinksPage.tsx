@@ -21,6 +21,7 @@ import VetCalculator from '@/components/VetCalculator';
 import { PageHeader } from '@/components/layout/PageHeader';
 import MyNextYearPay from '@/components/money/MyNextYearPay';
 import FiberPayScaleTile from '@/components/fiber/FiberPayScaleTile';
+import { PersonalLinksSection } from '@/components/links/PersonalLinksSection';
 
 
 
@@ -623,6 +624,7 @@ export default function LinksPage() {
         {/* Links Tab */}
         {activeTab === 'links' && (
           <>
+            <PersonalLinksSection />
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[1, 2, 3, 4].map(i => (

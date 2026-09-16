@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { CountUp } from '@/components/shared/CountUp';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import type { UserBadge } from '@/hooks/useBadges';
+import { RepAccountProgress } from '@/components/progress/RepAccountProgress';
 
 export default function ProgressPage() {
   const { user } = useAuth();
@@ -31,6 +32,8 @@ export default function ProgressPage() {
     <AppLayout>
       <main className="mx-auto max-w-3xl space-y-8 px-5 py-8 md:space-y-12 md:px-8 md:py-12">
         <PageHeader title="Progress" context="Your points, recognition and To do." />
+
+        <RepAccountProgress />
 
         {isLoading ? (
           <Skeleton className="h-24 w-full" />

@@ -25,6 +25,7 @@ import { WinterPlanPanel } from "@/components/command/WinterPlanPanel";
 import { FiberInstallsPanel } from "@/components/admin/FiberInstallsPanel";
 import AdminIndustriesTab from "@/components/admin/AdminIndustriesTab";
 import { useVerticalLead } from "@/hooks/useVerticalLead";
+import { RepProgressPanel } from "@/components/command/RepProgressPanel";
 
 
 // ---------- Tokens (scoped to this page) ----------
@@ -585,6 +586,11 @@ export default function CommandCenterPage() {
           <StatCard label="Teams" value={live.teams} />
           <StatCard label="Recruits" value={live.recruits} />
           <StatCard label="Open Applications" value={live.openApps} />
+        </div>
+
+        <SectionHeader title="Rep Progress" tag="Owner" />
+        <div style={{ marginBottom: 40 }}>
+          <RepProgressPanel />
         </div>
 
         {/* RECRUITING ANALYTICS */}

@@ -116,7 +116,7 @@
 - [x] Verify scrolling, motion, reduced motion and baselines; append the report
 
 ## Rep progress dashboard
-- [ ] Show each rep their industry applications, earnings goal and personal Resource links
-- [ ] Let reps add and manage their own personal Resource links
-- [ ] Add the owner team progress view to Command Center
-- [ ] Apply ownership-safe access rules and verify rep and owner views
+- [x] Show each rep their industry applications, earnings goal and personal Resource links
+- [x] Let reps add and manage their own personal Resource links
+- [x] Add the owner team progress view to Command Center
+- [x] Apply ownership-safe access rules and verify rep and owner views

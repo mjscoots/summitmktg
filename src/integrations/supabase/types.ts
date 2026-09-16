@@ -2886,6 +2886,7 @@ export type Database = {
           icon: string | null
           id: string
           is_active: boolean | null
+          link_scope: string
           target_role: string
           title: string
           updated_at: string | null
@@ -2900,6 +2901,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_active?: boolean | null
+          link_scope?: string
           target_role?: string
           title: string
           updated_at?: string | null
@@ -2914,6 +2916,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_active?: boolean | null
+          link_scope?: string
           target_role?: string
           title?: string
           updated_at?: string | null
@@ -8677,6 +8680,7 @@ export type Database = {
         Returns: Json
       }
       reopen_winter_plan: { Args: { _user_id: string }; Returns: Json }
+      rep_progress_summary: { Args: never; Returns: Json }
       request_pairing: {
         Args: { _manager_id: string; _vertical: string }
         Returns: Json
