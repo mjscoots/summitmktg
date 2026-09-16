@@ -156,10 +156,11 @@ export function AskSection() {
 interface SheetProps {
   /** The element that has to be seen before the sheet rises. */
   watchId: string;
+  completionId?: string;
 }
 
 /** The sheet: rises once per visit, closes for good when dismissed. */
-export function AskSheet({ watchId }: SheetProps) {
+export function AskSheet({ watchId, completionId }: SheetProps) {
   const ask = useAskAnswers();
   const [open, setOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement | null>(null);
@@ -186,32 +187,27 @@ export function AskSheet({ watchId }: SheetProps) {
     returnTo.current?.focus?.();
   }, []);
 
-  // The sheet waits until the statement sequence has passed, so it never
-  // interrupts the scroll-controlled copy.
+  // Once the sequence is complete, the first scroll beyond the pinned stage
+  // opens the sheet immediately.
   useEffect(() => {
     if (seen()) return;
     const node = document.getElementById(watchId);
     if (!node) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (closedRef.current) return;
-          // Trigger immediately when the bottom of the stage moves above the viewport bottom,
-          // provided the sequence is complete.
-          const isComplete = (entry.target as HTMLElement).dataset.sequenceComplete === 'true';
-          const past = entry.boundingClientRect.bottom < window.innerHeight;
-          if (past && isComplete) {
-            setOpen(true);
-          }
-        });
-      },
-      { threshold: [0, 0.5, 0.95, 1] },
-    );
-    observer.observe(node);
-    return () => {
-      observer.disconnect();
+    const check = () => {
+      if (closedRef.current) return;
+      const complete = !completionId || document.getElementById(completionId)?.dataset.sequenceComplete === 'true';
+      if (complete && node.getBoundingClientRect().bottom <= window.innerHeight + 2) setOpen(true);
     };
-  }, [watchId]);
+    const root = document.getElementById('root');
+    const target: HTMLElement | Window = root || window;
+    target.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('trnty:statement-complete', check);
+    check();
+    return () => {
+      target.removeEventListener('scroll', check);
+      window.removeEventListener('trnty:statement-complete', check);
+    };
+  }, [watchId, completionId]);
 
   // Escape closes, Tab cycles inside the sheet.
   useEffect(() => {

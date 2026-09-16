@@ -312,10 +312,10 @@ const Index = () => {
                 </div>
                 <div className="cover-final-phase">
                   <h1 className="cover-brand-slam" data-copy-block="brand" data-sequence-part="brand" data-animating="false">
-                    <span>TRINITY</span> <span>MARKETING</span>
+                    <span className="cover-brand-impact"><span>TRINITY</span> <span>MARKETING</span></span>
                   </h1>
                   <p className="cover-bold-line" data-copy-block="bold" data-sequence-part="bold" data-animating="false">
-                    Where being a sales rep is not the end goal.
+                    <span>Where being a sales rep is not the end goal.</span>
                   </p>
                   <div className="cover-actions flex w-full items-center justify-center" data-copy-block="button" data-sequence-part="button" data-animating="false">
                     <span className="cover-get-in-wrap">

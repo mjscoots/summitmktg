@@ -2294,9 +2294,9 @@ html[data-appearance='light'] .btn-gradient {
   text-transform: uppercase;
   color: #004EFD;
   opacity: var(--brand-progress, 0);
-  transform: scale(var(--brand-scale, 1.3));
 }
-.cover-brand-slam > span { display: block; }
+.cover-brand-impact { display: block; transform: scale(var(--brand-scale, 1.3)); }
+.cover-brand-impact > span { display: block; }
 .cover-bold-line {
   max-width: 28ch;
   margin-top: 28px;
@@ -2308,6 +2308,9 @@ html[data-appearance='light'] .btn-gradient {
   text-transform: uppercase;
   color: #0A0A0F;
   opacity: var(--bold-progress, 0);
+}
+.cover-bold-line > span {
+  display: block;
   transform: translate3d(0, calc((1 - var(--bold-progress, 0)) * 8px), 0);
 }
 .cover-actions {
@@ -2352,7 +2355,7 @@ html[data-appearance='light'] .btn-gradient {
 }
 @media (min-width: 700px) {
   .cover-typing-phase { width: min(100%, 34ch); }
-  .cover-brand-slam > span { display: inline; }
+  .cover-brand-impact > span { display: inline; }
   .cover-actions { margin-top: 44px; }
   .cover-bold-line { margin-top: 40px; }
 }
