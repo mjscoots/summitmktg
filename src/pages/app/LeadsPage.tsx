@@ -411,7 +411,7 @@ export default function LeadsPage() {
               </SelectContent>
             </Select>
             <Select value={hasPhone} onValueChange={setHasPhone}>
-              <SelectTrigger className="h-10 text-[13px] sm:w-[150px]">
+              <SelectTrigger className="h-10 text-[13px] sm:w-[150px]" aria-label="Phone">
                 <SelectValue placeholder="Phone" />
               </SelectTrigger>
               <SelectContent>
