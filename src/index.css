@@ -2244,6 +2244,8 @@ html[data-appearance='light'] .btn-gradient {
   letter-spacing: 0;
   text-transform: none;
 }
+.cover-pen .pen-line-readable,
+.cover-ink-headline .pen-line-readable { color: transparent; }
 .cover-ink-headline .pen-lines { gap: 0.02em; }
 .cover-block-line {
   display: block;
