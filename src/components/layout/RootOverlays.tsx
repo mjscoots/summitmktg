@@ -8,6 +8,7 @@ import { Toaster as Sonner } from '@/components/ui/sonner';
 export default function RootOverlays() {
   return (
     <>
+      <div className="site-grain" aria-hidden="true" />
       <Toaster />
       <Sonner />
     </>

@@ -6517,3 +6517,48 @@ A rep session could not be minted without an approval prompt, so the rep case wa
 Typecheck clean, production build clean (build OK). LeadsPage chunk 44.1 kB raw. No new npm dependency. No em dashes and no emoji in added lines.
 No row in people_leads was created, updated or deleted; the only migration replaced two read-only functions.
 Site not published.
+
+## Pass 214 - texture and contrast across the site
+
+### Token system read first
+The existing surface ladder is `--background`, `--surface` / `--card`, `--surface-elevated`, `--popover`, and `--surface-sunken`, with `--border`, `--border-subtle`, and `--border-strong` separating edges. Existing accents are `--primary`, `--ice`, `--workspace-accent`, `--accent` / `--violet`, `--destructive`, `--success`, `--warning`, `--celebrate-warm`, and the three medal tokens. Background, card, popover, primary, accent, destructive, success, warning, borders, text hierarchy, and workspace accents are all defined in both appearances. No token was renamed and no new hue was introduced.
+
+### Grain and fades
+One `.site-grain` layer is mounted once above the route root. It is an inline SVG `feTurbulence` data URI at opacity 0.035, z-index 0, and `pointer-events: none`; route content is z-index 1. The low opacity adds fine material without clouding type. `elementFromPoint` returned BUTTON over the Appearance control in both appearances and A over the cover Sign in link. The two earned fades are the sticky app shell header, where it separates persistent controls from moving content, and `PageHeader`, where it marks the start of a screen without sitting behind body copy. No card received a gradient.
+
+### Surface levels, before and after
+| appearance | level | before | after | adjacent contrast before | adjacent contrast after |
+| --- | --- | --- | --- | ---: | ---: |
+| Dark | page | `hsl(0 0% 0%)` | unchanged | - | - |
+| Dark | card / surface | `hsl(240 18% 3%)` | `hsl(240 18% 6%)` | page to card 1.04 | 1.08 |
+| Dark | raised / popover | `hsl(240 18% 7%)` | `hsl(240 18% 12%)` | card to raised 1.06 | 1.11 |
+| Light | page | `hsl(0 0% 100%)` | unchanged | - | - |
+| Light | card / surface | `hsl(0 0% 100%)` / `hsl(240 18% 97%)` | `hsl(240 18% 96%)` | page to card 1.00 | 1.11 |
+| Light | raised / popover | `hsl(0 0% 100%)` | `hsl(240 18% 90%)` | card to raised 1.00 | 1.17 |
+
+### Contrast, computed foreground against computed background
+| item | Dark fg / bg | Dark ratio | Light fg / bg | Light ratio |
+| --- | --- | ---: | --- | ---: |
+| Body | 255,255,255 / 0,0,0 | 21.00 | 0,0,0 / 255,255,255 | 21.00 |
+| Secondary | 161,164,181 / 0,0,0 | 8.49 | 79,83,105 / 255,255,255 | 7.57 |
+| Muted | 133,136,153 / 0,0,0 | 5.98 | 95,99,119 / 255,255,255 | 5.94 |
+| Button default | 0,0,0 / 56,139,255 | 6.31 | 255,255,255 / 0,0,0 | 21.00 |
+| Button destructive | 0,0,0 / 255,92,97 | 6.96 | 255,255,255 / 175,29,33 | 6.95 |
+| Button secondary | 255,255,255 / 25,25,36 | 17.41 | 0,0,0 / 246,246,249 | 19.47 |
+| Button outline | 255,255,255 / 0,0,0 | 21.00 | 0,0,0 / 255,255,255 | 21.00 |
+| Button ghost | 133,136,153 / 0,0,0 | 5.98 | 95,99,119 / 255,255,255 | 5.94 |
+| Button link | 56,139,255 / 0,0,0 | 6.31 | 0,0,0 / 255,255,255 | 21.00 |
+| Badge solid | 0,0,0 / 56,139,255 | 6.31 | 255,255,255 / 0,0,0 | 21.00 |
+| Badge default / secondary / destructive / success / warning | 255,255,255 / 25,25,36 | 17.41 | 0,0,0 / 246,246,249 | 19.47 |
+| Badge outline | 255,255,255 / 0,0,0 | 21.00 | 0,0,0 / 255,255,255 | 21.00 |
+| Role, tier, locked-in, medal, streak and warm chips | foreground / semantic surface | at least 17.41 | foreground / semantic surface | at least 19.47 |
+
+Before fixes, light muted text was about 4.3:1, and translucent status chips ranged below 4.5:1, including warning chips. Muted moved to 5.94:1. Shared badge and chip labels now use foreground on a semantic solid surface while their existing accent remains in the border, taking every measured shared variant above 4.5:1. No measured pair remains below AA.
+
+### Cover regression
+A fresh, motion-enabled browser latched the statement at scroll 500px on 390 by 844 and 600px on 1280 by 900. `data-sequence-starts` stayed 1 and `data-latched` stayed true after the complete 100px sweep and return to the top. At scroll 0, 400, 1200, and 2400, `elementFromPoint` at the Sign in centre returned the Sign in anchor at both viewport sizes, all eight checks. Cover source, sequence, logo fill, statement rules, timing, and copy were not changed.
+
+Screenshots were captured for Home, Appearance with a card, and the cover at 390 by 844 and 1280 by 900 in both appearances. Grain did not reduce measured text contrast, so opacity stayed 0.035.
+
+### Checks
+Typecheck clean. Production build clean (`build OK`). No new dependency. No database write. `people_leads` before 1379, after 1379. Site not published.

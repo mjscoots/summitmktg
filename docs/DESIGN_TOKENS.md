@@ -24,13 +24,13 @@ Base (Pest, Fiber and every dark surface):
 | Token | Value | Use |
 | --- | --- | --- |
 | `--background` | `#0B0D12` | Page surface |
-| `--surface` / `--card` | `#12151C` | Cards, panels, tables |
-| `--surface-elevated` | `#1A1E27` | Inputs, hover, raised rows |
+| `--surface` / `--card` | `hsl(240 18% 6%)` | Cards, panels, tables |
+| `--surface-elevated` / `--popover` | `hsl(240 18% 12%)` | Inputs, hover, raised rows |
 | `--border` | `#262B36` | Dividers |
 | `--border-strong` | `#333A48` | Outlines, secondary buttons |
 | `--foreground` | `#F5F7FA` | Primary text and numbers |
 | `--text-secondary` | `#B6BDC9` | Supporting text |
-| `--text-muted` | `#7C8595` | Labels |
+| `--text-muted` | `hsl(229 9% 56%)` | Labels |
 | `--primary` | `#F5F7FA` on `#0B0D12` text | Primary buttons |
 | `--ice` (accent) | `#5AD1FF` | See the accent rule |
 | `--destructive` | `#FF5A5F` | Errors and mandatory only |
@@ -47,6 +47,7 @@ Workspace accent (`--workspace-accent`):
 
 ## Textures
 
+- Global: one fixed 3.5% fractal noise plate beneath every route.
 - Pest: dotted grid, 22px.
 - Fiber: fine line grid, 28px.
 - Life: white light surface with paper grain.
