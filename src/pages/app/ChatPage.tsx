@@ -11,12 +11,11 @@ import { ChannelSheet } from '@/components/chat/ChannelSheet';
 import { KnockingNow } from '@/components/chat/KnockingNow';
 import { NewChatSheet } from '@/components/chat/NewChatSheet';
 
-const LAST_ROOM_KEY = 'summit.chat.lastRoom';
-
 export default function ChatPage() {
   const [params, setParams] = useSearchParams();
   const { channels, refresh, loading } = useChatChannels();
-  const [openSlug, setOpenSlug] = useState<string | null>(null);
+  // The open room lives in the address, so a refresh and a shared link both work.
+  const openSlug = params.get('room');
   const [searchOpen, setSearchOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
@@ -38,19 +37,12 @@ export default function ChatPage() {
 
   const openRoom = useCallback((slug: string) => {
     setSearchOpen(false);
-    setOpenSlug(slug);
-    try { localStorage.setItem(LAST_ROOM_KEY, slug); } catch { /* storage unavailable */ }
-  }, []);
-
-  // A deep link from Home opens that room straight away.
-  const roomParam = params.get('room');
-  useEffect(() => {
-    if (!roomParam) return;
-    openRoom(roomParam);
-    const next = new URLSearchParams(params);
-    next.delete('room');
+    const next = new URLSearchParams(window.location.search);
+    next.set('room', slug);
+    // Replace, so back goes to the list in one step rather than every room visited.
     setParams(next, { replace: true });
-  }, [roomParam, openRoom, params, setParams]);
+  }, [setParams]);
+
 
 
   const openDm = useCallback((slug: string) => {
