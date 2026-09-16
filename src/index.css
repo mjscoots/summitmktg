@@ -2167,6 +2167,7 @@ html[data-appearance='light'] .btn-gradient {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: min(calc(100svh - 48px), 440px);
   pointer-events: auto;
 }
 /* The stage pins only the cover performance. The statement follows in flow. */
@@ -2264,6 +2265,7 @@ html[data-appearance='light'] .btn-gradient {
 .cover-typed-lines .pen-line-readable { color: transparent; }
 .cover-statement[data-phase='final'] .cover-typing-phase,
 .cover-statement[data-phase='final'] .cover-typing-phase .pen-line { opacity: 0; visibility: hidden; pointer-events: none; }
+.cover-statement[data-phase='final'] .cover-typing-phase .pen-character { transform: none; }
 .cover-final-phase {
   position: absolute;
   inset: 50% auto auto 50%;
@@ -2322,10 +2324,10 @@ html[data-appearance='light'] .btn-gradient {
 .cover-get-in-glow-wide { filter: blur(26px); transform: scale(1.14); }
 .cover-statement[data-sequence='playing'] .cover-get-in-glow,
 .cover-statement[data-sequence='done'] .cover-get-in-glow {
-  animation: cover-button-glow 2000ms var(--motion-ease-in-out) 4000ms infinite backwards;
+  animation: cover-button-glow 2000ms var(--motion-ease-in-out) 5300ms infinite backwards;
   will-change: opacity;
 }
-.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 4400ms; }
+.cover-statement[data-sequence='playing'] .cover-get-in-glow-wide { animation-delay: 5700ms; }
 .cover-statement[data-sequence='done'] .cover-get-in-glow { animation-delay: 0ms; }
 .cover-statement[data-sequence='done'] .cover-get-in-glow-wide { animation-delay: 400ms; }
 @keyframes cover-button-glow {
@@ -2345,10 +2347,70 @@ html[data-appearance='light'] .btn-gradient {
   box-shadow: inset 0 -2px 0 #000000;
 }
 @media (min-width: 700px) {
+  .cover-statement-copy { min-height: min(calc(100svh - 48px), 560px); }
   .cover-typing-phase { width: min(100%, 34ch); }
-  .cover-brand-impact > span { display: inline; }
   .cover-actions { margin-top: 44px; }
   .cover-bold-line { margin-top: 40px; }
+}
+.statement-scroll-cue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 28px;
+  opacity: 0;
+  pointer-events: none;
+}
+.cover-statement[data-sequence='done']:not([data-cue-dismissed='true']) .statement-scroll-cue {
+  animation: statement-cue-in 400ms ease-out 600ms both;
+}
+.cover-statement[data-cue-dismissed='true'] .statement-scroll-cue {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+.statement-scroll-label {
+  padding-left: 0.34em;
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 15, 0.55);
+}
+.statement-scroll-track {
+  position: relative;
+  width: 2px;
+  height: 44px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(10, 10, 15, 0.12);
+}
+.statement-scroll-bead {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 16px;
+  border-radius: 999px;
+  background: #004EFD;
+  animation: statement-cue-travel 1800ms ease-in-out infinite;
+}
+.statement-scroll-chevron {
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border-right: 2px solid #004EFD;
+  border-bottom: 2px solid #004EFD;
+  transform: rotate(45deg);
+}
+@media (min-width: 700px) { .statement-scroll-cue { margin-top: 36px; } }
+@keyframes statement-cue-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes statement-cue-travel {
+  0% { opacity: 0; transform: translateY(-16px); }
+  15% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(44px); }
 }
 @keyframes cover-stage-impact {
   0% { transform: translate3d(0, 0, 0); }
@@ -2496,6 +2558,7 @@ html[data-appearance='light'] .btn-gradient {
   .pen-character { opacity: 1 !important; }
   .cover-statement[data-impact='true'] { animation: none !important; transform: none !important; }
   .cover-get-in-glow { display: none !important; }
+  .statement-scroll-cue { display: none !important; }
   .cover-actions { animation: none !important; opacity: 1 !important; transform: none !important; }
   .btn-purple { transition: none !important; }
 }
