@@ -197,10 +197,12 @@ export function AskSheet({ watchId, completionId }: SheetProps) {
       if (closedRef.current) return;
       const complete = !completionId || document.getElementById(completionId)?.dataset.sequenceComplete === 'true';
       if (complete && node.getBoundingClientRect().bottom <= window.innerHeight) setOpen(true);
-    };
-    const root = document.getElementById('root');
-    const target: HTMLElement | Window = root || window;
-    target.addEventListener('scroll', check, { passive: true });
+          const node = entry.target as HTMLElement;
+          const isComplete = node.dataset.sequenceComplete === "true";
+          const past = entry.boundingClientRect.bottom < window.innerHeight;
+          if (past && isComplete) {
+            setOpen(true);
+          }
     window.addEventListener('trnty:statement-complete', check);
     check();
     return () => {
