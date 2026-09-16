@@ -6655,3 +6655,52 @@ Working case in the open room, all four events arrived after the change:
 Row counts: chat_messages 717 before / 717 after, chat_reactions 155 before / 155 after,
 people_leads 1379. Zero rows matching the probe content remain. Typecheck clean, build OK.
 Not published.
+
+## Pass 217 - hand a batch of the call board to a manager
+
+UI only. No new RPC. Both existing functions matched the brief:
+`leads_designate_bulk(_leads uuid[], _to uuid)` guards with
+`IF NOT public.is_staff(auth.uid()) THEN RAISE EXCEPTION 'Only admins and the owner can reassign leads'`,
+updates in one statement scoped `AND bucket = 'lead'`, writes one `lead_activities`
+row per lead, returns the changed count, and frees on `_to IS NULL`.
+`leads_manager_options()` returns user_id, full name, designated count and access.
+
+### Selection against SQL
+| Item | Screen | SQL |
+| --- | --- | --- |
+| Rank A + has phone | `Select all 42 these filters match`, header `42 of 1337 shown.` | `count(*) where 'rank-a' = any(tags) and coalesce(phone,'') <> ''` = **42** |
+| After select all | `42 selected` | - |
+| Selection clears on filter change | `1 selected` per search, `0 selected` after the next search | - |
+
+### Trial batch, assign, undo (all undone)
+- Batch: Adria, Alisa, Brian Kinuti. Picker showed `Brandon Pillar · has 16`, `Liam Gardner · has 12`, `Mathew Joyce · has 11`, plus `Free pool (no owner)`.
+- Confirmation verbatim: `Assign 3 leads to Brandon Pillar?` / `Brandon Pillar becomes the owner of these 3 people and will see them on their own list. You can undo this straight after.` / `Cancel` / `Yes, assign 3`.
+- Result banner: `3 leads assigned to Brandon Pillar.` RPC returned **3**, selected **3**, no disagreement.
+- Undo banner: `Undone. 3 leads are back in the pool with no owner.` RPC returned **3**.
+- Activity rows: 3 x `Designated to Brandon Pillar` at 13:56:05, then 3 x `Marked free` at 13:56:10.
+
+### Designation counts, before and after
+| designation_status | before | after |
+| --- | --- | --- |
+| designated | 77 | 77 |
+| free | 1302 | 1302 |
+| total | 1379 | 1379 |
+
+Identical. Nothing is assigned for real; the owner decides who gets which leads.
+
+### Rep check
+- Server side, live: anon POST to `/rest/v1/rpc/leads_list`, `/leads_manager_options`, `/leads_designate_bulk` all return `401 42501 permission denied`.
+- `leads_list` source: `IF _tier = 'sales' AND _scope <> 'mine' THEN RETURN; END IF;` and `IF _scope = 'all' AND _tier NOT IN ('admin','owner') THEN RETURN; END IF;` - a rep gets zero rows for the pool and for all, so the pool cannot be opened even if the UI were reached.
+- Client side, every selection, assign bar, picker and confirm control sits behind `staff && scope === 'all'` (`staff = isStaffTier(tier)`), lines 540 and 573.
+- Honest limit: a rookie browser session could not be minted in this environment (per-user session minting needs interactive approval here), so the rep case is proved by the live anon refusal plus the quoted server guard, not by a signed-in rookie clicking around.
+- Manager sees their own without doing anything: yes, the `mine` scope already returns leads designated to the caller; nothing missing.
+
+### Overflow at 390x844
+| Element | Overflow px |
+| --- | --- |
+| document | 0 |
+| lead card with checkbox | 0 |
+| assign bar | 0 |
+
+Screenshots: `/tmp/browser/leads217/selected390.png`, `confirm.png`, `result.png`.
+Build OK, typecheck clean, people_leads 1379 before and after. Not published.
