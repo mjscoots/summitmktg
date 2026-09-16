@@ -498,6 +498,13 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   }, [activeChannel, user?.id, onNewMessage]);
 
   const channelMessages = messages.filter(m => (m.channel || 'general') === activeChannel);
+  /** What the thread actually draws: event rows render nothing, so they are out. */
+  const renderedMessages = useMemo(
+    () => channelMessages.filter((m) => m.kind !== 'event'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [messages, activeChannel]
+  );
+
   const messageById = useMemo(() => {
     const map: Record<string, ChatMessage> = {};
     channelMessages.forEach((m) => { map[m.id] = m; });
