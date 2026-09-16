@@ -301,7 +301,7 @@ export default function LeadsPage() {
                 onClick={() => {
                   setParams({ tab: t.id });
                   setSelected(new Set());
-                  setChip('out');
+                  setChip('all');
                 }}
                 className={cn(
                   'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-2.5 text-[12px] font-bold transition-colors sm:text-[13px]',
