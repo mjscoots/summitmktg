@@ -99,6 +99,12 @@ const Index = () => {
         setBandProgress(Math.min(1, Math.max(0, (window.innerHeight - rect.top) / travel)));
       }
 
+      const statement = statementRef.current;
+      if (statement && statement.dataset.cueDismissed !== 'true') {
+        const rect = statement.getBoundingClientRect();
+        if (rect.top < window.innerHeight * -0.3) statement.dataset.cueDismissed = 'true';
+      }
+
     };
     const onScroll = () => {
       if (frame) return;
@@ -168,36 +174,37 @@ const Index = () => {
       statement.dataset.latched = 'true';
       statement.dataset.sequenceStarts = String(Number(statement.dataset.sequenceStarts || '0') + 1);
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
-      statement.dataset.lineOneWindow = '0-950';
-      statement.dataset.lineTwoWindow = '1150-2000';
-      statement.dataset.slamAt = '3000';
-      statement.dataset.boldAt = '3300';
-      statement.dataset.buttonAt = '3600';
-      statement.dataset.sequenceEnd = '4000';
+       statement.dataset.lineOneWindow = '0-1050';
+       statement.dataset.lineTwoWindow = '1350-2250';
+       statement.dataset.slamAt = '3750';
+       statement.dataset.boldAt = '4250';
+       statement.dataset.buttonAt = '4750';
+       statement.dataset.sequenceEnd = '5300';
+       statement.dataset.cueAt = '5900';
       penLines.forEach((line) => line.style.setProperty('--pen-opacity', '1'));
       mark(nodes.typing, true);
       const draw = (now: number) => {
         const workStarted = performance.now();
         const time = now - startedAt;
-        setProgress('--type-1', range(time, 0, 950));
-        setProgress('--type-2', range(time, 1150, 2000));
-        setProgress('--shatter-progress', easeOut(range(time, 3000, 3220)));
-        const brandProgress = easeOut(range(time, 3000, 3260));
-        const brandScale = time < 3180
-          ? 1.3 - easeOut(range(time, 3000, 3180)) * 0.32
-          : 0.98 + easeOut(range(time, 3180, 3260)) * 0.02;
+        setProgress('--type-1', range(time, 0, 1050));
+        setProgress('--type-2', range(time, 1350, 2250));
+        setProgress('--shatter-progress', easeOut(range(time, 3750, 3970)));
+        const brandProgress = easeOut(range(time, 3750, 4010));
+        const brandScale = time < 3930
+          ? 1.3 - easeOut(range(time, 3750, 3930)) * 0.32
+          : 0.98 + easeOut(range(time, 3930, 4010)) * 0.02;
         setProgress('--brand-progress', brandProgress);
         setProgress('--brand-scale', brandScale);
-        setProgress('--bold-progress', easeOut(range(time, 3300, 3560)));
-        setProgress('--button-progress', easeOut(range(time, 3600, 3900)));
-        if (time >= 3000 && statement.dataset.phase !== 'final') {
+        setProgress('--bold-progress', easeOut(range(time, 4250, 4510)));
+        setProgress('--button-progress', easeOut(range(time, 4750, 5050)));
+        if (time >= 3750 && statement.dataset.phase !== 'final') {
           statement.dataset.phase = 'final';
           statement.setAttribute('data-impact', 'true');
         }
-        mark(nodes.typing, time < 3220);
-        mark(nodes.brand, time >= 3000 && time < 3260);
-        mark(nodes.bold, time >= 3300 && time < 3560);
-        mark(nodes.button, time >= 3600 && time < 3900);
+        mark(nodes.typing, time < 3970);
+        mark(nodes.brand, time >= 3750 && time < 4010);
+        mark(nodes.bold, time >= 4250 && time < 4510);
+        mark(nodes.button, time >= 4750 && time < 5050);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;
@@ -205,12 +212,12 @@ const Index = () => {
           }
         };
         recordVisible('typingOne', time > 0);
-        recordVisible('typingTwo', time >= 1150);
-        recordVisible('brand', time >= 3000);
-        recordVisible('bold', time >= 3300);
-        recordVisible('button', time >= 3600);
+        recordVisible('typingTwo', time >= 1350);
+        recordVisible('brand', time >= 3750);
+        recordVisible('bold', time >= 4250);
+        recordVisible('button', time >= 4750);
         frameCosts.push(performance.now() - workStarted);
-        if (time < 4000) frame = requestAnimationFrame(draw);
+        if (time < 5300) frame = requestAnimationFrame(draw);
         else {
           ['--type-1', '--type-2', '--shatter-progress', '--brand-progress', '--brand-scale', '--bold-progress', '--button-progress']
             .forEach((name) => setProgress(name, 1));
@@ -309,7 +316,7 @@ const Index = () => {
                     className="cover-typed-lines"
                     lines={['Everyone argues over which industry is best.', 'So we joined ALL THREE.']}
                     progressVariables={['--type-1', '--type-2']}
-                    windowDurations={[950, 850]}
+                    windowDurations={[1050, 900]}
                     shatterVariable="--shatter-progress"
                   />
                 </div>
@@ -328,6 +335,11 @@ const Index = () => {
                         Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
                       </Link>
                     </span>
+                  </div>
+                  <div className="statement-scroll-cue" aria-hidden="true">
+                    <span className="statement-scroll-label">See all three</span>
+                    <span className="statement-scroll-track"><span className="statement-scroll-bead" /></span>
+                    <span className="statement-scroll-chevron" />
                   </div>
                 </div>
           </div>
