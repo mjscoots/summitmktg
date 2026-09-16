@@ -10,6 +10,7 @@ import { isStaffTier, type Tier } from '@/lib/tiers';
 import BeforeTheyLeft from '@/components/leads/BeforeTheyLeft';
 import OutcomeBar from '@/components/leads/OutcomeBar';
 import ReSignScriptsSheet, { ScriptsButton } from '@/components/leads/ReSignScriptsSheet';
+import { sourceLabel, tagLabel } from '@/lib/leadTags';
 
 import {
   CALL_OUTCOMES,
@@ -221,11 +222,37 @@ export default function LeadDrawer({ leadId, tier, onClose, onChanged }: Props) 
               <div className="mt-4 flex flex-wrap gap-1.5">
                 {(lead.tags as string[]).map((t) => (
                   <span key={t} className="rounded-full border border-border/60 bg-surface px-2 py-0.5 text-[11px] text-muted-foreground">
-                    {t}
+                    {tagLabel(t)}
                   </span>
                 ))}
               </div>
             )}
+
+            {(() => {
+              const raw = lead.sheet_row as Record<string, unknown> | null;
+              const entries = raw && typeof raw === 'object' ? Object.entries(raw) : [];
+              const noteLine = (lead.notes as string | null) || null;
+              if (entries.length === 0 && !noteLine) return null;
+              return (
+                <div className="mt-4 rounded-[var(--radius)] border border-border/60 bg-surface p-3">
+                  <p className="micro-label mb-1.5">
+                    From {sourceLabel(lead.source as string | null)}
+                  </p>
+                  {entries.length > 0 ? (
+                    <dl className="grid gap-0.5">
+                      {entries.map(([k, v]) => (
+                        <div key={k} className="flex gap-2 text-[12px]">
+                          <dt className="shrink-0 text-muted-foreground">{k}</dt>
+                          <dd className="min-w-0 break-words text-foreground">{String(v ?? '')}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  ) : (
+                    <p className="whitespace-pre-wrap break-words text-[12px] text-foreground">{noteLine}</p>
+                  )}
+                </div>
+              );
+            })()}
 
             {lead.designated_to && (
               <p className="mt-4 text-[12px] text-muted-foreground">

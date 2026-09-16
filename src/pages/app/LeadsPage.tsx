@@ -20,6 +20,15 @@ import {
   type LeadRow,
   type LeadScope,
 } from '@/hooks/useLeads';
+import {
+  byRankThenColdest,
+  posTagOf,
+  rankOf,
+  statusTagOf,
+  tagLabel,
+  RANK_PREFIX,
+  STATUS_PREFIX,
+} from '@/lib/leadTags';
 import LeadDrawer from '@/components/leads/LeadDrawer';
 import ThisWeekQueue, { buildWeekQueue } from '@/components/leads/ThisWeekQueue';
 import CallMode from '@/components/leads/CallMode';
@@ -58,7 +67,8 @@ export default function LeadsPage() {
   const [stage, setStage] = useState<string>('all');
   const [hasPhone, setHasPhone] = useState<string>('all');
   const [system, setSystem] = useState<string>('all');
-  const [chip, setChip] = useState<Chip>('out');
+  // The whole board by default: the season-out filter hid every newly imported lead.
+  const [chip, setChip] = useState<Chip>('all');
   const [openLead, setOpenLead] = useState<string | null>(params.get('lead'));
   const [callMode, setCallMode] = useState(false);
   const [scriptsOpen, setScriptsOpen] = useState(false);
@@ -68,6 +78,16 @@ export default function LeadsPage() {
   >([]);
   const [assignTo, setAssignTo] = useState<string>('');
   const [busy, setBusy] = useState(false);
+  const [rankTag, setRankTag] = useState<string>('all');
+  const [statusTag, setStatusTag] = useState<string>('all');
+  const [sort, setSort] = useState<'rank' | 'revenue'>('rank');
+  const [tagOptions, setTagOptions] = useState<{ tag: string; count: number }[]>([]);
+  const [leadTotal, setLeadTotal] = useState<number | null>(null);
+
+  // leads_list takes a single _tag, so one tag goes to the query and any second
+  // one is applied to the returned rows.
+  const serverTag = rankTag !== 'all' ? rankTag : statusTag !== 'all' ? statusTag : null;
+  const clientTag = rankTag !== 'all' && statusTag !== 'all' ? statusTag : null;
 
   const { rows, loading, reload } = useLeadsList(
     scope,
@@ -79,9 +99,28 @@ export default function LeadsPage() {
       rosterStatus:
         scope === 'all' && (chip === 'out' || chip === 'not_on_roster') ? chip : null,
       system: system === 'all' ? null : system,
+      tag: serverTag,
       limit: scope === 'all' ? 600 : 300,
     },
     true
+  );
+
+  useEffect(() => {
+    if (tier === 'sales') return;
+    (supabase.rpc as any)('lead_tag_options').then(({ data }: { data: unknown }) => {
+      const d = (data || {}) as { total?: number; tags?: { tag: string; count: number }[] };
+      setTagOptions(d.tags || []);
+      setLeadTotal(d.total ?? null);
+    });
+  }, [tier]);
+
+  const rankOptions = useMemo(
+    () => tagOptions.filter((t) => t.tag.startsWith(RANK_PREFIX)),
+    [tagOptions]
+  );
+  const statusOptions = useMemo(
+    () => tagOptions.filter((t) => t.tag.startsWith(STATUS_PREFIX)),
+    [tagOptions]
   );
 
   const [counts, setCounts] = useState<{
@@ -123,7 +162,12 @@ export default function LeadsPage() {
     });
   }, [staff]);
 
-  const visible = rows;
+  const visible = useMemo(() => {
+    let base = clientTag ? rows.filter((r) => (r.tags || []).includes(clientTag)) : rows;
+    // No hire stays hidden everywhere unless it is asked for by name.
+    if (stage === 'all') base = base.filter((r) => r.stage !== 'excluded');
+    return sort === 'rank' ? [...base].sort(byRankThenColdest) : base;
+  }, [rows, clientTag, sort, stage]);
 
   // Call mode works the exact list the This week section shows, so the two counts agree.
   const callable = useMemo(
@@ -213,7 +257,9 @@ export default function LeadsPage() {
 
           <PageHeader
             title="Leads"
-            context={`People who are out and not coming back. ${visible.length} shown.`}
+            context={`People who are out and not coming back. ${visible.length}${
+              leadTotal != null ? ` of ${leadTotal}` : ''
+            } shown.`}
             action={
               <>
                 <button
@@ -257,7 +303,7 @@ export default function LeadsPage() {
                 onClick={() => {
                   setParams({ tab: t.id });
                   setSelected(new Set());
-                  setChip('out');
+                  setChip('all');
                 }}
                 className={cn(
                   'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-2.5 text-[12px] font-bold transition-colors sm:text-[13px]',
@@ -368,7 +414,7 @@ export default function LeadsPage() {
               </SelectContent>
             </Select>
             <Select value={hasPhone} onValueChange={setHasPhone}>
-              <SelectTrigger className="h-10 text-[13px] sm:w-[150px]">
+              <SelectTrigger className="h-10 text-[13px] sm:w-[150px]" aria-label="Phone">
                 <SelectValue placeholder="Phone" />
               </SelectTrigger>
               <SelectContent>
@@ -390,6 +436,59 @@ export default function LeadsPage() {
               </Select>
             )}
           </div>
+
+          {tier !== 'sales' && (
+            <div data-testid="lead-filter-row" className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <Select
+                value={rankTag}
+                onValueChange={(v) => {
+                  setRankTag(v);
+                  if (v !== 'all') setChip('all');
+                }}
+              >
+                <SelectTrigger className="h-10 min-w-0 text-[13px]" aria-label="Rank">
+                  <SelectValue placeholder="Rank" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-[13px]">Rank: any</SelectItem>
+                  {rankOptions.map((o) => (
+                    <SelectItem key={o.tag} value={o.tag} className="text-[13px]">
+                      Rank {tagLabel(o.tag)} · {o.count}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={statusTag}
+                onValueChange={(v) => {
+                  setStatusTag(v);
+                  if (v !== 'all') setChip('all');
+                }}
+              >
+                <SelectTrigger className="h-10 min-w-0 text-[13px]" aria-label="Status">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-[13px]">Status: any</SelectItem>
+                  {statusOptions.map((o) => (
+                    <SelectItem key={o.tag} value={o.tag} className="text-[13px]">
+                      {tagLabel(o.tag)} · {o.count}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={sort} onValueChange={(v) => setSort(v as 'rank' | 'revenue')}>
+                <SelectTrigger className="col-span-2 h-10 min-w-0 text-[13px] sm:col-span-1" aria-label="Sort">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rank" className="text-[13px]">Sort: rank, coldest first</SelectItem>
+                  <SelectItem value="revenue" className="text-[13px]">Sort: last season revenue</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
 
           {staff && scope === 'all' && selected.size > 0 && (
             <div className={cn(CARD, 'mb-3 flex flex-wrap items-center gap-2 p-3')}>
@@ -489,6 +588,26 @@ export default function LeadsPage() {
 
                       </p>
                       <p className="mt-0.5 truncate text-[12px] text-muted-foreground">{line || 'No history yet'}</p>
+                      {(() => {
+                        const chips = [
+                          rankOf(lead.tags) ? `rank-${rankOf(lead.tags)!.toLowerCase()}` : null,
+                          statusTagOf(lead.tags),
+                          posTagOf(lead.tags),
+                        ].filter(Boolean) as string[];
+                        if (chips.length === 0) return null;
+                        return (
+                          <span data-testid="lead-chips" className="mt-1 flex min-w-0 flex-wrap gap-1">
+                            {chips.map((t) => (
+                              <span
+                                key={t}
+                                className="max-w-full truncate rounded-full border border-border/60 bg-surface px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                              >
+                                {tagLabel(t)}
+                              </span>
+                            ))}
+                          </span>
+                        );
+                      })()}
                     </button>
                     {staff && scope === 'all' && (
                       <Select

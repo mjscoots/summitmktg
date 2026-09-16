@@ -6462,3 +6462,58 @@ Unchanged: Home, Chat, Events, Money, Training, More, in that order, for every w
 ### Checks
 
 Typecheck clean, production build clean (build OK). No em dashes and no emoji in added lines. No database work, no publish. Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23, rep_vertical_enrollments 45.
+
+## Pass 213 - the call board can work the new leads
+
+### a. Data read before and after (SQL, unchanged)
+people_leads total 1379 both before and after. bucket: lead 1337, roster 42.
+Phone present: 970 of 1379.
+sources: summit-recruiting-sheet 464, roster 416, trustline-recruit-list 359, sheet 130, ben-ward-sheet-aug24 5, recruitment-calls-sheet 5.
+rank tags: a 42, b 31, c 49, d 4, e 29, f 204.
+status tags: hype-up 158, no-hire 68, take-action 41, interview-1 13, signed 13, interview-3 12, follow-up 5, interview-2 5, interviewing 2, agreement-sent 1, final-interview 1.
+pos tags: pest-rookie 263, pest-vet 36, fiber 8, plus small others.
+stage before and after: new 1284, excluded 68, signed 27. Identical after, so no row was written.
+Other baselines after: profiles 536, chat_messages 717, applications 13, managed_links 23, rep_vertical_enrollments 45, earnings_goals 0.
+
+### Root cause found on the screen
+The default board chip was "Out this season", which is roster_status = 'out' and matches exactly 100 rows. None of the 828 imported leads carries it, so the default view showed 100 old names and zero callable new ones. Default is now "All". Sort default is rank, coldest first.
+
+### 1. Filter row
+Rank, Status and Has phone. Rank and Status are populated from a new read-only lookup, lead_tag_options(), which returns every tag actually present with its count, so the controls follow the data.
+leads_list accepts a single _tag only, so both controls are single select. When Rank and Status are both set, the rank tag goes to the query and the status tag is applied to the returned rows; this is stated rather than presented as multi select.
+
+### 2. Sort
+Default "rank, coldest first": A, B, C, D, E, F, then untagged, and inside a rank the least recently contacted first so the most recently contacted sits last. "Last season revenue" is kept as the second option.
+
+### 3 and 4. Chips and counts
+Each card shows rank, status and position chips read from the tags: rank-a renders A, status-hype-up renders Hype up, pos-pest-rookie renders Pest rookie. The header reads "N of 1337" (1337 is the lead bucket; the other 42 rows are roster records, not board leads).
+
+### b. Filter counts, screen against SQL
+| filter | screen | SQL | match |
+| --- | --- | --- | --- |
+| Rank A + Has phone | 42 | 42 | yes |
+| Status Take action + Has phone | 41 | 41 | yes |
+| Status Hype up + Has phone | 158 | 158 | yes |
+
+### c. First ten in the rank sort, with their rank tag
+Adria A, Adrian Doors A, Alisa A, Andrew Holtzinger A, Brian Kinuti A, Brody R A, Caiden Flemming A, Cale Lopez A, Caleb Bahr A, Clayton Setlak A.
+
+### d. Overflow at 390 by 844
+Filter row: scrollWidth 358, clientWidth 358, overflow 0.
+Lead card with chips: overflow 0. The widest real case in the data is two chips, because no lead carries a rank, a status and a position tag at once; a third chip was added to the live DOM to measure the requested case and the card overflow stayed 0 (document overflow 0).
+
+### e. Original sheet line in the detail, quoted
+lead_detail previously stripped sheet_row, so the screen could not show it. The function now returns it to managers, pillars and owners only. Rendered verbatim under a "From <sheet>" label, key and value, no paraphrase.
+summit-recruiting-sheet, Victor Froman: phone 5173020965, status No hire, position PEST rookie, applicant Victor Froman, interview 1 Self.
+trustline-recruit-list, Aesea: name: Aesea, rank: C, notes: Good buddy, call this: 7077807563, contact method: phone number, date last reached out to: Years.
+recruitment-calls-sheet, Noah: role rookie, team scoots, stage final interview, phone # 808 633 7800, applicant noah, time sche. thur 1;30, interviewer DOM, stud rating 0.
+
+### f. Rep visibility and the 68 no-hire rows
+Tested by calling leads_list from the running app with a real signed-in session and reading the returned rows, not by reading the code: scope mine returned 11 rows, all designated to that account, 0 excluded; scope free returned 600 rows, 0 excluded; scope all returned 600 rows of which 26 were excluded.
+So the function still returns excluded rows in the all scope. The screen now drops them whenever Stage is "All stages", which is the default, so the board showed 574 of the 600 fetched and no no-hire row appeared. An excluded row is only visible if a pillar picks the stage "excluded" by name.
+A rep session could not be minted without an approval prompt, so the rep case was tested at the function boundary: leads_list returns nothing for a sales tier in any scope other than mine, and mine is restricted to designated_to or claimed_by equal to the caller, which the signed-in mine test exercised directly.
+
+### Build
+Typecheck clean, production build clean (build OK). LeadsPage chunk 44.1 kB raw. No new npm dependency. No em dashes and no emoji in added lines.
+No row in people_leads was created, updated or deleted; the only migration replaced two read-only functions.
+Site not published.

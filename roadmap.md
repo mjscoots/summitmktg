@@ -164,3 +164,11 @@
 - [x] Open room lives in the address, LAST_ROOM_KEY removed
 
 - Pass 212: nav consolidated to three groups, dead season filter removed, purpose line on every nav item, folded screens kept reachable from their parents.
+
+## Pass 213 - call board filters (done)
+- [x] Rank, Status and Has phone filters, options read from the data
+- [x] Rank sort, coldest first, revenue sort kept
+- [x] Rank, status and position chips on each card
+- [x] Matched count next to the board total
+- [x] Original sheet line in the lead detail, manager and above
+- [x] Default board view no longer hides the imported leads; no-hire rows hidden unless asked for

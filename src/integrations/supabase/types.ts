@@ -8400,6 +8400,7 @@ export type Database = {
         Returns: undefined
       }
       lead_system_for: { Args: { _uid: string }; Returns: string }
+      lead_tag_options: { Args: never; Returns: Json }
       leads_callbacks_due: { Args: never; Returns: number }
       leads_counts: { Args: never; Returns: Json }
       leads_designate_bulk: {
