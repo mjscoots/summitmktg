@@ -110,7 +110,7 @@
 - [x] Verify the cover and append the report
 
 ## Pass 201 - permanent statement section
-- [ ] Move the statement out of the pinned cover into normal document flow
-- [ ] Start the sequence once from statement visibility and latch its final state
-- [ ] Remove the scroll-linked exit and give the latched statement its own white surface
-- [ ] Verify scrolling, motion, reduced motion and baselines; append the report
+- [x] Move the statement out of the pinned cover into normal document flow
+- [x] Start the sequence once from statement visibility and latch its final state
+- [x] Remove the scroll-linked exit and give the latched statement its own white surface
+- [x] Verify scrolling, motion, reduced motion and baselines; append the report

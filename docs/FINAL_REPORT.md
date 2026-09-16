@@ -5825,3 +5825,31 @@ Reduced motion hides the cue, removes sticky staging, shows the final compositio
 - Shell gzip total for the four cover files is 27,898 bytes, up 46 bytes from the 27,852-byte HEAD baseline.
 - Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23.
 - No dependency, compensation, permission, data or publication change. The site was not published.
+
+## Pass 201 - permanent statement section
+
+### Structure and latch
+The DOM order is now `section#cover-stage > div.cover-stage-pin`, followed by sibling `section#statement`, followed by the industries section. Runtime proof at 390 and 1280 reports `cover-stage.nextElementSibling.id === "statement"` and `.cover-stage-pin.contains(#statement) === false`. The pinned stage contains only the logo assembly, fill, burst, swell and scroll cue. The stage is 130svh, measured as 1170px with the 900px test viewport. The statement is an ordinary 100svh section, measured as 900px.
+
+The statement owns an IntersectionObserver with threshold 0.45. The guarded start increments `data-sequence-starts`; it measured 1 after the first run and remained 1 after scrolling 3000px down and back to the top. There is no reset function, reset ref or burst-active gate. The burst callback now preserves only the hero behavior. At completion the statement carries `data-sequence="done"`, `data-sequence-complete="true"` and `data-latched="true"`.
+
+Grep found no `--statement-exit` anywhere outside historical documentation. The statement copy has no scroll-driven opacity or transform. The impact animation now targets `.cover-statement[data-impact='true']` rather than the pinned child.
+
+### Permanent final state
+At the moment the sequence became done, `--type-1`, `--type-2`, `--shatter-progress`, `--brand-progress`, `--bold-progress` and `--button-progress` all read 1.0000 at both widths. After scrolling 3000px down and back up, all six remained 1.0000, the sequence remained done and the start count remained 1. Brand scale is also explicitly held at 1.0000. The timing dataset remains line one 0-950, line two 1150-2000, slam 3000, bold 3300, button 3600 and end 4000; shatter remains 3000-3220.
+
+The latched statement background measured rgb(255, 255, 255) after returning to the black hero at both widths. It no longer depends on the reversible world surface.
+
+### Scroll sweeps
+At 390, the 100px downward sweep from 0 through 2400 recorded all three final elements below through 600; brand entered at 700; all three were in view from 800 through 1500; brand moved above at 1600, the bold line at 1700 and the button at 1800. Every later state was above, never blank inside the reached statement. The upward sweep produced the exact reverse states and zero blank positions inside the statement.
+
+At 1280, all three were below through 500; brand entered at 600, the bold line at 800 and the button at 900; all three remained in view through 1500; brand moved above at 1600, the bold line at 1700 and the button at 1800. The upward sweep again reversed the states with zero blank positions inside the statement. The checks classify each element at every 100px step as below, in the viewport or above, so content outside the viewport is explained by normal document flow rather than disappearing.
+
+### Motion and regression proof
+- At 390 the sequence callback measured a 0.000ms median and 0.100ms p95 across the full sequence. The burst remains transform-only and the statement impact remains 140ms.
+- Reduced motion renders the statement on first paint as done, final and latched. Brand and button opacity are 1, the background is white, the cue is hidden and no statement animation or replay runs.
+- The automatic typecheck and production build are clean; the latest preview record is `build OK`.
+- Shell gzip for Index.tsx and index.css is 23,507 bytes, unchanged from the HEAD baseline.
+- Added lines contain no em dashes and no emoji.
+- Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23.
+- No dependency, compensation, permission, data or publication change. The site was not published.
