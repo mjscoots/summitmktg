@@ -13,6 +13,7 @@ import { AskSheet, AskSection } from '@/components/recruiting/AskSheet';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
 import { PenLine } from '@/components/brand/PenLine';
+import { RIDGES } from '@/components/brand/MountainRange';
 
 
 /**
@@ -134,7 +135,7 @@ const Index = () => {
     let penWidths: number[] = [];
     let cancelled = false;
     if (reduced) {
-      ['--type-1', '--type-2', '--shatter-progress', '--brand-progress', '--brand-scale', '--bold-progress', '--button-progress']
+      ['--type-1', '--type-2', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
         .forEach((name) => setProgress(name, 1));
       statement.dataset.sequence = 'done';
       statement.dataset.phase = 'final';
@@ -154,7 +155,25 @@ const Index = () => {
     };
     const measure = () => {
       penLines = Array.from(statement.querySelectorAll<HTMLElement>('.pen-line'));
-      penWidths = penLines.map((line) => line.getBoundingClientRect().width);
+      const typingWidth = nodes.typing?.getBoundingClientRect().width ?? window.innerWidth - 40;
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      penWidths = penLines.map((line, index) => {
+        const readable = line.querySelector<HTMLElement>('.pen-line-readable');
+        if (!readable || !context) return line.getBoundingClientRect().width;
+        line.style.removeProperty('--pen-fit-size');
+        const styles = getComputedStyle(readable);
+        const baseSize = Number.parseFloat(styles.fontSize);
+        context.font = `${styles.fontWeight} ${baseSize}px ${styles.fontFamily}`;
+        const natural = context.measureText(readable.textContent ?? '').width;
+        const floor = index === 0 ? 15 : 20;
+        const fitted = Math.max(floor, Math.min(baseSize, baseSize * typingWidth / Math.max(1, natural)));
+        line.style.setProperty('--pen-fit-size', `${fitted.toFixed(2)}px`);
+        line.dataset.penNaturalWidth = natural.toFixed(2);
+        line.dataset.penFitSize = fitted.toFixed(2);
+        line.dataset.penFits = String(natural * fitted / baseSize <= typingWidth + 0.5);
+        return natural * fitted / baseSize;
+      });
       penLines.forEach((line, index) => {
         line.style.setProperty('--pen-width', `${penWidths[index].toFixed(2)}px`);
         line.dataset.penMeasured = 'true';
@@ -176,7 +195,9 @@ const Index = () => {
       statement.dataset.sequenceStarted = startedAt.toFixed(2);
        statement.dataset.lineOneWindow = '0-1050';
        statement.dataset.lineTwoWindow = '1350-2250';
-       statement.dataset.slamAt = '3750';
+        statement.dataset.slamAt = '3750';
+        statement.dataset.trinityAt = '3750';
+        statement.dataset.marketingAt = '3830';
        statement.dataset.boldAt = '4250';
        statement.dataset.buttonAt = '4750';
        statement.dataset.sequenceEnd = '5300';
@@ -188,19 +209,15 @@ const Index = () => {
         const time = now - startedAt;
         setProgress('--type-1', range(time, 0, 1050));
         setProgress('--type-2', range(time, 1350, 2250));
-        setProgress('--shatter-progress', easeOut(range(time, 3750, 3970)));
-        const brandProgress = easeOut(range(time, 3750, 4010));
-        const brandScale = time < 3930
-          ? 1.3 - easeOut(range(time, 3750, 3930)) * 0.32
-          : 0.98 + easeOut(range(time, 3930, 4010)) * 0.02;
-        setProgress('--brand-progress', brandProgress);
-        setProgress('--brand-scale', brandScale);
+        setProgress('--block-exit', easeOut(range(time, 3750, 3970)));
+        setProgress('--brand-trinity-progress', easeOut(range(time, 3750, 4010)));
+        setProgress('--brand-marketing-progress', easeOut(range(time, 3830, 4010)));
         setProgress('--bold-progress', easeOut(range(time, 4250, 4510)));
         setProgress('--button-progress', easeOut(range(time, 4750, 5050)));
-        if (time >= 3750 && statement.dataset.phase !== 'final') {
-          statement.dataset.phase = 'final';
+        if (time >= 3750 && statement.dataset.impact !== 'true') {
           statement.setAttribute('data-impact', 'true');
         }
+        if (time >= 3970 && statement.dataset.phase !== 'final') statement.dataset.phase = 'final';
         mark(nodes.typing, time < 3970);
         mark(nodes.brand, time >= 3750 && time < 4010);
         mark(nodes.bold, time >= 4250 && time < 4510);
@@ -219,7 +236,7 @@ const Index = () => {
         frameCosts.push(performance.now() - workStarted);
         if (time < 5300) frame = requestAnimationFrame(draw);
         else {
-          ['--type-1', '--type-2', '--shatter-progress', '--brand-progress', '--brand-scale', '--bold-progress', '--button-progress']
+          ['--type-1', '--type-2', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
             .forEach((name) => setProgress(name, 1));
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
@@ -238,9 +255,9 @@ const Index = () => {
     statement.dataset.phase = 'typing';
     statement.querySelectorAll<HTMLElement>('.pen-line').forEach((line) => line.style.setProperty('--pen-opacity', '0'));
     const observer = new IntersectionObserver(([entry]) => {
-      visible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.45);
+      visible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.30);
       if (visible) start();
-    }, { threshold: [0.45] });
+    }, { threshold: [0.30] });
     observer.observe(statement);
     void document.fonts.ready.then(() => {
       if (cancelled) return;
@@ -317,12 +334,11 @@ const Index = () => {
                     lines={['Everyone argues over which industry is best.', 'So we joined ALL THREE.']}
                     progressVariables={['--type-1', '--type-2']}
                     windowDurations={[1050, 900]}
-                    shatterVariable="--shatter-progress"
                   />
                 </div>
                 <div className="cover-final-phase">
                   <h1 className="cover-brand-slam" data-copy-block="brand" data-sequence-part="brand" data-animating="false">
-                    <span className="cover-brand-impact"><span>TRINITY</span> <span>MARKETING</span></span>
+                    <span className="cover-brand-impact"><span className="cover-brand-trinity">TRINITY</span><span className="cover-brand-marketing">MARKETING</span></span>
                   </h1>
                   <p className="cover-bold-line" data-copy-block="bold" data-sequence-part="bold" data-animating="false">
                     <span>Where being a sales rep is not the end goal.</span>
@@ -336,12 +352,17 @@ const Index = () => {
                       </Link>
                     </span>
                   </div>
-                  <div className="statement-scroll-cue" aria-hidden="true">
-                    <span className="statement-scroll-label">See all three</span>
-                    <span className="statement-scroll-track"><span className="statement-scroll-bead" /></span>
-                    <span className="statement-scroll-chevron" />
-                  </div>
                 </div>
+                <div className="statement-scroll-cue" aria-hidden="true">
+                  <span className="statement-scroll-label">See all three</span>
+                  <span className="statement-scroll-track"><span className="statement-scroll-bead" /></span>
+                  <span className="statement-scroll-chevron" />
+                </div>
+                <svg className="statement-ridgeline-floor" viewBox="0 0 1440 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+                  <path d={RIDGES[0]} fill="#F2F2F4" />
+                  <path d={RIDGES[2]} fill="#F7F7F9" />
+                  <path d={RIDGES[4]} fill="#FBFBFC" />
+                </svg>
           </div>
         </section>
 

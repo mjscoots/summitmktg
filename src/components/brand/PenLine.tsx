@@ -7,12 +7,6 @@ export interface PenLineProps {
   lines?: readonly string[];
   progressVariables?: readonly string[];
   windowDurations?: readonly number[];
-  shatterVariable?: string;
-}
-
-function seeded(index: number, salt: number) {
-  const value = Math.sin(index * 73.19 + salt * 41.73) * 43758.5453;
-  return value - Math.floor(value);
 }
 
 function PenLineBase({
@@ -20,7 +14,6 @@ function PenLineBase({
   lines = ['Where being a sales rep is not the end goal.'],
   progressVariables,
   windowDurations,
-  shatterVariable,
 }: PenLineProps) {
   let characterOffset = 0;
   return (
@@ -38,8 +31,6 @@ function PenLineBase({
           const renderCharacter = (character: string, characterIndex: number) => {
             const denominator = Math.max(1, characters.length - 1);
             const start = (characterIndex / denominator) * (1 - characterDuration);
-            const globalIndex = lineOffset + characterIndex;
-            const direction = characterIndex < characters.length / 2 ? -1 : 1;
             const distance = 28 + seeded(globalIndex, 1) * 56;
             return (
               <span
@@ -47,9 +38,6 @@ function PenLineBase({
                 key={`${characterIndex}-${character}`}
                 style={{
                   '--char-start': start,
-                  '--shatter-x': `${direction * distance}px`,
-                  '--shatter-y': `${(seeded(globalIndex, 2) - 0.5) * 96}px`,
-                  '--shatter-r': `${(seeded(globalIndex, 3) - 0.5) * 110}deg`,
                 } as React.CSSProperties}
               >
                 {character}
@@ -64,7 +52,6 @@ function PenLineBase({
               style={{
                 '--pen-progress': progressVariable ? `var(${progressVariable}, 0)` : 1,
                 '--char-scale': 1 / characterDuration,
-                '--pen-shatter': shatterVariable ? `var(${shatterVariable}, 0)` : 0,
               } as React.CSSProperties}
             >
               <span className="pen-line-readable">{line}</span>
