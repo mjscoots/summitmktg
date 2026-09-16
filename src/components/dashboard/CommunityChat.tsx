@@ -586,7 +586,9 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   const getProfile = (msg: ChatMessage): ProfileInfo => {
     if (msg.is_ai) return { full_name: 'Trinity AI', avatar_url: null, role: 'bot' };
-    const base = profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
+    // Unknown for a moment: no name rather than the words Team Member.
+    const base = profileMap[msg.user_id] || { full_name: '', avatar_url: null };
+
     return { ...base, team_name: teamNames[msg.user_id] || null };
 
   };
