@@ -77,6 +77,16 @@ export default function LeadsPage() {
   >([]);
   const [assignTo, setAssignTo] = useState<string>('');
   const [busy, setBusy] = useState(false);
+  const [rankTag, setRankTag] = useState<string>('all');
+  const [statusTag, setStatusTag] = useState<string>('all');
+  const [sort, setSort] = useState<'rank' | 'revenue'>('rank');
+  const [tagOptions, setTagOptions] = useState<{ tag: string; count: number }[]>([]);
+  const [leadTotal, setLeadTotal] = useState<number | null>(null);
+
+  // leads_list takes a single _tag, so one tag goes to the query and any second
+  // one is applied to the returned rows.
+  const serverTag = rankTag !== 'all' ? rankTag : statusTag !== 'all' ? statusTag : null;
+  const clientTag = rankTag !== 'all' && statusTag !== 'all' ? statusTag : null;
 
   const { rows, loading, reload } = useLeadsList(
     scope,
@@ -88,9 +98,28 @@ export default function LeadsPage() {
       rosterStatus:
         scope === 'all' && (chip === 'out' || chip === 'not_on_roster') ? chip : null,
       system: system === 'all' ? null : system,
+      tag: serverTag,
       limit: scope === 'all' ? 600 : 300,
     },
     true
+  );
+
+  useEffect(() => {
+    if (tier === 'sales') return;
+    (supabase.rpc as any)('lead_tag_options').then(({ data }: { data: unknown }) => {
+      const d = (data || {}) as { total?: number; tags?: { tag: string; count: number }[] };
+      setTagOptions(d.tags || []);
+      setLeadTotal(d.total ?? null);
+    });
+  }, [tier]);
+
+  const rankOptions = useMemo(
+    () => tagOptions.filter((t) => t.tag.startsWith(RANK_PREFIX)),
+    [tagOptions]
+  );
+  const statusOptions = useMemo(
+    () => tagOptions.filter((t) => t.tag.startsWith(STATUS_PREFIX)),
+    [tagOptions]
   );
 
   const [counts, setCounts] = useState<{
