@@ -10,13 +10,14 @@ import { ChannelAvatar } from '@/components/chat/ChannelAvatar';
 import { ChannelSheet } from '@/components/chat/ChannelSheet';
 import { KnockingNow } from '@/components/chat/KnockingNow';
 import { NewChatSheet } from '@/components/chat/NewChatSheet';
+import { LoadingList } from '@/components/shared/LoadingList';
 
-const LAST_ROOM_KEY = 'summit.chat.lastRoom';
 
 export default function ChatPage() {
   const [params, setParams] = useSearchParams();
   const { channels, refresh, loading } = useChatChannels();
-  const [openSlug, setOpenSlug] = useState<string | null>(null);
+  // The open room lives in the address, so a refresh and a shared link both work.
+  const openSlug = params.get('room');
   const [searchOpen, setSearchOpen] = useState(false);
   const [newOpen, setNewOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
@@ -38,19 +39,16 @@ export default function ChatPage() {
 
   const openRoom = useCallback((slug: string) => {
     setSearchOpen(false);
-    setOpenSlug(slug);
-    try { localStorage.setItem(LAST_ROOM_KEY, slug); } catch { /* storage unavailable */ }
-  }, []);
+    const current = new URLSearchParams(window.location.search);
+    const had = current.get('room');
+    const next = new URLSearchParams(current);
+    next.set('room', slug);
+    // The first room is one step forward from the list. Moving between rooms
+    // replaces, so back is always the list rather than every room visited.
+    setParams(next, { replace: Boolean(had) });
+  }, [setParams]);
 
-  // A deep link from Home opens that room straight away.
-  const roomParam = params.get('room');
-  useEffect(() => {
-    if (!roomParam) return;
-    openRoom(roomParam);
-    const next = new URLSearchParams(params);
-    next.delete('room');
-    setParams(next, { replace: true });
-  }, [roomParam, openRoom, params, setParams]);
+
 
 
   const openDm = useCallback((slug: string) => {
@@ -59,10 +57,13 @@ export default function ChatPage() {
   }, [refresh, openRoom]);
 
   const backToList = useCallback(() => {
-    setOpenSlug(null);
+    const next = new URLSearchParams(window.location.search);
+    next.delete('room');
+    setParams(next, { replace: true });
     setMembersOpen(false);
     void refresh();
-  }, [refresh]);
+  }, [refresh, setParams]);
+
 
   const active = useMemo(
     () => (openSlug ? channels.find((c) => c.slug === openSlug) || null : null),
@@ -146,8 +147,18 @@ export default function ChatPage() {
         )}
 
         <div className="phone-bar-clear min-h-0 flex-1 overflow-y-auto px-5 py-4">
-          {!loading && <ChatList conversations={channels} onOpen={openRoom} onMuteChanged={refresh} />}
+          {loading ? (
+            <div
+              data-chat-skeleton="true"
+              className="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-border/60 bg-card"
+            >
+              <LoadingList rows={6} />
+            </div>
+          ) : (
+            <ChatList conversations={channels} onOpen={openRoom} onMuteChanged={refresh} />
+          )}
         </div>
+
       </div>
     </AppLayout>
   );

@@ -29,6 +29,8 @@ import {
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useChatSkin } from '@/hooks/useChatSkin';
 import { MountainRange } from '@/components/brand/MountainRange';
+import { readRoomCache, writeRoomCache } from '@/lib/chatCache';
+
 
 interface ChatMessage {
   id: string;
@@ -159,17 +161,22 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const { user, profile, role } = useAuth();
   const { activeVertical } = useWorkspace();
   const [activeChannel, setActiveChannel] = useState(channelSlug || 'general');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
+  const firstCache = readRoomCache<ChatMessage>(channelSlug || 'general');
+  const [messages, setMessages] = useState<ChatMessage[]>(firstCache?.messages ?? []);
+  const [loading, setLoading] = useState(!firstCache);
+  const [hasMore, setHasMore] = useState(!!firstCache?.hasMore);
+
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
-  const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
+  const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>(
+    (firstCache?.profiles as Record<string, ProfileInfo>) ?? {}
+  );
   const profileMapRef = useRef<Record<string, ProfileInfo>>({});
+
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; msgId: string | null }>({ open: false, msgId: null });
@@ -258,11 +265,13 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const scrollToBottom = useCallback((smooth = true) => {
     const container = containerRef.current;
     if (!container) return;
-    const doScroll = () => container.scrollTo({ top: container.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
-    doScroll();
-    requestAnimationFrame(doScroll);
-    setTimeout(doScroll, 100);
+    // One scroll, on one frame: three of them read as a yank.
+    requestAnimationFrame(() => {
+      const c = containerRef.current;
+      if (c) c.scrollTo({ top: c.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+    });
   }, []);
+
 
   const atBottomRef = useRef(true);
   const [newBelow, setNewBelow] = useState(0);
@@ -293,7 +302,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     const parsed: ChatMessage[] = rows.map((r) => {
       if (!r.is_ai && r.user_id) {
         profiles[r.user_id] = {
-          full_name: withArchivedSuffix(r.sender_name || 'Team Member', r.sender_archived),
+          full_name: withArchivedSuffix(r.sender_name || '', r.sender_archived),
           avatar_url: r.sender_avatar ?? null,
           is_active_now: r.sender_active ?? false,
           role: r.sender_role ?? undefined,
@@ -326,24 +335,51 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
     return parsed;
   }, []);
 
-  // First page for the active channel
+  // First page for the active channel. A room opened before renders from memory
+  // on the first frame and reconciles quietly when the fetch returns.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const cached = readRoomCache<ChatMessage>(activeChannel);
+    if (cached) {
+      setMessages(cached.messages);
+      setHasMore(cached.hasMore);
+      setProfileMap((prev) => ({ ...(cached.profiles as Record<string, ProfileInfo>), ...prev }));
+      setLoading(false);
+    } else {
       setLoading(true);
       setMessages([]);
+    }
+    (async () => {
       const { data, error } = await (supabase as any).rpc('get_channel_messages', {
         _channel: activeChannel,
         _limit: 50,
       });
       if (cancelled) return;
       if (error || !data || data.error) { setLoading(false); return; }
-      setMessages(absorbPage(data.messages || []));
+      const page = absorbPage(data.messages || []);
+      setMessages((prev) => {
+        // Keep anything newer that arrived live while the fetch was in flight.
+        const ids = new Set(page.map((m) => m.id));
+        const extra = prev.filter((m) => !ids.has(m.id) && (m.channel || 'general') === activeChannel
+          && page.length > 0 && new Date(m.created_at).getTime() > new Date(page[page.length - 1].created_at).getTime());
+        return [...page, ...extra];
+      });
       setHasMore(!!data.has_more);
       setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [activeChannel, absorbPage]);
+
+  // Hold the open room in memory, newest state wins, five rooms at most.
+  useEffect(() => {
+    if (loading) return;
+    writeRoomCache<ChatMessage>(activeChannel, {
+      messages: messages.filter((m) => (m.channel || 'general') === activeChannel),
+      hasMore,
+      profiles: profileMap,
+    });
+  }, [activeChannel, messages, hasMore, profileMap, loading]);
+
 
   const loadOlder = useCallback(async () => {
     const container = containerRef.current;
@@ -382,7 +418,25 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
       .channel(`chat-${activeChannel}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `channel=eq.${activeChannel}` }, async (payload) => {
         const row = payload.new as any;
-        const newMsg: ChatMessage = { ...row, channel: row.channel || 'general', is_pinned: row.is_pinned ?? false };
+        // One shape for every path: a live row is normalised exactly like a
+        // fetched one, with the quoted excerpt taken from the parent we hold.
+        const parent = row.reply_to ? messagesRef.current.find((m) => m.id === row.reply_to) : null;
+        const newMsg: ChatMessage = {
+          id: row.id,
+          user_id: row.user_id,
+          content: row.content,
+          is_ai: !!row.is_ai,
+          created_at: row.created_at,
+          reply_to: row.reply_to ?? null,
+          channel: row.channel || 'general',
+          is_pinned: row.is_pinned ?? false,
+          kind: row.kind || 'text',
+          ref_id: row.ref_id ?? null,
+          meta: row.meta ?? null,
+          reply_sender: parent ? (profileMapRef.current[parent.user_id]?.full_name || null) : null,
+          reply_excerpt: parent ? parent.content : null,
+          edited_at: row.edited_at ?? null,
+        };
         if (!newMsg.is_ai && !profileMapRef.current[newMsg.user_id]) {
           const { data: p } = await supabase
             .from('profiles')
@@ -393,7 +447,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
             setProfileMap((prev) => ({
               ...prev,
               [p.user_id]: {
-                full_name: withArchivedSuffix(p.full_name, (p as any).archived),
+                full_name: withArchivedSuffix(p.full_name || '', (p as any).archived),
                 avatar_url: p.avatar_url,
                 is_active_now: p.is_active_now,
               },
@@ -401,6 +455,7 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
           }
         }
         setMessages((prev) => (prev.some((m) => m.id === newMsg.id) ? prev : [...prev, newMsg]));
+
         if (newMsg.user_id !== user?.id) onNewMessage?.();
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages', filter: `channel=eq.${activeChannel}` }, (payload) => {
@@ -443,6 +498,13 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   }, [activeChannel, user?.id, onNewMessage]);
 
   const channelMessages = messages.filter(m => (m.channel || 'general') === activeChannel);
+  /** What the thread actually draws: event rows render nothing, so they are out. */
+  const renderedMessages = useMemo(
+    () => channelMessages.filter((m) => m.kind !== 'event'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [messages, activeChannel]
+  );
+
   const messageById = useMemo(() => {
     const map: Record<string, ChatMessage> = {};
     channelMessages.forEach((m) => { map[m.id] = m; });
@@ -491,16 +553,18 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const dividerSetRef = useRef<string | null>(null);
 
   // Place the "New" divider before the first message not yet seen, once per room.
+  // It indexes the rows that draw, so it never lands on an invisible event row.
   useEffect(() => {
     if (loading || dividerSetRef.current === activeChannel) return;
-    if (unreadCapturedRef.current !== activeChannel || channelMessages.length === 0) return;
+    if (unreadCapturedRef.current !== activeChannel || renderedMessages.length === 0) return;
     dividerSetRef.current = activeChannel;
     setDividerId(
-      unreadOnOpen > 0 && unreadOnOpen < channelMessages.length
-        ? channelMessages[channelMessages.length - unreadOnOpen].id
+      unreadOnOpen > 0 && unreadOnOpen < renderedMessages.length
+        ? renderedMessages[renderedMessages.length - unreadOnOpen].id
         : null
     );
-  }, [loading, activeChannel, unreadOnOpen, channelMessages]);
+  }, [loading, activeChannel, unreadOnOpen, renderedMessages]);
+
 
 
   useEffect(() => {
@@ -522,7 +586,9 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
   const getProfile = (msg: ChatMessage): ProfileInfo => {
     if (msg.is_ai) return { full_name: 'Trinity AI', avatar_url: null, role: 'bot' };
-    const base = profileMap[msg.user_id] || { full_name: 'Team Member', avatar_url: null };
+    // Unknown for a moment: no name rather than the words Team Member.
+    const base = profileMap[msg.user_id] || { full_name: '', avatar_url: null };
+
     return { ...base, team_name: teamNames[msg.user_id] || null };
 
   };
@@ -827,9 +893,10 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
 
 
 
-        {!loading && channelMessages.map((msg, idx) => {
-          const prev = idx > 0 ? channelMessages[idx - 1] : null;
-          const next = idx < channelMessages.length - 1 ? channelMessages[idx + 1] : null;
+        {!loading && renderedMessages.map((msg, idx) => {
+          const prev = idx > 0 ? renderedMessages[idx - 1] : null;
+          const next = idx < renderedMessages.length - 1 ? renderedMessages[idx + 1] : null;
+
           const showDate = !prev || !isSameDay(new Date(msg.created_at), new Date(prev.created_at));
           const grouped = isSameSender(msg, prev);
           const isLastInGroup = !next || !isSameSender(next, msg);
