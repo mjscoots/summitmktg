@@ -16,12 +16,22 @@ html, body, #root {
 .site-grain {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 9;
   pointer-events: none;
-  opacity: 0.035;
+  opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.72'/%3E%3C/svg%3E");
+  /* Dark lives on pure black, where soft-light resolves to black and the grain
+     is mathematically invisible. Screen lifts it just enough to be seen. */
+  mix-blend-mode: screen;
+}
+
+/* Light keeps the Pass 214 values exactly. */
+.light-workspace .site-grain,
+html.light .site-grain {
+  opacity: 0.035;
   mix-blend-mode: soft-light;
 }
+
 
 #root > .site-grain ~ * {
   position: relative;
@@ -37,21 +47,21 @@ html, body, #root {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
 
-    --card: 240 18% 6%;
+    --card: 240 18% 10%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 240 18% 12%;
+    --popover: 240 18% 16%;
     --popover-foreground: 0 0% 100%;
 
     /* Primary action is the blue to violet gradient with a black label. */
     --primary: 215 100% 61%;
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 240 18% 12%;
+    --secondary: 240 18% 16%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 18% 12%;
-    --muted-foreground: 229 9% 56%;
+    --muted: 240 18% 16%;
+    --muted-foreground: 229 9% 60%;
 
     --accent: 256 100% 81%;
     --accent-foreground: 0 0% 0%;
@@ -65,7 +75,7 @@ html, body, #root {
     --warning: 42 100% 47%;
     --warning-foreground: 0 0% 0%;
 
-    --border: 240 16% 12%;
+    --border: 240 16% 20%;
     --input: 240 18% 7%;
     --ring: 215 100% 61%;
 
@@ -85,18 +95,18 @@ html, body, #root {
     --motion-ease: var(--motion-ease-out);
 
     /* ━━━ SURFACE LAYERS ━━━ */
-    --surface: 240 18% 6%;
-    --surface-elevated: 240 18% 12%;
+    --surface: 240 18% 10%;
+    --surface-elevated: 240 18% 16%;
     --surface-sunken: 0 0% 0%;
 
     /* ━━━ BORDER LAYERS ━━━ */
-    --border-subtle: 240 16% 12%;
-    --border-strong: 240 16% 18%;
+    --border-subtle: 240 16% 20%;
+    --border-strong: 240 16% 26%;
 
     /* ━━━ TEXT HIERARCHY ━━━ */
     --text-primary: 0 0% 100%;
     --text-secondary: 231 12% 67%;
-    --text-muted: 229 9% 56%;
+    --text-muted: 229 9% 60%;
 
     /* ━━━ BLUE ACCENT - links, focus, active tab, progress ━━━ */
     --ice: 215 100% 61%;
@@ -121,8 +131,8 @@ html, body, #root {
     --manager-glow: 215 100% 61%;
 
     /* Surfaces kept flat where glass tokens are still referenced */
-    --glass-bg: 240 18% 6%;
-    --glass-border: 240 16% 12%;
+    --glass-bg: 240 18% 10%;
+    --glass-border: 240 16% 20%;
     --glass-glow: 215 100% 61% / 0;
 
     /* The one gradient in the system: blue to violet, never a third hue. */
@@ -141,7 +151,7 @@ html, body, #root {
     --sidebar-primary-foreground: 0 0% 0%;
     --sidebar-accent: 240 18% 7%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 240 16% 12%;
+    --sidebar-border: 240 16% 20%;
     --sidebar-ring: 215 100% 61%;
 
   }
@@ -255,9 +265,9 @@ html, body, #root {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
 
-    --card: 240 18% 6%;
+    --card: 240 18% 10%;
     --card-foreground: 0 0% 100%;
-    --popover: 240 18% 12%;
+    --popover: 240 18% 16%;
     --popover-foreground: 0 0% 100%;
 
     --primary: 215 100% 61%;
@@ -266,34 +276,34 @@ html, body, #root {
     --accent-foreground: 0 0% 0%;
     --ring: 215 100% 61%;
 
-    --secondary: 240 18% 12%;
+    --secondary: 240 18% 16%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 240 18% 12%;
-    --muted-foreground: 229 9% 56%;
+    --muted: 240 18% 16%;
+    --muted-foreground: 229 9% 60%;
 
     --success: 215 100% 61%;
     --success-foreground: 0 0% 0%;
 
-    --border: 240 16% 12%;
-    --input: 240 18% 12%;
+    --border: 240 16% 20%;
+    --input: 240 18% 16%;
 
-    --surface: 240 18% 6%;
-    --surface-elevated: 240 18% 12%;
+    --surface: 240 18% 10%;
+    --surface-elevated: 240 18% 16%;
     --surface-sunken: 0 0% 0%;
-    --border-subtle: 240 16% 12%;
-    --border-strong: 240 16% 18%;
+    --border-subtle: 240 16% 20%;
+    --border-strong: 240 16% 26%;
 
     --text-primary: 0 0% 100%;
     --text-secondary: 231 12% 67%;
-    --text-muted: 229 9% 56%;
+    --text-muted: 229 9% 60%;
 
     --primary-soft: 215 100% 61% / 0.12;
     --primary-muted: 231 12% 67%;
     --primary-glow: 215 100% 61%;
     --primary-deep: 0 0% 100%;
 
-    --glass-bg: 240 18% 6%;
-    --glass-border: 240 16% 12%;
+    --glass-bg: 240 18% 10%;
+    --glass-border: 240 16% 20%;
     --glass-glow: 215 100% 61% / 0;
 
     --gradient-brand: linear-gradient(135deg, #3A8DFF 0%, #7C6BFF 52%, #B69CFF 100%);
