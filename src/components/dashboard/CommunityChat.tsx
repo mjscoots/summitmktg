@@ -265,11 +265,13 @@ export function CommunityChat({ onNewMessage, channelSlug, onBack, roomLabel, hi
   const scrollToBottom = useCallback((smooth = true) => {
     const container = containerRef.current;
     if (!container) return;
-    const doScroll = () => container.scrollTo({ top: container.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
-    doScroll();
-    requestAnimationFrame(doScroll);
-    setTimeout(doScroll, 100);
+    // One scroll, on one frame: three of them read as a yank.
+    requestAnimationFrame(() => {
+      const c = containerRef.current;
+      if (c) c.scrollTo({ top: c.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+    });
   }, []);
+
 
   const atBottomRef = useRef(true);
   const [newBelow, setNewBelow] = useState(0);
