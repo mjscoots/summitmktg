@@ -6044,3 +6044,30 @@ The full sweep covered every width from 360 through 1440 in 40px steps at both 8
 The latch remained permanent: `data-sequence-starts` stayed 1 after root scrolling 3000px down and back. Reduced motion immediately shows the permanent final composition, hides the upper block, cue and glow, and leaves the floor static. The 390 animation loop measured 0.000ms median and 0.100ms p95. The vertical shake, 120svh stage, 0.92 burst, 0.30 observer threshold, three glow pulses and 0.35 resting glow remain in place.
 
 Added lines contain no em dashes and no emoji. Typecheck and the automatic production build are clean with the latest record `build OK`. Shell gzip changed Index.tsx from 5,090 to 5,100 bytes and index.css from 18,336 to 18,346 bytes in the working-tree comparison; the deleted PenLine module removes its payload entirely. Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23. No dependency, compensation, permission, data or publication change. The site was not published.
+
+## Pass 206 - Sign in layer fix (verified)
+
+Pass 205 had already shipped both rules; Pass 206 verified them live and changed nothing else.
+
+### Item 1 - header z-index
+Rule in place: `.public-world > header.public-nav { position: fixed; z-index: 30; }` (index.css:1814). Computed header: position fixed, z-index 30 at both 390x844 and 1280x900 (was z-index 1 before Pass 205). Main and footer remain z-index 1.
+
+### Item 2 - statement section
+Rule in place: `.cover-statement { position: relative; inset: auto; z-index: auto; min-height: 100svh; overflow: hidden; }` (index.css:2180). Computed statement: position relative, z-index auto (was absolute, inset 0, z-index 2 before Pass 205). Not absolute, no pointer-events none. Reduced-motion override untouched.
+
+### elementFromPoint at centre of nav Sign in anchor
+
+| Viewport | Scroll 0 | Scroll 400 | Scroll 1200 | Scroll 2400 |
+|---|---|---|---|---|
+| 390x844 | A.public-link | A.public-link | A.public-link | A.public-link |
+| 1280x900 | A.public-link | A.public-link | A.public-link | A.public-link |
+
+All eight positions: topmost element is the Sign in anchor itself.
+
+Get in button at its own centre: topmost is A.btn-purple.cover-get-in - still clickable.
+
+### Checks
+- build-errors.log newest entry: build OK.
+- No files edited this pass; no em dashes or emoji added.
+- Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23.
+- Site not published.
