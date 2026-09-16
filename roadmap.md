@@ -120,3 +120,10 @@
 - [x] Let reps add and manage their own personal Resource links
 - [x] Add the owner team progress view to Command Center
 - [x] Apply ownership-safe access rules and verify rep and owner views
+
+
+## Pass 202 - statement timing, fit and onward cue
+- [x] Sweep every requested width and both heights before and after the fit repair
+- [x] Retune the statement clock and prove the 1500ms still hold
+- [x] Add and verify the one-way statement scroll cue
+- [x] Verify latch, reduced motion, frame cost, build, gzip and baselines
