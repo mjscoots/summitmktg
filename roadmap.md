@@ -108,3 +108,9 @@
 - [x] Group typed words, remove the caret and rebuild the scroll cue
 - [x] Retune the sequence and add the scroll-linked statement exit
 - [x] Verify the cover and append the report
+
+## Pass 201 - permanent statement section
+- [ ] Move the statement out of the pinned cover into normal document flow
+- [ ] Start the sequence once from statement visibility and latch its final state
+- [ ] Remove the scroll-linked exit and give the latched statement its own white surface
+- [ ] Verify scrolling, motion, reduced motion and baselines; append the report
