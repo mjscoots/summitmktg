@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -118,6 +119,7 @@ export default function TeamPage() {
     open: false, member: null
   });
 
+  const navigate = useNavigate();
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   const { activeVertical } = useWorkspace();
@@ -506,6 +508,21 @@ export default function TeamPage() {
             </Button>
           ) : undefined}
         />
+
+        {/* Manager tools that used to sit in the nav. */}
+        {isManager && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" className="min-h-11" onClick={() => navigate('/app/war-room')}>
+              War room
+            </Button>
+            <Button variant="outline" size="sm" className="min-h-11" onClick={() => navigate('/app/roster/sweep')}>
+              Roster sweep
+            </Button>
+            <Button variant="outline" size="sm" className="min-h-11" onClick={() => navigate('/app/logistics')}>
+              Rep logistics
+            </Button>
+          </div>
+        )}
 
         {/* View Toggle */}
         <div className="flex items-center gap-1 mb-6 p-1 bg-muted/30 rounded-lg w-fit border border-border/30">

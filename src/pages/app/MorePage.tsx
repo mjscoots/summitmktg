@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, LogOut, MessageSquare, Settings } from 'lucide-react';
+import { ChevronRight, LogOut, MessageSquare } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -11,7 +11,6 @@ import { moreGroups } from '@/lib/appNav';
 import { WorkspaceSegmented } from '@/components/workspace/WorkspaceSegmented';
 import { InstallAppHint } from '@/components/shared/InstallAppHint';
 import { ViewAsSwitcher } from '@/components/layout/ViewAsSwitcher';
-import { SettingsList } from '@/components/settings/SettingsList';
 
 const storeKey = (title: string) => `more:open:${title.toLowerCase().replace(/\s+/g, '-')}`;
 
@@ -66,7 +65,6 @@ export default function MorePage() {
         <div className="motion-stagger space-y-8">
         {groups.map((group) => {
           const isOpen = Boolean(open[group.title]);
-          const isSettings = group.title === 'Settings';
           return (
             <Collapsible
               key={group.title}
@@ -75,11 +73,6 @@ export default function MorePage() {
               className="space-y-2"
             >
               <CollapsibleTrigger className="press flex min-h-[60px] w-full items-center gap-4 rounded bg-card px-5 text-left transition-colors hover:bg-secondary">
-                {isSettings && (
-                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-muted text-muted-foreground">
-                    <Settings className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                  </span>
-                )}
                 <span className="flex-1 truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                   {group.title}
                 </span>
@@ -93,38 +86,43 @@ export default function MorePage() {
               </CollapsibleTrigger>
 
               <CollapsibleContent className="overflow-hidden data-[state=open]:collapse-open data-[state=closed]:collapse-closed">
-                {isSettings ? (
-                  <SettingsList />
-                ) : (
-                  <div className="space-y-2">
-                    {group.items.map((item, i) => (
-                      <button
-                        key={item.key}
-                        onClick={() => navigate(item.path)}
-                        className={
-                          'press flex min-h-[60px] w-full items-center gap-4 rounded bg-card px-5 text-left transition-colors hover:bg-secondary'
-                        }
+                <div className="space-y-2">
+                  {group.items.map((item) => (
+                    <button
+                      key={item.key}
+                      onClick={() => navigate(item.path)}
+                      data-nav-row={item.key}
+                      className={
+                        'press flex min-h-[60px] w-full items-center gap-4 rounded bg-card px-5 py-3 text-left transition-colors hover:bg-secondary'
+                      }
+                    >
+                      <span
+                        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)]"
+                        style={{
+                          background: 'hsl(var(--secondary))',
+                          color: 'hsl(var(--primary))',
+                        }}
                       >
-                        <span
-                          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)]"
-                          style={{
-                            background: 'hsl(var(--secondary))',
-                            color: 'hsl(var(--primary))',
-                          }}
-                        >
-                          <item.icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                        </span>
-                        <span className="flex-1 truncate text-[15px] text-foreground">{item.label}</span>
-                        <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                      </button>
-                    ))}
-                  </div>
-                )}
+                        <item.icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                      </span>
+                      <span className="min-w-0 flex-1" data-nav-label={item.key}>
+                        <span className="block text-[15px] text-foreground">{item.label}</span>
+                        {item.purpose && (
+                          <span className="mt-0.5 block text-[13px] leading-snug text-muted-foreground">
+                            {item.purpose}
+                          </span>
+                        )}
+                      </span>
+                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    </button>
+                  ))}
+                </div>
               </CollapsibleContent>
             </Collapsible>
           );
         })}
         </div>
+
 
         <ViewAsSwitcher />
 

@@ -6367,3 +6367,98 @@ Open room is now a query parameter. Measured round trip: opening a room gave htt
 
 ### Checks
 Typecheck clean (tsgo, tsconfig.app.json). Production build clean, built in 14.96s. ChatPage chunk 119.50 kB, gzip 33.13 kB; shell index gzip 16399 bytes. No em dashes and no emoji in added lines. Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23, rep_vertical_enrollments 45. Site not published.
+
+## Pass 212 - Navigation consolidation
+
+### Before table (measured, unchanged code)
+
+| Persona | Bottom bar | More groups | More items | More item labels in order |
+|---|---|---|---|---|
+| rep Pest | 6 (Home, Chat, Events, Money, Training, More) | 2 | 9 | Leaderboard, Season, To do, Doors mode, Industries / Profile, Appearance, Notifications, Account |
+| rep Fiber | 6 (same) | 2 | 7 | Leaderboard, Installs, Industries / Profile, Appearance, Notifications, Account |
+| rep Life | 6 (same) | 2 | 7 | Pipeline, Leaderboard, Industries / Profile, Appearance, Notifications, Account |
+| manager Pest | 6 (same) | 3 | 21 | Leaderboard, Season, To do, Doors mode, Industries / Today, Team, Leads, Approvals, Forms, One on one prep, Roster sweep, Recruits, War room, Rep logistics, Manager videos, Manager meeting / Profile, Appearance, Notifications, Account |
+| manager Fiber | 6 (same) | 3 | 20 | Leaderboard, Installs, Stacks, Industries / same Manage twelve / Profile, Appearance, Notifications, Account |
+| owner Pest | 6 (same) | 3 | 21 | same as manager Pest |
+
+### Dead code
+
+MAIN_KEYS printed from src/lib/appNav.ts:
+pest: home, learn, chat, money, events, leaderboard
+fiber: home, chat, money, events, board
+life: home, pipeline, chat, learn, money, events
+
+No list contains `season`, so `visibleMainNavItems`'s `d.key !== 'season' || (season && activeVertical === 'Pest')` filter could never exclude anything. Deleted along with the `useSeasonHub` import and the `season` binding in AppSidebar.tsx. The before table re-run after deleting the filter produced identical counts and identical label lists, which proves it was dead.
+
+### After table
+
+| Persona | Bottom bar | Groups before -> after | Items before -> after | More item labels in order |
+|---|---|---|---|---|
+| rep Pest | 6 (unchanged) | 2 -> 2 | 9 -> 5 | Leaderboard, Doors mode, Industries / Profile, Settings |
+| rep Fiber | 6 | 2 -> 2 | 7 -> 5 | Leaderboard, Installs, Industries / Profile, Settings |
+| rep Life | 6 | 2 -> 2 | 7 -> 5 | Pipeline, Leaderboard, Industries / Profile, Settings |
+| manager Pest | 6 | 3 -> 3 | 21 -> 10 | Leaderboard, Doors mode, Industries / Team, Leads, Approvals, Forms, Recruits / Profile, Settings |
+| manager Fiber | 6 | 3 -> 3 | 20 -> 10 | Leaderboard, Installs, Stacks, Industries / Team, Leads, Forms, Recruits / Profile, Settings |
+| owner Pest | 6 | 3 -> 3 | 21 -> 11 | Leaderboard, Doors mode, Industries / Team, Leads, Approvals, Forms, Recruits, Pillar / Profile, Settings |
+
+Target met: no persona exceeds 11 items and no persona exceeds 3 groups (limits were 12 and 4). Nothing was deleted; every folded screen kept its route.
+
+### What was folded, and where it now lives
+
+| Folded item | New parent | Reason |
+|---|---|---|
+| Season | Home, More on your week link (Pest) | Opened a few times a season, not weekly |
+| To do | Home, More on your week link | Home already carries the next action |
+| Today | Home, the Today card (every manager, shows "Clear today" when empty) | It is a reading of Home, not a separate place |
+| One on one prep | Forms, Weekly 1:1 tab (existing links) | Already a Forms artefact |
+| Manager meeting | Forms, Manager Meeting tab (existing tab) | Already a Forms tab, the nav row was a duplicate |
+| Roster sweep | Team, manager tools row (added) | Run in bursts, belongs to the roster |
+| War room | Team, manager tools row (added) | It is a view of the team |
+| Rep logistics | Team manager tools row (added) and Resources (existing) | Coordination detail |
+| Manager videos | Training, tool row for managers (added) | It is training content |
+| Command center | Settings, staff only row (added) | Owner and admin reporting, opened rarely |
+| Appearance, Notifications, Account | Settings screen (/app/settings, unchanged content) | Three settings rows became one Settings row |
+| Stacks (Pest, Life) | Absent, Fiber only | Empty by construction outside Fiber |
+| Installs, Doors mode, Pipeline, Season | Absent outside their workspace | Empty by construction, and VerticalRouteGuard would bounce them |
+
+No honest purpose sentence could be written for Season, To do, Today, One on one prep, Manager meeting, Manager videos, Roster sweep, War room, Rep logistics, Video library, Scripts, Ask Trinity, Estimate earnings, Alumni, Chat look, Appearance, Notifications, Account or Command center as standalone destinations, because each is a section of a screen a person already opens. They carry no purpose line and are not nav rows.
+
+### Route accounting, all 102 registered paths
+
+Reached by a nav item: /app (Home, bar), /app/chat (bar), /app/events (bar), /app/money (bar), /app/training (bar), /app/more (bar), /app/leaderboard, /app/doors, /app/industries, /app/installs, /app/stacks, /app/pipeline, /app/team, /app/leads, /app/pitch-approvals, /app/forms, /app/recruits, /admin/requests, /app/profile, /app/settings, /command (Settings), /app/appearance, /app/notifications, /app/account, /app/chat-look (Settings screen).
+
+Reached from inside a named screen: /app/season, /app/missions, /app/progress (Home), /app/day (Home Today card), /app/one-on-ones/prep, /app/interviews/1, /app/interviews/2, /app/interviews/3, /app/weekly-one-on-ones, /app/manager-meeting (Forms), /app/war-room, /app/roster/sweep, /app/logistics, /app/members (Team), /app/scripts, /app/ask, /app/links, /app/estimate-earnings, /app/training/videos, /app/training/videos/:videoId, /app/training/manager-videos, /app/training/:courseSlug, /app/training/:courseSlug/:lessonId (Training and Resources), /app/fiber/ladder (Industries and Money), /app/person/:userId (Team, Chat, Leaderboard), /admin/people, /admin/money, /admin/content, /admin/settings (Pillar sections), /app/alumni (ProtectedRoute sends alumni accounts there and nowhere else), /app/week (redirects to Team), /recruit-course, /summer-checklist and its four phases (onboarding gate), /ticket, /pending-approval, /login, /reset-password, /invite/:token, /p/:token (links and emails), / , /recruiting, /parents, /industries/:slug, /apply, /apply/rookie, /apply/veteran, /apply/success, /join (public site).
+
+Pure redirects, kept so old links still work, each landing on an accounted route: /admin, /admin/inbox, /admin/reports, /admin/team, /app-redirect, /app/analytics, /app/calculators, /app/calendar, /app/interviews, /app/manage, /app/manager, /app/menu, /app/notepad, /app/operations, /app/playbook, /app/recruit-pipeline, /app/recruiting, /app/rookie, /app/spreadsheets, /app/videos, /app/videos/:videoId, /bootcamp-lock, /bootcamp/momentum, /bootcamp/phase-1, /bootcamp/phase-2, /bootcamp/phase-3, /manager, /rookie, /signup, /app/week. Plus `*` for not found.
+
+Zero routes unaccounted for. Zero orphans.
+
+### Overflow, 390 by 844, staff in Pest (every manager row plus Pillar)
+
+Eleven rows measured. Every row's label container reported scrollHeight equal to clientHeight, measured overflow 0px, and row horizontal overflow 0px. Document horizontal overflow 0px. Labels wrapped to two lines where the purpose sentence needed it (62px tall) and the two shortest sat on 44px.
+
+### Tap results, staff in Pest
+
+| Item | Pathname | Rendered |
+|---|---|---|
+| Leaderboard | /app/leaderboard | Content, Week and Season tabs |
+| Doors mode | /app/doors | Content, pitch flow |
+| Industries | /app/industries | Content, three industries |
+| Team | /app/team | Content, 23 active reps across 5 teams |
+| Leads | /app/leads | Content, 11 shown |
+| Approvals | /app/pitch-approvals | Screen and tabs rendered with no pending videos, an empty queue rather than a broken screen |
+| Forms | /app/forms | Content, three tabs |
+| Recruits | /app/recruits | Content, 4 unclaimed leads |
+| Pillar | /admin/requests | Content |
+| Profile | /app/profile | Content |
+| Settings | /app/settings | Content, five rows |
+
+The Approvals empty queue is the honest state of the data today, not a nav fault. Reported rather than hidden.
+
+### Bottom bar
+
+Unchanged: Home, Chat, Events, Money, Training, More, in that order, for every workspace. On /app/more the More tab reported aria-current="page" and the others null, so the active state marks exactly one tab.
+
+### Checks
+
+Typecheck clean, production build clean (build OK). No em dashes and no emoji in added lines. No database work, no publish. Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23, rep_vertical_enrollments 45.

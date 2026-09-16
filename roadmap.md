@@ -162,3 +162,5 @@
 - [x] Unread divider indexes the rows that actually draw
 - [x] One message shape for the fetched and the live path
 - [x] Open room lives in the address, LAST_ROOM_KEY removed
+
+- Pass 212: nav consolidated to three groups, dead season filter removed, purpose line on every nav item, folded screens kept reachable from their parents.

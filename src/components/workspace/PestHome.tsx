@@ -42,6 +42,12 @@ export function PestHome() {
         <Button variant="link" className="min-h-11 w-fit px-0 underline" onClick={() => navigate('/app/progress')}>
           Progress
         </Button>
+        <Button variant="link" className="min-h-11 w-fit px-0 underline" onClick={() => navigate('/app/missions')}>
+          To do
+        </Button>
+        <Button variant="link" className="min-h-11 w-fit px-0 underline" onClick={() => navigate('/app/season')}>
+          Season
+        </Button>
       </MoreOnYourWeek>
     </div>
   );

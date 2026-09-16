@@ -41,6 +41,7 @@ export default function TrainingPage() {
     { label: 'Video library', path: '/app/training/videos', icon: Play },
     { label: 'Ask Trinity', path: '/app/ask', icon: Sparkles },
     ...(activeVertical === 'Pest' ? [{ label: 'Estimate earnings', path: '/app/estimate-earnings', icon: DollarSign }] : []),
+    ...(isManager ? [{ label: 'Manager videos', path: '/app/training/manager-videos', icon: Play }] : []),
   ];
   const toolRow = (
     <nav className="mb-8 flex gap-2 overflow-x-auto pb-1" aria-label="Learn and tools">
