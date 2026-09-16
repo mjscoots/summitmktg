@@ -167,7 +167,7 @@ const Index = () => {
         context.font = `${styles.fontWeight} ${baseSize}px ${styles.fontFamily}`;
         const natural = context.measureText(readable.textContent ?? '').width;
         const floor = index === 0 ? 15 : 20;
-        const fitted = Math.max(floor, Math.min(baseSize, baseSize * typingWidth / Math.max(1, natural)));
+        const fitted = Math.max(floor, Math.min(baseSize, baseSize * typingWidth * 0.985 / Math.max(1, natural)));
         line.style.setProperty('--pen-fit-size', `${fitted.toFixed(2)}px`);
         line.dataset.penNaturalWidth = natural.toFixed(2);
         line.dataset.penFitSize = fitted.toFixed(2);
@@ -231,6 +231,8 @@ const Index = () => {
         recordVisible('typingOne', time > 0);
         recordVisible('typingTwo', time >= 1350);
         recordVisible('brand', time >= 3750);
+        recordVisible('trinity', time >= 3750);
+        recordVisible('marketing', time >= 3830);
         recordVisible('bold', time >= 4250);
         recordVisible('button', time >= 4750);
         frameCosts.push(performance.now() - workStarted);
