@@ -2248,9 +2248,11 @@ html[data-appearance='light'] .btn-gradient {
 }
 .cover-typed-lines .pen-lines { gap: 0.18em; }
 .cover-typed-lines .pen-line {
-  width: 100%;
+  width: max-content;
   max-width: 100%;
 }
+.cover-typed-lines .pen-line:first-child { font-size: clamp(1.75rem, 6vw, 3.25rem); }
+.cover-typed-lines .pen-line:nth-child(2) { font-size: clamp(2rem, 6.6vw, 3.6rem); }
 .cover-typed-lines .pen-line-readable,
 .cover-typed-lines .pen-line-visual {
   width: max-content;
@@ -2264,6 +2266,7 @@ html[data-appearance='light'] .btn-gradient {
 .cover-statement[data-phase='final'] .cover-typing-phase .pen-line { opacity: 0; visibility: hidden; pointer-events: none; }
 .cover-statement[data-phase='final'] .cover-typing-phase .pen-character { transform: none; }
 .cover-final-phase {
+  --brand-size: clamp(2.5rem, 11vw, 7rem);
   position: absolute;
   z-index: 2;
   left: 50%;
@@ -2276,7 +2279,6 @@ html[data-appearance='light'] .btn-gradient {
 }
 .cover-brand-slam {
   font-family: 'Archivo', system-ui, -apple-system, sans-serif;
-  --brand-size: clamp(2.5rem, 11vw, 7rem);
   font-size: var(--brand-size);
   font-weight: 800;
   line-height: 0.86;
