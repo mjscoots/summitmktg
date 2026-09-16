@@ -6,6 +6,7 @@ const VIEW_Y = 282;
 const VIEW_W = 1625;
 const VIEW_H = 281;
 const FILL_END = 0.66;
+const FILL_FEATHER = VIEW_H * 0.06;
 export const BURST_AT = 0.72;
 
 type Phase = 'assemble' | 'ready' | 'burst' | 'light' | 'reverse';
@@ -100,6 +101,7 @@ function CoverLogoBase({ progress, onBurst, onWorldLight }: CoverLogoProps) {
   const previousProgress = useRef(progress);
   const shards = useMemo(() => makeShards(desktop ? 56 : 28), [desktop]);
   const fill = Math.min(1, Math.max(0, progress / FILL_END));
+  const fillEdge = VIEW_Y + VIEW_H * (1 - fill);
 
   useEffect(() => {
     const resize = () => setDesktop(window.innerWidth >= 700);
@@ -211,19 +213,34 @@ function CoverLogoBase({ progress, onBurst, onWorldLight }: CoverLogoProps) {
       className="cover-logo"
       data-phase={phase}
       data-shards={shards.length}
+      data-fill-progress={fill.toFixed(4)}
       style={{ '--logo-fill': fill, '--logo-glow': fill * 0.12 } as React.CSSProperties}
     >
       <div className="cover-logo-glow" aria-hidden="true" />
       <svg className="cover-shard-logo" viewBox={LOGO_VIEWBOX} role="img" aria-label="TRNTY, Trinity Sales">
         <title>Trinity Sales</title>
         <defs>
-          <linearGradient id={`${id}-fill`} x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor={LOGO_BLUE} />
-            <stop offset="1" stopColor="#6FA8FF" />
+          <linearGradient
+            id={`${id}-fill-feather`}
+            gradientUnits="userSpaceOnUse"
+            x1="0"
+            y1={fillEdge - FILL_FEATHER}
+            x2="0"
+            y2={fillEdge}
+          >
+            <stop offset="0" stopColor="#000000" />
+            <stop offset="1" stopColor="#FFFFFF" />
           </linearGradient>
-          <clipPath id={`${id}-fill-clip`}>
-            <rect x={VIEW_X} y={VIEW_Y + VIEW_H * (1 - fill)} width={VIEW_W} height={VIEW_H * fill} />
-          </clipPath>
+          <mask id={`${id}-fill-mask`} maskUnits="userSpaceOnUse" x={VIEW_X} y={VIEW_Y} width={VIEW_W} height={VIEW_H}>
+            <rect
+              x={VIEW_X}
+              y={VIEW_Y}
+              width={VIEW_W}
+              height={VIEW_H}
+              fill={`url(#${id}-fill-feather)`}
+              opacity={fill === 0 ? 0 : 1}
+            />
+          </mask>
           {shards.map((shard, index) => (
             <clipPath id={`${id}-shard-${index}`} key={`clip-${index}`}>
               <polygon points={shard.points} />
@@ -249,9 +266,9 @@ function CoverLogoBase({ progress, onBurst, onWorldLight }: CoverLogoProps) {
             >
               <path d={LETTERS_PATH} fill="#FFFFFF" fillRule="evenodd" />
               <path d={MOUNTAIN_PATH} fill={LOGO_BLUE} fillRule="evenodd" />
-              <g className="cover-shard-fill" clipPath={`url(#${id}-fill-clip)`}>
-                <path d={LETTERS_PATH} fill={`url(#${id}-fill)`} fillRule="evenodd" />
-                <path d={MOUNTAIN_PATH} fill={`url(#${id}-fill)`} fillRule="evenodd" />
+              <g className="cover-shard-fill" mask={`url(#${id}-fill-mask)`}>
+                <path className="cover-letter-fill" d={LETTERS_PATH} fill={LOGO_BLUE} fillRule="evenodd" />
+                <path className="cover-mountain-fill" d={MOUNTAIN_PATH} fill="#FFFFFF" fillRule="evenodd" />
               </g>
             </g>
           ))}
