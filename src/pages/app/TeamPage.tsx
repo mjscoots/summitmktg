@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -118,6 +119,7 @@ export default function TeamPage() {
     open: false, member: null
   });
 
+  const navigate = useNavigate();
   const isManager = role === 'manager' || role === 'admin' || role === 'owner';
 
   const { activeVertical } = useWorkspace();
