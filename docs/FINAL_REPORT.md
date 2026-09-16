@@ -5826,6 +5826,16 @@ Reduced motion hides the cue, removes sticky staging, shows the final compositio
 - Read-only baselines remain profiles 536, chat_messages 717, applications 13, earnings_goals 0 and managed_links 23.
 - No dependency, compensation, permission, data or publication change. The site was not published.
 
+## Rep progress dashboard
+
+- `/app/progress` now shows each signed-in rep's industry applications and statuses, current earnings goal with an update action, and active personal Resource-link count.
+- Resources now includes a private My links section. Reps can add, open, edit and remove their own links. Existing shared company links and manager controls remain unchanged.
+- Command Center now includes an owner/admin Rep Progress roster with search, workspace, application status, earnings goal, personal-link count, a three-part completion indicator and expandable details.
+- `managed_links` now distinguishes shared and personal links. Ownership rules limit personal-link changes to the creator and personal-link review to the creator plus owners/admins. The protected summary performs its own owner/admin check and is callable only while signed in.
+- The first owner-roster check found a retired profile field in the summary. It was removed, and the corrected roster request returned successfully.
+- Authenticated checks at 390px and 1280px confirmed all three rep cards, personal-link controls, the owner roster and zero horizontal overflow. The latest preview build is clean.
+- No public application data, compensation formulas or publishing settings changed. The site was not published.
+
 ## Pass 201 - permanent statement section
 
 ### Structure and latch
