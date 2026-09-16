@@ -31,9 +31,12 @@ export interface NavDest {
   label: string;
   path: string;
   icon: LucideIcon;
+  /** One plain sentence: what the person does on this screen. */
+  purpose?: string;
   /** Minimum tier that can see this destination. */
   minTier?: Tier;
 }
+
 
 const TIER_ORDER: Tier[] = ['sales', 'manager', 'admin', 'owner'];
 
