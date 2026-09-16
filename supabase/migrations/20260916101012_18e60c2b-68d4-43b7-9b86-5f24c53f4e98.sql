@@ -1,0 +1,1 @@
+ALTER TABLE public.rep_vertical_enrollments DROP CONSTRAINT rep_vertical_enrollments_status_check;

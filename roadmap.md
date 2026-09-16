@@ -150,3 +150,5 @@
 - [x] Retune the two-line statement and final composition
 - [x] Verify hit targets, timing, layout, reduced motion, performance and baselines
 - [x] Keep the site unpublished
+
+- Pass 208: dropped duplicate narrow status constraint on rep_vertical_enrollments so approval works; four active-only readers flagged for the owner.

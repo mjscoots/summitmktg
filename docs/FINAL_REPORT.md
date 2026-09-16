@@ -6142,3 +6142,60 @@ The trigger writes status 'approved', which the first constraint rejects, so a r
 - No em dashes and no emoji in added lines.
 - Baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23.
 - Site not published.
+
+## Pass 208 - approval unblocked: duplicate status constraint dropped
+
+### Constraints before
+- rep_vertical_enrollments_status_check: CHECK ((status = ANY (ARRAY['interested'::text, 'onboarding'::text, 'active'::text])))
+- rep_vertical_enrollments_status_chk: CHECK ((status = ANY (ARRAY['interested'::text, 'applied'::text, 'approved'::text, 'onboarding'::text, 'active'::text, 'rejected'::text, 'paused'::text])))
+
+Intersection was interested, onboarding, active only. enroll_vertical_on_approval writes 'approved', so the profile update raised and no one could be approved. All 45 rows are status 'active', consistent with 'approved' never having been written.
+
+### Constraint after
+One migration: ALTER TABLE public.rep_vertical_enrollments DROP CONSTRAINT rep_vertical_enrollments_status_check;
+
+Surviving definition, read back from pg_constraint:
+- rep_vertical_enrollments_status_chk: CHECK ((status = ANY (ARRAY['interested'::text, 'applied'::text, 'approved'::text, 'onboarding'::text, 'active'::text, 'rejected'::text, 'paused'::text])))
+
+Nothing renamed, nothing added, column default untouched, other constraints (pkey, unique user_id+vertical, four FKs, rve_source_type_check, rve_sourced_by_check) untouched.
+
+### Item 2 - every reader of rep_vertical_enrollments.status, site by site
+
+Treats 'approved' as a member (no behaviour change, this is the intended set):
+- is_vertical_member: status IN (approved, onboarding, active, paused). Approved counts as a member.
+- get_my_workspaces: returns e.status raw as membership_status.
+- WorkspaceContext.tsx MEMBER_STATUSES = ['approved','onboarding','active','paused']. Approved rep is a member in the switcher.
+- people_awaiting_industry: excludes rows with status IN (approved, onboarding, active, paused), so an approved person correctly leaves the waiting list.
+- set_active_vertical, get_workspace_mentionables, get_fiber_leaderboard, get_my_winter_plan, tg_chat_message_after_insert: all use the four-status member set. Approved works.
+- IndustriesPage.tsx: explicitly branches on approved (shows "Continue setup"), applied, rejected, active, onboarding.
+- apply_to_vertical, request_vertical_access: guard on IN (approved, onboarding, active) to block duplicate applications. Approved correctly blocks a second apply.
+- accept_into_industry: writes 'active' directly, never 'approved'. The owner-facing Accept button was already reachable and is unaffected.
+- place_person: does not read status at all. No behaviour change.
+- get_industry_hub, get_person_profile, get_vertical_enrollments, get_pairings, get_my_mentees, get_fiber_winter_interest: pass status through for display only.
+
+Loud, owner's call, not patched in this pass. These four sites require status = 'active' exactly, so a rep sitting at 'approved' is excluded:
+1. RLS policy "Members read published playbook entries" on playbook_entries - an approved rep cannot read published playbook entries for their vertical until their status moves to active. This is a real person hidden from a real screen.
+2. mentee_count - counts only onboarding and active, so an approved mentee is not counted in a manager's mentee total.
+3. get_partner_referrals - partner referral counts exclude approved enrollments.
+4. get_data_health - industry counts exclude approved enrollments.
+
+None of these were reachable before this pass, because 'approved' could never be written. They become reachable now. Fixing them means deciding whether 'approved' is a member for content access, which is the owner's decision, so nothing was changed.
+
+### Rollback-only probe (narrow constraint genuinely already dropped)
+One real Pest profile (user f8b02a20-a2c9-4619-a306-0d85d346fdc1) with a Fiber application present, taken through status pending then active inside a single transaction, then aborted:
+
+- rep_vertical_enrollments Fiber row written with status = approved
+- profiles.active_vertical landed on Fiber
+- counts inside the transaction: rep_vertical_enrollments 46 (was 45), applications 14 (was 13)
+- transaction rolled back via a raised exception
+
+Counts read back afterwards: rep_vertical_enrollments 45, applications 13. Nothing persisted. No update, insert or delete was committed against any enrollment row.
+
+### What a rep sees immediately after approval
+get_my_workspaces returns their vertical with membership_status = approved, and MEMBER_STATUSES includes approved, so the industry appears as one of their own workspaces in the switcher rather than a locked one, and the sidebar renders that workspace's nav instead of the locked/apply state. On the Industries screen the card shows "Continue setup (step n of m)". Their profile active_vertical is set to the approved vertical by enroll_vertical_on_approval, so that workspace is the one selected on load. Playbook entries stay gated until status reaches active, per the loud note above.
+
+### Checks
+- typecheck clean, production build clean (build OK)
+- no em dashes and no emoji in added lines
+- baselines unchanged: profiles 536, chat_messages 717, applications 13, earnings_goals 0, managed_links 23, rep_vertical_enrollments 45 (all 45 still status active)
+- site not published
