@@ -336,11 +336,20 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
           referrer_user_id: source.referrer_user_id,
           partner_id: source.partner_id,
           website: honeypot,
+          client_key: keyRef.current || null,
         },
       });
 
       if (error || (data as { error?: string } | null)?.error) {
         throw new Error((data as { error?: string } | null)?.error || 'rejected');
+      }
+
+      // The visit is finished, so the next person on this device starts clean.
+      try {
+        localStorage.removeItem(KEY_STORAGE);
+        localStorage.removeItem('trnty_apply_contact');
+      } catch {
+        /* private mode */
       }
 
       supabase.functions
