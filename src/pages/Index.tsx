@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { MountainScene, requestTiltPermission } from "@/components/brand/MountainScene";
@@ -44,6 +44,13 @@ const Index = () => {
   const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
   const onBurst = useCallback(() => undefined, []);
   usePublicMotion();
+
+  // Pass 222 - the static first screen from index.html is dropped the moment
+  // this cover has mounted, before the browser paints, so the two are never on
+  // screen together. A failed mount leaves it in place with its link working.
+  useLayoutEffect(() => {
+    document.getElementById('boot-cover')?.remove();
+  }, []);
 
   // iOS only hands over device orientation from inside a gesture, and the grant
   // does not survive the session. It is asked for once, on the first tap of the
