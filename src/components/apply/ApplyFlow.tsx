@@ -304,8 +304,17 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
   })();
 
   const submit = async (wantsCall: boolean) => {
+    if (!emailOk(email.trim())) {
+      toast({
+        title: 'One more thing',
+        description: 'Add the email address we should send your application to.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSubmitting(true);
     try {
+      await savePartial('submitting');
       const { data, error } = await supabase.functions.invoke('submit-application', {
         body: {
           application_type: kind === 'vet' ? 'vet' : 'rookie',
