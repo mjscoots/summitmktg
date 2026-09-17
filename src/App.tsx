@@ -13,6 +13,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { lazyRoute, isChunkLoadError, recoverFromStaleBuild, clearChunkRetryLatch } from "@/lib/lazyRoute";
 import RootOverlays from "@/components/layout/RootOverlays";
 import { PublicHeader } from "@/components/recruiting/PublicHeader";
+import Index from "./pages/Index";
 
 // Every route-level page is loaded on demand so the first paint ships only the
 // shell. Pass 159: the login page and the not found page load on demand too, so
@@ -20,7 +21,10 @@ import { PublicHeader } from "@/components/recruiting/PublicHeader";
 const AuthPage = lazyRoute(() => import("./pages/app/AuthPage"));
 const NotFound = lazyRoute(() => import("./pages/NotFound"));
 
-const Index = lazyRoute(() => import("./pages/Index"));
+// Pass 222 - the front door is the one route every visitor hits, so it travels
+// in the initial bundle instead of behind a second round trip. Every other
+// route stays split.
+
 const IndustryPage = lazyRoute(() => import("./pages/IndustryPage"));
 const InvitePage = lazyRoute(() => import("./pages/InvitePage"));
 const PillarJoinPage = lazyRoute(() => import("./pages/PillarJoinPage"));
