@@ -189,8 +189,8 @@
 - [x] Verify hit targets, latch sweeps, overflow, routes, and unchanged row counts
 
 ## Pass 222 - kill the blank first paint
-- [ ] Import the landing route eagerly, leave other routes split
-- [ ] Static black first screen in index.html: headline, support line, real /apply/rookie anchor
-- [ ] Removed only by a successful cover mount, no timeout; stays if the app never mounts
-- [ ] Prove no flash of the block on cold /apply/rookie and /login
-- [ ] Measure raw-HTML grep, throttled time to a hit-testable apply link, headline counts through swap, backgrounds, 16 header hit tests, Get in at 0/200/1000/4000ms, latch sweeps, 390 overflow, proof line, row counts
+- [x] Import the landing route eagerly, leave other routes split
+- [x] Static black first screen in index.html: headline, support line, real /apply/rookie anchor
+- [x] Removed only by a successful cover mount, no timeout; stays if the app never mounts
+- [x] Prove no flash of the block on cold /apply/rookie and /login
+- [x] Measure raw-HTML grep, throttled time to a hit-testable apply link, headline counts through swap, backgrounds, 16 header hit tests, Get in at 0/200/1000/4000ms, latch sweeps, 390 overflow, proof line, row counts
