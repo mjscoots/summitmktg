@@ -12,6 +12,7 @@ import { AskSheet, AskSection } from '@/components/recruiting/AskSheet';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
 import { RIDGES } from '@/components/brand/MountainRange';
+import { ProofHeadline, ProofSet } from '@/components/recruiting/ProofLines';
 
 
 /**
@@ -243,6 +244,7 @@ const Index = () => {
             <div className="cover-first-message text-center">
               <h1 className="cover-first-headline">Pest control. Fiber internet. Life insurance.</h1>
               <p className="cover-first-support">Where being a sales rep is not the end goal.</p>
+              <ProofHeadline />
               <Link
                 to="/apply/rookie"
                 onClick={onPrimaryTap}
