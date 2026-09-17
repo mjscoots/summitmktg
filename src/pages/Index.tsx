@@ -12,6 +12,7 @@ import { AskSheet, AskSection } from '@/components/recruiting/AskSheet';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
 import { RIDGES } from '@/components/brand/MountainRange';
+import { ProofHeadline, ProofSet } from '@/components/recruiting/ProofLines';
 
 
 /**
@@ -243,6 +244,7 @@ const Index = () => {
             <div className="cover-first-message text-center">
               <h1 className="cover-first-headline">Pest control. Fiber internet. Life insurance.</h1>
               <p className="cover-first-support">Where being a sales rep is not the end goal.</p>
+              {COVER_STATS && <ProofHeadline />}
               <Link
                 to="/apply/rookie"
                 onClick={onPrimaryTap}
@@ -318,6 +320,7 @@ const Index = () => {
             >
               Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
+            {COVER_STATS && <ProofSet />}
             <ReferralLookup />
             <p className="mt-8 text-sm text-text-secondary">
               Already on the team,{' '}
@@ -343,12 +346,12 @@ const Index = () => {
               For parents
             </Link>
             <a
-              href="https://www.instagram.com/trntyhq"
+              href="https://www.instagram.com/summitmktgsales/"
               target="_blank"
               rel="noopener noreferrer"
               className="public-link inline-flex min-h-11 items-center px-3 text-sm"
             >
-              @trntyhq
+              @summitmktgsales
             </a>
           </div>
         </div>
