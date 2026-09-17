@@ -105,6 +105,9 @@ export async function captureSourceFromUrl(): Promise<SourceAttribution> {
   const stored = readStoredSource();
   if (stored.source_code && stored.source_code.toLowerCase() === code.toLowerCase()) return stored;
   const resolved = await resolveSourceCode(code);
+  // A failed lookup keeps the raw code, so the very next attempt can still
+  // resolve it and the credit is not thrown away.
+  if (!resolved) return { ...ORGANIC, source_code: code };
   storeSource(resolved);
   return resolved;
 }
