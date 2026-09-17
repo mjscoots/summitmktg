@@ -68,18 +68,6 @@ export default function Parents() {
 
   return (
     <div className="gold-world min-h-screen bg-background">
-      <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <button
-            onClick={() => navigate('/recruiting')}
-            className="flex min-h-11 items-center gap-2 text-foreground transition-colors hover:text-primary"
-          >
-            <Mountain className="h-5 w-5 text-primary" />
-            <span className="text-lg font-black tracking-tight">Trinity</span>
-          </button>
-        </div>
-      </nav>
-
       <header className="border-b border-border py-14">
         <div className="mx-auto max-w-3xl px-6">
           <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-primary">

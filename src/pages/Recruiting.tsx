@@ -47,28 +47,6 @@ const Recruiting = () => {
 
   return (
     <div className="gold-world min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button
-            onClick={() => navigate("/")}
-            className="flex min-h-11 items-center gap-2 text-foreground hover:text-primary transition-colors"
-          >
-            <Mountain className="w-5 h-5 text-primary" />
-            <span className="text-lg font-black tracking-tight">Trinity</span>
-          </button>
-          <div className="flex items-center gap-4">
-            <a
-              href="#apply"
-              className="btn-primary text-sm"
-            >
-              Apply Now
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </a>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 overflow-hidden">
         {/* Background effects */}
