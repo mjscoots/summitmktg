@@ -42,8 +42,32 @@ interface Step {
 
 const emailOk = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+/**
+ * Pass 223 - the key that ties every write in one visit to one row. It lives in
+ * localStorage so a refresh, a back step or a dropped connection returns to the
+ * same row instead of making a second person out of the same human.
+ */
+const KEY_STORAGE = 'trnty_apply_key';
+
+function applyKey(): string {
+  try {
+    const held = localStorage.getItem(KEY_STORAGE);
+    if (held && held.length >= 8) return held;
+    const made = `ak_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+    localStorage.setItem(KEY_STORAGE, made);
+    return made;
+  } catch {
+    return `ak_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+  }
+}
+
+/** The one line the person reads at the moment we start keeping their number. */
+export const CONTACT_NOTE =
+  'We save your name and number now, so someone from Trinity can call you even if you stop before the end.';
+
 function buildSteps(kind: 'rookie' | 'vet'): Step[] {
   const head: Step[] = [
+    { id: 'contact', kind: 'contact', title: 'How do we reach you?' },
     {
       id: 'interests',
       kind: 'multi',
@@ -73,7 +97,6 @@ function buildSteps(kind: 'rookie' | 'vet'): Step[] {
       placeholder: 'Your number',
     },
     { id: 'location', kind: 'text', title: 'Where are you located?', placeholder: 'City, State' },
-    { id: 'contact', kind: 'contact', title: 'How do we reach you?' },
     {
       id: 'referral',
       kind: 'text',
