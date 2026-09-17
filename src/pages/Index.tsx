@@ -320,6 +320,7 @@ const Index = () => {
             >
               Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
+            {COVER_STATS && <ProofSet />}
             <ReferralLookup />
             <p className="mt-8 text-sm text-text-secondary">
               Already on the team,{' '}
@@ -345,12 +346,12 @@ const Index = () => {
               For parents
             </Link>
             <a
-              href="https://www.instagram.com/trntyhq"
+              href="https://www.instagram.com/summitmktgsales/"
               target="_blank"
               rel="noopener noreferrer"
               className="public-link inline-flex min-h-11 items-center px-3 text-sm"
             >
-              @trntyhq
+              @summitmktgsales
             </a>
           </div>
         </div>
