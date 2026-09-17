@@ -295,7 +295,7 @@ const Index = () => {
                     <span className="cover-get-in-wrap">
                       <span className="cover-get-in-glow cover-get-in-glow-wide" aria-hidden="true" />
                       <span className="cover-get-in-glow cover-get-in-glow-tight" aria-hidden="true" />
-                      <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
+                      <Link to="/apply/rookie" className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
                         Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
                       </Link>
                     </span>
