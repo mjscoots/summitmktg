@@ -59,6 +59,10 @@ export interface PublicCounters {
   signed_season: number | null;
   serviced_total: number;
   signed_2027: number;
+  /** Highest single-rep season revenue. Aggregate only - no rep is named. */
+  top_rep_revenue?: number | null;
+  reps_over_100k?: number | null;
+  reps_over_50k?: number | null;
 }
 
 /** Server-cached counters. Values below the owner's thresholds come back null. */
