@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.resolve_source_code(text) TO anon, authenticated;
