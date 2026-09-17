@@ -13,6 +13,7 @@ import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
 import { RIDGES } from '@/components/brand/MountainRange';
 import { ProofHeadline, ProofSet } from '@/components/recruiting/ProofLines';
+import { ReferrerLine } from '@/components/recruiting/ReferrerLine';
 
 
 /**
@@ -260,6 +261,7 @@ const Index = () => {
             <div className="cover-first-message text-center">
               <h1 className="cover-first-headline">Pest control. Fiber internet. Life insurance.</h1>
               <p className="cover-first-support">Where being a sales rep is not the end goal.</p>
+              <ReferrerLine />
               {COVER_STATS && <ProofHeadline />}
               <Link
                 to="/apply/rookie"
