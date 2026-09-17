@@ -263,7 +263,6 @@ const Index = () => {
               {COVER_STATS && <ProofHeadline />}
               <Link
                 to="/apply/rookie"
-                onClick={onPrimaryTap}
                 data-cover-apply
                 className="btn-primary cover-first-apply"
               >
@@ -331,7 +330,6 @@ const Index = () => {
             <p className="text-base text-text-secondary">Applications take a few minutes.</p>
             <Link
               to="/apply/rookie"
-              onClick={onPrimaryTap}
               className="btn-purple mt-7 inline-flex items-center justify-center gap-2 px-8"
             >
               Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
