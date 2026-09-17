@@ -1,22 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { usePublicCounters } from '@/hooks/usePublicRecruiting';
+import { proofLines } from '@/lib/publicProof';
 
-const PRODUCTION_LINES = [
-  'A verified Trinity rep sold $429,000 in accounts last summer.',
-  'A verified Trinity rep sold $314,000 in accounts last summer.',
-  'A verified Trinity rep sold $286,000 in accounts last summer.',
-  'A verified Trinity rep sold $242,000 in accounts last summer.',
-  'A verified Trinity rep sold $227,000 in accounts last summer.',
-  'A verified Trinity rep sold $192,000 in accounts last summer.',
-  'A verified Trinity rep sold $158,000 in accounts last summer.',
-  'A verified Trinity rep sold $142,000 in accounts last summer.',
-  '20 Trinity reps each sold over $100,000 last summer.',
-  '36 reps sold over $50,000.',
-  'The team serviced over $6,000,000 in accounts.',
-] as const;
-
-function shuffledLines(): string[] {
-  const lines = [...PRODUCTION_LINES];
+function shuffled(input: string[]): string[] {
+  const lines = [...input];
   for (let index = lines.length - 1; index > 0; index -= 1) {
     const swapIndex = Math.floor(Math.random() * (index + 1));
     [lines[index], lines[swapIndex]] = [lines[swapIndex], lines[index]];
@@ -24,8 +12,15 @@ function shuffledLines(): string[] {
   return lines;
 }
 
+/**
+ * Pass 221 - the ticker no longer carries hardcoded digits. Every line is
+ * built from the live aggregates, so a figure that cannot be queried simply
+ * has no line, and with no figures at all the ticker does not render.
+ */
 export function ProductionTicker() {
-  const lines = useMemo(shuffledLines, []);
+  const counters = usePublicCounters();
+  const live = useMemo(() => proofLines(counters), [counters]);
+  const lines = useMemo(() => shuffled(live), [live]);
   const [started, setStarted] = useState(false);
   const [visible, setVisible] = useState(() => !document.hidden);
   const [index, setIndex] = useState(0);
@@ -50,14 +45,15 @@ export function ProductionTicker() {
   }, []);
 
   useEffect(() => {
-    if (!started || !visible || dismissed) return;
+    if (!started || !visible || dismissed || lines.length === 0) return;
     const timer = window.setTimeout(() => {
       setIndex((current) => (current + 1) % lines.length);
     }, 4200);
     return () => window.clearTimeout(timer);
   }, [dismissed, index, lines.length, started, visible]);
 
-  if (!started || !visible || dismissed) return null;
+  if (!started || !visible || dismissed || lines.length === 0) return null;
+  const line = lines[index % lines.length];
 
   return (
     <aside className="production-ticker" aria-live="polite" aria-atomic="true">
@@ -67,13 +63,11 @@ export function ProductionTicker() {
         variant="ghost"
         onClick={() => setDismissed(true)}
         className="production-ticker-card h-auto min-h-11 whitespace-normal text-left"
-        aria-label={`${lines[index]} Dismiss production update`}
+        aria-label={`${line} Dismiss production update`}
       >
         <span className="production-ticker-dot" aria-hidden="true" />
-        <span>{lines[index]}</span>
+        <span>{line}</span>
       </Button>
     </aside>
   );
 }
-
-export { PRODUCTION_LINES };
