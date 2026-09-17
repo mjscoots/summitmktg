@@ -53,12 +53,16 @@ export function readStoredCode(): string | null {
   }
 }
 
-/** Resolve a referral code to its source. Unknown codes degrade to organic. */
-export async function resolveSourceCode(code: string | null): Promise<SourceAttribution> {
+/**
+ * Resolve a referral code to its source. Unknown codes degrade to organic.
+ * A lookup that fails outright returns null, so a temporary failure is never
+ * cached as "organic" for the rest of the visit.
+ */
+export async function resolveSourceCode(code: string | null): Promise<SourceAttribution | null> {
   if (!code) return ORGANIC;
   try {
     const { data, error } = await (supabase as any).rpc('resolve_source_code', { p_code: code.slice(0, 60) });
-    if (error || !data) return ORGANIC;
+    if (error || !data) return null;
     return {
       source_type: (data.source_type || 'organic') as SourceType,
       source_code: data.source_code ?? null,
@@ -67,7 +71,7 @@ export async function resolveSourceCode(code: string | null): Promise<SourceAttr
       referrer_name: data.referrer_name ?? null,
     };
   } catch {
-    return ORGANIC;
+    return null;
   }
 }
 
