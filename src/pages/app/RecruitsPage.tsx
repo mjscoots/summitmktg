@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { WinMoment } from '@/components/chat/WinMoment';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ShareMyLinkBar } from '@/components/recruiting/MyRefCodeCard';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -224,6 +225,9 @@ export default function RecruitsPage() {
       <div className="phone-bar-clear h-full overflow-y-auto">
         <main className="max-w-3xl mx-auto px-4 py-6">
           <PageBackButton to="/app" label="Home" />
+
+          {/* Pass 224 - one tap from this screen to send your own link. */}
+          <ShareMyLinkBar className="mb-4" />
 
           {/* Header */}
           <PageHeader
