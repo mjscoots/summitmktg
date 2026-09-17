@@ -244,7 +244,7 @@ const Index = () => {
             <div className="cover-first-message text-center">
               <h1 className="cover-first-headline">Pest control. Fiber internet. Life insurance.</h1>
               <p className="cover-first-support">Where being a sales rep is not the end goal.</p>
-              <ProofHeadline />
+              {COVER_STATS && <ProofHeadline />}
               <Link
                 to="/apply/rookie"
                 onClick={onPrimaryTap}
