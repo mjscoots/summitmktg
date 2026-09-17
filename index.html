@@ -65,7 +65,7 @@
       // This runs while parsing, before the first paint.
       if (location.pathname !== '/') {
         var b = document.getElementById('boot-cover');
-        if (b) b.remove();
+        if (b) { b.remove(); window.__bootRemovedAt = performance.now(); }
       }
     </script>
     <div id="root"></div>
