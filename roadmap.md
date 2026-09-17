@@ -181,3 +181,9 @@
 - [x] Verify cover behavior, screenshots, build and unchanged row count
 
 - [x] Pass 215: dark surface ladder raised (page->card 1.158, card->raised 1.144), grain made visible in dark (screen blend, 0.05, spread 4-5/255), secondary text raised to 229 9% 60%, light untouched, cover regression 8/8
+
+## Pass 220 - front-door application flow
+- [x] Add cold-entry homepage copy and an immediate Get in action
+- [x] Add a fixed shared public header with Apply beside Sign in
+- [x] Remove timer gating from every homepage application action
+- [x] Verify hit targets, latch sweeps, overflow, routes, and unchanged row counts

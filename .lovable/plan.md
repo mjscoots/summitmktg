@@ -5,7 +5,7 @@ Make the homepage immediately explain the opportunity and offer a working applic
 
 ## Changes
 - Add a first-paint cover message above the animation layer:
-  - Headline: **“We joined all three.”**
+  - Headline: **“Pest control. Fiber internet. Life insurance.”**
   - Supporting line: **“Where being a sales rep is not the end goal.”**
   - Button: **“Get in”**, linking to `/apply/rookie`.
 - Rename the first scroll cue from **“Scroll”** to **“See all three”** so it names the next content.

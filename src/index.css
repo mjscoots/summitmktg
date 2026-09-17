@@ -38,6 +38,11 @@ html.light .site-grain {
   z-index: 1;
 }
 
+#root > .site-grain ~ .public-site-header {
+  position: fixed;
+  z-index: 30;
+}
+
 @layer base {
   :root {
     /* ━━━ PALETTE V6 - black, blue and violet ━━━
@@ -2354,7 +2359,7 @@ html[data-appearance='light'] .btn-gradient {
   transform: translate3d(0, calc((1 - var(--bold-progress, 0)) * 8px), 0);
 }
 .cover-actions {
-  opacity: var(--button-progress, 0);
+  opacity: 1;
   transform: none;
   margin-top: 24px;
 }
@@ -2507,6 +2512,36 @@ html[data-appearance='light'] .btn-gradient {
   transform: translateX(-50%);
 }
 .cover-scroll-cue[data-hidden='true'] { opacity: 0; }
+.cover-first-message {
+  position: absolute;
+  z-index: 5;
+  top: clamp(84px, 12svh, 118px);
+  left: 50%;
+  width: min(92vw, 820px);
+  transform: translateX(-50%);
+  color: hsl(var(--foreground));
+}
+.cover-first-headline {
+  color: inherit;
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-size: clamp(1.5rem, 3.2vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+.cover-first-support {
+  max-width: 38ch;
+  margin: 10px auto 0;
+  color: hsl(var(--text-secondary));
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.cover-first-apply {
+  position: relative;
+  margin-top: 16px;
+  min-width: 128px;
+}
 .cover-scroll-label {
   padding-left: 0.34em;
   font-family: 'Archivo', system-ui, -apple-system, sans-serif;
@@ -2850,4 +2885,10 @@ html[data-appearance='light'] .btn-gradient {
 }
 .public-world .public-nav-scrolled {
   background: linear-gradient(to bottom, hsl(var(--background) / 0.92) 0%, hsl(var(--background) / 0.72) 55%, hsl(var(--background) / 0) 100%);
+}
+.public-site-header.public-nav-scrolled {
+  background: hsl(var(--background) / 0.94);
+}
+.public-site-header-cover:not(.public-nav-scrolled) {
+  background: transparent;
 }

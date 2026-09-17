@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, LogIn } from 'lucide-react';
-import { Wordmark } from '@/components/brand/Wordmark';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { setPageMeta } from '@/lib/pageMeta';
 
@@ -24,7 +23,6 @@ const CARD = 'public-card p-5 sm:p-6';
 
 export default function IndustryPage() {
   const { slug = '' } = useParams();
-  const navigate = useNavigate();
   const isLife = slug.toLowerCase() === 'life';
   const vertical = SLUGS[slug.toLowerCase()];
   const [data, setData] = useState<IndustryData | null>(null);
@@ -54,19 +52,6 @@ export default function IndustryPage() {
   if (isLife) {
     return (
       <div className="gold-world min-h-screen bg-background flex flex-col">
-        <header className="sticky top-0 z-30 bg-background/[0.95] backdrop-blur">
-          <nav className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3 sm:px-6">
-            <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
-              <Wordmark variant="compact" height={34} />
-            </Link>
-            <button
-              onClick={() => navigate('/login')}
-              className="inline-flex min-h-11 items-center gap-2 px-4 text-sm font-semibold text-foreground underline-offset-4 hover:underline"
-            >
-              <LogIn className="w-4 h-4" /> Sign in
-            </button>
-          </nav>
-        </header>
         <main className="relative z-10 mx-auto w-full max-w-2xl flex-1 px-5 pb-20 pt-8 sm:px-6">
           <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-foreground">
             <ArrowLeft className="w-4 h-4" /> Back home
@@ -103,20 +88,6 @@ export default function IndustryPage() {
 
   return (
     <div className="gold-world min-h-screen bg-background flex flex-col relative">
-      <header className="sticky top-0 z-30 bg-background/[0.95] backdrop-blur">
-        <nav className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3 sm:px-6">
-          <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
-            <Wordmark variant="compact" height={34} />
-          </Link>
-          <button
-            onClick={() => navigate('/login')}
-            className="inline-flex min-h-11 items-center gap-2 px-4 text-sm font-semibold text-foreground underline-offset-4 hover:underline"
-          >
-            <LogIn className="w-4 h-4" /> Sign in
-          </button>
-        </nav>
-      </header>
-
       <main className="relative z-10 mx-auto w-full max-w-4xl flex-1 px-5 pb-20 pt-8 sm:px-6">
         <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-foreground">
           <ArrowLeft className="w-4 h-4" /> Back home

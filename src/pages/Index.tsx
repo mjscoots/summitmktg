@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { Wordmark } from "@/components/brand/Wordmark";
 import { MountainScene, requestTiltPermission } from "@/components/brand/MountainScene";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import { ProductionTicker } from "@/components/recruiting/ProductionTicker";
@@ -28,7 +27,6 @@ import { RIDGES } from '@/components/brand/MountainRange';
  */
 const Index = () => {
   const media = useCoverMedia();
-  const [scrolled, setScrolled] = useState(false);
   const stageRef = useRef<HTMLElement | null>(null);
   const statementRef = useRef<HTMLElement | null>(null);
 
@@ -63,7 +61,6 @@ const Index = () => {
     const read = () => {
       frame = 0;
       const y = el ? el.scrollTop : window.scrollY;
-      setScrolled(y > 40);
       // s is progress through the pinned stage, so the logo and burst read
       // from the same travel.
       const stage = stageRef.current;
@@ -118,7 +115,7 @@ const Index = () => {
     let started = false;
     let visible = false;
     if (reduced) {
-      ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
+      ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress']
         .forEach((name) => setProgress(name, 1));
       statement.dataset.sequence = 'done';
       statement.dataset.phase = 'final';
@@ -134,7 +131,6 @@ const Index = () => {
       typing: statement.querySelector<HTMLElement>('[data-sequence-part="typing"]'),
       brand: statement.querySelector<HTMLElement>('[data-sequence-part="brand"]'),
       bold: statement.querySelector<HTMLElement>('[data-sequence-part="bold"]'),
-      button: statement.querySelector<HTMLElement>('[data-sequence-part="button"]'),
     };
     const mark = (node: HTMLElement | null, active: boolean) => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
@@ -155,7 +151,6 @@ const Index = () => {
       statement.dataset.trinityAt = '2800';
       statement.dataset.marketingAt = '2880';
       statement.dataset.boldAt = '3300';
-      statement.dataset.buttonAt = '3800';
       statement.dataset.sequenceEnd = '4300';
       statement.dataset.cueAt = '4900';
       mark(nodes.typing, true);
@@ -167,7 +162,6 @@ const Index = () => {
         setProgress('--brand-trinity-progress', easeOut(range(time, 2800, 3060)));
         setProgress('--brand-marketing-progress', easeOut(range(time, 2880, 3060)));
         setProgress('--bold-progress', easeOut(range(time, 3300, 3560)));
-        setProgress('--button-progress', easeOut(range(time, 3800, 4100)));
         if (time >= 2800 && statement.dataset.impact !== 'true') {
           statement.setAttribute('data-impact', 'true');
         }
@@ -175,7 +169,6 @@ const Index = () => {
         mark(nodes.typing, time >= 1100 && time < 3020);
         mark(nodes.brand, time >= 2800 && time < 3060);
         mark(nodes.bold, time >= 3300 && time < 3560);
-        mark(nodes.button, time >= 3800 && time < 4100);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;
@@ -188,11 +181,10 @@ const Index = () => {
         recordVisible('trinity', time >= 2800);
         recordVisible('marketing', time >= 2880);
         recordVisible('bold', time >= 3300);
-        recordVisible('button', time >= 3800);
         frameCosts.push(performance.now() - workStarted);
         if (time < 4300) frame = requestAnimationFrame(draw);
         else {
-          ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
+          ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress']
             .forEach((name) => setProgress(name, 1));
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;
@@ -241,19 +233,6 @@ const Index = () => {
 
       <div className="cover-progress" ref={progressRef} aria-hidden="true" />
 
-      <header className={`public-nav fixed inset-x-0 top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
-        <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 sm:px-6">
-          <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
-            <Wordmark variant="compact" height={28} className="h-7 w-auto" />
-          </Link>
-          <div className="flex items-center">
-            <Link to="/login" className="public-link inline-flex min-h-11 items-center px-3 text-sm font-semibold">
-              Sign in
-            </Link>
-          </div>
-        </nav>
-      </header>
-
       <AskSheet watchId="cover-stage" completionId="statement" />
 
       <main className="relative flex-1">
@@ -261,8 +240,20 @@ const Index = () => {
         <section ref={stageRef} id="cover-stage" className="cover-stage relative isolate">
           <div className="cover-stage-pin cover-open cover-hero relative isolate px-5 sm:px-6">
             <CoverLogo progress={heroProgress} onBurst={onBurst} onWorldLight={onWorldLight} />
+            <div className="cover-first-message text-center">
+              <h1 className="cover-first-headline">Pest control. Fiber internet. Life insurance.</h1>
+              <p className="cover-first-support">Where being a sales rep is not the end goal.</p>
+              <Link
+                to="/apply/rookie"
+                onClick={onPrimaryTap}
+                data-cover-apply
+                className="btn-primary cover-first-apply"
+              >
+                Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
             <div className="cover-scroll-cue" data-hidden={heroProgress > 0.04 ? 'true' : 'false'} aria-hidden="true">
-              <span className="cover-scroll-label">Scroll</span>
+              <span className="cover-scroll-label">See all three</span>
               <span className="cover-scroll-track"><span className="cover-scroll-bead" /></span>
               <span className="cover-scroll-chevron" />
             </div>
@@ -316,8 +307,7 @@ const Index = () => {
         <section
           ref={bandRef}
           id="apply"
-          className="cover-open public-reveal relative px-5 py-16 text-center sm:px-6 md:py-24"
-          data-reveal
+          className="cover-open relative px-5 py-16 text-center sm:px-6 md:py-24"
         >
           <div className="relative z-10 mx-auto max-w-xl">
             <p className="text-base text-text-secondary">Applications take a few minutes.</p>

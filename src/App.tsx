@@ -12,6 +12,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { lazyRoute, isChunkLoadError, recoverFromStaleBuild, clearChunkRetryLatch } from "@/lib/lazyRoute";
 import RootOverlays from "@/components/layout/RootOverlays";
+import { PublicHeader } from "@/components/recruiting/PublicHeader";
 
 // Every route-level page is loaded on demand so the first paint ships only the
 // shell. Pass 159: the login page and the not found page load on demand too, so
@@ -173,6 +174,7 @@ function LazyFallback() {
 
         <BrowserRouter>
           <ScrollToTop />
+           <PublicHeader />
           <Suspense fallback={<LazyFallback />}>
            <WorkspaceProvider>
            <Routes>
