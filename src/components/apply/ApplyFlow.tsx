@@ -433,6 +433,16 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
               We will have someone reach out and see if you are a good fit.
             </h2>
             <div className="mt-7 flex flex-col items-start gap-3">
+              {!emailOk(email.trim()) && (
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="john@example.com"
+                  aria-label="Email address"
+                  className={inputBase}
+                />
+              )}
               {schedulingUrl && (
                 <button type="button" disabled={submitting} className={primaryBase} onClick={() => submit(true)}>
                   {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
