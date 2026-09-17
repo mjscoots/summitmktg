@@ -143,6 +143,9 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
   const [email, setEmail] = useState('');
   const [referral, setReferral] = useState('');
 
+  const keyRef = useRef('');
+  const savingRef = useRef(false);
+
   // The pop up and the cover carry the market, the referral and the vertical.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -153,6 +156,22 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
     if (ref) setReferral(ref);
     const preset = INTEREST_BY_VERTICAL[vertical];
     if (preset) setInterests([preset]);
+  }, []);
+
+  // Pass 223 - a refresh comes back to the same row and the same contact
+  // details, so nobody retypes their number and nobody becomes two people.
+  useEffect(() => {
+    keyRef.current = applyKey();
+    try {
+      const held = JSON.parse(localStorage.getItem('trnty_apply_contact') || 'null') as
+        | { fullName?: string; phone?: string; email?: string }
+        | null;
+      if (held?.fullName) setFullName(held.fullName);
+      if (held?.phone) setPhone(held.phone);
+      if (held?.email) setEmail(held.email);
+    } catch {
+      /* nothing held */
+    }
   }, []);
 
   useEffect(() => {
@@ -190,13 +209,67 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
     if (!step) return false;
     if (step.kind === 'multi') return interests.length > 0;
     if (step.kind === 'single') return step.id === 'experience' ? Boolean(experience) : Boolean(style);
-    if (step.kind === 'contact')
-      return fullName.trim() !== '' && phone.trim() !== '' && email.trim() !== '' && emailOk(email.trim());
+    // Pass 223: the row is written here, so the two things a human can be
+    // called with are all that gate the step. Email is asked for here too and
+    // required before the application itself is submitted.
+    if (step.kind === 'contact') return fullName.trim() !== '' && phone.trim() !== '';
     if (step.skippable) return true;
     return textValue(step.id).trim() !== '';
   })();
 
+  // Everything the flow knows right now, read by the saver without making it
+  // depend on every field.
+  const latest = useRef({ fullName, phone, email, location, interests, experience, style, revenue, markets, goal, referral, honeypot, stepId: step?.id || '' });
+  latest.current = { fullName, phone, email, location, interests, experience, style, revenue, markets, goal, referral, honeypot, stepId: step?.id || '' };
+
+  const savePartial = useCallback(async (stage: string) => {
+    const v = latest.current;
+    if (v.honeypot) return;
+    const name = v.fullName.trim();
+    const tel = v.phone.trim();
+    if (!name || !tel) return;
+    if (savingRef.current) return;
+    savingRef.current = true;
+    try {
+      localStorage.setItem('trnty_apply_contact', JSON.stringify({ fullName: name, phone: tel, email: v.email.trim() }));
+    } catch {
+      /* private mode */
+    }
+    const story = [
+      v.interests.length ? `Interested in: ${v.interests.join(', ')}` : '',
+      v.experience ? `Experience: ${v.experience}` : '',
+      v.style ? `Prefers: ${v.style}` : '',
+      v.revenue ? `Last season revenue: ${v.revenue.trim()}` : '',
+      v.markets ? `Markets worked: ${v.markets.trim()}` : '',
+      v.goal ? `First year goal: ${v.goal.trim()}` : '',
+      v.referral ? `Heard from: ${v.referral.trim()}` : '',
+      `Applying as: ${kind === 'vet' ? 'veteran' : 'rookie'}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+    try {
+      await supabase.rpc('capture_apply_partial' as never, {
+        _key: keyRef.current || applyKey(),
+        _fields: {
+          first_name: name,
+          phone: tel,
+          email: v.email.trim().toLowerCase(),
+          city: v.location.trim(),
+          interest_reason: v.interests.join(', ').slice(0, 60),
+          story,
+          apply_stage: stage,
+          source_code: source.source_code || '',
+        },
+      } as never);
+    } catch (err) {
+      console.error('Partial capture failed:', err);
+    } finally {
+      savingRef.current = false;
+    }
+  }, [kind, source.source_code]);
+
   const goNext = useCallback(() => {
+    void savePartial(latest.current.stepId || 'step');
     setIndex((i) => {
       if (i + 1 >= total) {
         setAtEnd(true);
@@ -204,7 +277,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
       }
       return i + 1;
     });
-  }, [total]);
+  }, [total, savePartial]);
 
   const goBack = () => {
     if (atEnd) {
