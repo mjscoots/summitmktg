@@ -551,6 +551,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
                     aria-label="Email address"
                     className={inputBase}
                   />
+                  <p className="max-w-[420px] text-[13px] leading-snug text-[#5A5A6B]">{CONTACT_NOTE}</p>
                 </>
               )}
 
