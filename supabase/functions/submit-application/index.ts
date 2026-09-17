@@ -137,10 +137,27 @@ Deno.serve(async (req: Request): Promise<Response> => {
       earnings_goal: earningsGoal,
       experience,
       wants_call: wantsCall,
-    });
+    }).select("id").maybeSingle();
     if (error) {
       console.error("application insert failed:", error.message);
       return reject();
+    }
+
+    // Pass 223: the partial row written at step one is the same person, so it is
+    // linked to the finished application rather than left as a duplicate.
+    const clientKey = cap(body.client_key, 64);
+    if (clientKey && inserted?.id) {
+      const { error: linkError } = await admin
+        .from("recruiting_leads")
+        .update({
+          application_id: inserted.id,
+          apply_stage: "submitted",
+          email,
+          city: cityState.slice(0, 80),
+          last_activity_at: new Date().toISOString(),
+        })
+        .eq("client_key", clientKey);
+      if (linkError) console.error("partial link failed:", linkError.message);
     }
 
     return send({ status: "ok" }, 200);
