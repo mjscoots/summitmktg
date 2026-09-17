@@ -115,7 +115,7 @@ const Index = () => {
     let started = false;
     let visible = false;
     if (reduced) {
-      ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
+      ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress']
         .forEach((name) => setProgress(name, 1));
       statement.dataset.sequence = 'done';
       statement.dataset.phase = 'final';
@@ -131,7 +131,6 @@ const Index = () => {
       typing: statement.querySelector<HTMLElement>('[data-sequence-part="typing"]'),
       brand: statement.querySelector<HTMLElement>('[data-sequence-part="brand"]'),
       bold: statement.querySelector<HTMLElement>('[data-sequence-part="bold"]'),
-      button: statement.querySelector<HTMLElement>('[data-sequence-part="button"]'),
     };
     const mark = (node: HTMLElement | null, active: boolean) => {
       if (node) node.dataset.animating = active ? 'true' : 'false';
@@ -152,7 +151,6 @@ const Index = () => {
       statement.dataset.trinityAt = '2800';
       statement.dataset.marketingAt = '2880';
       statement.dataset.boldAt = '3300';
-      statement.dataset.buttonAt = '3800';
       statement.dataset.sequenceEnd = '4300';
       statement.dataset.cueAt = '4900';
       mark(nodes.typing, true);
@@ -171,7 +169,6 @@ const Index = () => {
         mark(nodes.typing, time >= 1100 && time < 3020);
         mark(nodes.brand, time >= 2800 && time < 3060);
         mark(nodes.bold, time >= 3300 && time < 3560);
-        mark(nodes.button, time >= 3800 && time < 4100);
         const recordVisible = (key: string, active: boolean) => {
           if (active && visibleAt[key] === undefined) {
             visibleAt[key] = time;
@@ -184,11 +181,10 @@ const Index = () => {
         recordVisible('trinity', time >= 2800);
         recordVisible('marketing', time >= 2880);
         recordVisible('bold', time >= 3300);
-        recordVisible('button', time >= 3800);
         frameCosts.push(performance.now() - workStarted);
         if (time < 4300) frame = requestAnimationFrame(draw);
         else {
-          ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress', '--button-progress']
+          ['--answer-progress', '--block-exit', '--brand-trinity-progress', '--brand-marketing-progress', '--bold-progress']
             .forEach((name) => setProgress(name, 1));
           const ordered = [...frameCosts].sort((a, b) => a - b);
           const percentile = ordered[Math.min(ordered.length - 1, Math.floor(ordered.length * 0.95))] || 0;

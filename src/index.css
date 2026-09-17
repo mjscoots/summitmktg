@@ -38,6 +38,11 @@ html.light .site-grain {
   z-index: 1;
 }
 
+#root > .site-grain ~ .public-site-header {
+  position: fixed;
+  z-index: 30;
+}
+
 @layer base {
   :root {
     /* ━━━ PALETTE V6 - black, blue and violet ━━━
