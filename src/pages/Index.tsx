@@ -52,13 +52,22 @@ const Index = () => {
     document.getElementById('boot-cover')?.remove();
   }, []);
 
-  // iOS only hands over device orientation from inside a gesture, and the grant
-  // does not survive the session. It is asked for once, on the first tap of the
-  // primary button; a refusal simply leaves the scene's own drift running.
-  const onPrimaryTap = useCallback(() => {
-    if (tiltAsked.current) return;
-    tiltAsked.current = true;
-    void requestTiltPermission();
+  // Pass 223 - iOS only hands over device orientation from inside a gesture,
+  // but it must never be the apply tap: the native dialog used to open at the
+  // same instant the route changed. It is now asked for once on the first
+  // gesture that is not a link or a button, and never on the way to applying.
+  // A refusal simply leaves the scene's own drift running.
+  useEffect(() => {
+    const ask = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('a, button, input, textarea, select, [role="button"]')) return;
+      if (tiltAsked.current) return;
+      tiltAsked.current = true;
+      document.removeEventListener('pointerdown', ask);
+      void requestTiltPermission();
+    };
+    document.addEventListener('pointerdown', ask, { passive: true });
+    return () => document.removeEventListener('pointerdown', ask);
   }, []);
 
   // One passive scroll listener, one rAF, and the reads the whole cover needs.
@@ -254,7 +263,6 @@ const Index = () => {
               {COVER_STATS && <ProofHeadline />}
               <Link
                 to="/apply/rookie"
-                onClick={onPrimaryTap}
                 data-cover-apply
                 className="btn-primary cover-first-apply"
               >
@@ -287,7 +295,7 @@ const Index = () => {
                     <span className="cover-get-in-wrap">
                       <span className="cover-get-in-glow cover-get-in-glow-wide" aria-hidden="true" />
                       <span className="cover-get-in-glow cover-get-in-glow-tight" aria-hidden="true" />
-                      <Link to="/apply/rookie" onClick={onPrimaryTap} className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
+                      <Link to="/apply/rookie" className="btn-purple cover-get-in relative inline-flex items-center justify-center gap-2">
                         Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />
                       </Link>
                     </span>
@@ -322,7 +330,6 @@ const Index = () => {
             <p className="text-base text-text-secondary">Applications take a few minutes.</p>
             <Link
               to="/apply/rookie"
-              onClick={onPrimaryTap}
               className="btn-purple mt-7 inline-flex items-center justify-center gap-2 px-8"
             >
               Get in <ArrowRight className="h-4 w-4" aria-hidden="true" />

@@ -42,8 +42,32 @@ interface Step {
 
 const emailOk = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+/**
+ * Pass 223 - the key that ties every write in one visit to one row. It lives in
+ * localStorage so a refresh, a back step or a dropped connection returns to the
+ * same row instead of making a second person out of the same human.
+ */
+const KEY_STORAGE = 'trnty_apply_key';
+
+function applyKey(): string {
+  try {
+    const held = localStorage.getItem(KEY_STORAGE);
+    if (held && held.length >= 8) return held;
+    const made = `ak_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+    localStorage.setItem(KEY_STORAGE, made);
+    return made;
+  } catch {
+    return `ak_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+  }
+}
+
+/** The one line the person reads at the moment we start keeping their number. */
+export const CONTACT_NOTE =
+  'We save your name and number now, so someone from Trinity can call you even if you stop before the end.';
+
 function buildSteps(kind: 'rookie' | 'vet'): Step[] {
   const head: Step[] = [
+    { id: 'contact', kind: 'contact', title: 'How do we reach you?' },
     {
       id: 'interests',
       kind: 'multi',
@@ -73,7 +97,6 @@ function buildSteps(kind: 'rookie' | 'vet'): Step[] {
       placeholder: 'Your number',
     },
     { id: 'location', kind: 'text', title: 'Where are you located?', placeholder: 'City, State' },
-    { id: 'contact', kind: 'contact', title: 'How do we reach you?' },
     {
       id: 'referral',
       kind: 'text',
@@ -120,6 +143,9 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
   const [email, setEmail] = useState('');
   const [referral, setReferral] = useState('');
 
+  const keyRef = useRef('');
+  const savingRef = useRef(false);
+
   // The pop up and the cover carry the market, the referral and the vertical.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -130,6 +156,22 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
     if (ref) setReferral(ref);
     const preset = INTEREST_BY_VERTICAL[vertical];
     if (preset) setInterests([preset]);
+  }, []);
+
+  // Pass 223 - a refresh comes back to the same row and the same contact
+  // details, so nobody retypes their number and nobody becomes two people.
+  useEffect(() => {
+    keyRef.current = applyKey();
+    try {
+      const held = JSON.parse(localStorage.getItem('trnty_apply_contact') || 'null') as
+        | { fullName?: string; phone?: string; email?: string }
+        | null;
+      if (held?.fullName) setFullName(held.fullName);
+      if (held?.phone) setPhone(held.phone);
+      if (held?.email) setEmail(held.email);
+    } catch {
+      /* nothing held */
+    }
   }, []);
 
   useEffect(() => {
@@ -167,13 +209,67 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
     if (!step) return false;
     if (step.kind === 'multi') return interests.length > 0;
     if (step.kind === 'single') return step.id === 'experience' ? Boolean(experience) : Boolean(style);
-    if (step.kind === 'contact')
-      return fullName.trim() !== '' && phone.trim() !== '' && email.trim() !== '' && emailOk(email.trim());
+    // Pass 223: the row is written here, so the two things a human can be
+    // called with are all that gate the step. Email is asked for here too and
+    // required before the application itself is submitted.
+    if (step.kind === 'contact') return fullName.trim() !== '' && phone.trim() !== '';
     if (step.skippable) return true;
     return textValue(step.id).trim() !== '';
   })();
 
+  // Everything the flow knows right now, read by the saver without making it
+  // depend on every field.
+  const latest = useRef({ fullName, phone, email, location, interests, experience, style, revenue, markets, goal, referral, honeypot, stepId: step?.id || '' });
+  latest.current = { fullName, phone, email, location, interests, experience, style, revenue, markets, goal, referral, honeypot, stepId: step?.id || '' };
+
+  const savePartial = useCallback(async (stage: string) => {
+    const v = latest.current;
+    if (v.honeypot) return;
+    const name = v.fullName.trim();
+    const tel = v.phone.trim();
+    if (!name || !tel) return;
+    if (savingRef.current) return;
+    savingRef.current = true;
+    try {
+      localStorage.setItem('trnty_apply_contact', JSON.stringify({ fullName: name, phone: tel, email: v.email.trim() }));
+    } catch {
+      /* private mode */
+    }
+    const story = [
+      v.interests.length ? `Interested in: ${v.interests.join(', ')}` : '',
+      v.experience ? `Experience: ${v.experience}` : '',
+      v.style ? `Prefers: ${v.style}` : '',
+      v.revenue ? `Last season revenue: ${v.revenue.trim()}` : '',
+      v.markets ? `Markets worked: ${v.markets.trim()}` : '',
+      v.goal ? `First year goal: ${v.goal.trim()}` : '',
+      v.referral ? `Heard from: ${v.referral.trim()}` : '',
+      `Applying as: ${kind === 'vet' ? 'veteran' : 'rookie'}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+    try {
+      await supabase.rpc('capture_apply_partial' as never, {
+        _key: keyRef.current || applyKey(),
+        _fields: {
+          first_name: name,
+          phone: tel,
+          email: v.email.trim().toLowerCase(),
+          city: v.location.trim(),
+          interest_reason: v.interests.join(', ').slice(0, 60),
+          story,
+          apply_stage: stage,
+          source_code: source.source_code || '',
+        },
+      } as never);
+    } catch (err) {
+      console.error('Partial capture failed:', err);
+    } finally {
+      savingRef.current = false;
+    }
+  }, [kind, source.source_code]);
+
   const goNext = useCallback(() => {
+    void savePartial(latest.current.stepId || 'step');
     setIndex((i) => {
       if (i + 1 >= total) {
         setAtEnd(true);
@@ -181,7 +277,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
       }
       return i + 1;
     });
-  }, [total]);
+  }, [total, savePartial]);
 
   const goBack = () => {
     if (atEnd) {
@@ -208,8 +304,17 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
   })();
 
   const submit = async (wantsCall: boolean) => {
+    if (!emailOk(email.trim())) {
+      toast({
+        title: 'One more thing',
+        description: 'Add the email address we should send your application to.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSubmitting(true);
     try {
+      await savePartial('submitting');
       const { data, error } = await supabase.functions.invoke('submit-application', {
         body: {
           application_type: kind === 'vet' ? 'vet' : 'rookie',
@@ -231,11 +336,20 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
           referrer_user_id: source.referrer_user_id,
           partner_id: source.partner_id,
           website: honeypot,
+          client_key: keyRef.current || null,
         },
       });
 
       if (error || (data as { error?: string } | null)?.error) {
         throw new Error((data as { error?: string } | null)?.error || 'rejected');
+      }
+
+      // The visit is finished, so the next person on this device starts clean.
+      try {
+        localStorage.removeItem(KEY_STORAGE);
+        localStorage.removeItem('trnty_apply_contact');
+      } catch {
+        /* private mode */
       }
 
       supabase.functions
@@ -319,6 +433,16 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
               We will have someone reach out and see if you are a good fit.
             </h2>
             <div className="mt-7 flex flex-col items-start gap-3">
+              {!emailOk(email.trim()) && (
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="john@example.com"
+                  aria-label="Email address"
+                  className={inputBase}
+                />
+              )}
               {schedulingUrl && (
                 <button type="button" disabled={submitting} className={primaryBase} onClick={() => submit(true)}>
                   {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
@@ -427,6 +551,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
                     aria-label="Email address"
                     className={inputBase}
                   />
+                  <p className="max-w-[420px] text-[13px] leading-snug text-[#5A5A6B]">{CONTACT_NOTE}</p>
                 </>
               )}
 

@@ -4594,11 +4594,15 @@ export type Database = {
       }
       recruiting_leads: {
         Row: {
+          application_id: string | null
+          apply_stage: string | null
           city: string | null
           claimed_at: string | null
           claimed_by: string | null
+          client_key: string | null
           contact_count: number
           created_at: string
+          email: string | null
           first_name: string
           id: string
           interest_reason: string | null
@@ -4625,11 +4629,15 @@ export type Database = {
           weeks_active: number | null
         }
         Insert: {
+          application_id?: string | null
+          apply_stage?: string | null
           city?: string | null
           claimed_at?: string | null
           claimed_by?: string | null
+          client_key?: string | null
           contact_count?: number
           created_at?: string
+          email?: string | null
           first_name: string
           id?: string
           interest_reason?: string | null
@@ -4656,11 +4664,15 @@ export type Database = {
           weeks_active?: number | null
         }
         Update: {
+          application_id?: string | null
+          apply_stage?: string | null
           city?: string | null
           claimed_at?: string | null
           claimed_by?: string | null
+          client_key?: string | null
           contact_count?: number
           created_at?: string
+          email?: string | null
           first_name?: string
           id?: string
           interest_reason?: string | null
@@ -4687,6 +4699,13 @@ export type Database = {
           weeks_active?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "recruiting_leads_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "recruiting_leads_partner_id_fkey"
             columns: ["partner_id"]
@@ -7506,6 +7525,10 @@ export type Database = {
       can_view_person: { Args: { _user_id: string }; Returns: string }
       can_write_event: {
         Args: { _team_id: string; _uid: string }
+        Returns: boolean
+      }
+      capture_apply_partial: {
+        Args: { _fields: Json; _key: string }
         Returns: boolean
       }
       card_channel_or_general: { Args: { _slug: string }; Returns: string }
