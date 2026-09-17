@@ -118,7 +118,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     ]);
     if (ipAllowed === false || emailAllowed === false) return send({ error: TOO_MANY }, 429);
 
-    const { error } = await admin.from("applications").insert({
+    const { data: inserted, error } = await admin.from("applications").insert({
       application_type: type,
       full_name: fullName,
       email,
