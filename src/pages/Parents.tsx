@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mountain } from 'lucide-react';
 import { useRecruitingContent } from '@/hooks/usePublicRecruiting';
 import { setPageMeta } from '@/lib/pageMeta';
 

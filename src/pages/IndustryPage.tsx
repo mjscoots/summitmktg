@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, LogIn } from 'lucide-react';
-import { Wordmark } from '@/components/brand/Wordmark';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { setPageMeta } from '@/lib/pageMeta';
 
@@ -24,7 +23,6 @@ const CARD = 'public-card p-5 sm:p-6';
 
 export default function IndustryPage() {
   const { slug = '' } = useParams();
-  const navigate = useNavigate();
   const isLife = slug.toLowerCase() === 'life';
   const vertical = SLUGS[slug.toLowerCase()];
   const [data, setData] = useState<IndustryData | null>(null);

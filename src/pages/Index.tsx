@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { Wordmark } from "@/components/brand/Wordmark";
 import { MountainScene, requestTiltPermission } from "@/components/brand/MountainScene";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import { ProductionTicker } from "@/components/recruiting/ProductionTicker";

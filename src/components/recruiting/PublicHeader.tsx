@@ -38,7 +38,7 @@ export function PublicHeader() {
 
   return (
     <>
-      <header className={`gold-world public-nav public-site-header fixed inset-x-0 top-0 z-30 ${scrolled ? 'public-nav-scrolled' : ''}`}>
+      <header className={`gold-world public-nav public-site-header fixed inset-x-0 top-0 z-30 ${pathname === '/' ? 'public-site-header-cover' : ''} ${scrolled ? 'public-nav-scrolled' : ''}`}>
         <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 sm:px-6">
           <Link to="/" aria-label="Trinity home" className="flex min-h-11 items-center">
             <Wordmark variant="compact" height={28} className="h-7 w-auto" />

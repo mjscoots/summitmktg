@@ -2884,3 +2884,6 @@ html[data-appearance='light'] .btn-gradient {
 .public-site-header.public-nav-scrolled {
   background: hsl(var(--background) / 0.94);
 }
+.public-site-header-cover:not(.public-nav-scrolled) {
+  background: transparent;
+}
