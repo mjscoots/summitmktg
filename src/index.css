@@ -2537,6 +2537,14 @@ html[data-appearance='light'] .btn-gradient {
   font-weight: 500;
   line-height: 1.4;
 }
+/* Pass 224 - the referrer's name, only ever rendered when a code resolves. */
+.cover-first-referrer {
+  margin: 8px auto 0;
+  color: hsl(var(--text-secondary));
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
 .cover-first-apply {
   position: relative;
   margin-top: 16px;
