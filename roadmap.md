@@ -1,11 +1,18 @@
 # Roadmap
 
+## Pass 227
+- [x] Replace statement progress with the real burst callback and reversible CSS entrance
+- [x] Verify both viewports, timing samples, sweeps, reduced motion, keyboard navigation and layering
+- [x] Save all measurements and seven base64 screenshots; keep unpublished
+- [ ] Observed 700–800ms timing expectation: prescribed CSS is exact, but preview frame scheduling measured 832.6ms / 868.5ms
+- [ ] Security access decision: shared season results, pay references and badges; narrowing access changes legitimate app behavior
+
 ## Pass 226
 - [x] Move the statement into the 200svh stage with the exact requested progress mapping
 - [x] Remove the hairline, bridge, ridgeline and old statement gates; hide the scene in white
 - [x] Measure both viewports and save all eight encoded screenshots and the full report
-- [ ] Resolve the pre-burst overlap: blocked by conflicting requirements (live logo threshold .92 versus assumed .55; logo edits excluded)
-- [ ] Confirm strict desktop scene opacity 0 within 400ms: settled state passes, precise preview timing did not
+- [x] Pre-burst overlap resolved by Pass 227 callback-driven entrance
+- [x] Strict 400ms scene observation documented as not passed; Pass 226 closed by owner, no older work queued
 
 ## Pass 225
 - [x] Simplify the opening and matching static fallback without changing stage motion
