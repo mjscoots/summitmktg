@@ -1868,7 +1868,10 @@ body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  opacity: 1;
+  transition: opacity 300ms linear;
 }
+.public-world[data-world='light'] .cover-scene { opacity: 0; pointer-events: none; }
 .cover-media {
   position: absolute;
   inset: 0;
@@ -2038,21 +2041,6 @@ html[data-appearance='light'] .btn-gradient {
 /* The plain block fade that remains elsewhere matches the card distance. */
 .public-reveal > * { transform: translateY(16px); }
 
-/* Scroll progress hairline: 2px of the brand gradient, scaled from the left by
-   the one rAF loop on the page. */
-.cover-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 40;
-  height: 2px;
-  background: var(--gradient-brand);
-  transform: scaleX(var(--cover-progress, 0));
-  transform-origin: left center;
-  pointer-events: none;
-}
-
 /* Proof numbers: the gradient underline draws from the left as the count lands. */
 .proof-underline { position: relative; display: inline-block; }
 .proof-underline::after {
@@ -2128,7 +2116,6 @@ html[data-appearance='light'] .btn-gradient {
     transform: none !important;
   }
   .reveal-clip { overflow: visible; }
-  .cover-progress { display: none !important; }
   .proof-underline::after { transform: scaleX(1); animation: none !important; }
   .door-lane::after { transition: none !important; }
   .btn-gradient { animation: none !important; transition: none !important; }
@@ -2233,27 +2220,28 @@ html[data-appearance='light'] .btn-gradient {
   to { transform: translate3d(-50%, -50%, 0) scale(0); }
 }
 
-/* The pinned stage remains independent of the permanent statement. */
-.cover-stage { height: 120svh; }
+/* The logo and statement share one reversible, viewport-centred pin. */
+.cover-stage { height: 200svh; --statement-progress: 0; }
 .cover-stage-pin { position: sticky; top: 0; height: 100svh; overflow: visible; }
-.cover-statement {
-  --statement-paper: 0 0% 100%;
+.cover-statement-layer {
   --statement-ink: 240 20% 5%;
   --statement-brand: 222 100% 50%;
-  position: relative;
-  height: 100svh;
-  background: hsl(var(--statement-paper));
-  overflow: hidden;
-}
-.cover-statement-copy {
-  position: relative;
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: 26;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 24px;
+  padding: 0 20px;
+  text-align: center;
+  pointer-events: none;
+  opacity: var(--statement-progress);
+  transform: translateY(calc((1 - var(--statement-progress)) * 18px));
+  transition: none;
 }
+.cover-stage[data-statement-visible='true'] .cover-statement-layer { pointer-events: auto; }
 .statement-brand {
   position: relative;
   z-index: 2;
@@ -2284,45 +2272,13 @@ html[data-appearance='light'] .btn-gradient {
   justify-content: center;
   padding: 0 32px;
 }
-.cover-statement .statement-enter-item {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 600ms ease-out, transform 600ms ease-out;
-}
-.cover-statement .statement-support { transition-delay: 150ms; }
-.cover-statement .statement-learn { transition-delay: 300ms; }
-.statement-entered .statement-enter-item { opacity: 1; transform: none; }
 @media (min-width: 700px) {
   .statement-brand { max-width: 900px; font-size: 88px; }
   .statement-support { max-width: 38ch; font-size: 24px; }
 }
-#industries { scroll-margin-top: 72px; min-height: calc(100svh - 72px); }
+#industries { scroll-margin-top: 72px; }
 #root:has(#industries) { scroll-behavior: smooth; }
 
-.statement-ridgeline-floor {
-  position: absolute;
-  z-index: 0;
-  inset: auto 50% 0 auto;
-  width: 100vw;
-  height: 18svh;
-  transform: translateX(50%);
-  pointer-events: none;
-}
-@media (min-width: 700px) { .statement-ridgeline-floor { height: 22svh; } }
-
-/* The hero light bridge rises from p .18 to .36 without moving the burst. */
-.cover-hero::after {
-  content: '';
-  position: absolute;
-  z-index: 3;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 28vh;
-  pointer-events: none;
-  opacity: var(--bridge-opacity, 0);
-  background: linear-gradient(to bottom, transparent, #FFFFFF);
-}
 .cover-scroll-cue {
   position: absolute;
   z-index: 4;
@@ -2449,10 +2405,9 @@ html[data-appearance='light'] .btn-gradient {
 .public-world[data-world='light'] .section-title { color: #0A0A0F; }
 .public-world[data-world='light'] .public-section { background: #FFFFFF; }
 .public-world[data-world='light'] .cover-open::before {
-  background-image: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 28px);
+  display: none;
 }
 .public-world[data-world='light'] .cover-scrim { background: rgba(255, 255, 255, 0.45); }
-.public-world[data-world='light'] .cover-progress { background: #004EFD; }
 .public-world[data-world='light'] .btn-gradient { background: #0A0A0F; color: #FFFFFF; animation: none; }
 .public-world[data-world='light'] .gradient-text { color: #004EFD; -webkit-text-fill-color: #004EFD; }
 .public-world[data-world='light'] .proof-underline::after,
@@ -2464,9 +2419,7 @@ html[data-appearance='light'] .btn-gradient {
   .cover-logo-glow,
   .cover-scroll-cue { display: none !important; }
   .cover-shard { animation: none !important; opacity: 1 !important; transform: none !important; }
-  .cover-stage { height: auto; }
-  .cover-stage-pin { position: static; height: auto; min-height: 100svh; }
-  .cover-statement .statement-enter-item { opacity: 1; transform: none; transition: none; }
+  .cover-statement-layer { transform: none; }
   #root:has(#industries) { scroll-behavior: auto; }
   .btn-purple { transition: none !important; }
 }
@@ -2679,18 +2632,6 @@ html[data-appearance='light'] .btn-gradient {
 .cover-open::before {
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 25vh), rgba(0, 0, 0, 0) 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 25vh), rgba(0, 0, 0, 0) 100%);
-}
-/* The statement sits in its own screen with the space above the headline capped,
-   so the copy reads near the middle instead of a screen of empty white. */
-.cover-statement {
-  padding-top: 0;
-  padding-bottom: 0;
-}
-@media (min-width: 700px) {
-  .cover-statement {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
 }
 /* The nav over the cover is a wash that fades out, never a bordered band, so the
    only horizontal line left in the transition is gone too. */
