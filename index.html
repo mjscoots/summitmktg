@@ -47,18 +47,18 @@
 
   <body>
     <style>
-      #boot-cover{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:92px 20px 24px;background:#000000;color:#ffffff;text-align:center;font-family:Archivo,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-      #boot-cover h1{margin:0;max-width:22ch;font-size:clamp(1.75rem,6vw,3.25rem);font-weight:800;line-height:1.05;letter-spacing:-0.02em}
-      #boot-cover p{margin:0;max-width:34ch;font-size:clamp(0.95rem,2.4vw,1.125rem);font-weight:500;line-height:1.4;color:#c9cedb}
-      #boot-cover a{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:6px;padding:0 26px;border-radius:999px;background:#1B6CF2;color:#ffffff;font-size:1rem;font-weight:700;text-decoration:none}
+      #boot-cover{position:fixed;inset:0;z-index:40;background:#000000;text-align:center;font-family:Archivo,system-ui,-apple-system,sans-serif}
+      #boot-cover p{position:absolute;top:clamp(84px,12svh,118px);left:50%;width:min(92vw,820px);transform:translateX(-50%);margin:0;color:rgba(255,255,255,.72);font-size:15px;font-weight:500;line-height:1.4;letter-spacing:0;white-space:nowrap}
+      #boot-cover a{position:absolute;top:calc(clamp(84px,12svh,118px) + 48px);left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;border-radius:999px;background:#1B6CF2;color:#ffffff;font-size:1rem;font-weight:700;text-decoration:none;opacity:0;visibility:hidden;animation:boot-apply-reveal 0s 3000ms forwards}
+      @keyframes boot-apply-reveal{to{opacity:1;visibility:visible}}
+      @media(min-width:700px){#boot-cover p{font-size:17px}}
     </style>
     <!-- Pass 222 - a real first screen in the HTML source, so a cold visitor sees
-         the message and can reach the application before any script runs. It is
+         the small line before any script runs, with a delayed failure-mode link. It is
          removed only when the cover component mounts; nothing else clears it. -->
     <div id="boot-cover">
-      <h1>Pest control. Fiber internet. Life insurance.</h1>
-      <p>Where being a sales rep is not the end goal.</p>
-      <a href="/apply/rookie">Get in</a>
+      <p>Pest control. Fiber internet. Life insurance.</p>
+      <a href="/apply/rookie">Apply</a>
     </div>
     <script>
       // Anyone arriving straight at another route never sees the home message.

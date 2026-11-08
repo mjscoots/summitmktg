@@ -65,7 +65,7 @@ export default function ThreeDoorSection() {
   ];
 
   return (
-    <section className="public-section px-5 py-16 text-center md:px-8 md:py-24" data-reveal>
+    <section id="industries" className="public-section px-5 py-16 text-center md:px-8 md:py-24" data-reveal>
       <div className="mx-auto max-w-5xl">
         <h2 className="section-title text-foreground"><span className="reveal-clip"><span>Three industries. One team.</span></span></h2>
         <p className="mx-auto mt-5 max-w-[60ch] text-text-secondary">
