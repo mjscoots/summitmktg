@@ -1,0 +1,1 @@
+Public cover: keep raw stage progress as the single scroll source; remap only the CoverLogo prop and derive statement visibility in the same frame, so the pinned composition reverses deterministically without changing logo internals.

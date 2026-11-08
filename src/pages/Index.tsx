@@ -10,7 +10,6 @@ import { usePublicMotion } from '@/hooks/usePublicMotion';
 import { useCoverMedia } from '@/hooks/useCoverMedia';
 import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
-import { RIDGES } from '@/components/brand/MountainRange';
 import { ProofSet } from '@/components/recruiting/ProofLines';
 import { ReferrerLine } from '@/components/recruiting/ReferrerLine';
 
@@ -18,28 +17,19 @@ import { ReferrerLine } from '@/components/recruiting/ReferrerLine';
 /**
  * Public front door for Trinity Sales.
  *
- * Pass 184 puts the logo dead centre. It builds itself out of flying chunks on
- * load, fills with the gradient as the visitor scrolls, and at 55 percent of the
- * first viewport it bursts and the whole cover swells from black to white. One
- * rAF loop reads the scroll and writes four things: whether the nav is scrolled,
- * the hero progress that drives the logo, the progress hairline, and the final
- * band's own progress, which lifts the scene glow. Everything below the hero is
- * the light world and stays plain.
+ * One pinned stage contains the logo, burst and reversible statement.
+ * Raw stage travel drives the statement; remapped travel drives the logo.
  */
 const Index = () => {
   const media = useCoverMedia();
   const stageRef = useRef<HTMLElement | null>(null);
-  const statementRef = useRef<HTMLElement | null>(null);
-
   const bandRef = useRef<HTMLElement | null>(null);
-  const progressRef = useRef<HTMLDivElement | null>(null);
   // True once the white has covered the screen, false again on the way back.
   const [worldLight, setWorldLight] = useState(false);
   // Scroll progress over the first viewport, which drives the logo.
   const [heroProgress, setHeroProgress] = useState(0);
   // The final band's own progress, which lifts the scene glow.
   const [bandProgress, setBandProgress] = useState(0);
-  const worldLightRef = useRef(false);
   const tiltAsked = useRef(false);
   const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
   const onBurst = useCallback(() => undefined, []);
@@ -77,7 +67,6 @@ const Index = () => {
     let frame = 0;
     const read = () => {
       frame = 0;
-      const y = el ? el.scrollTop : window.scrollY;
       // s is progress through the pinned stage, so the logo and burst read
       // from the same travel.
       const stage = stageRef.current;
@@ -87,14 +76,11 @@ const Index = () => {
         const travel = Math.max(1, rect.height - window.innerHeight);
         nextHeroProgress = Math.min(1, Math.max(0, -rect.top / travel));
         stage.dataset.stageProgress = nextHeroProgress.toFixed(4);
+        const statementProgress = Math.min(1, Math.max(0, (nextHeroProgress - 0.24) / 0.08));
+        stage.style.setProperty('--statement-progress', String(statementProgress));
+        stage.dataset.statementVisible = statementProgress > 0.5 ? 'true' : 'false';
       }
       setHeroProgress(nextHeroProgress);
-      stage?.style.setProperty('--bridge-opacity', String(Math.min(0.1, Math.max(0, (nextHeroProgress - 0.18) / 0.16 * 0.1))));
-
-
-      const scroller = el || document.documentElement;
-      const span = Math.max(1, scroller.scrollHeight - window.innerHeight);
-      progressRef.current?.style.setProperty('--cover-progress', String(Math.min(1, y / span)));
 
       const band = bandRef.current;
       if (band) {
@@ -117,44 +103,6 @@ const Index = () => {
     };
   }, []);
 
-  // A single latched entrance begins at 30% visibility, after fonts settle.
-  useEffect(() => {
-    const statement = statementRef.current;
-    if (!statement) return;
-    let disposed = false;
-    let reached = false;
-    let fontsReady = false;
-    const reveal = () => {
-      if (!disposed && reached && fontsReady) {
-        statement.classList.add('statement-entered');
-      }
-    };
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      statement.classList.add('statement-entered');
-      return;
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry && entry.isIntersecting && entry.intersectionRatio >= 0.30) {
-        reached = true;
-        observer.disconnect();
-        reveal();
-      }
-    }, { threshold: [0.30] });
-    observer.observe(statement);
-    void document.fonts.ready.then(() => {
-      fontsReady = true;
-      reveal();
-    });
-    return () => {
-      disposed = true;
-      observer.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    worldLightRef.current = worldLight;
-  }, [worldLight]);
-
   return (
     <div
       className="gold-world public-world relative flex min-h-screen flex-col"
@@ -171,14 +119,11 @@ const Index = () => {
         <MountainScene pointerParallax glowBoost={bandProgress} light={worldLight} />
       </div>
 
-      <div className="cover-progress" ref={progressRef} aria-hidden="true" />
-
-
       <main className="relative flex-1">
-        {/* The pinned stage owns only the logo assembly, burst and white swell. */}
+        {/* The statement arrives inside the same pin as the white swell. */}
         <section ref={stageRef} id="cover-stage" className="cover-stage relative isolate">
           <div className="cover-stage-pin cover-open cover-hero relative isolate px-5 sm:px-6">
-            <CoverLogo progress={heroProgress} onBurst={onBurst} onWorldLight={onWorldLight} />
+            <CoverLogo progress={Math.min(1, Math.max(0, heroProgress / 0.4))} onBurst={onBurst} onWorldLight={onWorldLight} />
             <div className="cover-first-message text-center">
               <p className="cover-first-line">Pest control. Fiber internet. Life insurance.</p>
               <ReferrerLine />
@@ -188,20 +133,11 @@ const Index = () => {
               <span className="cover-scroll-track"><span className="cover-scroll-bead" /></span>
               <span className="cover-scroll-chevron" />
             </div>
-
-          </div>
-        </section>
-
-        <section ref={statementRef} id="statement" className="cover-statement px-5 text-center sm:px-6">
-          <div className="cover-statement-copy mx-auto w-full max-w-6xl">
-            <h1 className="statement-brand statement-enter-item">TRINITY MARKETING</h1>
-            <p className="statement-support statement-enter-item">Where being a sales rep is not the end goal.</p>
-            <a href="#industries" className="btn-purple statement-learn statement-enter-item">Learn more</a>
-                <svg className="statement-ridgeline-floor" viewBox="0 0 1440 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-                  <path d={RIDGES[0]} fill="#F2F2F4" />
-                  <path d={RIDGES[2]} fill="#F7F7F9" />
-                  <path d={RIDGES[4]} fill="#FBFBFC" />
-                </svg>
+            <div className="cover-statement-layer">
+              <h1 className="statement-brand">TRINITY MARKETING</h1>
+              <p className="statement-support">Where being a sales rep is not the end goal.</p>
+              <a href="#industries" className="btn-purple statement-learn">Learn more</a>
+            </div>
           </div>
         </section>
 
