@@ -6704,3 +6704,214 @@ Identical. Nothing is assigned for real; the owner decides who gets which leads.
 
 Screenshots: `/tmp/browser/leads217/selected390.png`, `confirm.png`, `result.png`.
 Build OK, typecheck clean, people_leads 1379 before and after. Not published.
+
+
+## Pass 225 — simplified public cover (2026-11-08)
+
+### Scope and outcome
+Only Index.tsx, the boot block in index.html, cover CSS, coverStats.ts, and the industries id in ThreeDoorSection were changed for the experience. Logo assembly, burst, swell, stage motion, MountainScene, CoverLogo, PublicHeader, App.tsx, application flow, auth, chat, leads, and /app were not edited. No database writes or publishing.
+
+COVER_STATS is false; the existing proof and ticker components remain. AskSheet and AskSection are no longer mounted; their component files remain. The final action is Apply. ReferralLookup remains: ApplyFlow.tsx lines 101–106 has a free-text “Who told you about Trinity?” question, not a referral-code field. No new copy was invented.
+
+The uppercase text-transform on the existing hero scroll cue was removed, retaining the words “See all three” and all cue motion. Otherwise rendered innerText still contained the prohibited string ALL THREE. Industries has a scoped minimum screen height so the desktop link target can scroll below the header instead of being constrained by the document bottom.
+
+### Baseline reproduction
+At 390 × 844 before edits: opening tag H1, font 24px, hero application action present, old typing phase present, industries id missing.
+
+### Opening and static handoff
+| Width × height | Static top | Live top | Delta | Font | Weight | Element/text rects | Static/live overflow |
+| --- | ---: | ---: | ---: | --- | ---: | --- | --- |
+| 390 × 844 | 101.266px | 101.266px | 0.000px | 15px | 500 | 1/1 | 0/0px |
+| 1280 × 1800 | 118.000px | 118.000px | 0.000px | 17px | 500 | 1/1 | 0/0px |
+
+Both opening lines are P elements, Archivo, rgba(255, 255, 255, 0.72), and one line. Same-page measurement held the main module before mount, waited for fonts, then released it. Static Apply opacity was 0 before release. A separate JavaScript-disabled visit showed a visible, real Apply anchor after 3100ms; CSS delay is 3000ms. Body has no inline background. Cover useLayoutEffect removal and the non-root inline script are unchanged.
+
+### Statement centring and Learn more
+| Width | Group centre | innerHeight/2 | Error | Statement background | Header bottom | Industries heading top | Gap |
+| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| 390 | 421.797px | 422px | 0.203px | rgb(255, 255, 255) | 57px | 135.797px | 78.797px |
+| 1280 | 900.000px | 900px | 0.000px | rgb(255, 255, 255) | 57px | 168.000px | 111.000px |
+
+Learn more was focused and activated with Enter. Final hash was #industries. Both headings are fully below the header and within 120px. The real anchor uses native smooth fragment scrolling; reduced motion uses instant scrolling.
+
+### Entrance samples
+Observer latch is watched with MutationObserver; samples are read on animation frames, not a production clock or timing dataset. Columns list brand / sentence / link opacity. Actual sample times are reported rather than pretending a frame always lands exactly on a requested time.
+| Width | Target | Actual elapsed | Opacities | Brand transform |
+| --- | ---: | ---: | --- | --- |
+| 390 | 0ms | 0.100ms | 0 / 0 / 0 | matrix(1, 0, 0, 1, 0, 18) |
+| 390 | 300ms | 313.600ms | 0.622879 / 0.300318 / 0 | matrix(1, 0, 0, 1, 0, 6.78818) |
+| 390 | 700ms | 729.900ms | 1 / 0.979189 / 0.820214 | none |
+| 390 | 1000ms | 1010.200ms | 1 / 1 / 1 | none |
+| 1280 | 0ms | 0.100ms | 0 / 0 / 0 | matrix(1, 0, 0, 1, 0, 18) |
+| 1280 | 300ms | 310.700ms | 0.590703 / 0.260345 / 0 | matrix(1, 0, 0, 1, 0, 7.36735) |
+| 1280 | 700ms | 747.900ms | 1 / 0.968351 / 0.795463 | none |
+| 1280 | 1000ms | 1028.300ms | 1 / 1 / 1 | none |
+
+At the first sampled frame at/after 1000ms all three opacities are 1, and the brand transform is none. Authored transitions: 600ms ease-out with delays 0/150/300ms; initial displacement 18px. A first test exposed the general primary-button transition overriding the link delay; the scoped statement transition was corrected and the same check rerun. Reduced-motion fresh pages at both widths measured opacity 1 and transform none for all three before scrolling.
+
+### Scroll sweep — every 100px down and back
+All elements retain opacity 1 once entered; zero post-latch hidden/unmounted elements. Their geometric classifications below/viewport/above are recorded at every point below.
+
+**Literal viewport caveat:** permanent document-flow content necessarily leaves the viewport above/below its own section. The “zero positions where all three are absent” requirement passes for hidden/unmounted content, not for all three being outside the viewport. Keeping them visible at every scroll position would require pinning them across unrelated sections, contrary to the requested normal 100svh statement. The counts and all classifications are preserved rather than concealed.
+
+#### 390 × 844: 46 samples; 25 samples with all three geometrically outside viewport
+| Direction | Scroll px | Brand | Sentence | Learn more | Opacities |
+| --- | ---: | --- | --- | --- | --- |
+| down | 0 | below | below | below | 1 / 1 / 1 |
+| down | 100 | below | below | below | 1 / 1 / 1 |
+| down | 200 | below | below | below | 1 / 1 / 1 |
+| down | 300 | below | below | below | 1 / 1 / 1 |
+| down | 400 | below | below | below | 1 / 1 / 1 |
+| down | 500 | viewport | below | below | 1 / 1 / 1 |
+| down | 600 | viewport | viewport | below | 1 / 1 / 1 |
+| down | 700 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 800 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 900 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1000 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1100 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1200 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1300 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1400 | above | viewport | viewport | 1 / 1 / 1 |
+| down | 1500 | above | above | viewport | 1 / 1 / 1 |
+| down | 1600 | above | above | above | 1 / 1 / 1 |
+| down | 1700 | above | above | above | 1 / 1 / 1 |
+| down | 1800 | above | above | above | 1 / 1 / 1 |
+| down | 1900 | above | above | above | 1 / 1 / 1 |
+| down | 2000 | above | above | above | 1 / 1 / 1 |
+| down | 2100 | above | above | above | 1 / 1 / 1 |
+| down | 2200 | above | above | above | 1 / 1 / 1 |
+| up | 2257 | above | above | above | 1 / 1 / 1 |
+| up | 2157 | above | above | above | 1 / 1 / 1 |
+| up | 2057 | above | above | above | 1 / 1 / 1 |
+| up | 1957 | above | above | above | 1 / 1 / 1 |
+| up | 1857 | above | above | above | 1 / 1 / 1 |
+| up | 1757 | above | above | above | 1 / 1 / 1 |
+| up | 1657 | above | above | above | 1 / 1 / 1 |
+| up | 1557 | above | above | above | 1 / 1 / 1 |
+| up | 1457 | above | viewport | viewport | 1 / 1 / 1 |
+| up | 1357 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1257 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1157 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1057 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 957 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 857 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 757 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 657 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 557 | viewport | below | below | 1 / 1 / 1 |
+| up | 457 | below | below | below | 1 / 1 / 1 |
+| up | 357 | below | below | below | 1 / 1 / 1 |
+| up | 257 | below | below | below | 1 / 1 / 1 |
+| up | 157 | below | below | below | 1 / 1 / 1 |
+| up | 57 | below | below | below | 1 / 1 / 1 |
+#### 1280 × 1800: 88 samples; 46 samples with all three geometrically outside viewport
+| Direction | Scroll px | Brand | Sentence | Learn more | Opacities |
+| --- | ---: | --- | --- | --- | --- |
+| down | 0 | below | below | below | 1 / 1 / 1 |
+| down | 100 | below | below | below | 1 / 1 / 1 |
+| down | 200 | below | below | below | 1 / 1 / 1 |
+| down | 300 | below | below | below | 1 / 1 / 1 |
+| down | 400 | below | below | below | 1 / 1 / 1 |
+| down | 500 | below | below | below | 1 / 1 / 1 |
+| down | 600 | below | below | below | 1 / 1 / 1 |
+| down | 700 | below | below | below | 1 / 1 / 1 |
+| down | 800 | below | below | below | 1 / 1 / 1 |
+| down | 900 | below | below | below | 1 / 1 / 1 |
+| down | 1000 | below | below | below | 1 / 1 / 1 |
+| down | 1100 | below | below | below | 1 / 1 / 1 |
+| down | 1200 | viewport | below | below | 1 / 1 / 1 |
+| down | 1300 | viewport | below | below | 1 / 1 / 1 |
+| down | 1400 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1500 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1600 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1700 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1800 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 1900 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2000 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2100 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2200 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2300 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2400 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2500 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2600 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2700 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2800 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 2900 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 3000 | viewport | viewport | viewport | 1 / 1 / 1 |
+| down | 3100 | above | viewport | viewport | 1 / 1 / 1 |
+| down | 3200 | above | above | viewport | 1 / 1 / 1 |
+| down | 3300 | above | above | above | 1 / 1 / 1 |
+| down | 3400 | above | above | above | 1 / 1 / 1 |
+| down | 3500 | above | above | above | 1 / 1 / 1 |
+| down | 3600 | above | above | above | 1 / 1 / 1 |
+| down | 3700 | above | above | above | 1 / 1 / 1 |
+| down | 3800 | above | above | above | 1 / 1 / 1 |
+| down | 3900 | above | above | above | 1 / 1 / 1 |
+| down | 4000 | above | above | above | 1 / 1 / 1 |
+| down | 4100 | above | above | above | 1 / 1 / 1 |
+| down | 4200 | above | above | above | 1 / 1 / 1 |
+| down | 4300 | above | above | above | 1 / 1 / 1 |
+| up | 4360 | above | above | above | 1 / 1 / 1 |
+| up | 4260 | above | above | above | 1 / 1 / 1 |
+| up | 4160 | above | above | above | 1 / 1 / 1 |
+| up | 4060 | above | above | above | 1 / 1 / 1 |
+| up | 3960 | above | above | above | 1 / 1 / 1 |
+| up | 3860 | above | above | above | 1 / 1 / 1 |
+| up | 3760 | above | above | above | 1 / 1 / 1 |
+| up | 3660 | above | above | above | 1 / 1 / 1 |
+| up | 3560 | above | above | above | 1 / 1 / 1 |
+| up | 3460 | above | above | above | 1 / 1 / 1 |
+| up | 3360 | above | above | above | 1 / 1 / 1 |
+| up | 3260 | above | above | above | 1 / 1 / 1 |
+| up | 3160 | above | above | viewport | 1 / 1 / 1 |
+| up | 3060 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2960 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2860 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2760 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2660 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2560 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2460 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2360 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2260 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2160 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 2060 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1960 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1860 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1760 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1660 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1560 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1460 | viewport | viewport | viewport | 1 / 1 / 1 |
+| up | 1360 | viewport | viewport | below | 1 / 1 / 1 |
+| up | 1260 | viewport | below | below | 1 / 1 / 1 |
+| up | 1160 | viewport | below | below | 1 / 1 / 1 |
+| up | 1060 | below | below | below | 1 / 1 / 1 |
+| up | 960 | below | below | below | 1 / 1 / 1 |
+| up | 860 | below | below | below | 1 / 1 / 1 |
+| up | 760 | below | below | below | 1 / 1 / 1 |
+| up | 660 | below | below | below | 1 / 1 / 1 |
+| up | 560 | below | below | below | 1 / 1 / 1 |
+| up | 460 | below | below | below | 1 / 1 / 1 |
+| up | 360 | below | below | below | 1 / 1 / 1 |
+| up | 260 | below | below | below | 1 / 1 / 1 |
+| up | 160 | below | below | below | 1 / 1 / 1 |
+| up | 60 | below | below | below | 1 / 1 / 1 |
+
+### Forbidden content and header regression
+After scrolling to the page bottom and returning to the top, both widths returned false for each of: $, last summer, Everyone argues, ALL THREE, Have you done sales, Three questions, Get in. .ask-layer is null and .cover-first-proof/.proof-set count is 0. No production/revenue/signed figure renders.
+
+| Width | Appearance | First latch scroll | Header hit tests | After bottom/top | Overflow |
+| --- | --- | ---: | --- | --- | ---: |
+| 390 | dark | 500px | 8/8 | all opacity 1, transform none | 0px |
+| 390 | light | 500px | 8/8 | all opacity 1, transform none | 0px |
+| 1280 | dark | 900px | 8/8 | all opacity 1, transform none | 0px |
+| 1280 | light | 900px | 8/8 | all opacity 1, transform none | 0px |
+
+Apply and Sign in tested at scroll 0/400/1200/2400: 16/16 per appearance, 32/32 including both appearances. Fresh-page latch sweep measured 500px at 390 × 844 and 900px at 1280 × 1800 in both appearances. These differences follow the 30% visibility threshold at different viewport heights. Never resets on returning.
+
+### Cold-load console — requirement not fully met
+Both cold loads have 0 uncaught page errors but 21 console.error entries, all React development warnings: “Function components cannot be given refs.” They originate from the preview tagging/ref path across App, providers, overlays and public children. No network/runtime failure was counted in this capture. The demand for literally zero console errors therefore does NOT pass in the development preview. Fixing the shared instrumentation/providers would touch explicitly excluded files; those were left untouched. No warnings were filtered or relabelled as a clean console.
+
+### Security findings reviewed, unchanged
+The automatically listed season_results, public_pay_bands and user_badges read findings concern deliberately shared leaderboard/reference/achievement data, according to existing migrations and consumers (useBadges reads across users). Restricting them would alter legitimate /app visibility outside this pass. Findings remain active pending an access decision; none was marked fixed or ignored. No database permissions changed.
+
+### Evidence and final status
+Screenshots inspected: /tmp/browser/p225/390_live.png, 390_statement.png, 1280_statement.png; static and JavaScript-disabled fallback captures are alongside them. Raw measurements: results.json and regression.json. Automatic build log: build OK. No publish. No inserted probe rows. All requested cover changes completed; the literal all-scroll viewport interpretation and pre-existing development console warnings are explicitly reported limitations.
