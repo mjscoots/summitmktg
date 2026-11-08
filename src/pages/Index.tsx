@@ -135,7 +135,7 @@ const Index = () => {
             <div className="cover-statement-layer">
               <h1 className="statement-brand">TRINITY MARKETING</h1>
               <p className="statement-support">Where being a sales rep is not the end goal.</p>
-              <a href="#industries" className="btn-purple statement-learn">Learn more</a>
+              <Link to="/apply/rookie" className="btn-purple statement-learn">Learn more</Link>
             </div>
           </div>
         </section>

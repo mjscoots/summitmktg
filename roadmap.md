@@ -1,5 +1,11 @@
 # Roadmap
 
+## Pass 228
+- [ ] Connect Learn more to the contact-first application without changing cover motion
+- [ ] Restrict captured-contact readers, updates, deletes and alerts to the owner
+- [ ] Gate the existing Recruiting list and show contact links, reached step, age and source
+- [ ] Verify the anonymous probe, admin/owner access and exact cleanup; record all measurements
+
 ## Pass 227
 - [x] Replace statement progress with the real burst callback and reversible CSS entrance
 - [x] Verify both viewports, timing samples, sweeps, reduced motion, keyboard navigation and layering
