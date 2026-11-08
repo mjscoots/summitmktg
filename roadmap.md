@@ -3,7 +3,9 @@
 ## Pass 226
 - [x] Move the statement into the 200svh stage with the exact requested progress mapping
 - [x] Remove the hairline, bridge, ridgeline and old statement gates; hide the scene in white
-- [ ] Measure both viewports and save all eight encoded screenshots and the full report
+- [x] Measure both viewports and save all eight encoded screenshots and the full report
+- [ ] Resolve the pre-burst overlap: blocked by conflicting requirements (live logo threshold .92 versus assumed .55; logo edits excluded)
+- [ ] Confirm strict desktop scene opacity 0 within 400ms: settled state passes, precise preview timing did not
 
 ## Pass 225
 - [x] Simplify the opening and matching static fallback without changing stage motion
