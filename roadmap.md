@@ -1,5 +1,11 @@
 # Roadmap
 
+## Pass 225
+- [x] Simplify the opening and matching static fallback without changing stage motion
+- [x] Replace the statement sequence with a permanent centred, once-only entrance
+- [x] Remove popup questions and public figures; connect Learn more to industries
+- [x] Measure both widths and record every result in docs/FINAL_REPORT.md; do not publish
+
 ## Monitoring fixes
 - [x] Remove the permanent black body override while preserving the static homepage
 - [x] Keep personal shortcuts out of the shared Resources query
