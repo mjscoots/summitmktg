@@ -1,5 +1,10 @@
 # Roadmap
 
+## Monitoring fixes
+- [ ] Remove the permanent black body override while preserving the static homepage
+- [ ] Keep personal shortcuts out of the shared Resources query
+- [ ] Recheck light edges and signed-in Resources without database writes
+
 ## Pass 181 (done, commit fa5b771b)
 - [x] Palette V6, Archivo type, TRNTY logo, centred cover, Who runs it, How pay is set
 - [x] Append Pass 181 report to docs/FINAL_REPORT.md

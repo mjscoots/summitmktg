@@ -161,6 +161,7 @@ export default function LinksPage() {
     const { data } = await supabase
       .from('managed_links')
       .select('*')
+      .eq('link_scope', 'shared')
       .eq('is_active', true)
       .order('display_order', { ascending: true });
     setLinks((data as ManagedLink[]) || []);
@@ -190,7 +191,7 @@ export default function LinksPage() {
   useEffect(() => { fetchLinks(); fetchPhones(); fetchEmails(); }, []);
 
   // The audience saved on a link decides who sees it. Admins and owners keep
-  // seeing every row so they can manage the list.
+  // seeing every shared row so they can manage the list.
   const filteredLinks = links.filter(l => {
     if (seesEverything) return true;
     if (l.target_role === 'manager') return isManagerUp;
