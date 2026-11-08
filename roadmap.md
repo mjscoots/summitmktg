@@ -1,16 +1,17 @@
 # Roadmap
 
 ## Pass 228
-- [ ] Connect Learn more to the contact-first application without changing cover motion
-- [ ] Restrict captured-contact readers, updates, deletes and alerts to the owner
-- [ ] Gate the existing Recruiting list and show contact links, reached step, age and source
-- [ ] Verify the anonymous probe, admin/owner access and exact cleanup; record all measurements
+- [x] Connect Learn more to the contact-first application without changing cover motion
+- [x] Restrict captured-contact readers, updates, deletes and alerts to the owner
+- [x] Gate the existing Recruiting list and show contact links, reached step, age and source
+- [x] Verify the anonymous probe, admin/owner access and exact probe cleanup; record all measurements
+- [x] Global rate_limits net-zero failed: existing limiter expired 4 older rows; reported without inventing replacements
 
 ## Pass 227
 - [x] Replace statement progress with the real burst callback and reversible CSS entrance
 - [x] Verify both viewports, timing samples, sweeps, reduced motion, keyboard navigation and layering
 - [x] Save all measurements and seven base64 screenshots; keep unpublished
-- [ ] Observed 700–800ms timing expectation: prescribed CSS is exact, but preview frame scheduling measured 832.6ms / 868.5ms
+- [x] Pass 227 accepted by owner; timing observations documented, no older work queued
 - [ ] Security access decision: shared season results, pay references and badges; narrowing access changes legitimate app behavior
 
 ## Pass 226

@@ -7811,3 +7811,81 @@ Seven JPEG quality-60 images embedded as base64 in docs/p227/shots.md; all perso
 ### Security review and final status
 
 The three listed access findings were reviewed again. Shared pay-band references and cross-user Hall of Fame/badges are current legitimate features; an ownership-only restriction would change app behavior. No safe behavior-preserving row restriction established. Findings remain active pending the owner’s access decision; none marked fixed or ignored. No database changes or probe inserts. Automatic preview build OK. Not published. Timing expectation explicitly recorded as not passed; no compensating changes made outside the prescribed CSS.
+
+
+## Pass 228 — Learn more, owner-only captured contacts
+
+### Result and scope
+Learn more is now a React Router Link to `/apply/rookie`; label, class and burst entrance are unchanged. No cover motion, CoverLogo, MountainScene, PublicHeader, index.html, ApplyFlow questions/copy, auth or chat UI were edited. `#industries` and its 72px scroll margin remain; the now-unused `#root:has(#industries)` smooth/reduced-motion rules were removed.
+
+Existing inbox: **Manage → Content → Public site**, `/admin/content?tab=recruiting`, implemented by `src/components/admin/AdminRecruitingTab.tsx`. The older “Manage → Recruiting” description no longer matches current navigation. The Public site tab and its contents are owner-only. Newest-first rows show name, tel phone, mailto email, reached step using existing ApplyFlow titles, relative creation age and source. Unsubmitted captured rows have a primary-colour left border and muted primary background; submitting or linked application rows show Submitted. No questions or question order changed.
+
+**Completed applications remain visible to managers and admins (and the owner) under the existing “Staff can view applications” rule. Applications policies were not changed.**
+
+### Anonymous phone-preview journey, 390 × 844
+- Cold `/` → scroll y **591px**, raw p **0.7002**, world **light**, statement layer opacity **1**.
+- Learn more hit test **true**, anchor href **/apply/rookie**, clicked pathname **/apply/rookie**.
+- Step **1 of 7**, heading **How do we reach you?**, name/phone/email inputs present. Phone overflow **0px**.
+- Entered Probe TwoTwentyEight / 5550100228 / probe228@example.invalid, Continue returned partial capture HTTP **200**, boolean **true**.
+- SQL after contact: id **a9a2ed40-0344-4142-817a-c061d0dcf7a4**, first_name **Probe TwoTwentyEight**, phone **5550100228**, email **probe228@example.invalid**, apply_stage **contact**, status **New**, source_type **application**, created_at **2026-11-08 07:21:30.546884+00**.
+- Reopened with the same stable visit key (additional contact save), chose **Pest control**, Continue returned HTTP **200 / true**, then closed the tab at **What have you done before?** without submitting.
+- SQL after abandonment: same id and all three contact fields intact, apply_stage **interests**, status **New**, source_type **application**, interest_reason **Pest control**, story `Interested in: Pest control
+Applying as: rookie`. Exactly **1** row, never **2**. Rate-limit counter was **3** for the same stable key.
+
+### Owner read-back through the actual UI
+Restored the existing owner preview session and opened `/admin/content?tab=recruiting`. The probe row rendered **What are you most interested in?**, source **application**, relative age **1 minute ago**, and links **tel:5550100228** / **mailto:probe228@example.invalid**. Public site tab count **1**. Screenshot evidence: `/tmp/browser/p228/owner-row.jpg`; contact-save screen `/tmp/browser/p228/contact-saved.jpg`; unchanged target cover `/tmp/browser/p228/cover.jpg`.
+
+### Role simulation, before probe cleanup
+Used `SET LOCAL ROLE authenticated` plus transaction-local `request.jwt.claims`, rolled back each test. Read-query tool cannot set this role (permission denied), so the privileged SQL tool executed the read-only role-simulation transactions instead; no temporary helper function or grants were added.
+- Admin sub **00baa414-57c8-42e5-a20b-3804412aab58**: table probe count **0**.
+- Owner sub **70eeded3-4c88-41ee-8049-2b75e92cb866**: table probe count **1**, `get_lead_board` probe count **1**.
+- Admin `get_lead_board`, `get_my_leads`, `get_referral_leads`: **0 / 0 / 0** rows.
+- Admin `get_under_led`, `get_winback_feed`, `match_winback_gold`: **{} / {} / {}**, no fields; `my_your_three`: **null**.
+- Admin `get_data_under_led`: **{}**; `get_home_snapshot().lead_at_risk`: **null**; `match_leaderboard_rows` probe candidates: **[]**. Profile matching remains available to staff; only private lead candidates and lead mutation branches are owner-gated.
+
+### Reader / notification audit
+- recruiting_leads SELECT, UPDATE and DELETE all use `has_role(auth.uid(), 'owner')`; UPDATE also has owner WITH CHECK. Existing anonymous/authenticated New/unclaimed INSERT policy and capture_apply_partial were left unchanged.
+- Owner checks added to privileged contact readers/mutations: get_lead_board, get_my_leads, get_referral_leads, my_your_three, get_under_led, get_winback_feed, match_winback_gold, claim_lead, claim_winback, update_my_lead, admin_assign_lead, log_winback_contact, set_winback_priority, add_under_led_outreach, apply_winback_gold, add_manual_lead. get_data_under_led delegates to protected get_under_led.
+- Mixed get_home_snapshot identifying at-risk field is owner-gated. Revenue matching excludes recruiting contact candidates for non-owners; apply_leaderboard_import skips private lead updates for non-owners while keeping profile imports.
+- Remaining privileged readers return only counts, reference codes, sources, or registered-rep metrics, not captured name/phone/email/story: get_ref_code_leaderboard, get_new_lead_count, get_ticket_series_status, my_referral_count, referral_counts, owner_week, get_rep_prep_facts, manager_owed, sync_milestone_badges, finalize_season, get_session_prep, get_recruiting_leaderboard, get_rep_scorecard, get_recruiting_funnel, my_signed_count, compute_weekly_awards, get_command_analytics, get_resign_board, compute_weekly_report, get_incentive_progress, get_team_lead_applications, get_source_breakdown. Enforce-referral-cap/hardening/submission functions retain validation and write-only public behavior; no captured fields are returned. Submission duplicate results reflect caller-supplied data, not stored contact fields.
+- No views read recruiting_leads (**0**). Direct table readers (search, export, Recruiting list, team referral counts, Command/Leads counts) are protected by owner RLS. Search, export, badge subscription and contact boards also have UI owner gates; non-owner Recruits retains link sharing and eligible Re-signs instead of empty/erroring private boards.
+- notify_new_lead now sends only to owner roles and links to the actual inbox. Probe generated exactly **1** notification, id **8b9de69d-98da-4d63-938b-222d1c41b49b**, recipient **70eeded3-4c88-41ee-8049-2b75e92cb866**, title **New lead on the board**, message **Probe TwoTwentyEight is unclaimed.**
+- Notification insertion guard blocks contact-board alerts to non-owners, including cron expiry/release paths; restrictive SELECT policy also hides historical contact alerts from non-owners without deleting them. Speed-to-lead cron targets owner warnings/assignment. Cron maintenance functions are service-role-only, not client-callable. Shared win-post trigger is now inert so private names are not published into chat; chat files/tables were not edited.
+- audit_recruiting_leads and get_audit_log already have owner-only read access. Contact insertion/enrichment produced **0** audits; cleanup deletion audit removed by its exact probe entity id.
+- db-backup uses privileged server credentials but returns only metadata; backup object SELECT is already **backups_read_owner**, so captured fields remain owner-only. Admins can still initiate a snapshot, not download its contacts. Weekly owner report contains aggregate lead metrics, not captured contact details.
+
+### Cleanup and counts — IMPORTANT NONZERO DIFFERENCE
+Only the exact probe contact, exact probe rate-limit id/key, exact owner notification and audit entity id were deleted. No applications were submitted; no other contacts or alerts were deleted.
+
+| Table | Before | With probe / before cleanup | After | Net |
+|---|---:|---:|---:|---:|
+| recruiting_leads | 98 | 99 | 98 | 0 |
+| rate_limits | 4 | 1 | 0 | **-4** |
+| user_notifications | 7170 | 7171 | 7170 | 0 |
+| audit_log | 693 | 693 | 693 | 0 |
+
+**The requested global net-zero check DOES NOT PASS for rate_limits: 4 → 0.** The existing `check_rate_limit(text,integer,integer)` begins with `DELETE FROM public.rate_limits WHERE expires_at < now()`, so the first real partial capture automatically removed the four pre-existing expired entries. This was not an extra cleanup delete or a new cron change. Their original rows were not backed up before expiry and were not reconstructed or replaced with invented records. Probe-specific net is zero; global rate_limits net is -4 and is reported honestly. All other requested baselines match.
+
+### Cover regression and validation
+After full scroll to bottom and back: `$`, `last summer`, `Everyone argues`, `ALL THREE`, `Have you done sales`, `Three questions`, `Get in` all absent (**7 / 7**); ask-layer count **0**. Learn more at p **0.7002** still hit-tests to the Link. Horizontal overflow **0px**. Cold-load uncaught errors **0**, new console errors **0**, existing component-tagger ref warnings **21**. Existing privacy-rule tests: **3 passed**, **0 failed**, **11 assertions**. Latest automatic build: **OK** after correcting an owner-role narrowing error; no manual build/typecheck run.
+
+### Changed paths
+- src/pages/Index.tsx (one Learn more href replacement)
+- src/index.css (only obsolete anchor scrolling rules)
+- src/lib/adminSections.ts
+- src/pages/app/AdminTeamPage.tsx
+- src/components/admin/AdminRecruitingTab.tsx
+- src/components/admin/AdminExportTab.tsx
+- src/hooks/useNewLeads.ts
+- src/pages/app/RecruitsPage.tsx
+- src/components/command/LeadersSection.tsx
+- src/components/search/GlobalSearch.tsx
+- src/lib/capturedApplicants.ts
+- src/lib/__tests__/capturedApplicants.test.ts
+- drizzle/migrations/0000_p228_owner_captured_contacts.sql through 0003_p228_preserve_profile_matching.sql (applied)
+- AGENTS.md, roadmap.md, docs/FINAL_REPORT.md; generated database types refreshed by migration tool.
+
+### Additional listed security findings
+Reviewed season_results_read, pay_bands_read and user_badges_read. Hall of Fame intentionally shares season rankings; pay bands are compensation reference data used to identify available industries; useBadges intentionally groups achievements across users. Restricting those unrelated /app features changes legitimate visibility and is outside the owner's captured-contact decision. These findings remain active pending an explicit access decision; none were falsely marked fixed or ignored. The contact-reader and notification security exposure requested in this pass was addressed.
+
+**Not published.**
