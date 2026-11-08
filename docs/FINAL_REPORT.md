@@ -7889,3 +7889,50 @@ After full scroll to bottom and back: `$`, `last summer`, `Everyone argues`, `AL
 Reviewed season_results_read, pay_bands_read and user_badges_read. Hall of Fame intentionally shares season rankings; pay bands are compensation reference data used to identify available industries; useBadges intentionally groups achievements across users. Restricting those unrelated /app features changes legitimate visibility and is outside the owner's captured-contact decision. These findings remain active pending an explicit access decision; none were falsely marked fixed or ignored. The contact-reader and notification security exposure requested in this pass was addressed.
 
 **Not published.**
+
+
+## Pass 229 — Public industry simplification
+
+### Scope and result
+Changed only `src/pages/IndustryPage.tsx` and its new scoped stylesheet for app presentation. IndustryData and the existing get_public_industry fetch are unchanged; runtime carrier names are safely narrowed from the existing response without extending that type. Removed unused CARD and STEPS constants, all rank and lead rendering. No database changes, no /app, cover, ApplyFlow, PublicHeader, index.html, auth or chat changes. AGENTS.md, roadmap and project memory record the requested constraints. Not published.
+
+Before-change preview reproduced the problem: Pest rendered the fiber tiers, installs/blitz text, ladder, Lead heading and Mathew Rubino; `$200,000+` count was 0. After-change checks used the real preview and real database response, not mocked industry data.
+
+### a. Pest measurements
+Both viewports contain exactly `$200,000+`, `$37,000`, `Four months.` and the database description `Door-to-door pest control. The summer product. You close, you get paid on what you close.` Both contain none of: Tier, installs, blitz, Lead, Rubino, How it works, Team Lead, Manager, Org stack. No public note or carriers rendered.
+
+| Viewport | First figure font | Second figure font | First top / left | Second top / left | Top difference | Overflow |
+| --- | --- | --- | --- | --- | --- | --- |
+| 390 × 844 | 44px | 44px | 204.797 / 20px | 313.984 / 20px | 109.188px — stacked | 0px |
+| 1280 × 800 | 72px | 72px | 204.797 / 216px | 204.797 / 656px | 0px — side by side, within 2px | 0px |
+
+Both figures: Archivo, weight 800, computed colour rgb(0, 77, 255), from hsl(222 100% 50%). Exact plus sign on the first, no decimals. Labels are 15px below 700px and 17px from 700px. The description is body size, 16px.
+
+### b. Fiber measurements
+At 390 × 844 and 1280 × 800: no Tier, installs, blitz, Lead, Team Lead or Org stack text; no Pillar heading; no earnings elements. Description and public note retained, followed by the database steps Train, Knock, Install, Paid per install. Overflow 0px at both widths.
+
+All 13 database-returned carriers render at both widths: **123NET, ALLO, Astound, Brightspeed, Fidium, GoNetspeed CT, GoNetspeed other, Lightcurve, NKTelco, Ripple, Sonic, Surf, Xfinity**. Apply and the existing veteran line remain; the veteran line follows the bottom of the phone screenshot and remains in document text.
+
+### c–d. Application links and real navigation
+- Life at both widths: main action reads **Apply**, href `/apply/rookie?vertical=Life`. Other Life presentation unchanged. Overflow 0px.
+- Pest at both widths: main action href `/apply/rookie?vertical=Pest`.
+- Clicked the Pest main Apply action at 390 × 844. Final path `/apply/rookie?vertical=Pest`; Step 1 heading **How do we reach you?**.
+- Read the mounted application state at that contact step: **interests = ["Pest control"]**. The interest option is on the later interests step, not the contact step.
+- The initial attempt to advance blank contact fields correctly encountered a disabled Continue button; no bypass or application changes made. Switched verification to reading the mounted interests state, as permitted by the request.
+- **0 capture_apply_partial or submit requests**, no contact information entered, no database writes or probe cleanup needed.
+
+### e. Console and tests — exact observation
+**0 new console errors, 0 page errors.** Existing `Function components cannot be given refs` tagger warnings were observed **92 times in aggregate across six fresh industry-page loads plus the application navigation**. This is not a claim of exactly 21 emitted warnings for the whole multi-page run; only the pre-existing warning category appeared. No warning fixes attempted on excluded surfaces.
+
+Existing regression tests: **6 passed, 0 failed**, 16 assertions across sharedLinks, capturedApplicants and stackText. Latest automatic preview build: **build OK**, 2026-11-08T07:57:04Z. Screenshots visually inspected: phone figures stacked, desktop figures aligned, Fiber database content present and legible.
+
+### f. Screenshots
+`docs/p229/shots.md` contains exactly three JPEG quality-60 base64 fenced blocks:
+- Pest 390 × 844: **21,835 bytes**.
+- Pest 1280 × 800: **33,572 bytes**.
+- Fiber 390 × 844: **22,592 bytes**.
+
+Every JPEG is below 80,000 bytes; encoded blocks are also below 80KB. No full-page captures.
+
+### Unrelated security access findings
+The previously reviewed season_results_read, pay_bands_read and user_badges_read findings remain active. Restricting intentionally shared season results, pay references and badges would change legitimate /app access, which is excluded from this pass and still needs the owner's access decision. No findings falsely marked fixed or ignored; no permission changes made.
