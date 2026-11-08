@@ -5,6 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { PAY_SCALE_LABELS, PayScale } from '@/lib/commission';
 import { BackupsPanel } from './BackupsPanel';
+import { useAuth } from '@/hooks/useAuth';
+import { canReadCapturedApplicants } from '@/lib/capturedApplicants';
 
 const CARD = 'rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-sm';
 
@@ -51,11 +53,13 @@ function defaultStart() {
 }
 
 export function AdminExportTab() {
+  const { role } = useAuth();
   const [busy, setBusy] = useState<ExportKey | null>(null);
   const [start, setStart] = useState(defaultStart());
   const [end, setEnd] = useState(() => new Date().toISOString().slice(0, 10));
 
   const run = async (key: ExportKey) => {
+    if (key === 'leads' && !canReadCapturedApplicants(role)) return;
     setBusy(key);
     try {
       const db = supabase as any;
@@ -184,7 +188,7 @@ export function AdminExportTab() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {EXPORTS.map((e) => (
+        {EXPORTS.filter((e) => e.key !== 'leads' || canReadCapturedApplicants(role)).map((e) => (
           <div key={e.key} className={cn(CARD, 'p-4')}>
             <h3 className="text-sm font-semibold text-foreground">{e.label}</h3>
             <p className="mt-1 text-xs text-muted-foreground">{e.description}</p>

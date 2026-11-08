@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794122456398,
+      "tag": "0000_p228_owner_captured_contacts",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794122629056,
+      "tag": "0001_p228_protect_mixed_lead_paths",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794122655795,
+      "tag": "0002_p228_guard_lead_import_branch",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794122699021,
+      "tag": "0003_p228_preserve_profile_matching",
+      "breakpoints": true
+    }
+  ]
+}

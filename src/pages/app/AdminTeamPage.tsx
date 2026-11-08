@@ -115,7 +115,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
   const isSuperAdmin = isOwner || profile?.email === SUPER_ADMIN_EMAIL;
 
   const sectionTabs = SECTION_TABS[section].filter(
-    (t) => (!t.adminOnly || isAdmin) && (!t.ownerOnly || isSuperAdmin),
+    (t) => (!t.adminOnly || isAdmin) && (!t.ownerOnly || (t.value === 'recruiting' ? isOwner : isSuperAdmin)),
   );
   const wanted = searchParams.get('tab');
   const activeTab = sectionTabs.some((t) => t.value === wanted)
@@ -614,11 +614,11 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
 
 
           {/* ========== RECRUITING TAB ========== */}
-          <TabsContent value="recruiting">
+          {isOwner && <TabsContent value="recruiting">
             <Suspense fallback={<TableSkeleton columns={7} rows={8} />}>
               <LazyRecruiting reps={allUsers.map(u => ({ user_id: u.user_id, full_name: u.full_name || u.email || 'Unknown' }))} />
             </Suspense>
-          </TabsContent>
+          </TabsContent>}
 
 
 

@@ -7,17 +7,17 @@ import { useAuth } from '@/hooks/useAuth';
  * Used for the sidebar "Recruits" badge (same pattern as the Chat badge).
  */
 export function useNewLeads() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [newCount, setNewCount] = useState(0);
 
   const refresh = useCallback(async () => {
-    if (!user) return;
+    if (!user || role !== 'owner') { setNewCount(0); return; }
     const { data, error } = await (supabase as any).rpc('get_new_lead_count');
     if (!error && typeof data === 'number') setNewCount(data);
-  }, [user]);
+  }, [user, role]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || role !== 'owner') return;
     refresh();
 
     const channel = supabase
@@ -33,7 +33,7 @@ export function useNewLeads() {
       supabase.removeChannel(channel);
       window.clearInterval(interval);
     };
-  }, [user, refresh]);
+  }, [user, role, refresh]);
 
   return { newCount, refresh };
 }

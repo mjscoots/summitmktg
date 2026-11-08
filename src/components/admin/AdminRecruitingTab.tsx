@@ -2,6 +2,9 @@ import { LoadingList } from '@/components/shared/LoadingList';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { canReadCapturedApplicants, capturedApplicationStage, capturedApplicationSubmitted } from '@/lib/capturedApplicants';
+import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { Loader2, Trash2, Plus, RefreshCw, Ticket, BadgeCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -30,6 +33,9 @@ interface Lead {
   id: string;
   first_name: string;
   phone: string | null;
+  email?: string | null;
+  apply_stage?: string | null;
+  application_id?: string | null;
   city: string | null;
   interest_reason: string | null;
   ref_code: string | null;
@@ -55,6 +61,8 @@ interface RepOption { user_id: string; full_name: string }
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
 export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
+  const { role } = useAuth();
+  const isOwner = canReadCapturedApplicants(role);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [refCodes, setRefCodes] = useState<RefCode[]>([]);
   const [funnel, setFunnel] = useState<any>(null);
@@ -81,6 +89,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
   );
 
   const load = useCallback(async () => {
+    if (!isOwner) { setLeads([]); setLoading(false); return; }
     const [leadsRes, codesRes, funnelRes, boardRes, settingsRes, proofRes] = await Promise.all([
       (supabase as any).from('recruiting_leads').select('*').order('created_at', { ascending: false }),
       (supabase as any).from('recruiting_ref_codes').select('*').order('code'),
@@ -100,7 +109,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
     });
     setProof(proofMap);
     setLoading(false);
-  }, []);
+  }, [isOwner]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -204,6 +213,8 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
     toast.success('Proof section saved');
   };
 
+  if (!isOwner) return null;
+
   if (loading) {
     return (
       <LoadingList rows={5} className="py-6" />
@@ -290,6 +301,10 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             <tr className="border-b border-white/[0.06] text-left text-muted-foreground">
               <th className="px-3 py-2 font-semibold">Name</th>
               <th className="px-3 py-2 font-semibold">Phone</th>
+              <th className="px-3 py-2 font-semibold">Email</th>
+              <th className="px-3 py-2 font-semibold">Step</th>
+              <th className="px-3 py-2 font-semibold">Created</th>
+              <th className="px-3 py-2 font-semibold">Source</th>
               <th className="px-3 py-2 font-semibold">City</th>
               <th className="px-3 py-2 font-semibold">Reason</th>
               <th className="px-3 py-2 font-semibold">Ref</th>
@@ -300,9 +315,13 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
           </thead>
           <tbody>
             {filtered.slice(0, visibleCount).map((l) => (
-              <tr key={l.id} className="border-b border-white/[0.04]">
+              <tr key={l.id} className={cn('border-b border-border', l.apply_stage && !capturedApplicationSubmitted(l) && 'bg-primary/5 border-l-2 border-l-primary')}>
                 <td className="px-3 py-2 font-semibold text-foreground whitespace-nowrap">{l.first_name}</td>
-                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone || '-'}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.phone ? <a href={`tel:${l.phone.replace(/[^+\d]/g, '')}`} className="inline-flex min-h-11 items-center text-primary">{l.phone}</a> : '-'}</td>
+                <td className="px-3 py-2 text-muted-foreground">{l.email ? <a href={`mailto:${l.email}`} className="inline-flex min-h-11 items-center text-primary">{l.email}</a> : '-'}</td>
+                <td className="px-3 py-2 text-muted-foreground">{capturedApplicationStage(l)}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-muted-foreground"><time dateTime={l.created_at}>{formatDistanceToNow(new Date(l.created_at), { addSuffix: true })}</time></td>
+                <td className="px-3 py-2 text-muted-foreground">{l.source_type || sourceOf(l)}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.city || '-'}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{l.interest_reason || '-'}</td>
                 <td className="px-3 py-2 whitespace-nowrap text-primary/80">{l.ref_code || '-'}</td>
@@ -343,7 +362,7 @@ export default function AdminRecruitingTab({ reps }: { reps: RepOption[] }) {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-3 py-10 text-center text-muted-foreground">No leads match these filters.</td>
+                <td colSpan={12} className="px-3 py-10 text-center text-muted-foreground">No leads match these filters.</td>
               </tr>
             )}
           </tbody>

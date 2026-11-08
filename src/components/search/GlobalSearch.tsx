@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { verticalFilter } from '@/lib/workspaceScope';
+import { useAuth } from '@/hooks/useAuth';
 
 type ResultKind = 'rep' | 'lead' | 'lesson' | 'script';
 
@@ -36,6 +37,7 @@ const KIND_META: Record<ResultKind, { label: string; icon: typeof User }> = {
  * decides what the searcher can see - no extra role logic needed here.
  */
 export function GlobalSearch() {
+  const { role } = useAuth();
   const { activeVertical } = useWorkspace();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -64,9 +66,8 @@ export function GlobalSearch() {
 
     const [reps, adminLeads, myLeads, lessons, scripts] = await Promise.all([
       supabase.from('profiles').select('user_id, full_name, status').eq('archived', false).ilike('full_name', like).limit(6),
-      // Table read only returns rows for admins/owners; reps get their claimed leads from the RPC.
-      (supabase as any).from('recruiting_leads').select('id, first_name, status').ilike('first_name', like).limit(6),
-      (supabase.rpc as any)('get_my_leads'),
+      role === 'owner' ? (supabase as any).from('recruiting_leads').select('id, first_name, status').ilike('first_name', like).limit(6) : Promise.resolve({ data: [] }),
+      role === 'owner' ? (supabase.rpc as any)('get_my_leads') : Promise.resolve({ data: [] }),
       (supabase as any).from('training_lessons').select('id, title, module_id').ilike('title', like).limit(6),
       (supabase as any).from('scripts').select('id, title, category').or(verticalFilter(activeVertical)).ilike('title', like).limit(6),
     ]);
@@ -92,7 +93,7 @@ export function GlobalSearch() {
 
       ...leadRows.map(l => ({
         kind: 'lead' as const, id: l.id, title: l.first_name || 'Lead',
-        subtitle: l.status || undefined, to: `/app/recruits?lead=${l.id}`,
+        subtitle: l.status || undefined, to: `/admin/content?tab=recruiting&lead=${l.id}`,
       })),
       ...((lessons.data || []) as any[]).map(l => ({
         kind: 'lesson' as const, id: l.id, title: l.title, to: `/app/lesson/${l.id}`,
@@ -105,7 +106,7 @@ export function GlobalSearch() {
 
     setResults(next);
     setLoading(false);
-  }, []);
+  }, [role, activeVertical]);
 
   useEffect(() => {
     const id = window.setTimeout(() => runSearch(query), 180);

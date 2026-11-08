@@ -2282,7 +2282,6 @@ html[data-appearance='light'] .btn-gradient {
   .statement-support { max-width: 38ch; font-size: 24px; }
 }
 #industries { scroll-margin-top: 72px; }
-#root:has(#industries) { scroll-behavior: smooth; }
 
 .cover-scroll-cue {
   position: absolute;
@@ -2428,7 +2427,6 @@ html[data-appearance='light'] .btn-gradient {
   .cover-shard { animation: none !important; opacity: 1 !important; transform: none !important; }
   .cover-statement-layer,
   .public-world[data-burst='true'] .cover-statement-layer { transform: none; transition: none; }
-  #root:has(#industries) { scroll-behavior: auto; }
   .btn-purple { transition: none !important; }
 }
 
