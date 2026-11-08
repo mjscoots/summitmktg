@@ -2221,7 +2221,7 @@ html[data-appearance='light'] .btn-gradient {
 }
 
 /* The logo and statement share one reversible, viewport-centred pin. */
-.cover-stage { height: 200svh; --statement-progress: 0; }
+.cover-stage { height: 200svh; }
 .cover-stage-pin { position: sticky; top: 0; height: 100svh; overflow: visible; }
 .cover-statement-layer {
   --statement-ink: 240 20% 5%;
@@ -2237,11 +2237,16 @@ html[data-appearance='light'] .btn-gradient {
   padding: 0 20px;
   text-align: center;
   pointer-events: none;
-  opacity: var(--statement-progress);
-  transform: translateY(calc((1 - var(--statement-progress)) * 18px));
-  transition: none;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
 }
-.cover-stage[data-statement-visible='true'] .cover-statement-layer { pointer-events: auto; }
+.public-world[data-burst='true'] .cover-statement-layer {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  transition: opacity 420ms ease-out 300ms, transform 420ms ease-out 300ms;
+}
 .statement-brand {
   position: relative;
   z-index: 2;
@@ -2421,7 +2426,8 @@ html[data-appearance='light'] .btn-gradient {
   .cover-logo-glow,
   .cover-scroll-cue { display: none !important; }
   .cover-shard { animation: none !important; opacity: 1 !important; transform: none !important; }
-  .cover-statement-layer { transform: none; }
+  .cover-statement-layer,
+  .public-world[data-burst='true'] .cover-statement-layer { transform: none; transition: none; }
   #root:has(#industries) { scroll-behavior: auto; }
   .btn-purple { transition: none !important; }
 }

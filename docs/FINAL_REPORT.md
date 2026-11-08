@@ -7343,3 +7343,471 @@ The listed season_results_read, pay_bands_read and user_badges_read findings wer
 ### Final status
 
 Automatic preview build: OK. Implementation is complete according to the prescribed mapping, with the live threshold contradiction and strict desktop 400ms observation explicitly **not passed**. Eight images and all measurements are saved. Unpublished. No probe rows inserted.
+
+## Pass 227 — statement follows the burst
+
+### Change and reproduced failure
+
+Before: at 390 × 844, y 211px, p 0.25, world dark, layer opacity 0.125. After the same check: burst false, world dark, layer opacity exactly 0. Runtime edits are limited to Index.tsx and cover CSS. The real onBurst callback stores state and publishes data-burst beside unchanged data-world; no statement-progress write or consumer remains. Stage length, p / 0.4 logo mapping, scene, copy and routes are unchanged. Default reverse transition is 180ms ease-out without delay; burst entrance is 420ms ease-out after 300ms. Reduced motion removes translation and transitions. Layer z-index remains 26, above the logo and swell.
+
+### Fresh-load timing — in-page sampling
+
+Each fresh page instantly scrolls to p 0.5; samples use the page performance clock, with nominal 100ms spacing. Actual times are retained. **The expected roughly 700–800ms observed interval did not pass in this preview**: exact authored timing is unchanged, but observed CSS/frame scheduling completed later. No pre-burst sample had nonzero opacity.
+
+#### 390px timing
+
+Burst flipped at 70.2ms; first opacity ≥0.99 sample at 902.8ms; difference 832.6ms. First sampled light world at 703.8ms.
+
+| Nominal ms | Actual ms | data-burst | data-world | Layer opacity | Swell present |
+
+|---:|---:|---|---|---:|---|
+
+| 0 | 0.1 | false | dark | 0 | False |
+
+| 100 | 99.4 | true | dark | 0 | True |
+
+| 200 | 201.1 | true | dark | 0 | True |
+
+| 300 | 299.4 | true | dark | 0 | True |
+
+| 400 | 408.6 | true | dark | 0 | True |
+
+| 500 | 502.7 | true | dark | 0.306312 | True |
+
+| 600 | 600.7 | true | dark | 0.467829 | True |
+
+| 700 | 703.8 | true | light | 0.816619 | True |
+
+| 800 | 810.1 | true | light | 0.986835 | False |
+
+| 900 | 902.8 | true | light | 1 | False |
+
+| 1000 | 1015.8 | true | light | 1 | False |
+
+| 1100 | 1103.9 | true | light | 1 | False |
+
+| 1200 | 1200.9 | true | light | 1 | False |
+
+| 1300 | 1300.6 | true | light | 1 | False |
+
+| 1400 | 1402.6 | true | light | 1 | False |
+
+| 1500 | 1500.5 | true | light | 1 | False |
+
+#### 1280px timing
+
+Burst flipped at 51.5ms; first opacity ≥0.99 sample at 920.0ms; difference 868.5ms. First sampled light world at 705.5ms.
+
+| Nominal ms | Actual ms | data-burst | data-world | Layer opacity | Swell present |
+
+|---:|---:|---|---|---:|---|
+
+| 0 | 0.3 | false | dark | 0 | False |
+
+| 100 | 121.2 | true | dark | 0 | True |
+
+| 200 | 199.4 | true | dark | 0 | True |
+
+| 300 | 300.0 | true | dark | 0 | True |
+
+| 400 | 420.6 | true | dark | 0 | True |
+
+| 500 | 500.3 | true | dark | 0 | True |
+
+| 600 | 600.2 | true | dark | 0.361864 | True |
+
+| 700 | 705.5 | true | light | 0.361864 | True |
+
+| 800 | 799.8 | true | light | 0.81669 | False |
+
+| 900 | 920.0 | true | light | 1 | False |
+
+| 1000 | 1000.5 | true | light | 1 | False |
+
+| 1100 | 1100.7 | true | light | 1 | False |
+
+| 1200 | 1202.8 | true | light | 1 | False |
+
+| 1300 | 1300.5 | true | light | 1 | False |
+
+| 1400 | 1400.4 | true | light | 1 | False |
+
+| 1500 | 1499.6 | true | light | 1 | False |
+
+### Settled 50px sweeps
+
+Downward wait 1500ms per step; upward wait 900ms. Regular steps plus exact final endpoint (stage end +300px). The first full-opacity point equals the first burst point because every downward step settles for 1500ms. At pin release the layer remains visible; after release the group leaves with the stage, as intended.
+
+#### 390 × 844
+
+Stage end 1688px; exact endpoint 1988px. 41 samples each direction including endpoint. First burst true: y 350px, p 0.4147; first opacity 1: same y. Held range y 350–800px: 10 steps per direction; group target 422.0px; maximum centre error 0.0px. Zero settled steps with opacity >0 AND dark world AND burst false.
+
+| Direction | y px | Raw p | Burst | World | Layer opacity | Group centre px | Target px |
+
+|---|---:|---:|---|---|---:|---:|---:|
+
+| down | 0 | 0 | false | dark | 0 | 440.000 | 422 |
+
+| down | 50 | 0.0592 | false | dark | 0 | 440.000 | 422 |
+
+| down | 100 | 0.1185 | false | dark | 0 | 440.000 | 422 |
+
+| down | 150 | 0.1777 | false | dark | 0 | 440.000 | 422 |
+
+| down | 200 | 0.237 | false | dark | 0 | 440.000 | 422 |
+
+| down | 250 | 0.2962 | false | dark | 0 | 440.000 | 422 |
+
+| down | 300 | 0.3555 | false | dark | 0 | 440.000 | 422 |
+
+| down | 350 | 0.4147 | true | light | 1 | 422.000 | 422 |
+
+| down | 400 | 0.4739 | true | light | 1 | 422.000 | 422 |
+
+| down | 450 | 0.5332 | true | light | 1 | 422.000 | 422 |
+
+| down | 500 | 0.5924 | true | light | 1 | 422.000 | 422 |
+
+| down | 550 | 0.6517 | true | light | 1 | 422.000 | 422 |
+
+| down | 600 | 0.7109 | true | light | 1 | 422.000 | 422 |
+
+| down | 650 | 0.7701 | true | light | 1 | 422.000 | 422 |
+
+| down | 700 | 0.8294 | true | light | 1 | 422.000 | 422 |
+
+| down | 750 | 0.8886 | true | light | 1 | 422.000 | 422 |
+
+| down | 800 | 0.9479 | true | light | 1 | 422.000 | 422 |
+
+| down | 850 | 1 | true | light | 1 | 416.000 | 422 |
+
+| down | 900 | 1 | true | light | 1 | 366.000 | 422 |
+
+| down | 950 | 1 | true | light | 1 | 316.000 | 422 |
+
+| down | 1000 | 1 | true | light | 1 | 266.000 | 422 |
+
+| down | 1050 | 1 | true | light | 1 | 216.000 | 422 |
+
+| down | 1100 | 1 | true | light | 1 | 166.000 | 422 |
+
+| down | 1150 | 1 | true | light | 1 | 116.000 | 422 |
+
+| down | 1200 | 1 | true | light | 1 | 66.000 | 422 |
+
+| down | 1250 | 1 | true | light | 1 | 16.000 | 422 |
+
+| down | 1300 | 1 | true | light | 1 | -34.000 | 422 |
+
+| down | 1350 | 1 | true | light | 1 | -84.000 | 422 |
+
+| down | 1400 | 1 | true | light | 1 | -134.000 | 422 |
+
+| down | 1450 | 1 | true | light | 1 | -184.000 | 422 |
+
+| down | 1500 | 1 | true | light | 1 | -234.000 | 422 |
+
+| down | 1550 | 1 | true | light | 1 | -284.000 | 422 |
+
+| down | 1600 | 1 | true | light | 1 | -334.000 | 422 |
+
+| down | 1650 | 1 | true | light | 1 | -384.000 | 422 |
+
+| down | 1700 | 1 | true | light | 1 | -434.000 | 422 |
+
+| down | 1750 | 1 | true | light | 1 | -484.000 | 422 |
+
+| down | 1800 | 1 | true | light | 1 | -534.000 | 422 |
+
+| down | 1850 | 1 | true | light | 1 | -584.000 | 422 |
+
+| down | 1900 | 1 | true | light | 1 | -634.000 | 422 |
+
+| down | 1950 | 1 | true | light | 1 | -684.000 | 422 |
+
+| down endpoint | 1988 | 1.0000 | true | light | 1 | -722.000 | 422.0 |
+
+| up endpoint | 1988 | 1.0000 | true | light | 1 | -722.000 | 422.0 |
+
+| up | 1950 | 1 | true | light | 1 | -684.000 | 422 |
+
+| up | 1900 | 1 | true | light | 1 | -634.000 | 422 |
+
+| up | 1850 | 1 | true | light | 1 | -584.000 | 422 |
+
+| up | 1800 | 1 | true | light | 1 | -534.000 | 422 |
+
+| up | 1750 | 1 | true | light | 1 | -484.000 | 422 |
+
+| up | 1700 | 1 | true | light | 1 | -434.000 | 422 |
+
+| up | 1650 | 1 | true | light | 1 | -384.000 | 422 |
+
+| up | 1600 | 1 | true | light | 1 | -334.000 | 422 |
+
+| up | 1550 | 1 | true | light | 1 | -284.000 | 422 |
+
+| up | 1500 | 1 | true | light | 1 | -234.000 | 422 |
+
+| up | 1450 | 1 | true | light | 1 | -184.000 | 422 |
+
+| up | 1400 | 1 | true | light | 1 | -134.000 | 422 |
+
+| up | 1350 | 1 | true | light | 1 | -84.000 | 422 |
+
+| up | 1300 | 1 | true | light | 1 | -34.000 | 422 |
+
+| up | 1250 | 1 | true | light | 1 | 16.000 | 422 |
+
+| up | 1200 | 1 | true | light | 1 | 66.000 | 422 |
+
+| up | 1150 | 1 | true | light | 1 | 116.000 | 422 |
+
+| up | 1100 | 1 | true | light | 1 | 166.000 | 422 |
+
+| up | 1050 | 1 | true | light | 1 | 216.000 | 422 |
+
+| up | 1000 | 1 | true | light | 1 | 266.000 | 422 |
+
+| up | 950 | 1 | true | light | 1 | 316.000 | 422 |
+
+| up | 900 | 1 | true | light | 1 | 366.000 | 422 |
+
+| up | 850 | 1 | true | light | 1 | 416.000 | 422 |
+
+| up | 800 | 0.9479 | true | light | 1 | 422.000 | 422 |
+
+| up | 750 | 0.8886 | true | light | 1 | 422.000 | 422 |
+
+| up | 700 | 0.8294 | true | light | 1 | 422.000 | 422 |
+
+| up | 650 | 0.7701 | true | light | 1 | 422.000 | 422 |
+
+| up | 600 | 0.7109 | true | light | 1 | 422.000 | 422 |
+
+| up | 550 | 0.6517 | true | light | 1 | 422.000 | 422 |
+
+| up | 500 | 0.5924 | true | light | 1 | 422.000 | 422 |
+
+| up | 450 | 0.5332 | true | light | 1 | 422.000 | 422 |
+
+| up | 400 | 0.4739 | true | light | 1 | 422.000 | 422 |
+
+| up | 350 | 0.4147 | true | light | 1 | 422.000 | 422 |
+
+| up | 300 | 0.3555 | false | dark | 0 | 440.000 | 422 |
+
+| up | 250 | 0.2962 | false | dark | 0 | 440.000 | 422 |
+
+| up | 200 | 0.237 | false | dark | 0 | 440.000 | 422 |
+
+| up | 150 | 0.1777 | false | dark | 0 | 440.000 | 422 |
+
+| up | 100 | 0.1185 | false | dark | 0 | 440.000 | 422 |
+
+| up | 50 | 0.0592 | false | dark | 0 | 440.000 | 422 |
+
+| up | 0 | 0 | false | dark | 0 | 440.000 | 422 |
+
+Reverse p 0.7 → 0 → 0.7: opacity [1, 0, 1]; burst ['true', 'false', 'true']; world ['light', 'dark', 'light']. At zero logo exists, opacity 1, phase ready, bounds {'width': 390, 'height': 844}. Centre hit test at p 0.7 returned the Learn more anchor on both forward stops.
+
+Keyboard Enter from p 0.5: industries heading top 136px; header bottom 57px; gap 79px (within 120px). After bottom-and-back: banned string matches []; ask-layer count 0. Console: 21 known tagger ref warnings; 0 new errors or uncaught page errors.
+
+Reduced motion p 0 → 0.5 → 0: opacity [0, 1, 0], burst ['false', 'true', 'false'], transform ['none', 'none', 'none']; centre 422.0px throughout.
+
+#### 1280 × 800
+
+Stage end 1600px; exact endpoint 1900px. 40 samples each direction including endpoint. First burst true: y 300px, p 0.375; first opacity 1: same y. Held range y 300–800px: 11 steps per direction; group target 400.0px; maximum centre error 0.0px. Zero settled steps with opacity >0 AND dark world AND burst false.
+
+| Direction | y px | Raw p | Burst | World | Layer opacity | Group centre px | Target px |
+
+|---|---:|---:|---|---|---:|---:|---:|
+
+| down | 0 | 0 | false | dark | 0 | 418.000 | 400 |
+
+| down | 50 | 0.0625 | false | dark | 0 | 418.000 | 400 |
+
+| down | 100 | 0.125 | false | dark | 0 | 418.000 | 400 |
+
+| down | 150 | 0.1875 | false | dark | 0 | 418.000 | 400 |
+
+| down | 200 | 0.25 | false | dark | 0 | 418.000 | 400 |
+
+| down | 250 | 0.3125 | false | dark | 0 | 418.000 | 400 |
+
+| down | 300 | 0.375 | true | light | 1 | 400.000 | 400 |
+
+| down | 350 | 0.4375 | true | light | 1 | 400.000 | 400 |
+
+| down | 400 | 0.5 | true | light | 1 | 400.000 | 400 |
+
+| down | 450 | 0.5625 | true | light | 1 | 400.000 | 400 |
+
+| down | 500 | 0.625 | true | light | 1 | 400.000 | 400 |
+
+| down | 550 | 0.6875 | true | light | 1 | 400.000 | 400 |
+
+| down | 600 | 0.75 | true | light | 1 | 400.000 | 400 |
+
+| down | 650 | 0.8125 | true | light | 1 | 400.000 | 400 |
+
+| down | 700 | 0.875 | true | light | 1 | 400.000 | 400 |
+
+| down | 750 | 0.9375 | true | light | 1 | 400.000 | 400 |
+
+| down | 800 | 1 | true | light | 1 | 400.000 | 400 |
+
+| down | 850 | 1 | true | light | 1 | 350.000 | 400 |
+
+| down | 900 | 1 | true | light | 1 | 300.000 | 400 |
+
+| down | 950 | 1 | true | light | 1 | 250.000 | 400 |
+
+| down | 1000 | 1 | true | light | 1 | 200.000 | 400 |
+
+| down | 1050 | 1 | true | light | 1 | 150.000 | 400 |
+
+| down | 1100 | 1 | true | light | 1 | 100.000 | 400 |
+
+| down | 1150 | 1 | true | light | 1 | 50.000 | 400 |
+
+| down | 1200 | 1 | true | light | 1 | 0.000 | 400 |
+
+| down | 1250 | 1 | true | light | 1 | -50.000 | 400 |
+
+| down | 1300 | 1 | true | light | 1 | -100.000 | 400 |
+
+| down | 1350 | 1 | true | light | 1 | -150.000 | 400 |
+
+| down | 1400 | 1 | true | light | 1 | -200.000 | 400 |
+
+| down | 1450 | 1 | true | light | 1 | -250.000 | 400 |
+
+| down | 1500 | 1 | true | light | 1 | -300.000 | 400 |
+
+| down | 1550 | 1 | true | light | 1 | -350.000 | 400 |
+
+| down | 1600 | 1 | true | light | 1 | -400.000 | 400 |
+
+| down | 1650 | 1 | true | light | 1 | -450.000 | 400 |
+
+| down | 1700 | 1 | true | light | 1 | -500.000 | 400 |
+
+| down | 1750 | 1 | true | light | 1 | -550.000 | 400 |
+
+| down | 1800 | 1 | true | light | 1 | -600.000 | 400 |
+
+| down | 1850 | 1 | true | light | 1 | -650.000 | 400 |
+
+| down | 1900 | 1 | true | light | 1 | -700.000 | 400 |
+
+| down endpoint | 1900 | 1.0000 | true | light | 1 | -700.000 | 400.0 |
+
+| up endpoint | 1900 | 1.0000 | true | light | 1 | -700.000 | 400.0 |
+
+| up | 1900 | 1 | true | light | 1 | -700.000 | 400 |
+
+| up | 1850 | 1 | true | light | 1 | -650.000 | 400 |
+
+| up | 1800 | 1 | true | light | 1 | -600.000 | 400 |
+
+| up | 1750 | 1 | true | light | 1 | -550.000 | 400 |
+
+| up | 1700 | 1 | true | light | 1 | -500.000 | 400 |
+
+| up | 1650 | 1 | true | light | 1 | -450.000 | 400 |
+
+| up | 1600 | 1 | true | light | 1 | -400.000 | 400 |
+
+| up | 1550 | 1 | true | light | 1 | -350.000 | 400 |
+
+| up | 1500 | 1 | true | light | 1 | -300.000 | 400 |
+
+| up | 1450 | 1 | true | light | 1 | -250.000 | 400 |
+
+| up | 1400 | 1 | true | light | 1 | -200.000 | 400 |
+
+| up | 1350 | 1 | true | light | 1 | -150.000 | 400 |
+
+| up | 1300 | 1 | true | light | 1 | -100.000 | 400 |
+
+| up | 1250 | 1 | true | light | 1 | -50.000 | 400 |
+
+| up | 1200 | 1 | true | light | 1 | 0.000 | 400 |
+
+| up | 1150 | 1 | true | light | 1 | 50.000 | 400 |
+
+| up | 1100 | 1 | true | light | 1 | 100.000 | 400 |
+
+| up | 1050 | 1 | true | light | 1 | 150.000 | 400 |
+
+| up | 1000 | 1 | true | light | 1 | 200.000 | 400 |
+
+| up | 950 | 1 | true | light | 1 | 250.000 | 400 |
+
+| up | 900 | 1 | true | light | 1 | 300.000 | 400 |
+
+| up | 850 | 1 | true | light | 1 | 350.000 | 400 |
+
+| up | 800 | 1 | true | light | 1 | 400.000 | 400 |
+
+| up | 750 | 0.9375 | true | light | 1 | 400.000 | 400 |
+
+| up | 700 | 0.875 | true | light | 1 | 400.000 | 400 |
+
+| up | 650 | 0.8125 | true | light | 1 | 400.000 | 400 |
+
+| up | 600 | 0.75 | true | light | 1 | 400.000 | 400 |
+
+| up | 550 | 0.6875 | true | light | 1 | 400.000 | 400 |
+
+| up | 500 | 0.625 | true | light | 1 | 400.000 | 400 |
+
+| up | 450 | 0.5625 | true | light | 1 | 400.000 | 400 |
+
+| up | 400 | 0.5 | true | light | 1 | 400.000 | 400 |
+
+| up | 350 | 0.4375 | true | light | 1 | 400.000 | 400 |
+
+| up | 300 | 0.375 | true | light | 1 | 400.000 | 400 |
+
+| up | 250 | 0.3125 | false | dark | 0 | 418.000 | 400 |
+
+| up | 200 | 0.25 | false | dark | 0 | 418.000 | 400 |
+
+| up | 150 | 0.1875 | false | dark | 0 | 418.000 | 400 |
+
+| up | 100 | 0.125 | false | dark | 0 | 418.000 | 400 |
+
+| up | 50 | 0.0625 | false | dark | 0 | 418.000 | 400 |
+
+| up | 0 | 0 | false | dark | 0 | 418.000 | 400 |
+
+Reverse p 0.7 → 0 → 0.7: opacity [1, 0, 1]; burst ['true', 'false', 'true']; world ['light', 'dark', 'light']. At zero logo exists, opacity 1, phase ready, bounds {'width': 1280, 'height': 800}. Centre hit test at p 0.7 returned the Learn more anchor on both forward stops.
+
+Keyboard Enter from p 0.5: industries heading top 168px; header bottom 57px; gap 111px (within 120px). After bottom-and-back: banned string matches []; ask-layer count 0. Console: 21 known tagger ref warnings; 0 new errors or uncaught page errors.
+
+Reduced motion p 0 → 0.5 → 0: opacity [0, 1, 0], burst ['false', 'true', 'false'], transform ['none', 'none', 'none']; centre 400.0px throughout.
+
+### Screenshots
+
+Seven JPEG quality-60 images embedded as base64 in docs/p227/shots.md; all personally inspected. p 0.25 and p 0.35 show the logo without statement overlap; settled p 0.7 matches the target white composition. Timing labels state real pre-capture offsets, not an assertion that the screenshot pixels were frozen at that exact millisecond.
+
+- 390 × 844, y 211px, p 0.25, 025: 12513 bytes; measured pre-capture offset Nonems.
+
+- 390 × 844, y 295px, p 0.3495, 035: 12343 bytes; measured pre-capture offset Nonems.
+
+- 390 × 844, y 422px, p 0.5, 05_350: 10113 bytes; measured pre-capture offset 353.29999999981374ms.
+
+- 390 × 844, y 422px, p 0.5, 05_800: 15035 bytes; measured pre-capture offset 837ms.
+
+- 390 × 844, y 591px, p 0.7002, 07: 15035 bytes; measured pre-capture offset Nonems.
+
+- 1280 × 800, y 280px, p 0.35, 035: 24100 bytes; measured pre-capture offset Nonems.
+
+- 1280 × 800, y 560px, p 0.7, 07: 29248 bytes; measured pre-capture offset Nonems.
+
+### Security review and final status
+
+The three listed access findings were reviewed again. Shared pay-band references and cross-user Hall of Fame/badges are current legitimate features; an ownership-only restriction would change app behavior. No safe behavior-preserving row restriction established. Findings remain active pending the owner’s access decision; none marked fixed or ignored. No database changes or probe inserts. Automatic preview build OK. Not published. Timing expectation explicitly recorded as not passed; no compensating changes made outside the prescribed CSS.
