@@ -1,5 +1,10 @@
 # Roadmap
 
+## Pass 226
+- [x] Move the statement into the 200svh stage with the exact requested progress mapping
+- [x] Remove the hairline, bridge, ridgeline and old statement gates; hide the scene in white
+- [ ] Measure both viewports and save all eight encoded screenshots and the full report
+
 ## Pass 225
 - [x] Simplify the opening and matching static fallback without changing stage motion
 - [x] Replace the statement sequence with a permanent centred, once-only entrance

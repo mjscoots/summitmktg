@@ -2407,6 +2407,8 @@ html[data-appearance='light'] .btn-gradient {
 .public-world[data-world='light'] .cover-open::before {
   display: none;
 }
+.public-world[data-world='light'] .cover-logo-glow,
+.public-world[data-world='light'] .cover-first-message { visibility: hidden; }
 .public-world[data-world='light'] .cover-scrim { background: rgba(255, 255, 255, 0.45); }
 .public-world[data-world='light'] .btn-gradient { background: #0A0A0F; color: #FFFFFF; animation: none; }
 .public-world[data-world='light'] .gradient-text { color: #004EFD; -webkit-text-fill-color: #004EFD; }
