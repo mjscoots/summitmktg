@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Pass 229
-- [ ] Simplify Pest and Fiber presentation; change Life action to Apply without changing industry fetch/type
-- [ ] Verify both requested widths, application preselection and console; save report and three encoded images
-- [ ] Keep unpublished; unrelated shared-data security access remains blocked on owner decision
+- [x] Simplify Pest and Fiber presentation; change Life action to Apply without changing industry fetch/type
+- [x] Verify both requested widths, application preselection and console; save report and three encoded images
+- [x] Keep unpublished; unrelated shared-data security access remains blocked on owner decision
 
 ## Pass 228
 - [x] Connect Learn more to the contact-first application without changing cover motion
