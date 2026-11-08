@@ -349,7 +349,7 @@ export default function RecruitsPage() {
               </div>
             )
           ) : tab === 'resigns' && isManagerRole ? (
-            <ResignBoard isAdmin={role === 'admin' || role === 'owner'} />
+            <ResignBoard isAdmin={isOwner} />
           ) : loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
