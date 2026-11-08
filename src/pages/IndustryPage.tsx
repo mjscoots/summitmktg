@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { setPageMeta } from '@/lib/pageMeta';
+import './IndustryPage.css';
 
 // Life is not open publicly yet, so /industries/life sends people home.
 const SLUGS: Record<string, string> = { pest: 'Pest', fiber: 'Fiber' };
@@ -17,17 +18,17 @@ interface IndustryData {
   leads: { full_name: string | null; avatar_url: string | null; intro: string | null }[];
 }
 
-const STEPS = ['Apply', 'Setup steps', 'Pick your manager', 'Start'];
-
-const CARD = 'public-card p-5 sm:p-6';
-
 export default function IndustryPage() {
   const { slug = '' } = useParams();
   const isLife = slug.toLowerCase() === 'life';
   const vertical = SLUGS[slug.toLowerCase()];
   const [data, setData] = useState<IndustryData | null>(null);
   const [loading, setLoading] = useState(true);
-  const steps = data?.how_it_works?.length ? data.how_it_works : STEPS;
+  const isPest = vertical === 'Pest';
+  const steps = data?.how_it_works || [];
+  const carriers = data && 'carriers' in data && Array.isArray(data.carriers)
+    ? data.carriers.filter((carrier): carrier is string => typeof carrier === 'string')
+    : [];
 
   useEffect(() => {
     if (!vertical) {
@@ -69,7 +70,7 @@ export default function IndustryPage() {
             to="/apply/rookie?vertical=Life"
             className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-8 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Get in <ArrowRight className="w-4 h-4" />
+            Apply <ArrowRight className="w-4 h-4" />
           </Link>
         </main>
       </div>
@@ -87,85 +88,65 @@ export default function IndustryPage() {
   }
 
   return (
-    <div className="gold-world min-h-screen bg-background flex flex-col relative">
+    <div className="gold-world industry-page min-h-screen bg-background flex flex-col relative">
       <main className="relative z-10 mx-auto w-full max-w-4xl flex-1 px-5 pb-20 pt-8 sm:px-6">
         <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-foreground">
           <ArrowLeft className="w-4 h-4" /> Back home
         </Link>
 
-        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground mb-4">
-          {data?.label || vertical}
+        <h1 className="industry-label text-foreground mb-8">
+          {isPest ? 'Pest control' : data?.label || vertical}
         </h1>
 
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading</p>
         ) : (
-          <div className="space-y-10">
-            {data?.public_note && (
-              <p className="max-w-2xl text-sm text-muted-foreground">{data.public_note}</p>
+          <div className="space-y-8">
+            {isPest && (
+              <section>
+                <div className="industry-earnings">
+                  <div>
+                    <strong className="industry-earnings-number">$200,000+</strong>
+                    <p className="industry-earnings-label">Top rookie, last summer</p>
+                  </div>
+                  <div>
+                    <strong className="industry-earnings-number">$37,000</strong>
+                    <p className="industry-earnings-label">Average rookie, last summer</p>
+                  </div>
+                </div>
+                <p className="mt-6 text-base text-foreground">Four months.</p>
+              </section>
             )}
 
             {data?.description && (
-              <p className="max-w-2xl text-base md:text-lg text-muted-foreground whitespace-pre-line">
+              <p className="max-w-2xl text-base text-muted-foreground whitespace-pre-line">
                 {data.description}
               </p>
             )}
 
-            <section>
+            {!isPest && data?.public_note && (
+              <p className="max-w-2xl text-sm text-muted-foreground">{data.public_note}</p>
+            )}
+
+            {!isPest && steps.length > 0 && <section>
               <h2 className="mb-3 text-sm font-semibold text-text-muted">How it works</h2>
               <ol className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                 {steps.map((s, i) => (
                   <li key={s} className="flex items-center gap-2 sm:gap-3">
-                    <span className="inline-flex min-h-11 items-center rounded bg-card px-3 text-sm text-foreground">
+                    <span className="inline-flex min-h-11 items-center text-sm text-foreground">
                       {s}
                     </span>
                     {i < steps.length - 1 && <ArrowRight className="hidden sm:block w-3.5 h-3.5 text-muted-foreground" />}
                   </li>
                 ))}
               </ol>
-            </section>
+            </section>}
 
-            {data?.ranks?.length ? (
-              <section>
-                <h2 className="mb-3 text-sm font-semibold text-text-muted">The ladder</h2>
-                <div className={CARD}>
-                  <div className="flex flex-wrap gap-x-3 gap-y-2">
-                    {data.ranks.map((r, i) => (
-                      <span key={r.name} className="flex items-center gap-3">
-                        <span className="text-sm text-foreground">{r.name}</span>
-                        {i < data.ranks.length - 1 && <span className="text-muted-foreground/50">→</span>}
-                      </span>
-                    ))}
-                  </div>
-
-                </div>
-              </section>
-            ) : null}
-
-            {data?.leads?.length ? (
-              <section>
-                <h2 className="mb-3 text-sm font-semibold text-text-muted">
-                  {data.leads.length > 1 ? 'Leads' : 'Lead'}
-                </h2>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {data.leads.map((l, idx) => (
-                    <div key={idx} className={CARD}>
-                      <div className="flex items-center gap-3">
-                        {l.avatar_url ? (
-                          <img loading="lazy" decoding="async" width={44} height={44} src={l.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover" />
-                        ) : (
-                          <div className="h-11 w-11 rounded-full bg-secondary" />
-                        )}
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-foreground truncate">{l.full_name || ''}</p>
-                          {l.intro && <p className="text-xs text-muted-foreground">{l.intro}</p>}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ) : null}
+            {!isPest && carriers.length > 0 && (
+              <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-foreground">
+                {carriers.map(carrier => <li key={carrier}>{carrier}</li>)}
+              </ul>
+            )}
 
             <section className="pt-2">
               <Link

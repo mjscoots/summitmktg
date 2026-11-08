@@ -1,0 +1,45 @@
+.industry-page {
+  --background: 0 0% 100%;
+  --foreground: 240 20% 5%;
+  --text-secondary: 240 10% 35%;
+  --text-muted: 240 10% 35%;
+  --muted-foreground: 240 10% 35%;
+  --primary: 222 100% 50%;
+  --primary-foreground: 0 0% 100%;
+}
+
+.industry-label {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.industry-earnings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+}
+
+.industry-earnings-number {
+  display: block;
+  font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 1.05;
+  letter-spacing: 0;
+  color: hsl(var(--primary));
+}
+
+.industry-earnings-label {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: hsl(var(--foreground));
+}
+
+@media (min-width: 700px) {
+  .industry-earnings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .industry-earnings-number { font-size: 72px; }
+  .industry-earnings-label { font-size: 17px; }
+}
