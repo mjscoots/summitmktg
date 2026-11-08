@@ -70,7 +70,7 @@ export const SECTION_TABS: Record<AdminSection, AdminTabDef[]> = {
     { value: 'firstweek', label: 'First week', adminOnly: true },
     { value: 'dayone', label: 'Day one course', adminOnly: true },
     { value: 'drills', label: 'Drills', adminOnly: true },
-    { value: 'recruiting', label: 'Public site' },
+    { value: 'recruiting', label: 'Public site', ownerOnly: true },
     { value: 'assistant', label: 'Ask Trinity', adminOnly: true },
   ],
   settings: [

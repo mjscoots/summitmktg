@@ -1,1 +1,2 @@
 Public cover: keep raw stage progress as the single scroll source and remap only the CoverLogo prop; drive statement visibility exclusively from its burst callback so the statement follows the actual swell without changing logo internals.
+Recruiting contact privacy must be enforced in RLS, privileged readers and notification recipients, not just navigation, because SECURITY DEFINER and service-role paths bypass table policies.
