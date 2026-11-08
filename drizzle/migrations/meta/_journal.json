@@ -15,6 +15,13 @@
       "when": 1794122629056,
       "tag": "0001_p228_protect_mixed_lead_paths",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794122655795,
+      "tag": "0002_p228_guard_lead_import_branch",
+      "breakpoints": true
     }
   ]
 }
