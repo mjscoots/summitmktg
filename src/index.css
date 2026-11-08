@@ -2296,7 +2296,7 @@ html[data-appearance='light'] .btn-gradient {
   .statement-brand { max-width: 900px; font-size: 88px; }
   .statement-support { max-width: 38ch; font-size: 24px; }
 }
-#industries { scroll-margin-top: 72px; }
+#industries { scroll-margin-top: 72px; min-height: calc(100svh - 72px); }
 #root:has(#industries) { scroll-behavior: smooth; }
 
 .statement-ridgeline-floor {
@@ -2372,7 +2372,7 @@ html[data-appearance='light'] .btn-gradient {
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.34em;
-  text-transform: uppercase;
+  text-transform: none;
   color: rgba(255, 255, 255, 0.62);
 }
 .cover-scroll-track {
