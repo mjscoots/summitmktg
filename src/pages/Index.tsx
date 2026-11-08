@@ -18,7 +18,7 @@ import { ReferrerLine } from '@/components/recruiting/ReferrerLine';
  * Public front door for Trinity Sales.
  *
  * One pinned stage contains the logo, burst and reversible statement.
- * Raw stage travel drives the statement; remapped travel drives the logo.
+ * Remapped travel drives the logo; its burst callbacks drive the statement.
  */
 const Index = () => {
   const media = useCoverMedia();
@@ -26,13 +26,14 @@ const Index = () => {
   const bandRef = useRef<HTMLElement | null>(null);
   // True once the white has covered the screen, false again on the way back.
   const [worldLight, setWorldLight] = useState(false);
+  const [burst, setBurst] = useState(false);
   // Scroll progress over the first viewport, which drives the logo.
   const [heroProgress, setHeroProgress] = useState(0);
   // The final band's own progress, which lifts the scene glow.
   const [bandProgress, setBandProgress] = useState(0);
   const tiltAsked = useRef(false);
   const onWorldLight = useCallback((light: boolean) => setWorldLight(light), []);
-  const onBurst = useCallback(() => undefined, []);
+  const onBurst = useCallback((active: boolean) => setBurst(active), []);
   usePublicMotion();
 
   // Pass 222 - the static first screen from index.html is dropped the moment
@@ -76,9 +77,6 @@ const Index = () => {
         const travel = Math.max(1, rect.height - window.innerHeight);
         nextHeroProgress = Math.min(1, Math.max(0, -rect.top / travel));
         stage.dataset.stageProgress = nextHeroProgress.toFixed(4);
-        const statementProgress = Math.min(1, Math.max(0, (nextHeroProgress - 0.24) / 0.08));
-        stage.style.setProperty('--statement-progress', String(statementProgress));
-        stage.dataset.statementVisible = statementProgress > 0.5 ? 'true' : 'false';
       }
       setHeroProgress(nextHeroProgress);
 
@@ -107,6 +105,7 @@ const Index = () => {
     <div
       className="gold-world public-world relative flex min-h-screen flex-col"
       data-world={worldLight ? 'light' : 'dark'}
+      data-burst={burst ? 'true' : 'false'}
     >
       {/* The fixed range stays alive from the hero through every public section. */}
       <div className="cover-scene" aria-hidden="true">

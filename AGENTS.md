@@ -1,1 +1,1 @@
-Public cover: keep raw stage progress as the single scroll source; remap only the CoverLogo prop and derive statement visibility in the same frame, so the pinned composition reverses deterministically without changing logo internals.
+Public cover: keep raw stage progress as the single scroll source and remap only the CoverLogo prop; drive statement visibility exclusively from its burst callback so the statement follows the actual swell without changing logo internals.
