@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { ChevronRight, Loader2, Users } from 'lucide-react';
 import { LeaderScorecard } from '@/components/shared/LeaderScorecard';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl';
 
@@ -16,6 +17,7 @@ interface Leader {
 }
 
 export default function LeadersSection() {
+  const { role } = useAuth();
   const [leaders, setLeaders] = useState<Leader[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [underLed, setUnderLed] = useState<number | null>(null);
@@ -24,12 +26,12 @@ export default function LeadersSection() {
     void (async () => {
       const [{ data: list }, { data: ul }] = await Promise.all([
         (supabase as any).rpc('get_leaders_list', {}),
-        (supabase as any).rpc('get_under_led', {}),
+        role === 'owner' ? (supabase as any).rpc('get_under_led', {}) : Promise.resolve({ data: null }),
       ]);
       setLeaders(list?.error ? [] : ((list?.leaders ?? []) as Leader[]));
       setUnderLed(ul?.error ? null : Number(ul?.not_in_outreach ?? 0));
     })();
-  }, []);
+  }, [role]);
 
   return (
     <div className="space-y-3">
@@ -40,12 +42,12 @@ export default function LeadersSection() {
             Data-owned scorecard for every leader with a tree.
           </p>
         </div>
-        <Link
+        {role === 'owner' && <Link
           to="/app/recruits?tab=winback&view=under-led"
           className="text-xs text-primary hover:underline tabular-nums"
         >
           Under-led not in outreach: {underLed == null ? 'No data yet' : underLed}
-        </Link>
+        </Link>}
       </div>
 
       {leaders === null ? (

@@ -94,6 +94,7 @@ const CARD = 'bg-card/60 backdrop-blur-sm border border-white/[0.06] rounded-xl'
 
 export default function RecruitsPage() {
   const { user, role } = useAuth();
+  const isOwner = role === 'owner';
   const isManagerRole = isManagerOrAbove(role);
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<'board' | 'mine' | 'winback' | 'resigns' | 'referrals'>(() => {
@@ -122,9 +123,7 @@ export default function RecruitsPage() {
 
 
   const load = useCallback(async () => {
-    if (!user) return;
-    // Sweep any leads that went stale before rendering the board
-    await (supabase as any).rpc('release_stale_leads');
+    if (!user || !isOwner) { setBoard([]); setMine([]); setReferrals([]); setLoading(false); return; }
     const [boardRes, mineRes, refRes] = await Promise.all([
       (supabase as any).rpc('get_lead_board'),
       (supabase as any).rpc('get_my_leads'),
@@ -142,7 +141,7 @@ export default function RecruitsPage() {
       return next;
     });
     setLoading(false);
-  }, [user, isManagerRole]);
+  }, [user, isManagerRole, isOwner]);
 
 
   useEffect(() => { load(); }, [load]);
@@ -228,6 +227,8 @@ export default function RecruitsPage() {
 
           {/* Pass 224 - one tap from this screen to send your own link. */}
           <ShareMyLinkBar className="mb-4" />
+
+          {isOwner ? <>
 
           {/* Header */}
           <PageHeader
@@ -613,6 +614,7 @@ export default function RecruitsPage() {
             signedCount={winMoment?.signedCount ?? null}
             onDismiss={() => setWinMoment(null)}
           />
+          </> : isManagerRole ? <ResignBoard isAdmin={role === 'admin'} /> : null}
         </main>
       </div>
     </AppLayout>
