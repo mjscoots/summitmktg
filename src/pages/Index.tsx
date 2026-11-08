@@ -8,6 +8,7 @@ import { COVER_STATS } from "@/lib/coverStats";
 import { RidgelineMark } from '@/components/brand/RidgelineMark';
 import { usePublicMotion } from '@/hooks/usePublicMotion';
 import { useCoverMedia } from '@/hooks/useCoverMedia';
+import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
 import { RIDGES } from '@/components/brand/MountainRange';
 import { ProofSet } from '@/components/recruiting/ProofLines';
@@ -223,6 +224,7 @@ const Index = () => {
               Apply <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             {COVER_STATS && <ProofSet />}
+            <ReferralLookup />
             <p className="mt-8 text-sm text-text-secondary">
               Already on the team,{' '}
               <Link to="/login" className="public-link inline-flex min-h-11 items-center font-semibold">
