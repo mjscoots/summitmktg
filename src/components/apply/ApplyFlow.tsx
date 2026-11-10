@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { loadSchedulingUrl } from '@/lib/scheduling';
 import { useApplicationSource } from '@/components/apply/IndustryStep';
+import { trackPublicMeta } from '@/lib/publicMetaPixel';
 
 /**
  * Pass 188 - one step by step application flow shared by both routes.
@@ -343,6 +344,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
       if (error || (data as { error?: string } | null)?.error) {
         throw new Error((data as { error?: string } | null)?.error || 'rejected');
       }
+      void trackPublicMeta('Lead');
 
       // The visit is finished, so the next person on this device starts clean.
       try {
@@ -444,7 +446,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
                 />
               )}
               {schedulingUrl && (
-                <button type="button" disabled={submitting} className={primaryBase} onClick={() => submit(true)}>
+                <button type="button" disabled={submitting} className={primaryBase} onClick={() => { void trackPublicMeta('SchedulingClick'); void submit(true); }}>
                   {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
                   Set up a call first
                 </button>
