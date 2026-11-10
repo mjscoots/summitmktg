@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Public recruiting conversion + dormant Meta support
-- [ ] Add immediate Apply, role/parents links, existing Pest proof and mobile scroll action; preserve boot cover
-- [ ] Wire dormant public PageView, successful Lead and scheduling-click hooks with configuration example
-- [ ] Verify public journeys, no-ID silence, tests and unchanged signed-in behavior; do not deploy
+- [x] Add immediate Apply, role/parents links, existing Pest proof and mobile scroll action; preserve boot cover
+- [x] Wire dormant public PageView, successful Lead and scheduling-click hooks with configuration example
+- [x] Verify public journeys, no-ID silence, tests and unchanged signed-in behavior; do not deploy
 - [ ] Shared-data security restrictions remain blocked on owner's access decision; no signed-in access changes authorized
 
 ## Pass 229

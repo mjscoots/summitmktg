@@ -38,7 +38,8 @@ html.light .site-grain {
   z-index: 1;
 }
 
-#root > .site-grain ~ .public-site-header {
+#root > .site-grain ~ .public-site-header,
+#root > .site-grain ~ .public-mobile-apply {
   position: fixed;
   z-index: 30;
 }
