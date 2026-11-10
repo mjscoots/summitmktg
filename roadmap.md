@@ -4,7 +4,7 @@
 - [x] Add immediate Apply, role/parents links, existing Pest proof and mobile scroll action; preserve boot cover
 - [x] Wire dormant public PageView, successful Lead and scheduling-click hooks with configuration example
 - [x] Verify public journeys, no-ID silence, tests and unchanged signed-in behavior; do not deploy
-- [ ] Shared-data security restrictions remain blocked on owner's access decision; no signed-in access changes authorized
+- [x] Owner chose Leave unchanged for shared-data security findings; findings remain active, signed-in access unchanged
 
 ## Pass 229
 - [x] Simplify Pest and Fiber presentation; change Life action to Apply without changing industry fetch/type
@@ -23,7 +23,7 @@
 - [x] Verify both viewports, timing samples, sweeps, reduced motion, keyboard navigation and layering
 - [x] Save all measurements and seven base64 screenshots; keep unpublished
 - [x] Pass 227 accepted by owner; timing observations documented, no older work queued
-- [ ] Security access decision: shared season results, pay references and badges; narrowing access changes legitimate app behavior
+- [x] Owner chose Leave unchanged on November 10 for shared season results, pay references and badges; findings remain active
 
 ## Pass 226
 - [x] Move the statement into the 200svh stage with the exact requested progress mapping
