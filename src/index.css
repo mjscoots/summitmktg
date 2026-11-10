@@ -2305,6 +2305,20 @@ html[data-appearance='light'] .btn-gradient {
   transform: translateX(-50%);
   color: hsl(var(--foreground));
 }
+.cover-first-apply {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  letter-spacing: 0;
+}
+.cover-first-links { color: hsl(var(--foreground)); }
+.public-mobile-apply {
+  background: hsl(var(--background) / 0.96);
+  border-top: 1px solid hsl(var(--border));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+@media (max-width: 639px) {
+  .public-world .footer-signature { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+}
 .cover-first-line {
   --cover-line-white: 0 0% 100%;
   margin: 0;

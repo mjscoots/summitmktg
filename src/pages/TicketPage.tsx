@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Loader2, Check, ArrowRight } from 'lucide-react';
 import { setPageMeta } from '@/lib/pageMeta';
 import { captureSourceFromUrl, ORGANIC, type SourceAttribution } from '@/lib/source';
+import { trackPublicMeta } from '@/lib/publicMetaPixel';
 
 const GOLD = '#D4AF37';
 
@@ -201,6 +202,7 @@ export default function TicketPage() {
             {calendly && (
               <a
                 href={calendly}
+                onClick={() => { void trackPublicMeta('SchedulingClick'); }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold transition-colors"

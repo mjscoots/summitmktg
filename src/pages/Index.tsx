@@ -12,6 +12,7 @@ import { ReferralLookup } from '@/components/recruiting/ReferralLookup';
 import { CoverLogo } from '@/components/brand/CoverLogo';
 import { ProofSet } from '@/components/recruiting/ProofLines';
 import { ReferrerLine } from '@/components/recruiting/ReferrerLine';
+import { Button } from '@/components/ui/button';
 
 
 /**
@@ -126,6 +127,13 @@ const Index = () => {
             <div className="cover-first-message text-center">
               <p className="cover-first-line">Pest control. Fiber internet. Life insurance.</p>
               <ReferrerLine />
+              <Button asChild className="cover-first-apply mt-5 min-w-36 px-8">
+                <Link to="/apply/rookie">Apply <ArrowRight aria-hidden="true" /></Link>
+              </Button>
+              <div className="cover-first-links mt-2 flex items-center justify-center gap-5">
+                <Link to="/recruiting" className="public-link inline-flex min-h-11 items-center text-sm">See the role</Link>
+                <Link to="/parents" className="public-link inline-flex min-h-11 items-center text-sm">For parents</Link>
+              </div>
             </div>
             <div className="cover-scroll-cue" data-hidden={heroProgress > 0.04 ? 'true' : 'false'} aria-hidden="true">
               <span className="cover-scroll-label">See all three</span>
@@ -135,7 +143,9 @@ const Index = () => {
             <div className="cover-statement-layer">
               <h1 className="statement-brand">TRINITY MARKETING</h1>
               <p className="statement-support">Where being a sales rep is not the end goal.</p>
-              <Link to="/apply/rookie" className="btn-purple statement-learn">Learn more</Link>
+              <Button asChild className="btn-purple statement-learn">
+                <Link to="/apply/rookie">Apply</Link>
+              </Button>
             </div>
           </div>
         </section>
@@ -159,6 +169,9 @@ const Index = () => {
               Apply <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             {COVER_STATS && <ProofSet />}
+            <p className="mt-6 text-sm text-text-secondary">
+              <Link to="/industries/pest" className="public-link">Pest control: $200,000+ Top rookie, last summer · $37,000 Average rookie, last summer</Link>
+            </p>
             <ReferralLookup />
             <p className="mt-8 text-sm text-text-secondary">
               Already on the team,{' '}

@@ -2,27 +2,17 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { Button } from '@/components/ui/button';
-
-const PUBLIC_PATHS = [
-  '/',
-  '/recruiting',
-  '/ticket',
-  '/parents',
-  '/industries/',
-  '/join',
-  '/invite/',
-  '/p/',
-  '/apply',
-];
-
-function isPublicPath(pathname: string) {
-  return PUBLIC_PATHS.some((path) => path === '/' ? pathname === path : pathname === path || pathname.startsWith(path));
-}
+import { isPublicRecruitingPath, pausePublicMetaPixel, trackPublicMeta } from '@/lib/publicMetaPixel';
 
 export function PublicHeader() {
-  const { pathname } = useLocation();
+  const { pathname, key } = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const visible = isPublicPath(pathname);
+  const visible = isPublicRecruitingPath(pathname);
+
+  useEffect(() => {
+    if (visible) void trackPublicMeta('PageView', `${pathname}:${key}`);
+    else pausePublicMetaPixel();
+  }, [pathname, key, visible]);
 
   useEffect(() => {
     if (!visible) return;
@@ -58,6 +48,13 @@ export function PublicHeader() {
         </nav>
       </header>
       {pathname !== '/' && <div className="h-14" aria-hidden="true" />}
+      {pathname === '/' && scrolled && (
+        <div className="gold-world public-mobile-apply fixed inset-x-0 bottom-0 z-30 px-5 pt-3 sm:hidden" data-mobile-apply>
+          <Button asChild className="w-full">
+            <Link to="/apply/rookie">Apply</Link>
+          </Button>
+        </div>
+      )}
     </>
   );
 }
