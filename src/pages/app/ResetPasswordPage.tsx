@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { setPageMeta } from "@/lib/pageMeta";
 
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
@@ -11,6 +12,14 @@ const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
   const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    setPageMeta({
+      title: "Reset your password - Trinity Sales",
+      description: "Choose a new password for your Trinity account.",
+      path: "/reset-password",
+    });
+  }, []);
 
   useEffect(() => {
     // Check for recovery token in URL hash

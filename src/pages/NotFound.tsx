@@ -1,10 +1,16 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { setPageMeta } from "@/lib/pageMeta";
 
 const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
+    setPageMeta({
+      title: "Page not found - Trinity Sales",
+      description: "That page does not exist.",
+      path: location.pathname,
+    });
     // Kept out of console.error so a missing page never reads as an app failure.
     console.warn("404: no route for", location.pathname);
   }, [location.pathname]);

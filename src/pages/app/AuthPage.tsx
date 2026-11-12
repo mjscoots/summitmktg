@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle } from "lucide-react";
 import { RidgelineMark } from '@/components/brand/RidgelineMark';
+import { setPageMeta } from '@/lib/pageMeta';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -29,6 +30,14 @@ const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [awaitingAuthRedirect, setAwaitingAuthRedirect] = useState(false);
+
+  useEffect(() => {
+    setPageMeta({
+      title: "Sign in - Trinity Sales",
+      description: "Sign in to Trinity.",
+      path: "/login",
+    });
+  }, []);
 
   // Pass 209 - honour the path the person was trying to reach. Internal paths
   // only: one leading slash, never two, so no off-site bounce is possible.
