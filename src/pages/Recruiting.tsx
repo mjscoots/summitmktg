@@ -11,6 +11,15 @@ import { setPageMeta } from "@/lib/pageMeta";
 
 const Recruiting = () => {
   const navigate = useNavigate();
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash === "#apply") {
+      requestAnimationFrame(() => {
+        document.getElementById("apply")?.scrollIntoView({ behavior: "instant", block: "start" });
+      });
+    }
+  }, [hash]);
 
   useEffect(() => {
     setPageMeta({
