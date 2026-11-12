@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useRecruitingContent } from '@/hooks/usePublicRecruiting';
 import { setPageMeta } from '@/lib/pageMeta';
 
@@ -78,7 +78,6 @@ export const PARENT_SECTIONS: Section[] = [
 ];
 
 export default function Parents() {
-  const navigate = useNavigate();
   const content = useRecruitingContent();
 
   useEffect(() => {
@@ -140,12 +139,12 @@ export default function Parents() {
             >
               Instagram
             </a>
-            <button
-              onClick={() => navigate('/recruiting')}
+            <Link
+              to="/recruiting"
               className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               Back to summer jobs
-            </button>
+            </Link>
           </div>
         </div>
       </footer>
