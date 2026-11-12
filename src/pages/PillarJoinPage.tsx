@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { setPageMeta } from '@/lib/pageMeta';
 
 interface Lookup {
   valid: boolean;
@@ -38,6 +39,14 @@ const PillarJoinPage = () => {
   const [accountExists, setAccountExists] = useState(false);
   const [codeStep, setCodeStep] = useState(false);
   const [code, setCode] = useState('');
+
+  useEffect(() => {
+    setPageMeta({
+      title: 'Join your team - Trinity Sales',
+      description: 'Join your team on Trinity.',
+      path: token ? `/p/${token}` : '/p',
+    });
+  }, [token]);
 
   useEffect(() => {
     if (isAuthenticated) {

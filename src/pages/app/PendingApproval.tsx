@@ -4,12 +4,21 @@ import { Clock, LogOut, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { setPageMeta } from "@/lib/pageMeta";
 
 const PendingApproval = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profile, signOut, isLoading, role, user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
   const [liveApproved, setLiveApproved] = useState(false);
+
+  useEffect(() => {
+    setPageMeta({
+      title: "Pending approval - Trinity Sales",
+      description: "Your Trinity account is waiting for approval.",
+      path: "/pending-approval",
+    });
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

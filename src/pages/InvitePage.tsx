@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { setPageMeta } from '@/lib/pageMeta';
 
 type Preview =
   | { status: 'ok'; role: string; vertical: string | null; team_name: string | null; region: string | null; inviter: string | null }
@@ -45,6 +46,14 @@ const InvitePage = () => {
   const [code, setCode] = useState('');
 
 
+
+  useEffect(() => {
+    setPageMeta({
+      title: 'Your invite - Trinity Sales',
+      description: 'You have been invited to join Trinity.',
+      path: token ? `/invite/${token}` : '/invite',
+    });
+  }, [token]);
 
   useEffect(() => {
     if (isAuthenticated) {
