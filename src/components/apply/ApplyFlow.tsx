@@ -148,6 +148,9 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
 
   const keyRef = useRef('');
   const savingRef = useRef(false);
+  // Pass 231 - the stage asked for while a save is still in flight. It is
+  // written as soon as that save finishes, so no step is ever dropped.
+  const pendingStageRef = useRef<string | null>(null);
 
   // The pop up and the cover carry the market, the referral and the vertical.
   useEffect(() => {
@@ -231,41 +234,58 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
     const name = v.fullName.trim();
     const tel = v.phone.trim();
     if (!name || !tel) return;
-    if (savingRef.current) return;
+    if (savingRef.current) {
+      // A save is already on its way: keep the newest stage and send it the
+      // moment that save finishes, instead of losing this one.
+      pendingStageRef.current = stage;
+      return;
+    }
     savingRef.current = true;
     try {
-      localStorage.setItem('trnty_apply_contact', JSON.stringify({ fullName: name, phone: tel, email: v.email.trim() }));
-    } catch {
-      /* private mode */
-    }
-    const story = [
-      v.interests.length ? `Interested in: ${v.interests.join(', ')}` : '',
-      v.experience ? `Experience: ${v.experience}` : '',
-      v.style ? `Prefers: ${v.style}` : '',
-      v.revenue ? `Last season revenue: ${v.revenue.trim()}` : '',
-      v.markets ? `Markets worked: ${v.markets.trim()}` : '',
-      v.goal ? `First year goal: ${v.goal.trim()}` : '',
-      v.referral ? `Heard from: ${v.referral.trim()}` : '',
-      `Applying as: ${kind === 'vet' ? 'veteran' : 'rookie'}`,
-    ]
-      .filter(Boolean)
-      .join('\n');
-    try {
-      await supabase.rpc('capture_apply_partial' as never, {
-        _key: keyRef.current || applyKey(),
-        _fields: {
-          first_name: name,
-          phone: tel,
-          email: v.email.trim().toLowerCase(),
-          city: v.location.trim(),
-          interest_reason: v.interests.join(', ').slice(0, 60),
-          story,
-          apply_stage: stage,
-          source_code: source.source_code || '',
-        },
-      } as never);
-    } catch (err) {
-      console.error('Partial capture failed:', err);
+      try {
+        localStorage.setItem('trnty_apply_contact', JSON.stringify({ fullName: name, phone: tel, email: v.email.trim() }));
+      } catch {
+        /* private mode */
+      }
+      // Drain the queue: every round reads latest.current again, so the row
+      // always carries where the person actually is.
+      let next: string | null = stage;
+      while (next) {
+        const s = next;
+        next = null;
+        const cur = latest.current;
+        const story = [
+          cur.interests.length ? `Interested in: ${cur.interests.join(', ')}` : '',
+          cur.experience ? `Experience: ${cur.experience}` : '',
+          cur.style ? `Prefers: ${cur.style}` : '',
+          cur.revenue ? `Last season revenue: ${cur.revenue.trim()}` : '',
+          cur.markets ? `Markets worked: ${cur.markets.trim()}` : '',
+          cur.goal ? `First year goal: ${cur.goal.trim()}` : '',
+          cur.referral ? `Heard from: ${cur.referral.trim()}` : '',
+          `Applying as: ${kind === 'vet' ? 'veteran' : 'rookie'}`,
+        ]
+          .filter(Boolean)
+          .join('\n');
+        try {
+          await supabase.rpc('capture_apply_partial' as never, {
+            _key: keyRef.current || applyKey(),
+            _fields: {
+              first_name: cur.fullName.trim(),
+              phone: cur.phone.trim(),
+              email: cur.email.trim().toLowerCase(),
+              city: cur.location.trim(),
+              interest_reason: cur.interests.join(', ').slice(0, 60),
+              story,
+              apply_stage: s,
+              source_code: source.source_code || '',
+            },
+          } as never);
+        } catch (err) {
+          console.error('Partial capture failed:', err);
+        }
+        next = pendingStageRef.current;
+        pendingStageRef.current = null;
+      }
     } finally {
       savingRef.current = false;
     }
