@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 import { Loader2, Check, ArrowRight } from 'lucide-react';
@@ -216,12 +216,12 @@ export default function TicketPage() {
               </a>
             )}
 
-            <a
-              href="/recruiting"
+            <Link
+              to="/recruiting"
               className="mt-5 inline-block text-[13px] font-medium text-white/45 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white/70"
             >
               See who we are
-            </a>
+            </Link>
           </div>
         )}
       </div>
