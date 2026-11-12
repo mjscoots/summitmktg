@@ -50,6 +50,17 @@ export default function IndustryPage() {
     })();
   }, [vertical, slug]);
 
+  // Life has no industry payload, so the effect above never reaches setPageMeta.
+  useEffect(() => {
+    if (!isLife) return;
+    setPageMeta({
+      title: 'Life Insurance - Trinity Sales',
+      description:
+        'Life insurance. One of our three industries, alongside pest control and fiber internet. Requires a state license to sell.',
+      path: '/industries/life',
+    });
+  }, [isLife]);
+
   if (isLife) {
     return (
       <div className="gold-world min-h-screen bg-background flex flex-col">
