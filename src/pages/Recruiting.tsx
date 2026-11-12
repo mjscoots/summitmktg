@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Mountain, Users, Target, Trophy, Calendar, Zap, CheckCircle } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
