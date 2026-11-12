@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Loader2, Check, ArrowRight } from 'lucide-react';
 import { setPageMeta } from '@/lib/pageMeta';
 import { captureSourceFromUrl, ORGANIC, type SourceAttribution } from '@/lib/source';
+import { SCHEDULING_FALLBACK } from '@/lib/scheduling';
 import { trackPublicMeta } from '@/lib/publicMetaPixel';
 
 const GOLD = '#D4AF37';
@@ -36,7 +37,9 @@ export default function TicketPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
-  const [calendly, setCalendly] = useState('');
+  // Pass 231 - the booking path exists even when the ticket setting is empty,
+  // so a hot lead always has a way to book. A returned calendly_url still wins.
+  const [calendly, setCalendly] = useState(SCHEDULING_FALLBACK);
   const [claimed, setClaimed] = useState<number | null>(null);
   const [seriesTotal, setSeriesTotal] = useState(100);
   const [source, setSource] = useState<SourceAttribution>(ORGANIC);
@@ -85,7 +88,7 @@ export default function TicketPage() {
     });
     setSaving(false);
     if (insertError) {
-      setError('That did not go through. Check the phone and email and try again.');
+      setError('That did not go through. Check the phone number and try again.');
       return;
     }
     setDone(true);
