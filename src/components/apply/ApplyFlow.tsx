@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { loadSchedulingUrl } from '@/lib/scheduling';
+import { SCHEDULING_FALLBACK, loadSchedulingUrl } from '@/lib/scheduling';
 import { useApplicationSource } from '@/components/apply/IndustryStep';
 import { trackPublicMeta } from '@/lib/publicMetaPixel';
 
@@ -128,7 +128,9 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
   const [atEnd, setAtEnd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState('');
-  const [schedulingUrl, setSchedulingUrl] = useState<string | null>(null);
+  // Pass 230 - the button is visible from first paint: the fallback URL is
+  // known, so a slow or failed RPC cannot hide the booking path.
+  const [schedulingUrl, setSchedulingUrl] = useState<string | null>(SCHEDULING_FALLBACK);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
   const advanceTimer = useRef<number | undefined>(undefined);
 
@@ -366,8 +368,9 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
           console.error('Welcome email failed:', emailError);
         });
 
-      if (wantsCall && schedulingUrl) {
-        window.open(schedulingUrl, '_blank', 'noopener,noreferrer');
+      if (wantsCall) {
+        // Pass 230 - no window.open here: iOS Safari blocks a pop up opened
+        // after these awaits, so the scheduler is offered on the next page.
         navigate('/apply/success?call=1');
         return;
       }

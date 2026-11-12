@@ -19,6 +19,8 @@ export async function loadSchedulingUrl(): Promise<string | null> {
     if (!value || trimSlash(value) === BARE_PROFILE) return SCHEDULING_FALLBACK;
     return value;
   } catch {
-    return null;
+    // Pass 230 - a thrown lookup must still yield the known booking URL, so
+    // the booking path never depends on the RPC answering.
+    return SCHEDULING_FALLBACK;
   }
 }
