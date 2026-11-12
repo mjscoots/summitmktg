@@ -9,6 +9,33 @@ interface Section {
   fallback: string;
 }
 
+const INSTAGRAM_URL = 'https://www.instagram.com/summitmktgsales/';
+
+/**
+ * Section body text. Only the Questions fallback differs: the word Instagram
+ * becomes a link there, since that fallback tells parents to reach out that way.
+ * Every other section renders its text exactly as before.
+ */
+function renderSectionBody(section: Section, override?: string) {
+  if (override) return override;
+  if (section.key !== 'parents_questions') return section.fallback;
+  return section.fallback.split(/(Instagram)/).map((part, i) =>
+    part === 'Instagram' ? (
+      <a
+        key={i}
+        href={INSTAGRAM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary hover:underline"
+      >
+        Instagram
+      </a>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+}
+
 /** Honest factual defaults - the owner can replace any of these from the admin panel. */
 export const PARENT_SECTIONS: Section[] = [
   {
@@ -88,7 +115,7 @@ export default function Parents() {
             <section key={s.key} className="rounded-xl border border-border bg-card/60 p-6">
               <h2 className="text-lg font-bold text-foreground">{s.heading}</h2>
               <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                {copy[s.key] || s.fallback}
+                {renderSectionBody(s, copy[s.key])}
               </p>
             </section>
           ))}
@@ -98,12 +125,22 @@ export default function Parents() {
       <footer className="border-t border-border py-8">
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
           <span className="text-sm text-muted-foreground">Trinity © 2026</span>
-          <button
-            onClick={() => navigate('/recruiting')}
-            className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
-          >
-            Back to summer jobs
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              Instagram
+            </a>
+            <button
+              onClick={() => navigate('/recruiting')}
+              className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              Back to summer jobs
+            </button>
+          </div>
         </div>
       </footer>
     </div>
