@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { TablesUpdate } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -291,7 +292,7 @@ export function MemberEditForm({
         ? (teams.find(t => t.slug === formData.pillar_slug)?.id || null)
         : undefined;
       
-      const updateData: Record<string, any> = {
+      const updateData: TablesUpdate<'profiles'> = {
         full_name: formData.full_name.trim(),
         phone: formData.phone,
         email: formData.email.trim().toLowerCase(),
