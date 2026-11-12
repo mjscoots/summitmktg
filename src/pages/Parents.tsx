@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useRecruitingContent } from '@/hooks/usePublicRecruiting';
 import { setPageMeta } from '@/lib/pageMeta';
 
@@ -126,6 +126,12 @@ export default function Parents() {
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
           <span className="text-sm text-muted-foreground">Trinity © 2026</span>
           <div className="flex items-center gap-2">
+            <Link
+              to="/apply/rookie"
+              className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              Start an application
+            </Link>
             <a
               href={INSTAGRAM_URL}
               target="_blank"
