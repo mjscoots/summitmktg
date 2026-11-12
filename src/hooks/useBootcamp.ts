@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { TablesUpdate } from '@/integrations/supabase/types';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface BootcampProgress {
@@ -166,7 +167,7 @@ export function useBootcamp() {
     if (!user || !progress) return false;
 
     const phaseKey = `phase_${phase}_complete`;
-    const updateData: Record<string, unknown> = { ...data, [phaseKey]: true };
+    const updateData: TablesUpdate<'bootcamp_progress'> = { ...data, [phaseKey]: true };
 
     const willComplete =
       (phase === 1 || progress.phase_1_complete) &&
