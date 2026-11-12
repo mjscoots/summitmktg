@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { setPageMeta } from "@/lib/pageMeta";
 
@@ -20,9 +20,9 @@ const NotFound = () => {
       <div className="text-center">
         <h1 className="mb-4 text-4xl font-bold">404</h1>
         <p className="mb-4 text-xl text-muted-foreground">That page does not exist</p>
-        <a href="/" className="inline-flex min-h-11 items-center text-primary underline hover:text-primary/90">
+        <Link to="/" className="inline-flex min-h-11 items-center text-primary underline hover:text-primary/90">
           Return to Home
-        </a>
+        </Link>
       </div>
     </div>
   );
