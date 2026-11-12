@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Mountain, Users, Target, Trophy, Calendar, Zap, CheckCircle } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
@@ -11,6 +11,15 @@ import { setPageMeta } from "@/lib/pageMeta";
 
 const Recruiting = () => {
   const navigate = useNavigate();
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash === "#apply") {
+      requestAnimationFrame(() => {
+        document.getElementById("apply")?.scrollIntoView({ behavior: "instant", block: "start" });
+      });
+    }
+  }, [hash]);
 
   useEffect(() => {
     setPageMeta({
