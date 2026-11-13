@@ -40,8 +40,6 @@ const ResetPasswordPage = lazyRoute(() => import("./pages/app/ResetPasswordPage"
 const PortalLayout = lazyRoute(() => import("./components/portal/PortalLayout"));
 const PortalHome = lazyRoute(() => import("./pages/portal/PortalHome"));
 const PortalTraining = lazyRoute(() => import("./pages/portal/PortalTraining"));
-const PortalDoc = lazyRoute(() => import("./pages/portal/PortalDoc"));
-const PortalRookieStatus = lazyRoute(() => import("./pages/portal/PortalRookieStatus"));
 const PortalForms = lazyRoute(() => import("./pages/portal/PortalForms"));
 const PortalResources = lazyRoute(() => import("./pages/portal/PortalResources"));
 const PortalCalendar = lazyRoute(() => import("./pages/portal/PortalCalendar"));
@@ -211,9 +209,6 @@ function LazyFallback() {
               <Route path="/portal" element={<ProtectedRoute skipAppGates><PortalLayout /></ProtectedRoute>}>
                 <Route index element={<PortalHome />} />
                 <Route path="training" element={<PortalTraining />} />
-                <Route path="training/outline" element={<PortalDoc doc="outline" />} />
-                <Route path="training/script" element={<PortalDoc doc="script" />} />
-                <Route path="rookie-status" element={<PortalRookieStatus />} />
                 <Route path="forms" element={<PortalForms />} />
                 <Route path="resources" element={<PortalResources />} />
                 <Route path="calendar" element={<PortalCalendar />} />
@@ -232,27 +227,27 @@ function LazyFallback() {
 
                {/* ========== SUMMER CHECKLIST ROUTES ========== */}
               <Route path="/summer-checklist" element={
-                <ProtectedRoute>
+                <ProtectedRoute skipAppGates>
                   <BootcampLock />
                 </ProtectedRoute>
               } />
               <Route path="/summer-checklist/momentum" element={
-                <ProtectedRoute>
+                <ProtectedRoute skipAppGates>
                   <BootcampMomentum />
                 </ProtectedRoute>
               } />
               <Route path="/summer-checklist/phase-1" element={
-                <ProtectedRoute>
+                <ProtectedRoute skipAppGates>
                   <BootcampPhase1 />
                 </ProtectedRoute>
               } />
               <Route path="/summer-checklist/phase-2" element={
-                <ProtectedRoute>
+                <ProtectedRoute skipAppGates>
                   <BootcampPhase2 />
                 </ProtectedRoute>
               } />
               <Route path="/summer-checklist/phase-3" element={
-                <ProtectedRoute>
+                <ProtectedRoute skipAppGates>
                   <BootcampPhase3 />
                 </ProtectedRoute>
               } />
@@ -329,35 +324,35 @@ function LazyFallback() {
 
               {/* Training */}
                <Route path="/app/training" element={
-                 <ProtectedRoute>
+                 <ProtectedRoute skipAppGates>
                      <TrainingPage />
                  </ProtectedRoute>
                } />
                <Route path="/app/training/videos" element={
-                 <ProtectedRoute>
+                 <ProtectedRoute skipAppGates>
                      <TrainingVideosPage />
                  </ProtectedRoute>
                } />
                <Route path="/app/training/manager-videos" element={
-                 <ProtectedRoute>
+                 <ProtectedRoute skipAppGates>
                      <ManagerTrainingVideosPage />
                  </ProtectedRoute>
                } />
                <Route path="/app/training/videos/:videoId" element={
-                 <ProtectedRoute>
+                 <ProtectedRoute skipAppGates>
                      <VideoPlayerPage />
                  </ProtectedRoute>
                } />
                {/* One video library: /app/training/videos */}
-               <Route path="/app/videos" element={<Navigate to="/app/training/videos" replace />} />
-               <Route path="/app/videos/:videoId" element={<VideoDeepLinkRedirect />} />
+               <Route path="/app/videos" element={<ProtectedRoute skipAppGates><Navigate to="/app/training/videos" replace /></ProtectedRoute>} />
+               <Route path="/app/videos/:videoId" element={<ProtectedRoute skipAppGates><VideoDeepLinkRedirect /></ProtectedRoute>} />
                <Route path="/app/training/:courseSlug" element={
-                 <ProtectedRoute>
+                 <ProtectedRoute skipAppGates>
                      <TrainingCoursePage />
                  </ProtectedRoute>
                } />
                <Route path="/app/training/:courseSlug/:lessonId" element={
-                 <ProtectedRoute>
+                 <ProtectedRoute skipAppGates>
                      <LessonPage />
                  </ProtectedRoute>
                } />
