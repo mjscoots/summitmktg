@@ -37,6 +37,14 @@ const ApplySuccess = lazyRoute(() => import("./pages/ApplySuccess"));
 const PendingApproval = lazyRoute(() => import("./pages/app/PendingApproval"));
 const ResetPasswordPage = lazyRoute(() => import("./pages/app/ResetPasswordPage"));
 
+const PortalLayout = lazyRoute(() => import("./components/portal/PortalLayout"));
+const PortalHome = lazyRoute(() => import("./pages/portal/PortalHome"));
+const PortalTraining = lazyRoute(() => import("./pages/portal/PortalTraining"));
+const PortalDoc = lazyRoute(() => import("./pages/portal/PortalDoc"));
+const PortalRookieStatus = lazyRoute(() => import("./pages/portal/PortalRookieStatus"));
+const PortalForms = lazyRoute(() => import("./pages/portal/PortalForms"));
+const PortalResources = lazyRoute(() => import("./pages/portal/PortalResources"));
+const PortalCalendar = lazyRoute(() => import("./pages/portal/PortalCalendar"));
 const DashboardPage = lazyRoute(() => import("./pages/app/DashboardPage"));
 const TrainingPage = lazyRoute(() => import("./pages/app/TrainingPage"));
 const ProgressPage = lazyRoute(() => import("./pages/app/ProgressPage"));
@@ -200,6 +208,16 @@ function LazyFallback() {
              <Route path="/apply/veteran" element={<VetApplication />} />
              <Route path="/apply/success" element={<ApplySuccess />} />
               <Route path="/login" element={<AuthPage />} />
+              <Route path="/portal" element={<ProtectedRoute skipAppGates><PortalLayout /></ProtectedRoute>}>
+                <Route index element={<PortalHome />} />
+                <Route path="training" element={<PortalTraining />} />
+                <Route path="training/outline" element={<PortalDoc doc="outline" />} />
+                <Route path="training/script" element={<PortalDoc doc="script" />} />
+                <Route path="rookie-status" element={<PortalRookieStatus />} />
+                <Route path="forms" element={<PortalForms />} />
+                <Route path="resources" element={<PortalResources />} />
+                <Route path="calendar" element={<PortalCalendar />} />
+              </Route>
               <Route path="/pending-approval" element={<PendingApproval />} />
               {/* Redirect any signup attempts to login */}
               <Route path="/signup" element={<Navigate to="/login" replace />} />
