@@ -38,7 +38,7 @@ export default function PortalCalendar() {
           );
         })}
       </div>
-      <p className="text-xs text-muted-foreground">Times shown in America/Phoenix. No times are on file for these items.</p>
+      <p className="text-xs text-muted-foreground">Dates shown for America/Phoenix.</p>
     </div>
   );
 }
