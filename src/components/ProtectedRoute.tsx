@@ -27,9 +27,11 @@ import { Loader2 } from 'lucide-react';
 interface ProtectedRouteProps {
   children: ReactNode;
   requiredRole?: 'rookie' | 'manager' | 'admin' | 'owner';
+  /** Skip AwaitingIndustryGate/BootcampGate (used by /portal). Default false. */
+  skipAppGates?: boolean;
 }
 
-export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, requiredRole, skipAppGates = false }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, role, profile } = useAuth();
   const { state: access, loading: accessLoading } = useAccessState(isAuthenticated);
   const location = useLocation();
@@ -113,6 +115,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   if (requiredRole === 'admin' && !isAdmin && !(isPresident && location.pathname.startsWith('/admin'))) {
     return <Navigate to="/app" replace />;
   }
+
+  if (skipAppGates) return <>{children}</>;
 
   return (
     <Suspense fallback={<GateFallback />}>

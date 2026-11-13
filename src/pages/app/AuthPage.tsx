@@ -49,8 +49,8 @@ const AuthPage = () => {
         : from && typeof from === 'object' && typeof (from as { pathname?: unknown }).pathname === 'string'
           ? `${(from as { pathname: string }).pathname}${(from as { search?: string }).search ?? ''}${(from as { hash?: string }).hash ?? ''}`
           : null;
-    if (!candidate) return '/app';
-    if (!candidate.startsWith('/') || candidate.startsWith('//')) return '/app';
+    if (!candidate) return '/portal';
+    if (!candidate.startsWith('/') || candidate.startsWith('//')) return '/portal';
     return candidate;
   };
 
