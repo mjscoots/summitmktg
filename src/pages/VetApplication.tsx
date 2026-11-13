@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Target, TrendingUp, Settings } from "lucide-react";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import ApplyFlow from "@/components/apply/ApplyFlow";
+import LeadFormSlot from "@/components/recruiting/LeadFormSlot";
 import { setPageMeta } from "@/lib/pageMeta";
 
 const VetApplication = () => {
@@ -60,6 +61,10 @@ const VetApplication = () => {
         </p>
 
         <ApplyFlow kind="vet" />
+
+        <div className="px-6 sm:px-0">
+          <LeadFormSlot />
+        </div>
 
         <div className="mb-16 px-6 sm:px-0">
           <h2 className="mb-6 text-center text-2xl font-extrabold tracking-tight text-foreground">

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Zap, Target, Users, Calendar, FileText } from "lucide-react";
 import ApplyFlow from "@/components/apply/ApplyFlow";
+import LeadFormSlot from "@/components/recruiting/LeadFormSlot";
 import { setPageMeta } from "@/lib/pageMeta";
 
 const RookieApplication = () => {
@@ -47,6 +48,10 @@ const RookieApplication = () => {
         </p>
 
         <ApplyFlow kind="rookie" />
+
+        <div className="px-6 sm:px-0">
+          <LeadFormSlot />
+        </div>
 
         <div className="px-6 sm:px-0">
           <h2 className="mb-6 text-center text-2xl font-extrabold tracking-tight text-foreground">

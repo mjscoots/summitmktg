@@ -10,7 +10,7 @@ const LeadFormSlot = () => {
   return (
     <section
       aria-label="Lead form coming soon"
-      className="mx-6 my-10 rounded-lg border border-dashed border-border bg-card p-6 sm:mx-0"
+      className="my-10 rounded-lg border border-dashed border-border bg-card p-6"
     >
       <h2 className="text-lg font-bold tracking-tight text-foreground">
         Lead form coming soon

@@ -6,6 +6,7 @@ import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
 import { RecruitingContentPack } from "@/components/recruiting/RecruitingContentPack";
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
+import LeadFormSlot from "@/components/recruiting/LeadFormSlot";
 
 import { setPageMeta } from "@/lib/pageMeta";
 
@@ -277,6 +278,8 @@ const Recruiting = () => {
               and we'll help you decide.
             </p>
           </div>
+
+          <LeadFormSlot />
         </div>
       </section>
 

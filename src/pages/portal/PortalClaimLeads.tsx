@@ -19,9 +19,7 @@ export default function PortalClaimLeads() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Claim leads</h1>
-      <div className="mx-0 my-0">
-        <LeadFormSlot />
-      </div>
+      <LeadFormSlot />
     </div>
   );
 }
