@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useAsync } from './useAsync';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Person { user_id: string; full_name: string | null; experience?: string | null }
@@ -12,10 +12,7 @@ async function names(ids: string[]): Promise<Person[]> {
 
 /** Read-only: only edges that involve the signed-in user. */
 export function usePortalPeople(userId: string | undefined) {
-  return useQuery({
-    queryKey: ['portal-people', userId],
-    enabled: !!userId,
-    queryFn: async () => {
+  return useAsync(async () => {
       const [up, down] = await Promise.all([
         supabase.from('downline_edges').select('parent_user_id, edge_type').eq('child_user_id', userId!),
         supabase.from('downline_edges').select('child_user_id, edge_type').eq('parent_user_id', userId!),
@@ -27,6 +24,5 @@ export function usePortalPeople(userId: string | undefined) {
       const downIds = [...new Set(pick(down.error ? null : down.data).map((e) => e.child_user_id))];
       const [upline, downline] = await Promise.all([names(upIds), names(downIds)]);
       return { upline, downline };
-    },
-  });
+  }, [userId], !!userId);
 }

@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useAsync } from './useAsync';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,10 +13,7 @@ export default function PortalRookieStatus() {
   const allowed = isManagerOrAbove(role);
   const people = usePortalPeople(allowed ? user?.id : undefined);
   const ids = (people.data?.downline ?? []).map((p) => p.user_id);
-  const progress = useQuery({
-    queryKey: ['portal-rookie-progress', ids],
-    enabled: allowed && ids.length > 0,
-    queryFn: async () => {
+  const progress = useAsync(async () => {
       const [bp, lp, roles] = await Promise.all([
         supabase.from('bootcamp_progress').select('user_id, phase_1_complete, phase_2_complete, phase_3_complete, bootcamp_completed').in('user_id', ids),
         supabase.from('lesson_progress').select('user_id').in('user_id', ids).not('completed_at', 'is', null),
@@ -29,8 +26,7 @@ export default function PortalRookieStatus() {
       const boot: Record<string, BP> = {};
       if (!bp.error) for (const r of (bp.data ?? []) as BP[]) boot[r.user_id] = r;
       return { lessons, roleOf, boot, lessonsOk: !lp.error };
-    },
-  });
+  }, [ids.join(',')], allowed && ids.length > 0);
 
   if (!allowed) return <Navigate to="/portal" replace />;
   const loading = people.isLoading || progress.isLoading && ids.length > 0;
