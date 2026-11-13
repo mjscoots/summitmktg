@@ -2,17 +2,15 @@ import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Menu, X, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { isManagerOrAbove } from '@/lib/roles';
 import { Button } from '@/components/ui/button';
 
 export default function PortalLayout() {
-  const { profile, role, signOut } = useAuth();
+  const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const items = [
     { to: '/portal', label: 'Home', end: true },
     { to: '/portal/training', label: 'Training' },
-    ...(isManagerOrAbove(role) ? [{ to: '/portal/rookie-status', label: 'Rookie Status' }] : []),
     { to: '/portal/forms', label: 'Forms' },
     { to: '/portal/resources', label: 'Resources' },
     { to: '/portal/calendar', label: 'Calendar' },
