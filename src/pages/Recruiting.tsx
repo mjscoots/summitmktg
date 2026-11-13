@@ -7,6 +7,7 @@ import { RecruitingContentPack } from "@/components/recruiting/RecruitingContent
 import { LiveCounters } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import LeadFormSlot from "@/components/recruiting/LeadFormSlot";
+import SeasonCountdown from "@/components/SeasonCountdown";
 
 import { setPageMeta } from "@/lib/pageMeta";
 
@@ -94,6 +95,8 @@ const Recruiting = () => {
           </div>
         </div>
       </section>
+
+      <SeasonCountdown />
 
       <RecruitingProof />
       <RecruitingContentPack />
