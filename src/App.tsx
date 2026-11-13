@@ -43,6 +43,7 @@ const PortalTraining = lazyRoute(() => import("./pages/portal/PortalTraining"));
 const PortalForms = lazyRoute(() => import("./pages/portal/PortalForms"));
 const PortalResources = lazyRoute(() => import("./pages/portal/PortalResources"));
 const PortalCalendar = lazyRoute(() => import("./pages/portal/PortalCalendar"));
+const PortalClaimLeads = lazyRoute(() => import("./pages/portal/PortalClaimLeads"));
 const DashboardPage = lazyRoute(() => import("./pages/app/DashboardPage"));
 const TrainingPage = lazyRoute(() => import("./pages/app/TrainingPage"));
 const ProgressPage = lazyRoute(() => import("./pages/app/ProgressPage"));
@@ -210,6 +211,7 @@ function LazyFallback() {
                 <Route index element={<PortalHome />} />
                 <Route path="training" element={<PortalTraining />} />
                 <Route path="forms" element={<PortalForms />} />
+                <Route path="claim-leads" element={<PortalClaimLeads />} />
                 <Route path="resources" element={<PortalResources />} />
                 <Route path="calendar" element={<PortalCalendar />} />
               </Route>
@@ -253,6 +255,7 @@ function LazyFallback() {
               } />
 
               {/* Legacy bootcamp URLs */}
+              <Route path="/bootcamp" element={<Navigate to="/summer-checklist" replace />} />
               <Route path="/bootcamp-lock" element={<Navigate to="/summer-checklist" replace />} />
               <Route path="/bootcamp/momentum" element={<Navigate to="/summer-checklist/momentum" replace />} />
               <Route path="/bootcamp/phase-1" element={<Navigate to="/summer-checklist/phase-1" replace />} />
