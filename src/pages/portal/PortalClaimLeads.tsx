@@ -42,11 +42,11 @@ export default function PortalClaimLeads() {
       <h1 className="text-3xl font-bold">Claim leads</h1>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">My claimed leads</h2>
+        <h2 className="text-lg font-semibold">My leads</h2>
         {mine.loading ? (
           <p className="text-sm text-muted-foreground animate-pulse">Loading...</p>
         ) : mine.rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground">You have no claimed leads yet.</p>
+          <p className="text-sm text-muted-foreground">You have no leads yet.</p>
         ) : (
           <ul className="space-y-2">
             {mine.rows.map((lead) => {
@@ -64,7 +64,7 @@ export default function PortalClaimLeads() {
                           {lead.stage.replace(/_/g, ' ')}
                         </span>
                       )}
-                      Claimed by you
+                      {lead.designation_status === 'claimed' ? 'Claimed by you' : 'Assigned to you'}
                     </p>
                   </div>
                   {tel && (
