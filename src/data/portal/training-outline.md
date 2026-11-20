@@ -7,9 +7,9 @@ This is a training for current reps on how to recruit, not a door-sales class. P
 Language on every slide and in every drill: seats, not positions. Request a seat, not apply. Roster closes, not we're hiring. Public wording is "sales organization," not "D2D." No compensation numbers, bonuses, tier percentages, door counts, or per-door rates, spoken or written. Never promise housing or a market. Pay, if it comes up, is spoken on a call with the scale on screen, never put in a text or on a handout.
 
 Calendly (use the right link, every time):
-- Rookie call 1: calendly.com/mathewjoyce/sales-opportunity
-- Vet call 1: calendly.com/mathewjoyce/discovery-call
-- Rookie third interview (Colton): calendly.com/mathewjoyce/rookie-interview-call-3
+- Rookie call 1: calendly.com/mathewjoyce/interviews
+- Vet call 1: calendly.com/mathewjoyce/interviews
+- Rookie third interview (Colton): calendly.com/mathewjoyce/interviews
 
 Note: sales-opportunity is a secret Calendly event. It can go in a 1:1 text to a current rep (options R1 and R3 below). It stays out of share cards, group blasts, and public bios. A friend who was referred DMs first, or books after a 1:1 handoff. Source: `/workspace/recruiting/automation/04-referral-engine.md`.
 

@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
  * The public setting owner_calendly wins when it points at a real booking
  * page. An empty setting, or the bare profile URL, falls back to the constant.
  */
-export const SCHEDULING_FALLBACK = 'https://calendly.com/mathewjoyce/sales-opportunity';
+export const SCHEDULING_FALLBACK = 'https://calendly.com/mathewjoyce/interviews';
 const BARE_PROFILE = 'https://calendly.com/mathewjoyce';
 
 const trimSlash = (value: string) => value.replace(/\/+$/, '');

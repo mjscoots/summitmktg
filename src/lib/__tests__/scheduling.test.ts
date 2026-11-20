@@ -13,7 +13,7 @@ mock.module('@/integrations/supabase/client', () => ({
 const { SCHEDULING_FALLBACK, loadSchedulingUrl } = await import('../scheduling');
 
 test('the known booking URL is the scheduling fallback', () => {
-  expect(SCHEDULING_FALLBACK).toBe('https://calendly.com/mathewjoyce/sales-opportunity');
+  expect(SCHEDULING_FALLBACK).toBe('https://calendly.com/mathewjoyce/interviews');
 });
 
 test('a thrown scheduling lookup still yields the booking URL', async () => {

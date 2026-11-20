@@ -7,9 +7,9 @@ Script sections are spoken words only. Facilitator notes sit outside those secti
 Rules followed from the outline: seats, not positions. Request a seat, not apply. Roster closes, not we're hiring. Sales organization, not D2D. No comp numbers, bonuses, tier percentages, door counts, or per-door rates. No housing or market promises. The about-3x referral figure is industry hiring data from ERIN, 2024, not a Trinity close rate. Trinity's own referral-versus-cold number is UNSOURCED.
 
 Calendly, use the right link every time:
-- Rookie call 1: calendly.com/mathewjoyce/sales-opportunity (1:1 only, never in a group blast, share card, or public bio)
-- Vet call 1: calendly.com/mathewjoyce/discovery-call
-- Rookie third interview (Colton): calendly.com/mathewjoyce/rookie-interview-call-3
+- Rookie call 1: calendly.com/mathewjoyce/interviews (1:1 only, never in a group blast, share card, or public bio)
+- Vet call 1: calendly.com/mathewjoyce/interviews
+- Rookie third interview (Colton): calendly.com/mathewjoyce/interviews
 
 # Timing
 
