@@ -1,5 +1,11 @@
 # Roadmap
 
+## Portal documents and device-only weekly 1:1s
+- [x] Bundle four attachments unchanged, extend Markdown, add six document routes and training links
+- [x] Add weekly hub, manager-gated pillar form, shared local autosave/copy/print/clear forms and 1:1s navigation
+- [x] Verify static compilation, pure rule tests and attachment identity only; no preview interactions, data writes or publishing
+- [ ] Shared-data security findings remain blocked by the owner's prohibition on database changes
+
 ## Public recruiting conversion + dormant Meta support
 - [x] Add immediate Apply, role/parents links, existing Pest proof and mobile scroll action; preserve boot cover
 - [x] Wire dormant public PageView, successful Lead and scheduling-click hooks with configuration example

@@ -40,6 +40,9 @@ const ResetPasswordPage = lazyRoute(() => import("./pages/app/ResetPasswordPage"
 const PortalLayout = lazyRoute(() => import("./components/portal/PortalLayout"));
 const PortalHome = lazyRoute(() => import("./pages/portal/PortalHome"));
 const PortalTraining = lazyRoute(() => import("./pages/portal/PortalTraining"));
+const PortalDoc = lazyRoute(() => import("./pages/portal/PortalDoc"));
+const PortalOneOnOnes = lazyRoute(() => import("./pages/portal/PortalOneOnOnes"));
+const PortalOneOnOne = lazyRoute(() => import("./pages/portal/PortalOneOnOne"));
 const PortalForms = lazyRoute(() => import("./pages/portal/PortalForms"));
 const PortalResources = lazyRoute(() => import("./pages/portal/PortalResources"));
 const PortalCalendar = lazyRoute(() => import("./pages/portal/PortalCalendar"));
@@ -210,6 +213,15 @@ function LazyFallback() {
               <Route path="/portal" element={<ProtectedRoute skipAppGates><PortalLayout /></ProtectedRoute>}>
                 <Route index element={<PortalHome />} />
                 <Route path="training" element={<PortalTraining />} />
+                <Route path="training/outline" element={<PortalDoc doc="outline" />} />
+                <Route path="training/script" element={<PortalDoc doc="script" />} />
+                <Route path="training/onboarding" element={<PortalDoc doc="onboarding" />} />
+                <Route path="training/sales-outline" element={<PortalDoc doc="sales" />} />
+                <Route path="training/one-on-one" element={<PortalDoc doc="oneonone" />} />
+                <Route path="training/cold-leads" element={<PortalDoc doc="coldleads" />} />
+                <Route path="one-on-ones" element={<PortalOneOnOnes />} />
+                <Route path="one-on-ones/rep" element={<PortalOneOnOne kind="rep" />} />
+                <Route path="one-on-ones/pillar" element={<PortalOneOnOne kind="pillar" />} />
                 <Route path="forms" element={<PortalForms />} />
                 <Route path="claim-leads" element={<PortalClaimLeads />} />
                 <Route path="resources" element={<PortalResources />} />

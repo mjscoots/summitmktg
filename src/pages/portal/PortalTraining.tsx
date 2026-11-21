@@ -38,6 +38,17 @@ export default function PortalTraining() {
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">Training</h1>
+      <Section title="Start here" items={[{ to: '/portal/training/onboarding', label: 'Rep onboarding' }]} />
+      <Section title="Door sales" items={[{ to: '/portal/training/sales-outline', label: 'Rookie sales outline' }]} />
+      <Section title="Weekly 1:1s" items={[
+        { to: '/portal/training/one-on-one', label: 'Running a 1:1' },
+        { to: '/portal/one-on-ones', label: 'Weekly 1:1 forms' },
+      ]} />
+      <Section title="Recruiting" items={[
+        { to: '/portal/training/outline', label: 'Recruiting training outline (2 hours)' },
+        { to: '/portal/training/script', label: 'Recruiting training script (2 hours)' },
+        ...(isManagerOrAbove(role) ? [{ to: '/portal/training/cold-leads', label: 'Cold lead texts' }] : []),
+      ]} />
       <Section title="Rookie training" items={ROOKIE} />
       {isManagerOrAbove(role) && <Section title="Manager training" items={MANAGER} />}
     </div>

@@ -1,0 +1,35 @@
+@media print {
+  body:has(.portal-one-on-one) * {
+    visibility: hidden !important;
+  }
+
+  body:has(.portal-one-on-one) .one-on-one-print,
+  body:has(.portal-one-on-one) .one-on-one-print * {
+    visibility: visible !important;
+  }
+
+  body:has(.portal-one-on-one) .one-on-one-print {
+    display: block !important;
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-family: sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color-scheme: light;
+    color: CanvasText;
+    background: Canvas;
+  }
+
+  body:has(.portal-one-on-one) .one-on-one-screen {
+    display: none !important;
+  }
+
+  body:has(.portal-one-on-one) nav,
+  body:has(.portal-one-on-one) aside,
+  body:has(.portal-one-on-one) header {
+    display: none !important;
+  }
+}

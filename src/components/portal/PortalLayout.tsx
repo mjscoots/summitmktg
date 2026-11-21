@@ -12,6 +12,7 @@ export default function PortalLayout() {
   const items = [
     { to: '/portal', label: 'Home', end: true },
     { to: '/portal/training', label: 'Training' },
+    { to: '/portal/one-on-ones', label: '1:1s' },
     { to: '/portal/forms', label: 'Forms' },
     ...(isManagerOrAbove(role) ? [{ to: '/portal/claim-leads', label: 'Claim leads' }] : []),
     { to: '/portal/resources', label: 'Resources' },

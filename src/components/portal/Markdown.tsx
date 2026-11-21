@@ -18,6 +18,20 @@ export function Markdown({ source }: { source: string }) {
   while (i < lines.length) {
     const line = lines[i]; const k = `b${i}`;
     if (!line.trim()) { i++; continue; }
+    if (/^\s*```/.test(line)) {
+      const code: string[] = [];
+      i++;
+      while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) code.push(lines[i++]);
+      if (i < lines.length) i++;
+      out.push(<pre key={k} className="my-3 whitespace-pre-wrap rounded-md border border-border bg-muted p-3 text-sm font-mono">{code.join('\n')}</pre>);
+      continue;
+    }
+    if (/^\s*>/.test(line)) {
+      const quote: string[] = [];
+      while (i < lines.length && /^\s*>/.test(lines[i])) quote.push(lines[i++].replace(/^\s*> ?/, ''));
+      out.push(<blockquote key={k} className="my-3 border-l-2 border-border pl-4 text-muted-foreground"><Markdown source={quote.join('\n')} /></blockquote>);
+      continue;
+    }
     const h = line.match(/^(#{1,6})\s+(.*)$/);
     if (h) {
       const lvl = h[1].length;
@@ -47,7 +61,7 @@ export function Markdown({ source }: { source: string }) {
       continue;
     }
     const para: string[] = [];
-    while (i < lines.length && lines[i].trim() && !/^(#{1,6}\s|\||\s*([-*]|\d+\.)\s+|-{3,}$)/.test(lines[i])) para.push(lines[i++]);
+    while (i < lines.length && lines[i].trim() && !/^(#{1,6}\s|\||\s*([-*]|\d+\.)\s+|-{3,}$|\s*```|\s*>)/.test(lines[i])) para.push(lines[i++]);
     if (!para.length) para.push(lines[i++]);
     out.push(<p key={k} className="my-3 leading-relaxed">{inline(para.join(' '), k)}</p>);
   }

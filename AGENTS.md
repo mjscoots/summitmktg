@@ -2,3 +2,5 @@ Public cover: keep raw stage progress as the single scroll source and remap only
 Recruiting contact privacy must be enforced in RLS, privileged readers and notification recipients, not just navigation, because SECURITY DEFINER and service-role paths bypass table policies.
 Public industry presentation must filter sections locally while preserving the industry payload and fetch contract, so public simplification does not alter shared data or signed-in workflows.
 Public Meta measurement lives in publicMetaPixel and is called only from public navigation and existing success/click handlers; missing IDs and unresolved advertising regions fail closed so dormant configuration cannot transmit data.
+Portal weekly 1:1s use a shared field schema and device-only storage, with print styles scoped to those forms; this keeps summaries and controls aligned without changing existing team workflows or global styling.
+Portal documents are bundled raw and manager-only entries are gated in PortalDoc; this preserves attached source copy and prevents direct-route access from bypassing navigation visibility.
