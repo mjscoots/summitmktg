@@ -38,6 +38,7 @@ export default function PortalTraining() {
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">Training</h1>
+      <Section title="Library" items={[{ to: '/portal/training/library', label: 'Materials library', sub: 'Every training material, with source, type and audience' }]} />
       <Section title="Start here" items={[{ to: '/portal/training/onboarding', label: 'Rep onboarding' }]} />
       <Section title="Door sales" items={[{ to: '/portal/training/sales-outline', label: 'Rookie sales outline' }]} />
       <Section title="Weekly 1:1s" items={[

@@ -47,6 +47,7 @@ const PortalForms = lazyRoute(() => import("./pages/portal/PortalForms"));
 const PortalResources = lazyRoute(() => import("./pages/portal/PortalResources"));
 const PortalCalendar = lazyRoute(() => import("./pages/portal/PortalCalendar"));
 const PortalClaimLeads = lazyRoute(() => import("./pages/portal/PortalClaimLeads"));
+const PortalLibrary = lazyRoute(() => import("./pages/portal/PortalLibrary"));
 const DashboardPage = lazyRoute(() => import("./pages/app/DashboardPage"));
 const TrainingPage = lazyRoute(() => import("./pages/app/TrainingPage"));
 const ProgressPage = lazyRoute(() => import("./pages/app/ProgressPage"));
@@ -219,6 +220,7 @@ function LazyFallback() {
                 <Route path="training/sales-outline" element={<PortalDoc doc="sales" />} />
                 <Route path="training/one-on-one" element={<PortalDoc doc="oneonone" />} />
                 <Route path="training/cold-leads" element={<PortalDoc doc="coldleads" />} />
+                <Route path="training/library" element={<PortalLibrary />} />
                 <Route path="one-on-ones" element={<PortalOneOnOnes />} />
                 <Route path="one-on-ones/rep" element={<PortalOneOnOne kind="rep" />} />
                 <Route path="one-on-ones/pillar" element={<PortalOneOnOne kind="pillar" />} />
