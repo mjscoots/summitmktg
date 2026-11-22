@@ -453,7 +453,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
             <h2
               ref={headingRef}
               tabIndex={-1}
-              className="text-[24px] font-extrabold leading-tight text-[#0A0A0F] outline-none sm:text-[28px]"
+              className="text-[24px] font-extrabold leading-tight text-[#0A0A0F] outline-none focus-visible:shadow-none sm:text-[28px]"
             >
               We will have someone reach out and see if you are a good fit.
             </h2>
@@ -492,7 +492,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
             <h2
               ref={headingRef}
               tabIndex={-1}
-              className="text-[24px] font-extrabold leading-tight text-[#0A0A0F] outline-none sm:text-[30px]"
+              className="text-[24px] font-extrabold leading-tight text-[#0A0A0F] outline-none focus-visible:shadow-none sm:text-[30px]"
             >
               {step.title}
             </h2>

@@ -69,12 +69,15 @@ const ApplySuccess = () => {
           </p>
         )}
         {!wantsCall && (
-          <a
-            href={schedulingUrl || SCHEDULING_FALLBACK}
-            className="mt-6 flex min-h-14 w-full items-center justify-center rounded-xl border border-border-strong px-6 text-base font-bold text-foreground transition-colors hover:border-foreground"
-          >
-            Want to talk sooner? Book a call with Mathew
-          </a>
+          <>
+            <p className="mt-6 text-sm text-text-secondary">Want to talk sooner?</p>
+            <a
+              href={schedulingUrl || SCHEDULING_FALLBACK}
+              className="mt-3 flex min-h-14 w-full items-center justify-center rounded-xl bg-primary px-6 text-base font-bold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Book a call with Mathew
+            </a>
+          </>
         )}
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <button
@@ -87,7 +90,7 @@ const ApplySuccess = () => {
             href="https://www.instagram.com/summitmktgsales/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border-strong px-6 text-sm font-semibold text-foreground transition-colors hover:border-foreground"
           >
             Instagram
           </a>

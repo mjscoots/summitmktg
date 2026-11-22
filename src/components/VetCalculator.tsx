@@ -113,8 +113,7 @@ interface VetCalculatorProps {
 
 // Constants - more conservative projections
 const ATTRITION_RATE = 0.25; // Was 20%, now 25% for more realistic estimates
-const DEFAULT_AVG_ROOKIE_PRA = 150000; // Was 175k, more conservative
-const DEFAULT_AVG_VET_PRA = 250000; // Was 275k, more conservative
+// No default averages: each person enters their own team's numbers.
 const DEFAULT_INCENTIVES_RATE = 0.05;
 
 const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => {
@@ -131,18 +130,18 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
   
   // Team Inputs
   const [numDirectRookiesStr, setNumDirectRookiesStr] = useState("");
-  const [avgRookiePraStr, setAvgRookiePraStr] = useState("150,000");
+  const [avgRookiePraStr, setAvgRookiePraStr] = useState("");
   const [numDirectVetsStr, setNumDirectVetsStr] = useState("");
-  const [avgVetPraStr, setAvgVetPraStr] = useState("250,000");
+  const [avgVetPraStr, setAvgVetPraStr] = useState("");
   const [numDirectManagersStr, setNumDirectManagersStr] = useState("");
   const [avgManagerTeamRevenueStr, setAvgManagerTeamRevenueStr] = useState("");
 
   // Parse string values to numbers
   const personalGrossRevenue = parseFormattedNumber(personalGrossStr);
   const numDirectRookies = parseFormattedNumber(numDirectRookiesStr);
-  const avgRookiePra = parseFormattedNumber(avgRookiePraStr) || DEFAULT_AVG_ROOKIE_PRA;
+  const avgRookiePra = parseFormattedNumber(avgRookiePraStr);
   const numDirectVets = parseFormattedNumber(numDirectVetsStr);
-  const avgVetPra = parseFormattedNumber(avgVetPraStr) || DEFAULT_AVG_VET_PRA;
+  const avgVetPra = parseFormattedNumber(avgVetPraStr);
   const numDirectManagers = parseFormattedNumber(numDirectManagersStr);
   const avgManagerTeamRevenue = parseFormattedNumber(avgManagerTeamRevenueStr);
   
@@ -278,7 +277,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               value={personalGrossStr}
               onChange={e => handleCurrencyChange(e.target.value, setPersonalGrossStr)}
               className="input-field pl-8"
-              placeholder="Example: 200,000"
+              placeholder="Enter amount"
             />
           </div>
         </div>
@@ -318,7 +317,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               <DollarSign className="w-4 h-4 text-primary/70" />
               <h4 className="text-sm font-medium text-foreground/80">Average Rookie PRA Amount</h4>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">Conservative rookie average is $150,000.</p>
+            <p className="text-xs text-muted-foreground mb-2">Enter the average gross revenue you expect from each direct rookie.</p>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
               <input
@@ -327,7 +326,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
                 value={avgRookiePraStr}
                 onChange={e => handleCurrencyChange(e.target.value, setAvgRookiePraStr)}
                 className="input-field pl-8"
-                placeholder="Example: 175,000"
+                placeholder="Enter amount"
               />
             </div>
           </div>
@@ -355,7 +354,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
               <DollarSign className="w-4 h-4 text-primary/70" />
               <h4 className="text-sm font-medium text-foreground/80">Average Vet PRA Amount</h4>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">Conservative vet average is $250,000.</p>
+            <p className="text-xs text-muted-foreground mb-2">Enter the average gross revenue you expect from each direct vet.</p>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
               <input
@@ -364,7 +363,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
                 value={avgVetPraStr}
                 onChange={e => handleCurrencyChange(e.target.value, setAvgVetPraStr)}
                 className="input-field pl-8"
-                placeholder="Example: 275,000"
+                placeholder="Enter amount"
               />
             </div>
           </div>
@@ -401,7 +400,7 @@ const VetCalculator = ({ onApplyClick, onValuesChange }: VetCalculatorProps) => 
                 value={avgManagerTeamRevenueStr}
                 onChange={e => handleCurrencyChange(e.target.value, setAvgManagerTeamRevenueStr)}
                 className="input-field pl-8"
-                placeholder="Example: 1,000,000"
+                placeholder="Enter amount"
               />
             </div>
           </div>

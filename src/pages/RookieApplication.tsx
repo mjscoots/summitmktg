@@ -40,6 +40,7 @@ const RookieApplication = () => {
       </div>
 
       <main className="mx-auto max-w-4xl px-0 pb-16 sm:px-6">
+        <h1 className="sr-only">Rookie application</h1>
         <p className="px-5 pt-6 text-center text-sm text-text-secondary sm:px-0">
           Sold before?{" "}
           <Link to="/apply/veteran" className="font-semibold text-primary underline-offset-4 hover:underline">

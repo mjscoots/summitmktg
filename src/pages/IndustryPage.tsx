@@ -63,18 +63,17 @@ export default function IndustryPage() {
 
   if (isLife) {
     return (
-      <div className="gold-world min-h-screen bg-background flex flex-col">
-        <main className="relative z-10 mx-auto w-full max-w-2xl flex-1 px-5 pb-20 pt-8 sm:px-6">
+      <div className="gold-world industry-page min-h-screen bg-background flex flex-col relative">
+        <main className="relative z-10 mx-auto w-full max-w-4xl flex-1 px-5 pb-20 pt-8 sm:px-6">
           <Link to="/" className="mb-6 inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-foreground">
             <ArrowLeft className="w-4 h-4" /> Back home
           </Link>
-          <p className="micro-label text-primary">Life insurance</p>
-          <h1 className="mt-3 text-3xl md:text-5xl font-black tracking-tight text-foreground">Trinity Life</h1>
-          <p className="mt-4 text-base text-muted-foreground">
+          <h1 className="industry-label text-foreground mb-8">Trinity Life</h1>
+          <p className="max-w-2xl text-base text-muted-foreground">
             Life insurance. One of our three industries, alongside pest control and fiber internet.
             Requires a state license to sell.
           </p>
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
             Leave your details and a manager will walk you through the licensing step.
           </p>
           <Link
@@ -92,6 +91,7 @@ export default function IndustryPage() {
   if (!vertical) {
     return (
       <div className="gold-world min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-6">
+        <h1 className="text-xl font-bold text-foreground">Page not found</h1>
         <p className="text-muted-foreground text-sm">That industry page doesn’t exist.</p>
         <Link to="/" className="micro-label text-primary">Back home</Link>
       </div>
@@ -110,7 +110,7 @@ export default function IndustryPage() {
         </h1>
 
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading</p>
+          <p className="text-sm text-muted-foreground" role="status">Loading…</p>
         ) : (
           <div className="space-y-8">
             {isPest && (
@@ -128,6 +128,12 @@ export default function IndustryPage() {
                 <p className="mt-6 text-base text-foreground">Four months.</p>
                 <p className="mt-2 text-sm text-muted-foreground">Earnings depend on what you sell. There is no guaranteed income.</p>
               </section>
+            )}
+
+            {!isPest && !data && (
+              <p className="max-w-2xl text-base text-muted-foreground">
+                This page could not load right now. You can still apply below.
+              </p>
             )}
 
             {data?.description && (

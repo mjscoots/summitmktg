@@ -187,6 +187,9 @@ export default function TicketPage() {
                   'Claim My Spot'
                 )}
               </button>
+              <p className="pt-1 text-center text-xs" style={{ color: '#8A8A8A' }}>
+                <Link to="/privacy" className="underline underline-offset-2 hover:text-white">Privacy Policy</Link>
+              </p>
             </form>
           </>
         ) : (
