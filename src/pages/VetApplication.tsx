@@ -63,7 +63,7 @@ const VetApplication = () => {
         <ApplyFlow kind="vet" />
 
         <div className="px-6 sm:px-0">
-          <LeadFormSlot />
+          <LeadFormSlot placement="public" />
         </div>
 
         <div className="mb-16 px-6 sm:px-0">

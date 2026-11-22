@@ -8,6 +8,7 @@ import { LiveCounters } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import LeadFormSlot from "@/components/recruiting/LeadFormSlot";
 import SeasonCountdown from "@/components/SeasonCountdown";
+import { SCHEDULING_FALLBACK } from "@/lib/scheduling";
 
 import { setPageMeta } from "@/lib/pageMeta";
 
@@ -270,6 +271,13 @@ const Recruiting = () => {
           <div className="mt-12 text-center">
             <p className="text-sm text-muted-foreground">
               Not sure which path is right for you?{" "}
+              <a
+                href={SCHEDULING_FALLBACK}
+                className="inline-flex min-h-11 items-center text-primary hover:underline"
+              >
+                Book a call with Mathew
+              </a>{" "}
+              or{" "}
               <a 
                 href="https://www.instagram.com/summitmktgsales/" 
                 target="_blank" 
@@ -282,7 +290,7 @@ const Recruiting = () => {
             </p>
           </div>
 
-          <LeadFormSlot />
+          <LeadFormSlot placement="public" />
         </div>
       </section>
 

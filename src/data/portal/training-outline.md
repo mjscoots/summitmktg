@@ -11,7 +11,7 @@ Calendly (use the right link, every time):
 - Vet call 1: calendly.com/mathewjoyce/interviews
 - Rookie third interview (Colton): calendly.com/mathewjoyce/interviews
 
-Note: sales-opportunity is a secret Calendly event. It can go in a 1:1 text to a current rep (options R1 and R3 below). It stays out of share cards, group blasts, and public bios. A friend who was referred DMs first, or books after a 1:1 handoff. Source: `/workspace/recruiting/automation/04-referral-engine.md`.
+Note: the interviews link can go in a 1:1 text to a current rep (options R1 and R3 below). It stays out of share cards, group blasts, and public bios. A friend who was referred DMs first, or books after a 1:1 handoff. Source: `/workspace/recruiting/automation/04-referral-engine.md`.
 
 ---
 
@@ -120,21 +120,21 @@ Source: Scoots's Nov 7 text to Colton, in `/workspace/recruiting/interview-rooki
 
 Voice-checked options from `/workspace/recruiting/referral-ask-final-2026-11-11.md` (Nov 11, about 2:20 AM America/Phoenix), with the later wording fix that V2 and R2 say "roster closes once seats fill," not "soon" or a date. Still need Scoots's OK on the exact option, by name, for each person. Batches of 10 or fewer, only people he names. Nothing from this section goes out in the room.
 
-Rookie (link: calendly.com/mathewjoyce/sales-opportunity)
+Rookie (link: calendly.com/mathewjoyce/interviews)
 
-- R1: "[Name], who do u know that would kill it out here with u? Send me 3 names. They can request a seat here / calendly.com/mathewjoyce/sales-opportunity"
+- R1: "[Name], who do u know that would kill it out here with u? Send me 3 names. They can request a seat here / calendly.com/mathewjoyce/interviews"
 - R2: "[Name], need 3 names from u. People who'd rip it with u next summer. Roster closes when seats fill. Send em and I'll take it from there."
-- R3: "[Name], send me 3 people who'd kill it with u next summer. If they wanna jump on with me / calendly.com/mathewjoyce/sales-opportunity"
+- R3: "[Name], send me 3 people who'd kill it with u next summer. If they wanna jump on with me / calendly.com/mathewjoyce/interviews"
 
-Vet (link: calendly.com/mathewjoyce/discovery-call)
+Vet (link: calendly.com/mathewjoyce/interviews)
 
-- V1: "[Name], need 3 names from u. Anyone u know who'd want a seat for 2027. They can grab time with me here / calendly.com/mathewjoyce/discovery-call"
+- V1: "[Name], need 3 names from u. Anyone u know who'd want a seat for 2027. They can grab time with me here / calendly.com/mathewjoyce/interviews"
 - V2: "[Name], roster closes once seats fill and I still got some. Who are 3 people I should be talking to? Send names, I'll reach out."
-- V3: "[Name], send me 3 people who'd kill it on this roster. I'll take it from there. If they wanna book direct / calendly.com/mathewjoyce/discovery-call"
+- V3: "[Name], send me 3 people who'd kill it on this roster. I'll take it from there. If they wanna book direct / calendly.com/mathewjoyce/interviews"
 
 R2 and V2 have no link, so the follow-up is done by hand. Use them to mix a batch, and as the first text in a brand-new Linq chat (Linq rejects a link in the first message of a new thread).
 
-If a rookie refers a vet: that person books discovery-call only after a verified prior-year number. If a vet refers a rookie: switch them to sales-opportunity.
+If a rookie refers a vet: that person books the interviews link only after a verified prior-year number. If a vet refers a rookie: send them the same interviews link.
 
 ### Live ask, in the room
 
@@ -163,7 +163,7 @@ Handout: `/workspace/recruiting/interview-form-2026-11-12.md` (draft for Scoots'
 - Qualify rookie vs vet up front. A vet only counts as a vet once the prior-year number is verified. Counts only, no dollar amounts. If there is no verified number, run them as a rookie or hold the next call until proof is in.
 - If they are talking to anyone else at Hawx, stop the pitch. Scoots calls that person first (one-house rule).
 - If they are under a contract, flag Counsel and do not pitch.
-- Rookie call 1 is getting to know them, after the intro video. Rookie call 2 is pay, schedule, and commitment, after the pay video; they explain pay back on the call, nothing written. Rookie call 3 is the decision, with Colton, at calendly.com/mathewjoyce/rookie-interview-call-3. Vet call 1 is discovery at calendly.com/mathewjoyce/discovery-call; Scoots runs the vet calls.
+- Rookie call 1 is getting to know them, after the intro video. Rookie call 2 is pay, schedule, and commitment, after the pay video; they explain pay back on the call, nothing written. Rookie call 3 is the decision, with Colton, at calendly.com/mathewjoyce/interviews. Vet call 1 is discovery at calendly.com/mathewjoyce/interviews; Scoots runs the vet calls.
 
 ### Scoring, 1 to 5
 
@@ -188,16 +188,16 @@ The "3 sales a day" prompt is a coaching question from Scoots's Nov 7 script. It
 ### Decision
 
 - Yes or no. Then the one reason, written in a sentence.
-- Next step if yes, rookie: call 3 with Colton, calendly.com/mathewjoyce/rookie-interview-call-3.
-- Next step if yes, vet: discovery call, calendly.com/mathewjoyce/discovery-call, only after the prior-year number is verified when this form is being used mid-process; call 1 vets start on that same link.
+- Next step if yes, rookie: call 3 with Colton, calendly.com/mathewjoyce/interviews.
+- Next step if yes, vet: discovery call, calendly.com/mathewjoyce/interviews, only after the prior-year number is verified when this form is being used mid-process; call 1 vets start on that same link.
 - Next step if no: no next-call link.
 
 ### Follow-up texts (draft only)
 
 From `/workspace/recruiting/interview-followup-texts-2026-11-12.md`. Need Scoots's OK and a Voice pass. Do not send from this training.
 
-- Yes, rookie: "Yo [name], good call. Grab the next one with Colton here / calendly.com/mathewjoyce/rookie-interview-call-3"
-- Yes, vet: "Yo [name], good call. Grab the next one here / calendly.com/mathewjoyce/discovery-call"
+- Yes, rookie: "Yo [name], good call. Grab the next one with Colton here / calendly.com/mathewjoyce/interviews"
+- Yes, vet: "Yo [name], good call. Grab the next one here / calendly.com/mathewjoyce/interviews"
 - No: "Hey, gonna pass this time. Door's open if you wanna run it later"
 
 Practice (about 8 minutes): hand each pair one form. Partner B answers as a rookie for 4 minutes. Partner A asks the Mind, Heart, and Feet questions, scores 1 to 5, marks yes or no, and writes the one reason. Swap roles for 4 minutes. Facilitator spots one form and reads the reason out loud, no names needed if the recruit is fictional.
@@ -215,7 +215,7 @@ Goal: book the next step before you hang up, and know what a yes actually trigge
 Talking points, mapped to the Blueprint close idea without using the door arsenal as a recruit script:
 - Control the path: every call ends in a booked next call or a clear no. Do not end on "I'll text you the link later."
 - Soft close first, to get the real objection: "What time works tomorrow?" "On a scale of 1 to 10, how ready are you to start? If you're not a 10, what would get you there?"
-- Book it live. Rookie calls a day apart. Call 3 at calendly.com/mathewjoyce/rookie-interview-call-3. Vets book the next Scoots call after proof is in.
+- Book it live. Rookie calls a day apart. Call 3 at calendly.com/mathewjoyce/interviews. Vets book the next Scoots call after proof is in.
 - Call 3 close, if they're in (rookie script): "If I offer you the seat, can you make trainings Wednesdays at 7 PM EST?" Go over the 3-week commitment exactly the way the agreement has it. Promise nothing beyond that. No housing or market promise. If they're in, offer the seat, then the agreement goes out only after Scoots OKs it (Nidus). Then set the 1-on-1 and send the training course.
 - The takeaway line, from Scoots, if they say they need to think about it: "That's okay, I don't think this is gonna work out, we'll go with someone else." Then see if they fight for it. On a vet, use that line only if Scoots chooses to with that person.
 - Offer bar in the rookie script: offer if they're 8 or higher on ready, and both coachability and work ethic are a clear yes. That is a draft scorecard, not a public claim.
@@ -309,7 +309,7 @@ Goal: nobody leaves without three names written down. This is a capture exercise
 
 Rules for the workshop:
 - Do not send a text from the room. Do not book Calendly for the people just named.
-- Do not pass sales-opportunity as a group-chat or share-card blast. If a rep wants a forwardable card later, use the draft share card in the referral engine (rookie friend DMs first; vet card may use discovery-call), and only after Scoots OKs that exact text.
+- Do not pass the interviews link as a group-chat or share-card blast. If a rep wants a forwardable card later, use the draft share card in the referral engine (rookie friend DMs first; vet card may use the interviews link), and only after Scoots OKs that exact text.
 - If a named person is already talking to someone at Hawx, flag it and do not pitch.
 - Hunter Shannon's parked leads stay parked. Do not work those names in this room unless Scoots has unparked them.
 - Never contact Colt Shannon.

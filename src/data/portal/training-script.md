@@ -87,7 +87,7 @@ Two minutes. Turn to a partner. Tell them one category you'll pull from. Sports,
 
 # 0:25-0:40  3. The ask-for-three-names script (15 min)
 
-Facilitator notes, not spoken: the Nov 7 line is the only already-his-words default. R1-R3 and V1-V3 still need Scoots's OK, by name, before any send. sales-opportunity stays out of group blasts and share cards. Practice about 6 minutes in pairs. Do not promise referral pay.
+Facilitator notes, not spoken: the Nov 7 line is the only already-his-words default. R1-R3 and V1-V3 still need Scoots's OK, by name, before any send. The interviews link stays out of group blasts and share cards. Practice about 6 minutes in pairs. Do not promise referral pay.
 
 Script:
 
@@ -101,25 +101,25 @@ That's already my words. That's the default in this room unless I tell you a dif
 
 For texts to current reps, we have drafts. They still need my OK, by name, before anyone sends them. I'm gonna read them so you know what good looks like. Do not send them from this room.
 
-Rookie link is calendly.com/mathewjoyce/sales-opportunity. That link is 1:1 only. It does not go in a group chat, a share card, or a public bio. A friend who was referred DMs first, or books after a 1:1 handoff.
+Rookie link is calendly.com/mathewjoyce/interviews. That link is 1:1 only. It does not go in a group chat, a share card, or a public bio. A friend who was referred DMs first, or books after a 1:1 handoff.
 
-R1. Name, who do u know that would kill it out here with u? Send me 3 names. They can request a seat here, calendly.com/mathewjoyce/sales-opportunity
+R1. Name, who do u know that would kill it out here with u? Send me 3 names. They can request a seat here, calendly.com/mathewjoyce/interviews
 
 R2. Name, need 3 names from u. People who'd rip it with u next summer. Roster closes when seats fill. Send em and I'll take it from there.
 
-R3. Name, send me 3 people who'd kill it with u next summer. If they wanna jump on with me, calendly.com/mathewjoyce/sales-opportunity
+R3. Name, send me 3 people who'd kill it with u next summer. If they wanna jump on with me, calendly.com/mathewjoyce/interviews
 
-Vet link is calendly.com/mathewjoyce/discovery-call.
+Vet link is calendly.com/mathewjoyce/interviews.
 
-V1. Name, need 3 names from u. Anyone u know who'd want a seat for 2027. They can grab time with me here, calendly.com/mathewjoyce/discovery-call
+V1. Name, need 3 names from u. Anyone u know who'd want a seat for 2027. They can grab time with me here, calendly.com/mathewjoyce/interviews
 
 V2. Name, roster closes once seats fill and I still got some. Who are 3 people I should be talking to? Send names, I'll reach out.
 
-V3. Name, send me 3 people who'd kill it on this roster. I'll take it from there. If they wanna book direct, calendly.com/mathewjoyce/discovery-call
+V3. Name, send me 3 people who'd kill it on this roster. I'll take it from there. If they wanna book direct, calendly.com/mathewjoyce/interviews
 
 R2 and V2 have no link. Use those when you're starting a brand new chat, or to mix a batch.
 
-If a rookie refers a vet, that person books discovery-call only after a verified prior-year number. If a vet refers a rookie, switch them to sales-opportunity.
+If a rookie refers a vet, that person books the interviews link only after a verified prior-year number. If a vet refers a rookie, send them the same interviews link.
 
 Live, four rules.
 
@@ -157,9 +157,9 @@ Rookie call 1 is getting to know them, after the intro video.
 
 Rookie call 2 is pay, schedule, and commitment, after the pay video. They explain pay back on the call. Nothing written.
 
-Rookie call 3 is the decision, with Colton, at calendly.com/mathewjoyce/rookie-interview-call-3.
+Rookie call 3 is the decision, with Colton, at calendly.com/mathewjoyce/interviews.
 
-Vet call 1 is discovery at calendly.com/mathewjoyce/discovery-call. I run the vet calls.
+Vet call 1 is discovery at calendly.com/mathewjoyce/interviews. I run the vet calls.
 
 Mind is skill and coachability. Ask: tell me about yourself, school, work, sports. Say you're stuck at 3 sales a day, what would you do to break past it. How do you take feedback.
 
@@ -185,17 +185,17 @@ Feet is activity and commitment. Ask: tell me about a commitment you kept when y
 
 Then the decision. Yes or no. Then the one reason, written in a sentence.
 
-If yes, and they're a rookie: call 3 with Colton, calendly.com/mathewjoyce/rookie-interview-call-3.
+If yes, and they're a rookie: call 3 with Colton, calendly.com/mathewjoyce/interviews.
 
-If yes, and they're a vet: discovery call, calendly.com/mathewjoyce/discovery-call, after the prior-year number is verified when this form is mid-process. Call 1 vets start on that same link.
+If yes, and they're a vet: discovery call, calendly.com/mathewjoyce/interviews, after the prior-year number is verified when this form is mid-process. Call 1 vets start on that same link.
 
 If no: no next-call link.
 
 Follow-up texts are drafts. They need my OK. Do not send them from this training. This is what they look like.
 
-Yes, rookie: Yo, name, good call. Grab the next one with Colton here, calendly.com/mathewjoyce/rookie-interview-call-3
+Yes, rookie: Yo, name, good call. Grab the next one with Colton here, calendly.com/mathewjoyce/interviews
 
-Yes, vet: Yo, name, good call. Grab the next one here, calendly.com/mathewjoyce/discovery-call
+Yes, vet: Yo, name, good call. Grab the next one here, calendly.com/mathewjoyce/interviews
 
 No: Hey, gonna pass this time. Door's open if you wanna run it later
 
@@ -211,7 +211,7 @@ Every call ends in a booked next call, or a clear no. Do not end on I'll text yo
 
 Soft close first, so you hear the real objection. What time works tomorrow. On a scale of 1 to 10, how ready are you to start. If you're not a 10, what would get you there.
 
-Book it live. Rookie calls a day apart. Call 3 at calendly.com/mathewjoyce/rookie-interview-call-3. Vets book the next call with me after proof is in.
+Book it live. Rookie calls a day apart. Call 3 at calendly.com/mathewjoyce/interviews. Vets book the next call with me after proof is in.
 
 Call 3, if they're in: If I offer you the seat, can you make trainings Wednesdays at 7 PM EST. Go over the 3-week commitment exactly the way the agreement has it. Promise nothing beyond that. No housing. No market. If they're in, offer the seat. The agreement goes out only after I OK it. Then set the 1-on-1 and send the training course.
 

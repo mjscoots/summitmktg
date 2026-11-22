@@ -20,9 +20,20 @@ const NotFound = () => {
       <div className="text-center">
         <h1 className="mb-4 text-4xl font-bold">404</h1>
         <p className="mb-4 text-xl text-muted-foreground">That page does not exist</p>
-        <Link to="/" className="inline-flex min-h-11 items-center text-primary underline hover:text-primary/90">
-          Return to Home
-        </Link>
+        <div className="flex flex-col items-center gap-3">
+          <Link
+            to="/apply/rookie"
+            className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-6 text-base font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Apply
+          </Link>
+          <Link to="/recruiting" className="inline-flex min-h-11 items-center text-primary underline hover:text-primary/90">
+            See the role
+          </Link>
+          <Link to="/" className="inline-flex min-h-11 items-center text-primary underline hover:text-primary/90">
+            Return to Home
+          </Link>
+        </div>
       </div>
     </div>
   );

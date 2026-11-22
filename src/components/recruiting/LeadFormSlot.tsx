@@ -6,7 +6,16 @@
  * placement on each page is already wired and the real form can be dropped in
  * here later without touching the pages.
  */
-const LeadFormSlot = () => {
+/**
+ * Public pages (/recruiting, /apply/rookie, /apply/veteran) keep the placement
+ * wired but render nothing until the real form is ready, so applicants never
+ * read "not open yet" next to the open application. Flip this to true to show
+ * the placeholder again. The portal placement always renders.
+ */
+export const SHOW_PUBLIC_LEAD_FORM_SLOT = false;
+
+const LeadFormSlot = ({ placement = 'portal' }: { placement?: 'public' | 'portal' }) => {
+  if (placement === 'public' && !SHOW_PUBLIC_LEAD_FORM_SLOT) return null;
   return (
     <section
       aria-label="Lead form coming soon"

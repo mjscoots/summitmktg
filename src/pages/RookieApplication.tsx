@@ -50,7 +50,7 @@ const RookieApplication = () => {
         <ApplyFlow kind="rookie" />
 
         <div className="px-6 sm:px-0">
-          <LeadFormSlot />
+          <LeadFormSlot placement="public" />
         </div>
 
         <div className="px-6 sm:px-0">

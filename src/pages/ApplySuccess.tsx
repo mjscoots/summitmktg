@@ -21,7 +21,6 @@ const ApplySuccess = () => {
   }, []);
 
   useEffect(() => {
-    if (!wantsCall) return;
     let active = true;
     // Pass 230 - the scheduler opens from this page as a plain link, so no
     // pop up is ever blocked. A failed lookup still yields the known URL.
@@ -35,7 +34,7 @@ const ApplySuccess = () => {
     return () => {
       active = false;
     };
-  }, [wantsCall]);
+  }, []);
 
   return (
     <div className="gold-world relative flex min-h-screen items-center justify-center bg-background px-5">
@@ -68,6 +67,14 @@ const ApplySuccess = () => {
           <p className="mt-6 text-base font-semibold text-foreground">
             We will call you within 24 hours.
           </p>
+        )}
+        {!wantsCall && (
+          <a
+            href={schedulingUrl || SCHEDULING_FALLBACK}
+            className="mt-6 flex min-h-14 w-full items-center justify-center rounded-xl border border-border-strong px-6 text-base font-bold text-foreground transition-colors hover:border-foreground"
+          >
+            Want to talk sooner? Book a call with Mathew
+          </a>
         )}
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <button
