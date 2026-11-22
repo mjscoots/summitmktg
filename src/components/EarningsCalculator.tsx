@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { TrendingUp, Home } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { formatCurrency } from "@/lib/commission";
 import {
@@ -200,15 +200,6 @@ const EarningsCalculator = ({ onApplyClick, calcData }: EarningsCalculatorProps)
           </div>
         )}
 
-
-        {/* Housing note */}
-        <div className="p-4 rounded-lg bg-secondary/30 border border-border mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Home className="w-5 h-5 text-primary" />
-            <p className="text-sm font-semibold text-foreground">Housing note</p>
-          </div>
-          <p className="text-sm text-muted-foreground">Rent is free at $125,000 active revenue.</p>
-        </div>
 
         {onApplyClick && (
           <button
