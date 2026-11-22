@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Mountain, Users, Target, Trophy, Calendar, Zap, CheckCircle } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { RecruitingProof } from "@/components/recruiting/RecruitingProof";
@@ -322,7 +322,7 @@ const Recruiting = () => {
               <Wordmark variant="compact" height={32} />
               <span className="text-sm text-muted-foreground">© 2026</span>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1">
               <a
                 href="https://www.instagram.com/summitmktgsales/"
                 target="_blank"
@@ -343,6 +343,18 @@ const Recruiting = () => {
               >
                 Member Login
               </button>
+              <Link
+                to="/privacy"
+                className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Privacy
+              </Link>
+              <Link
+                to="/terms"
+                className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+              >
+                Terms
+              </Link>
             </div>
           </div>
         </div>

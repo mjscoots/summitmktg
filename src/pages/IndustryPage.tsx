@@ -117,15 +117,16 @@ export default function IndustryPage() {
               <section>
                 <div className="industry-earnings">
                   <div>
-                    <strong className="industry-earnings-number">$200,000+</strong>
-                    <p className="industry-earnings-label">Top rookie, last summer</p>
+                    <strong className="industry-earnings-number industry-earnings-word">Commission</strong>
+                    <p className="industry-earnings-label">Paid on every serviced account, not by the hour.</p>
                   </div>
                   <div>
-                    <strong className="industry-earnings-number">$37,000</strong>
-                    <p className="industry-earnings-label">Average rookie, last summer</p>
+                    <strong className="industry-earnings-number industry-earnings-word">Grows with you</strong>
+                    <p className="industry-earnings-label">Your percentage increases as your total revenue increases.</p>
                   </div>
                 </div>
                 <p className="mt-6 text-base text-foreground">Four months.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Earnings depend on what you sell. There is no guaranteed income.</p>
               </section>
             )}
 

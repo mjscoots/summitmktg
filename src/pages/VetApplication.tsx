@@ -23,7 +23,7 @@ const VetApplication = () => {
       icon: Target,
       title: "Training",
       description:
-        "Direct training from a Golden Door record holder (56 days) and a hiring record holder (1,000 reps in one off-season).",
+        "Direct training from Mathew and the team's leaders, on the doors and in hiring.",
     },
     {
       icon: TrendingUp,

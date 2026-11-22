@@ -31,6 +31,8 @@ const PillarJoinPage = lazyRoute(() => import("./pages/PillarJoinPage"));
 const JoinRedirect = lazyRoute(() => import("./pages/JoinRedirect"));
 const Recruiting = lazyRoute(() => import("./pages/Recruiting"));
 const Parents = lazyRoute(() => import("./pages/Parents"));
+const Privacy = lazyRoute(() => import("./pages/Privacy"));
+const Terms = lazyRoute(() => import("./pages/Terms"));
 const RookieApplication = lazyRoute(() => import("./pages/RookieApplication"));
 const VetApplication = lazyRoute(() => import("./pages/VetApplication"));
 const ApplySuccess = lazyRoute(() => import("./pages/ApplySuccess"));
@@ -199,6 +201,8 @@ function LazyFallback() {
              {/* Public Golden Ticket lead capture (QR / no login) */}
              <Route path="/ticket" element={<TicketPage />} />
              <Route path="/parents" element={<Parents />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
              <Route path="/industries/:slug" element={<IndustryPage />} />
              <Route path="/join" element={<JoinRedirect />} />
              <Route path="/invite/:token" element={<InvitePage />} />

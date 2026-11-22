@@ -43,3 +43,10 @@
   .industry-earnings-number { font-size: 72px; }
   .industry-earnings-label { font-size: 17px; }
 }
+
+/* Word values (no figures) need a smaller size so they fit their column. */
+.industry-earnings-number.industry-earnings-word { font-size: 36px; }
+
+@media (min-width: 700px) {
+  .industry-earnings-number.industry-earnings-word { font-size: 48px; }
+}

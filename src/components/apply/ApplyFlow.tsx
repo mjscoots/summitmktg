@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -576,7 +576,12 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
                     aria-label="Email address"
                     className={inputBase}
                   />
-                  <p className="max-w-[420px] text-[13px] leading-snug text-[#5A5A6B]">{CONTACT_NOTE}</p>
+                  <p className="max-w-[420px] text-[13px] leading-snug text-[#5A5A6B]">
+                    {CONTACT_NOTE}{' '}
+                    <Link to="/privacy" className="underline underline-offset-2 hover:text-[#0A0A0F]">
+                      Privacy Policy
+                    </Link>
+                  </p>
                 </>
               )}
 

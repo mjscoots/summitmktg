@@ -124,7 +124,7 @@ export default function Parents() {
       <footer className="border-t border-border py-8">
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
           <span className="text-sm text-muted-foreground">Trinity © 2026</span>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <Link
               to="/apply/rookie"
               className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
@@ -144,6 +144,18 @@ export default function Parents() {
               className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               Back to summer jobs
+            </Link>
+            <Link
+              to="/privacy"
+              className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              Privacy
+            </Link>
+            <Link
+              to="/terms"
+              className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+            >
+              Terms
             </Link>
           </div>
         </div>
