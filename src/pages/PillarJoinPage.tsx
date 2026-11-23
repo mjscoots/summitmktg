@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Wordmark } from '@/components/brand/Wordmark';
@@ -130,6 +130,9 @@ const PillarJoinPage = () => {
       <div className="relative z-10 mx-auto w-full max-w-md text-center">
         <Wordmark variant="hero" height={100} className="mx-auto !h-auto w-full max-w-[280px]" />
         <div className="mt-8 text-left">{children}</div>
+        <p className="mt-6 text-xs text-muted-foreground">
+          <Link to="/privacy" className="inline-flex min-h-11 items-center underline underline-offset-2 hover:text-foreground">Privacy Policy</Link>
+        </p>
       </div>
     </div>
   );

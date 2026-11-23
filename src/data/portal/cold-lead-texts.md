@@ -26,20 +26,20 @@ You already locked down a summer internship or still open to hearing options?
 Option 2. Use when there is no shared page or mutual follow.
 
 ```
-Hey [name], this is Scoots. I manage a sales team and we're adding a few people for the summer.
+Hey [name], this is Mathew. I manage a sales team and we're adding a few people for the summer.
 You open to hearing about it?
 ```
 
 Option 3. Shorter cut for mixing a batch.
 
 ```
-Yo [name], what's good. This is Scoots. If a seat this summer makes sense, let me know and I'll send you a time
+Yo [name], what's good. This is Mathew. If a seat this summer makes sense, let me know and I'll send you a time
 ```
 
-If a number was passed by a rep or another manager, and there was no prior conversation with Scoots:
+If a number was passed by a rep or another manager, and there was no prior conversation with Mathew:
 
 ```
-Hey [name], this is Scoots. [source] passed me your number so I figured I'd hit you up.
+Hey [name], this is Mathew. [source] passed me your number so I figured I'd hit you up.
 You open to hearing about a seat this summer?
 ```
 
@@ -87,7 +87,6 @@ If not, no worries
 
 If they reply to any follow-up, send the "Once they reply" link text.
 
-
 ## VET
 
 ### First text (no link)
@@ -95,33 +94,33 @@ If they reply to any follow-up, send the "Once they reply" link text.
 Option 1
 
 ```
-Hey [name], this is Scoots. I'm putting a few vet seats together for 2027 and wanted to see where you're at.
+Hey [name], this is Mathew. I'm putting a few vet seats together for 2027 and wanted to see where you're at.
 Got an hour this week?
 ```
 
 Option 2
 
 ```
-Hey [name], this is Scoots. If you already had a season and you're thinking about 2027, let's talk. Want me to send a time?
+Hey [name], this is Mathew. If you already had a season and you're thinking about 2027, let's talk. Want me to send a time?
 ```
 
 Option 3
 
 ```
-Yo [name], what's good. This is Scoots. I've got a few vet seats for 2027. If u wanna talk, reply and I'll send a time
+Yo [name], what's good. This is Mathew. I've got a few vet seats for 2027. If u wanna talk, reply and I'll send a time
 ```
 
-If a number was passed by a rep or another manager, and there was no prior conversation with Scoots:
+If a number was passed by a rep or another manager, and there was no prior conversation with Mathew:
 
 ```
-Hey [name], this is Scoots. [source] passed me your number so I figured I'd hit you up.
+Hey [name], this is Mathew. [source] passed me your number so I figured I'd hit you up.
 Wanted to see where you're at for 2027. Got an hour this week?
 ```
 
 If you do not know whether they are a vet, ask first. This one never carried a link.
 
 ```
-Hey [name], this is Scoots. Have you sold a season before?
+Hey [name], this is Mathew. Have you sold a season before?
 ```
 
 ### Once they reply
@@ -168,4 +167,3 @@ If not, we're good
 
 ---
 
-Source: `/workspace/recruiting/cold-lead-kit-voice.md` (Voice pass, Nov 11, 2026), built from `/workspace/recruiting/cold-lead-kit.md` and the cold-lead-kit and recruiting-and-resigns rules.

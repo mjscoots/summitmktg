@@ -344,8 +344,8 @@ That's the two hours. Three names on the card. Then we're done.
 # Flags
 
 - Trinity's own referral-versus-cold close rate remains UNSOURCED. Section 1 uses only the ERIN 2024 industry figure, cited to https://erinapp.com/employee-referrals.
-- Interview form, follow-up texts, and referral-ask options R1-R3 / V1-V3 are drafts. They need Scoots's OK, by name, before use.
-- Facilitator besides Scoots, default ask option, and who fills the interview form on which call, are still undecided in the outline.
+- Interview form, follow-up texts, and referral-ask options R1-R3 / V1-V3 are drafts. They need Mathew's OK, by name, before use.
+- Facilitator besides Mathew, default ask option, and who fills the interview form on which call, are still undecided in the outline.
 - 2027 rookie agreement: legal review still open. Do not treat sending paper as cleared.
 - Fiber and life have no separate path in the outline. This script follows the pest-season calendar in the source.
 - Unsure names: none invented. Colt Shannon is named only as do-not-contact. Hunter Shannon is named only as parked leads stay parked.

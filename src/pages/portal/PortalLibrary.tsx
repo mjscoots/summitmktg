@@ -13,7 +13,7 @@ type LibraryItem = {
   group: string;
   href: string;
   linkKind: 'portal' | 'app' | 'drive';
-  source: string;
+  source?: string;
   managerOnly: boolean;
 };
 

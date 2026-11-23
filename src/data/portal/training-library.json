@@ -6,7 +6,6 @@
   "group": "Start here",
   "href": "/portal/training/onboarding",
   "linkKind": "portal",
-  "source": "/workspace/overnight/24-rep-onboarding-packet.md",
   "managerOnly": false
  },
  {
@@ -16,7 +15,6 @@
   "group": "Door sales",
   "href": "/portal/training/sales-outline",
   "linkKind": "portal",
-  "source": "/workspace/website-content/rookie-outline.md",
   "managerOnly": false
  },
  {
@@ -26,7 +24,6 @@
   "group": "Weekly 1:1s",
   "href": "/portal/training/one-on-one",
   "linkKind": "portal",
-  "source": "/workspace/website-content/one-on-one-template.md",
   "managerOnly": false
  },
  {
@@ -36,7 +33,6 @@
   "group": "Weekly 1:1s",
   "href": "/portal/one-on-ones/rep",
   "linkKind": "portal",
-  "source": "/workspace/recruiting/one-on-one-weekly-form-2026-11-12.md",
   "managerOnly": false
  },
  {
@@ -46,7 +42,6 @@
   "group": "Weekly 1:1s",
   "href": "/portal/one-on-ones/pillar",
   "linkKind": "portal",
-  "source": "/workspace/recruiting/forms/one-on-one-weekly.md",
   "managerOnly": true
  },
  {
@@ -56,7 +51,6 @@
   "group": "Recruiting",
   "href": "/portal/training/outline",
   "linkKind": "portal",
-  "source": "/workspace/recruiting/training-outline-2026-11-13.md",
   "managerOnly": false
  },
  {
@@ -66,7 +60,6 @@
   "group": "Recruiting",
   "href": "/portal/training/script",
   "linkKind": "portal",
-  "source": "/workspace/recruiting/training-script-2026-11-13.md",
   "managerOnly": false
  },
  {
@@ -76,7 +69,6 @@
   "group": "Recruiting",
   "href": "/portal/training/cold-leads",
   "linkKind": "portal",
-  "source": "/workspace/recruiting/cold-lead-kit-voice.md",
   "managerOnly": true
  },
  {
@@ -86,7 +78,6 @@
   "group": "TRNTY app",
   "href": "/app/training/summer-sales-manual",
   "linkKind": "app",
-  "source": "Existing TRNTY app training (linked from /portal/training before this pass)",
   "managerOnly": false
  },
  {
@@ -96,7 +87,6 @@
   "group": "TRNTY app",
   "href": "/app/training/learn-your-pitch",
   "linkKind": "app",
-  "source": "Existing TRNTY app training (linked from /portal/training before this pass)",
   "managerOnly": false
  },
  {
@@ -106,7 +96,6 @@
   "group": "TRNTY app",
   "href": "/app/training/videos",
   "linkKind": "app",
-  "source": "Existing TRNTY app training (linked from /portal/training before this pass)",
   "managerOnly": false
  },
  {
@@ -116,7 +105,6 @@
   "group": "TRNTY app",
   "href": "/summer-checklist",
   "linkKind": "app",
-  "source": "Existing TRNTY app training (linked from /portal/training before this pass)",
   "managerOnly": false
  },
  {
@@ -126,7 +114,6 @@
   "group": "TRNTY app",
   "href": "/app/training/manager-manual",
   "linkKind": "app",
-  "source": "Existing TRNTY app training (linked from /portal/training before this pass)",
   "managerOnly": true
  },
  {
@@ -136,7 +123,6 @@
   "group": "TRNTY app",
   "href": "/app/training/management-basics",
   "linkKind": "app",
-  "source": "Existing TRNTY app training (linked from /portal/training before this pass)",
   "managerOnly": true
  },
  {
@@ -146,7 +132,6 @@
   "group": "TRNTY app",
   "href": "/app/training/manager-videos",
   "linkKind": "app",
-  "source": "Existing TRNTY app training (linked from /portal/training before this pass)",
   "managerOnly": true
  },
  {
@@ -156,7 +141,6 @@
   "group": "Forms",
   "href": "https://docs.google.com/forms/d/1Pjr1HcVSK7rWCVGBVUHOmUcDKO6R9sPgDlgsPGQf9JM/viewform",
   "linkKind": "drive",
-  "source": "/portal/forms (existing); /workspace/builder/rep-portal-2026-11-13.md",
   "managerOnly": true
  },
  {
@@ -166,7 +150,6 @@
   "group": "Manuals",
   "href": "https://docs.google.com/document/d/19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -176,7 +159,6 @@
   "group": "Manuals",
   "href": "https://docs.google.com/document/d/1KETfjhVaQkxeV61-hYjsvdDe9TpX6W9y/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -186,7 +168,6 @@
   "group": "Manuals",
   "href": "https://docs.google.com/document/d/1plxQS4SDEqCWdGEuIDtnNq7aMMmzwnpc0gtNWPGUl-0/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -196,7 +177,6 @@
   "group": "Manuals",
   "href": "https://docs.google.com/document/d/1fQwp90FeC084pBwsVdFVf9Ui5pS-T_zuQVJf6kfZ-iI/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -206,7 +186,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1-WrtL-dHYarog1YmWZ1mfAN1fspa3pkbaAagqbTqyBs/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -216,17 +195,15 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1E3u4V8D1SL_RV308X0h6BcmYpq2318ia15Ec-AKVLo0/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
-  "title": "Full_Sales_Training_Scoots",
+  "title": "Full_Sales_Training_Mathew",
   "type": "deck",
   "audience": "rep",
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/12C5qS4HCGgvh2mvoudzR42oPKmRerEXareqzB6u49G8/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -236,7 +213,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1P5PGl3TP44r0cgaCNDArr141HBt1btSP-zVSvcDRJe0/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -246,7 +222,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1JzNDIRg8ZvQQFfHHBZB_wYorZiMDay6X/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -256,7 +231,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1fr4LV7VWWNu8Rrb_NM_DGbIy9aArWSyHLTq-kaBqmp8/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -266,7 +240,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1fDKKCqaRJVRyYtdMFChXCTKvHyjYMfUD0HsPodHuisU/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -276,7 +249,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1ZXRaluKa71fwzZVmrA-JYb7wSCTGWEsNCNnivs8yghE/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -286,7 +258,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/192rcCNuOPdPygRR2D0jAL4Y_AN7eDTh3KyD05WgKT4o/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -296,7 +267,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/19OMbeM2Pgphp4FKWwbpeBheZQk9u9ts30qBi0Dt7I4U/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -306,7 +276,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1JIQUglhzgalQFmehnL7J2wtXyfTKkV4U5unsrKqA9Jg/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -316,7 +285,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1p3w44Nwqy8mnnz_YVv5QbwQVEpHLMqw9ZVuWG3fEAXw/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -326,7 +294,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1aoQVe3Ahl07beVJvPyZn5OyRDiADiD9pxU5X4V0qvoE/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -336,7 +303,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1CB5DXi5B-DLdU1KyCBRbRi-rBeEskBrA/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -346,7 +312,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1SJLxz10AIgWG22A5IUt54iX1I8ftky_p/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -356,7 +321,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1-nlEpgTAbl7qCmAp6cTclTm_GighzDAWJ7HcquACLs8/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -366,7 +330,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/17C_LeL2jolYKGx31fIKODBDjGoCtk38FUeTzcaOnsX4/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -376,7 +339,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/15XnbWRPzJpTV1DgV4xmA_F8D9TiSf9ioP9b0OhCuKiI/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -386,7 +348,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1-ZDZXST_SowRtMxJPV_wToFIlAK9lEQKTEAhdIPpDbo/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -396,7 +357,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/11MorAzyesLcSxNb51-cpWoNloWmnVM3XbuIPgSZ_98c/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -406,7 +366,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/10--sb0S5DluC3QVYHWmCRnCfOePv56_yqPxCSRJxUX0/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -416,7 +375,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1QGVm8gFgbAgY_BVks3lFc6P-jdXxn8NxT-PFIzyCy7w/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -426,17 +384,15 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1Ei-KIqFmBW0vPrrayuLSQjh3v0WucD9actpuEeiAL-Y/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
-  "title": "scoots TRAINING",
+  "title": "Mathew TRAINING",
   "type": "deck",
   "audience": "rep",
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1-G9OQARE7MVUpfgima1shm2wroYGC-9jIVU2o3ZKtvE/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -446,7 +402,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1rt0_aXgpNoFbmbXUcaam5ZNSrB1x2rQXgnx7t66rY24/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -456,7 +411,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1H-JXZaGzzOhX6MRnwE68UKTOtW_EmxLWTBaD-Dw5GiA/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -466,7 +420,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/106tVxnbfgmFiabfWEs3KvgVdJWUm_ZF0EZ7-gHnmaSc/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -476,7 +429,6 @@
   "group": "Decks",
   "href": "https://docs.google.com/presentation/d/1-jNkhctg1Ag18xW_bkNmJOEQMwnBuiAYlbb2UFVEJfc/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -486,7 +438,6 @@
   "group": "Decks",
   "href": "https://drive.google.com/open?id=119-XFL5mTFD0JHvKkn4QTtmUi6PAoyCK",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -496,7 +447,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/10Eym4OvNkPOzu1P-rEQoJb5whymdKvXcf-Pn9x0BXWE/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -506,7 +456,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/1LBc_1WkQWj9uuiZfcRtjBEP1ri7dGlFcc12cbyZdXaQ/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -516,7 +465,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/10AsivBL1vAE-AKcvTQuOJAfXa8hgKqTD5mY_UziDNEQ/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -526,7 +474,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/117RgOWfltoQOB7pCbxnCI0EcTA6SusOEC69gnDqHCOs/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -536,7 +483,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/111CybjPfyk8mt9YlWkbr-ZuGCGJKKHD6XTVtgZDCO78/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -546,7 +492,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/12d7X97_3jQiCgvfhQW0uujYt1BC1DyY2Io1hY5gvlxk/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -556,7 +501,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/1kRYsbl3V6i3rEy-fd2hcP1cZngcAM2aXHqBmYti6mys/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -566,7 +510,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/1cRFt9cJ1woi03-C6kLoL0Bj424roDCelmy2JJLYD8d8/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -576,7 +519,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/1l5qBnb4CrXIb7eWSzMnQSVLzPzMwy3Wn1gI82M-lNUc/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -586,7 +528,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/14M4UwaupiEJ7Ncir6ZWPwsPZUOz2LNURKSehGOJL_xQ/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -596,7 +537,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/10J2X6EUWmJBVVTK7Zqb5Lvo6-AUjunsABXZ0rA3Y4QY/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -606,7 +546,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/document/d/16vO5w-QY1Nf9ndMoCo_NYZnlJEqF3H_cKr0171k_D7A/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -616,7 +555,6 @@
   "group": "Scripts",
   "href": "https://docs.google.com/forms/d/1jsT4OaQ32LU2ZdQ5zzesQHqruE1DIQrNKWG5IzVEOgE/viewform",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -626,7 +564,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/19VWJt1hdtVYKVifU61Qi5bG-xYco6MU-/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -636,7 +573,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1oEvP2x0mMb32-ISajXfZD4t2dHTrg8b6/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -646,7 +582,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1-LeC3zmZQH_jYv-7HpCWPy0Wd5-y1Zok/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -656,7 +591,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/18dBPqGQwwBrmKunwYMReoKY9KEQJZw4l/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -666,7 +600,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1b5pxCRxK8NXWy0LCocJCJPlranPqE4Dv/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -676,7 +609,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1RcFNA553Mumn1JpUvjRf3Jg_2M7AZC-1/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -686,7 +618,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/13myw7wlpFnfLRQvP7fNZ44-JKtSfWmMv/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -696,7 +627,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1T9QPhX_eBkaDcmIFDguvmWqHkzBB_9Oj/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -706,7 +636,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1udmDzQlWJB6IffcR8O8Ec22PhvAKujn8/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -716,7 +645,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1aTX5HZlELDNe-pbqap9pK9VF-M1WXxxt/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -726,7 +654,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1c2X5Kcjp07AIDttMiDpmkUWU3EZEE9ap/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -736,7 +663,6 @@
   "group": "Videos",
   "href": "https://drive.google.com/file/d/1pWRDI6V2ZuX8gefdoNz-NoHDnCDHqxFT/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -746,7 +672,6 @@
   "group": "Scripts",
   "href": "https://drive.google.com/file/d/1XAwzOWznFelZ3HUsceNOWJusR3S2txxR/view",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -756,7 +681,6 @@
   "group": "Onboarding and other docs",
   "href": "https://docs.google.com/document/d/1rRG1U_9ZKaJkBkP95xeqhslTMsGk3duBrSH3JvHSW7s/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -766,7 +690,6 @@
   "group": "Onboarding and other docs",
   "href": "https://docs.google.com/document/d/1zKkXx_lquZyFZ82zDB1x79cTt8N1pINuWy8IqHXlPUk/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -776,7 +699,6 @@
   "group": "Onboarding and other docs",
   "href": "https://docs.google.com/document/d/1ieh6ZrCEosZEl3kNf4Mnv_SSaZ_9GHTmOvphhhj6kXQ/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -786,7 +708,6 @@
   "group": "Onboarding and other docs",
   "href": "https://docs.google.com/document/d/17kEY0EASQp68a258ufDfx7OWe_4UF2Gc6-JJ3hcFRsE/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -796,7 +717,6 @@
   "group": "Onboarding and other docs",
   "href": "https://docs.google.com/document/d/1CI3P1AKcpWUdZLq2V50jfgadIP3PLDgdKO4FdRdwbE8/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -806,7 +726,6 @@
   "group": "Onboarding and other docs",
   "href": "https://docs.google.com/document/d/14NE2SvPMx6w7hi5xvz0WKLLIq-S8q2AFqsmqVo0WzmY/edit",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -816,7 +735,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1xwE88i1pSX0gwhmDc9SCpAtv_McgO4hD",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -826,7 +744,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1QWQuMAFIXr-3TER-ZRzlinZ8Tj4IlJDj",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -836,7 +753,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1riPKn8oY-QWGa27R_iexbKIXltEJ5V95",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -846,7 +762,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1QrJiqdaXhA8RdteoqjuCUyknhgwL0kRI",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -856,7 +771,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/10AiC-k_brsY1J70P74_jkDYK1yizwM0c",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -866,7 +780,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1u6JBJ_u70pEu9Pn93I0dUEIb4QmZRENF",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -876,7 +789,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1ZprX3OwjtzfkVCw6937LCuY58t9UzMkE",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -886,7 +798,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1z4F8e7nhkfJax5FxU67A2zTqH6gJbDD1",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -896,7 +807,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1dIcbPrMvQZpH86LXpl9yg5DRJIJ4DAE3",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  },
  {
@@ -906,7 +816,6 @@
   "group": "Drive folders",
   "href": "https://drive.google.com/drive/folders/1SlYqJVuTLqQJ6sBKrIwpHoyUKfHrsVCp",
   "linkKind": "drive",
-  "source": "Google Drive, cited in /workspace/voice/training-inventory-2026-11-12.md",
   "managerOnly": true
  }
 ]

@@ -2,8 +2,6 @@
 
 Public-safe outline for the TRNTY site. Pulled from Mathew's actual training decks and manuals. This is the skeleton a rookie memorizes. Full scripts and any dollar amounts live in the team folders, not on this page.
 
-Under every section: the source deck or manual, plus its Drive file id or local path.
-
 If a source leans on pay, bonuses, door counts, contract language, or housing, that part is left out.
 
 ---
@@ -22,8 +20,6 @@ The five customer types on that road map:
 - DIY: start from what they already use, then show the depth difference.
 - Renter: treat it as a real type, then map the conversation. Do not invent a discount on this page.
 
-Source: The Sales Blueprint FINAL (by Mathew), local extract `/workspace/claude-export/docs/Trinity__The_Sales_Blueprint_FINAL.pptx`, Drive decks SalesBlueprint.... (file id `1-WrtL-dHYarog1YmWZ1mfAN1fspa3pkbaAagqbTqyBs`) and SalesBlueprint_Summit (file id `1E3u4V8D1SL_RV308X0h6BcmYpq2318ia15Ec-AKVLo0`). Same road map in 1 Basic Script (Drive doc `10Eym4OvNkPOzu1P-rEQoJb5whymdKvXcf-Pn9x0BXWE`, also Drive file `1tP8qL5LYCkJcr66M6v9LmGj3OlQMv11O` and local extract `/workspace/claude-export/docs/Trinity__1 Basic Script.docx`). ALL SCRIPTS folder (Drive `1xwE88i1pSX0gwhmDc9SCpAtv_McgO4hD`).
-
 ---
 
 ## 1. Why you're here, and the mental game
@@ -41,8 +37,6 @@ The mental game comes before the script.
 
 From the Rookie Manual, the five principles for a successful summer: commit to consistency and a strict schedule, be obsessed with learning, step outside your comfort zone, stay hungry and remember your purpose, have fun and be positive.
 
-Source: The Sales Blueprint FINAL, slides on "Before everything else," Why are you here, Neutrality, The Mindset Stack, and The 5 Rules (local extract plus Drive ids above). Rookie Manual, Chapter 1, Drive doc `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk` (Summit-branded). Same chapter structure in SUMMIT ROOKIE MANUAL.docx (Drive `1KETfjhVaQkxeV61-hYjsvdDe9TpX6W9y`) and the local extract `/workspace/claude-export/docs/Trinity__Rookie Sales Manual.pdf` (that extract still opens with the Academy header). Flagged language from these sources is listed at the bottom, not used here.
-
 ---
 
 ## 2. The six laws of the sale
@@ -56,8 +50,6 @@ Master these six. Every system in door-to-door fits underneath them.
 5. Momentum. Sales compound. Protect the buzz.
 6. Activity. Most problems are activity problems in disguise.
 
-Source: The Sales Blueprint FINAL, "The 6 Laws of the Sale" (local extract and Drive SalesBlueprint...., file id `1-WrtL-dHYarog1YmWZ1mfAN1fspa3pkbaAagqbTqyBs`). Note: SalesBlueprint_Summit (file id `1E3u4V8D1SL_RV308X0h6BcmYpq2318ia15Ec-AKVLo0`) titles the same idea as "The 5 Laws of the Sale" and treats activity in a later slide. The six-law version is the one used here.
-
 ---
 
 ## 3. The intro. Four parts, no exceptions.
@@ -69,8 +61,6 @@ Source: The Sales Blueprint FINAL, "The 6 Laws of the Sale" (local extract and D
 
 Non-verbals matter as much as the words. Distance, open palms, no fidgeting, eye contact, slow nods. A bad intro is almost always rushed, quiet, or unsure. Diagnose it, then run it again.
 
-Source: The Sales Blueprint FINAL, "The Intro. 4 Parts. No Exceptions." Rookie Manual, Chapter 8, The Intro (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). 1 Basic Script, Intro section (Drive `10Eym4OvNkPOzu1P-rEQoJb5whymdKvXcf-Pn9x0BXWE`). Intro training video in ALL SCRIPTS: "1. A) Intro" (Drive `19VWJt1hdtVYKVifU61Qi5bG-xYco6MU-`).
-
 ---
 
 ## 4. The bridge
@@ -80,8 +70,6 @@ The bridge sits between "How much?" and the price sheet. Its job is to kill obje
 Say what makes the service different from the monthly corporate model. First two visits back to back, to break the egg cycle, then less often after that. Ask square footage. Pull the sheet immediately. Do not break the flow.
 
 If you skip the bridge, you walk a price with no context. That is how you get a price fight instead of a conversation.
-
-Source: The Sales Blueprint FINAL, "The Bridge. Word for Word." Rookie Manual, Chapter 9, The Bridge (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). 1 Basic Script, Bridge section (Drive `10Eym4OvNkPOzu1P-rEQoJb5whymdKvXcf-Pn9x0BXWE`). Bridge and price sheet video in ALL SCRIPTS: "1. B) Bridge/Price Sheet" (Drive `1oEvP2x0mMb32-ISajXfZD4t2dHTrg8b6`).
 
 The word-for-word bridge lives in those decks. It is not reprinted here.
 
@@ -115,8 +103,6 @@ After the "for everything" line: stop. Own the silence. If they nod or say okay,
 
 The first price they see is the anchor. Never verbally contradict the sheet. If a price has to move later, give a real reason (route, yard, density). Never drop on the first objection. Build value first. The exact dollar sequence stays in the team decks, not on this page.
 
-Source: Price Sheet training by Luc (Drive deck `1aoQVe3Ahl07beVJvPyZn5OyRDiADiD9pxU5X4V0qvoE`). Rookie Manual, Chapter 10, The Price Sheet (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). The Sales Blueprint FINAL, "The Price Sheet. Walking It Right." 1 Basic Script, price sheet and premiums (Drive `10Eym4OvNkPOzu1P-rEQoJb5whymdKvXcf-Pn9x0BXWE`). Price sheet image in ALL SCRIPTS: "1. X) PRICE SHEET" (Drive `1XAwzOWznFelZ3HUsceNOWJusR3S2txxR`). Dollar examples in these sources are flagged at the bottom and left out.
-
 ---
 
 ## 6. Question-based selling
@@ -129,8 +115,6 @@ Think like a doctor. Diagnose, then prescribe. Common miss: pitching the service
 
 Early questions build rapport. Later questions find hot buttons (ants in the kitchen, webs they keep knocking down, pets in the yard). Badly timed questions feel like an interrogation. Time them.
 
-Source: The Sales Blueprint FINAL, Law of Questions, Law of Pain, and the 1-2-3 Question Formula. Rookie Manual, Chapter 13, Question-Based Selling, and Chapter 14, Rapport Building (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`).
-
 ---
 
 ## 7. Features and benefits
@@ -140,8 +124,6 @@ A feature is what you do. A benefit is what they get. Rookies name features and 
 "I granulate the whole yard" is a feature. "You can actually use the backyard" is the benefit. "I scrub the webs and treat the pheromones" is a feature. "They stop rebuilding in the same corner" is the benefit.
 
 Ask what they are seeing, then pick the two premiums that match. Deliver each as feature, then benefit. That is also how a switchover sounds when you use "rather than": rather than just knocking webs down, you scrub and treat so they do not come back. Compare without bashing.
-
-Source: Rookie Manual, Chapter 15, Features and Benefits, and Chapter 27, Create a Need, Give a Solution (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). 1 Basic Script, premium feature and benefit list (Drive `10Eym4OvNkPOzu1P-rEQoJb5whymdKvXcf-Pn9x0BXWE`). Switchover and DIY, "rather than" comparisons (Drive `10AsivBL1vAE-AKcvTQuOJAfXa8hgKqTD5mY_UziDNEQ`). Feature/benefit video in ALL SCRIPTS (Drive `12ujhhowZzO_Pbe12sX8bLODyVO2RU69t`).
 
 ---
 
@@ -160,8 +142,6 @@ Most reps quit too early.
 Common objection types you train (the rolls live in the objection doc, not here): renter, spouse, bad time, I do it myself, leave me a card, money, one-time spray, no bugs or not a big deal.
 
 Body language and tonality carry this. If your face argues, the words do not matter.
-
-Source: The Sales Blueprint FINAL, "Objections. Yes, Address, Close." Rookie Manual, Chapter 12, Overcoming Objections (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). 4. Objection Scripts (Drive `12d7X97_3jQiCgvfhQW0uujYt1BC1DyY2Io1hY5gvlxk`). Objections video in ALL SCRIPTS: "4.a) Objections" (Drive `1-LeC3zmZQH_jYv-7HpCWPy0Wd5-y1Zok`). Contract-length and cancellation language in the objection doc is flagged at the bottom and left out.
 
 ---
 
@@ -184,8 +164,6 @@ Make flashcards. Front is the type. Back is three lines you can actually say.
 
 The environmental close, also called the backyard pitch, is the one to master. It is used when they are in a non-buying state. Motion creates emotion. Break the no-zone, get them moving, find the real problem in the yard, build value on what you can both see, then close. Format is in the environmental doc. Write your own from that format. Do not read it like a monologue.
 
-Source: 3. Closes (Drive `117RgOWfltoQOB7pCbxnCI0EcTA6SusOEC69gnDqHCOs`). 3.a Environmental/backyard (Drive `111CybjPfyk8mt9YlWkbr-ZuGCGJKKHD6XTVtgZDCO78`). The Sales Blueprint FINAL, "The Close Arsenal." Rookie Manual, Chapter 11, Closing, plus Chapter 35, Moving Customers Off the Front Door (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). Closes video in ALL SCRIPTS: "4.b Closes" (Drive `193gE-5yEUCgk5K6ePeCA0spz3Eaw2v60`). Price-drop lines inside the backyard close are flagged at the bottom and left out.
-
 ---
 
 ## 10. Switchover and DIY
@@ -198,8 +176,6 @@ There is a preempted version (you ask who they use as part of the intro) and a n
 
 DIY is the same posture. "That's exactly why I'm here." Neighbors do it themselves too. Then show the depth difference and go to the sheet.
 
-Source: 2 Switchover and DIY (Drive `10AsivBL1vAE-AKcvTQuOJAfXa8hgKqTD5mY_UziDNEQ`). Switchover video in ALL SCRIPTS (Drive `1gRMNsHpWGSkmDCWl3yxUImznqaGofRmA`). Rookie Manual, Chapter 16, Road Maps, DIY and types of no (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). Dollar lines in the switchover script are flagged at the bottom and left out.
-
 ---
 
 ## 11. Certainty, body language, and first impressions
@@ -211,8 +187,6 @@ Low and slow is authority. Speak from your chest. Down-tone on statements. Speed
 Be assumptive without being rude. You belong on that porch. Look the part, act the part. The tech approach is the same idea: you are the person who knows the house and the pests, not a stranger reading a card.
 
 First impressions are short. Be likable, justify why you're there, then get to work. Do not spend the first thirty seconds apologizing for knocking.
-
-Source: The Sales Blueprint FINAL, Law of Certainty and para-verbals. SalesBlueprint_Summit opening slides on tonality, body language, and eye contact (Drive `1E3u4V8D1SL_RV308X0h6BcmYpq2318ia15Ec-AKVLo0`). Rookie Manual, Chapters 17 (The Tech Approach), 18 (Body Language), 19 (Be Assumptive), and 20 (First Impressions) (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`).
 
 ---
 
@@ -228,8 +202,6 @@ You cannot sell what you cannot explain. Learn what the work actually is.
 
 Know the usual pests and what you do for each: roaches, spiders, centipedes and the other foundation crawlers, ants, wasps and hornets, mice, rats. Neighborhood clues tell you what to look for before you knock.
 
-Source: Rookie Manual, Chapter 6, The Service, and the pest guide in that chapter (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`).
-
 ---
 
 ## 13. Momentum and the buzz
@@ -244,8 +216,6 @@ The steps from the Blueprint and the Rookie Manual:
 4. Do not break it. Momentum is oxygen. Stopping mid-buzz kills it.
 5. Ride the wave. Head down. Do not look up and admire it.
 6. Say thank you. Be humble. Gratitude multiplies it.
-
-Source: The Sales Blueprint FINAL, Law of Momentum and "Building the Buzz. Step by Step." Rookie Manual, Chapter 31, First Summer, Discovering the Buzz (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`).
 
 ---
 
@@ -263,8 +233,6 @@ Logging is how you see where you actually get stopped. Do not guess. Do not over
 
 Referrals: ask before you leave. Commercial buildings and extra services come up the same way. Have a simple ask. Then do it every time.
 
-Source: The Sales Blueprint FINAL, "Area Management. Work Smart." Rookie Manual, Chapters 28 (Area Management), 29 (Go Backs), 30 (Logging), and 32 (Referrals) (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). Specific door-count targets and close-rate math from those sources are flagged at the bottom and left out.
-
 ---
 
 ## 15. Solidifying the sale and working with techs
@@ -274,8 +242,6 @@ The sale is not done when they say yes. Solidify it. Set expectations honestly. 
 Customers should know what happens on the first visit, that they may see more activity after the first treatment (the product is flushing pests), and how to reach you if something comes up. Grateful, clear, no surprises.
 
 Same-day techs have hard rules in the manual. Treat techs well. You are on the same job. Set realistic expectations with the customer. Do not promise a result the tech cannot deliver.
-
-Source: Rookie Manual, Chapters 21 (Solidifying the Sale), 22 (Expectation Management), and 37 (Working with Same Day Technicians) (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). Contract-term and cancellation language in Chapter 21 and Chapter 23 is flagged at the bottom and left out. Multiyear selling is not on this page.
 
 ---
 
@@ -293,8 +259,6 @@ Role-play rotations from the Blueprint:
 
 Record yourself. Review it. Bring it to your manager. That is how independent reps get better without being babysat.
 
-Source: The Sales Blueprint FINAL, "Role Play Rotations." Rookie Manual, Chapter 25, Deliberate Practice, and Chapter 41, Independent Sales Reps (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). 3. Closes and 4. Objection Scripts both tell you to make flashcards (Drive `117RgOWfltoQOB7pCbxnCI0EcTA6SusOEC69gnDqHCOs` and `12d7X97_3jQiCgvfhQW0uujYt1BC1DyY2Io1hY5gvlxk`).
-
 ---
 
 ## 17. Mindset in the field, habits, and the morning
@@ -309,28 +273,22 @@ Habits compound. Sleep, food, water, and movement are part of the job. A burned-
 
 Customize the pitch once the skeleton is cold. Do not be a robot. Mirror the person in front of you. Approaching people outside is its own skill: be observant, be casual, do not sneak up.
 
-Source: The Sales Blueprint FINAL, daily non-negotiables. SalesBlueprint_Summit, Daily Non-Negotiables (Drive `1E3u4V8D1SL_RV308X0h6BcmYpq2318ia15Ec-AKVLo0`). Rookie Manual, Chapters 26 (Dealing with Negativity), 33 (Car Groups), 34 (Approaching People Outside), 36 (Customize Your Pitch), 38 (Positive Mindset), 39 (Morning Routines and Meetings), 40 (Habits), and 42 (Be Healthy to Be Wealthy) (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`). Hour and door-count targets from the daily-non-negotiables slides are flagged at the bottom and left out.
-
 ---
 
 ## 18. Integrity
 
 Integrity during the summer, with your team, and with yourself. That is Chapter 2 of the manual for a reason. It sits in front of the pitch on purpose. If the language of sales is what you say, integrity is whether anyone should believe you.
 
-Source: Rookie Manual, Chapter 2, Integrity, and Chapter 3, Preparing for the Summer (Drive `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`).
-
 ---
-
-
 
 ## Source list
 
-- The Sales Blueprint FINAL, by Mathew. Local extract: `/workspace/claude-export/docs/Trinity__The_Sales_Blueprint_FINAL.pptx`. Drive: SalesBlueprint.... `1-WrtL-dHYarog1YmWZ1mfAN1fspa3pkbaAagqbTqyBs`. Related: SalesBlueprint_Summit `1E3u4V8D1SL_RV308X0h6BcmYpq2318ia15Ec-AKVLo0`.
-- Rookie Manual (Summit-branded). Drive doc `19x84KbvQle2MlS4zpcQJYc4XCzC6Y4V1qaN9EnfKCMk`. Also SUMMIT ROOKIE MANUAL.docx `1KETfjhVaQkxeV61-hYjsvdDe9TpX6W9y`. Local extract: `/workspace/claude-export/docs/Trinity__Rookie Sales Manual.pdf` (Academy header in that extract).
-- 1 Basic Script. Drive doc `10Eym4OvNkPOzu1P-rEQoJb5whymdKvXcf-Pn9x0BXWE`. Drive file `1tP8qL5LYCkJcr66M6v9LmGj3OlQMv11O`. Local extract: `/workspace/claude-export/docs/Trinity__1 Basic Script.docx`.
-- 2 Switchover and DIY. Drive `10AsivBL1vAE-AKcvTQuOJAfXa8hgKqTD5mY_UziDNEQ`.
-- 3. Closes. Drive `117RgOWfltoQOB7pCbxnCI0EcTA6SusOEC69gnDqHCOs`.
-- 3.a Environmental/backyard. Drive `111CybjPfyk8mt9YlWkbr-ZuGCGJKKHD6XTVtgZDCO78`.
-- 4. Objection Scripts. Drive `12d7X97_3jQiCgvfhQW0uujYt1BC1DyY2Io1hY5gvlxk`.
-- Price Sheet training, by Luc. Drive `1aoQVe3Ahl07beVJvPyZn5OyRDiADiD9pxU5X4V0qvoE`.
-- ALL SCRIPTS folder. Drive `1xwE88i1pSX0gwhmDc9SCpAtv_McgO4hD`.
+- The Sales Blueprint FINAL, by Mathew. Local extract:. Drive: SalesBlueprint..... Related: SalesBlueprint_Summit.
+- Rookie Manual (Summit-branded).. Also SUMMIT ROOKIE MANUAL.docx. Local extract: (Academy header in that extract).
+- 1 Basic Script... Local extract:.
+- 2 Switchover and DIY..
+- 3. Closes..
+- 3.a Environmental/backyard..
+- 4. Objection Scripts..
+- Price Sheet training, by Luc..
+- ALL SCRIPTS folder..

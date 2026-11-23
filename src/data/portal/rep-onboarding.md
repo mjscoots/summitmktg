@@ -47,4 +47,3 @@ you're in. here's what happens next and what we expect. read the whole thing.
 
 ---
 
-Source: `/workspace/overnight/24-rep-onboarding-packet.md` (drafted from Mathew's interview flow, rookie funnel, 1:1 system and Summit Team Constitution 2026). Left out of this page: flights, housing, standards and probation lines, contacts, and the internal manager checklist.
