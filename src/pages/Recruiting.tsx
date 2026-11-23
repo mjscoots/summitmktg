@@ -272,14 +272,7 @@ const Recruiting = () => {
               Not sure which path is right for you?{" "}
               <a
                 href="https://instagram.com/trntyhq"
-                className="inline-flex min-h-11 items-center text-primary hover:underline"
-              >
-                DM SUMMIT on @trntyhq
-              </a>{" "}
-              or{" "}
-              <a 
-                href="https://instagram.com/trntyhq" 
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-11 items-center text-primary hover:underline"
               >

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Check, Loader2 } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { setPageMeta } from "@/lib/pageMeta";
@@ -57,10 +57,10 @@ const ApplySuccess = () => {
         )}
         {wantsCall && !loadingCall && schedulingUrl && (
           <a
-            href={schedulingUrl}
+            href="https://instagram.com/trntyhq"
             className="mt-6 flex min-h-14 w-full items-center justify-center rounded-xl bg-primary px-6 text-base font-bold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Open the scheduling page
+            DM SUMMIT on @trntyhq
           </a>
         )}
         {wantsCall && !loadingCall && !schedulingUrl && (
@@ -94,6 +94,14 @@ const ApplySuccess = () => {
           >
             DM SUMMIT on @trntyhq
           </a>
+        </div>
+        <div className="mt-8">
+          <Link
+            to="/privacy"
+            className="inline-flex min-h-11 items-center text-sm text-text-secondary underline underline-offset-2 hover:text-foreground"
+          >
+            Privacy Policy
+          </Link>
         </div>
       </div>
     </div>

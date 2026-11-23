@@ -279,16 +279,3 @@ Customize the pitch once the skeleton is cold. Do not be a robot. Mirror the per
 
 Integrity during the summer, with your team, and with yourself. That is Chapter 2 of the manual for a reason. It sits in front of the pitch on purpose. If the language of sales is what you say, integrity is whether anyone should believe you.
 
----
-
-## Source list
-
-- The Sales Blueprint FINAL, by Mathew. Local extract:. Drive: SalesBlueprint..... Related: SalesBlueprint_Summit.
-- Rookie Manual (Summit-branded).. Also SUMMIT ROOKIE MANUAL.docx. Local extract: (Academy header in that extract).
-- 1 Basic Script... Local extract:.
-- 2 Switchover and DIY..
-- 3. Closes..
-- 3.a Environmental/backyard..
-- 4. Objection Scripts..
-- Price Sheet training, by Luc..
-- ALL SCRIPTS folder..

@@ -207,14 +207,14 @@ export default function TicketPage() {
 
             {calendly && (
               <a
-                href={calendly}
+                href="https://instagram.com/trntyhq"
                 onClick={() => { void trackPublicMeta('SchedulingClick'); }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold transition-colors"
                 style={{ color: GOLD, border: `1px solid ${GOLD}55`, background: 'rgba(212,175,55,0.05)' }}
               >
-                Skip the line - book your call now
+                DM SUMMIT on @trntyhq
                 <ArrowRight className="w-4 h-4" />
               </a>
             )}

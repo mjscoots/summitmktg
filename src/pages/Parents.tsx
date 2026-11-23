@@ -12,15 +12,15 @@ interface Section {
 const INSTAGRAM_URL = 'https://instagram.com/trntyhq';
 
 /**
- * Section body text. Only the Questions fallback differs: the word Instagram
- * becomes a link there, since that fallback tells parents to reach out that way.
- * Every other section renders its text exactly as before.
+ * Section body text. Only the Questions fallback differs: the DM SUMMIT call to
+ * action becomes a link there, since that fallback tells parents to reach out
+ * that way. Every other section renders its text exactly as before.
  */
 function renderSectionBody(section: Section, override?: string) {
   if (override) return override;
   if (section.key !== 'parents_questions') return section.fallback;
-  return section.fallback.split(/(Instagram)/).map((part, i) =>
-    part === 'Instagram' ? (
+  return section.fallback.split(/(DM SUMMIT on @trntyhq)/).map((part, i) =>
+    part === 'DM SUMMIT on @trntyhq' ? (
       <a
         key={i}
         href={INSTAGRAM_URL}
@@ -73,7 +73,7 @@ export const PARENT_SECTIONS: Section[] = [
     key: 'parents_questions',
     heading: 'Questions',
     fallback:
-      'If you would like to speak with a manager directly before your student commits, reach out through Instagram and we will set up a call with the person who would be managing them.',
+      'Questions? DM SUMMIT on @trntyhq.',
   },
 ];
 
