@@ -4,6 +4,7 @@ import { ExternalLink } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrAbove } from '@/lib/roles';
 import raw from '@/data/portal/training-library.json?raw';
+import { portalDisplayName } from '@/lib/portalSanitize';
 
 type LibraryItem = {
   title: string;
@@ -33,6 +34,7 @@ function Badge({ children }: { children: React.ReactNode }) {
 }
 
 function Card({ item }: { item: LibraryItem }) {
+  const title = portalDisplayName(item.title).replace(/_/g, ' ');
   return (
     <li className="rounded-lg border border-border bg-card p-4">
       {item.linkKind === 'drive' ? (
@@ -42,7 +44,7 @@ function Card({ item }: { item: LibraryItem }) {
           rel="noopener noreferrer"
           className="inline-flex min-h-11 items-center gap-1.5 break-words font-medium transition-colors hover:text-primary"
         >
-          {item.title}
+          {title}
           <ExternalLink className="h-4 w-4 shrink-0" />
         </a>
       ) : (
@@ -50,7 +52,7 @@ function Card({ item }: { item: LibraryItem }) {
           to={item.href}
           className="inline-flex min-h-11 items-center break-words font-medium transition-colors hover:text-primary"
         >
-          {item.title}
+          {title}
         </Link>
       )}
       <div className="flex flex-wrap gap-1.5">
@@ -58,7 +60,6 @@ function Card({ item }: { item: LibraryItem }) {
         <Badge>{item.audience === 'manager' ? 'Manager' : 'Rep'}</Badge>
         <Badge>{KIND_LABEL[item.linkKind]}</Badge>
       </div>
-      <p className="mt-1 break-words text-sm text-muted-foreground">Source: {item.source}</p>
     </li>
   );
 }
@@ -76,7 +77,7 @@ export default function PortalLibrary() {
       visible.filter(
         (i) =>
           (typeFilter === 'all' || i.type === typeFilter) &&
-          i.title.toLowerCase().includes(query.trim().toLowerCase()),
+          portalDisplayName(i.title).replace(/_/g, ' ').toLowerCase().includes(query.trim().toLowerCase()),
       ),
     [visible, typeFilter, query],
   );

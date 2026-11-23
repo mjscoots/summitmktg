@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { isManagerOrAbove } from '@/lib/roles';
 import { Markdown } from '@/components/portal/Markdown';
 import { PORTAL_DOCS, PortalDocKey } from '@/data/portal/documents';
+import { sanitizePortalDoc } from '@/lib/portalSanitize';
 
 export default function PortalDoc({ doc }: { doc: PortalDocKey }) {
   const { role } = useAuth();
@@ -10,7 +11,7 @@ export default function PortalDoc({ doc }: { doc: PortalDocKey }) {
   return (
     <article className="min-w-0 break-words">
       <Link to="/portal/training" className="text-sm text-primary min-h-11 inline-flex items-center">← Training</Link>
-      <Markdown source={PORTAL_DOCS[doc].source} />
+      <Markdown source={sanitizePortalDoc(PORTAL_DOCS[doc].source)} />
     </article>
   );
 }
