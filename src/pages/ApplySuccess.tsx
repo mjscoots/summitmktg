@@ -72,10 +72,10 @@ const ApplySuccess = () => {
           <>
             <p className="mt-6 text-sm text-text-secondary">Want to talk sooner?</p>
             <a
-              href={schedulingUrl || SCHEDULING_FALLBACK}
+              href="https://instagram.com/trntyhq"
               className="mt-3 flex min-h-14 w-full items-center justify-center rounded-xl bg-primary px-6 text-base font-bold text-primary-foreground transition-opacity hover:opacity-90"
             >
-              Book a call with Mathew
+              DM SUMMIT on @trntyhq
             </a>
           </>
         )}
@@ -87,12 +87,12 @@ const ApplySuccess = () => {
             Back home
           </button>
           <a
-            href="https://www.instagram.com/summitmktgsales/"
+            href="https://instagram.com/trntyhq"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border-strong px-6 text-sm font-semibold text-foreground transition-colors hover:border-foreground"
           >
-            Instagram
+            DM SUMMIT on @trntyhq
           </a>
         </div>
       </div>

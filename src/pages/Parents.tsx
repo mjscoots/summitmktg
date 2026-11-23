@@ -9,7 +9,7 @@ interface Section {
   fallback: string;
 }
 
-const INSTAGRAM_URL = 'https://www.instagram.com/summitmktgsales/';
+const INSTAGRAM_URL = 'https://instagram.com/trntyhq';
 
 /**
  * Section body text. Only the Questions fallback differs: the word Instagram
@@ -28,7 +28,7 @@ function renderSectionBody(section: Section, override?: string) {
         rel="noopener noreferrer"
         className="text-primary hover:underline"
       >
-        Instagram
+        DM SUMMIT on @trntyhq
       </a>
     ) : (
       <span key={i}>{part}</span>
@@ -137,7 +137,7 @@ export default function Parents() {
               rel="noopener noreferrer"
               className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
             >
-              Instagram
+              DM SUMMIT on @trntyhq
             </a>
             <Link
               to="/recruiting"

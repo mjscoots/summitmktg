@@ -8,7 +8,6 @@ import { LiveCounters } from "@/components/recruiting/LiveCounters";
 import ThreeDoorSection from "@/components/recruiting/ThreeDoorSection";
 import LeadFormSlot from "@/components/recruiting/LeadFormSlot";
 import SeasonCountdown from "@/components/SeasonCountdown";
-import { SCHEDULING_FALLBACK } from "@/lib/scheduling";
 
 import { setPageMeta } from "@/lib/pageMeta";
 
@@ -272,19 +271,19 @@ const Recruiting = () => {
             <p className="text-sm text-muted-foreground">
               Not sure which path is right for you?{" "}
               <a
-                href={SCHEDULING_FALLBACK}
+                href="https://instagram.com/trntyhq"
                 className="inline-flex min-h-11 items-center text-primary hover:underline"
               >
-                Book a call with Mathew
+                DM SUMMIT on @trntyhq
               </a>{" "}
               or{" "}
               <a 
-                href="https://www.instagram.com/summitmktgsales/" 
+                href="https://instagram.com/trntyhq" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex min-h-11 items-center text-primary hover:underline"
               >
-                DM us on Instagram
+                DM SUMMIT on @trntyhq
               </a>{" "}
               and we'll help you decide.
             </p>
@@ -324,12 +323,12 @@ const Recruiting = () => {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1">
               <a
-                href="https://www.instagram.com/summitmktgsales/"
+                href="https://instagram.com/trntyhq"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-11 items-center rounded-xl px-2 text-sm text-muted-foreground transition-colors hover:text-primary"
               >
-                Instagram
+                DM SUMMIT on @trntyhq
               </a>
               <button
                 onClick={() => handleApplyClick("/parents")}
