@@ -99,6 +99,7 @@ const PIPELINE_MAP: Record<string, string> = {
   'prospect_added': 'pending',
   'pending': 'pending',
   'contract signed': 'contract_signed',
+  'paperwork signed': 'contract_signed',
   'contractsigned': 'contract_signed',
   'contract_signed': 'contract_signed',
   'info added': 'info_added',
@@ -947,7 +948,7 @@ export default function AdminMassImport({ profiles, managers, teams, onRefresh }
         <Textarea
           value={rawText}
           onChange={e => setRawText(e.target.value)}
-          placeholder={`Paste here...\n\nExample:\n1\nMason James Thomas\nContract Signed\n5098447604\nthanoceros44@gmail.com\nThe Academy\nBodhi Jordan Miller\nUndecided    Rookie    Active`}
+          placeholder={`Paste here...\n\nExample:\n1\nMason James Thomas\nPaperwork signed\n5098447604\nthanoceros44@gmail.com\nThe Academy\nBodhi Jordan Miller\nUndecided    Rookie    Active`}
           className="min-h-[180px] bg-muted/30 border-border/50 font-mono text-xs"
         />
 

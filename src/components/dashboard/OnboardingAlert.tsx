@@ -16,8 +16,8 @@ const STATUS_CONFIG: Record<string, { label: string; message: string; severity: 
     severity: 'warn',
   },
   contract_signed: {
-    label: 'Contract Signed',
-    message: 'Contract signed! Join the next onboarding Zoom to get marked Summer Ready.',
+    label: 'Paperwork signed',
+    message: 'Paperwork signed! Join the next onboarding Zoom to get marked Summer Ready.',
     severity: 'warn',
   },
   onboarded: {

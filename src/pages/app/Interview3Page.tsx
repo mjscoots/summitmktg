@@ -171,7 +171,7 @@ export default function Interview3Page() {
           'After Onboarding Done': formData.afterOnboardingDone ? 'Yes' : 'No',
           'Sent Intro': formData.sentIntroDone ? 'Yes' : 'No',
           'Other Questions': formData.otherQuestions,
-          'Final Outcome': formData.outcome === 'contract_signed' ? 'Contract Signed' : 'Contract Sent - Unsigned',
+          'Final Outcome': formData.outcome === 'contract_signed' ? 'Paperwork signed' : 'Paperwork sent, unsigned',
           'Team Assignment': hasTeam ? `${teamName} → ${formData.reportsTo?.full_name}` : 'Not assigned',
         },
       });
@@ -421,7 +421,7 @@ export default function Interview3Page() {
             <FieldLabel>Final Outcome</FieldLabel>
             <div className="flex gap-2">
               <button type="button" onClick={() => handleChange('outcome', 'contract_signed')} className={cn('flex-1 py-2.5 rounded-lg font-medium transition-all border text-sm flex items-center justify-center gap-1.5', formData.outcome === 'contract_signed' ? 'bg-success/10 text-success border-success/30' : 'bg-background text-muted-foreground/60 border-border/50 hover:border-success/40')}>
-                <CheckCircle2 className="w-4 h-4" />Contract Signed
+                <CheckCircle2 className="w-4 h-4" />Paperwork signed
               </button>
               <button type="button" onClick={() => handleChange('outcome', 'contract_sent_unsigned')} className={cn('flex-1 py-2.5 rounded-lg font-medium transition-all border text-sm flex items-center justify-center gap-1.5', formData.outcome === 'contract_sent_unsigned' ? 'bg-muted text-foreground border-border' : 'bg-background text-muted-foreground/60 border-border/50 hover:border-foreground/30')}>
                 <FileCheck className="w-4 h-4" />Sent - Unsigned

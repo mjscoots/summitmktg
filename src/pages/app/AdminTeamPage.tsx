@@ -1015,7 +1015,7 @@ export default function AdminTeamPage({ section = 'requests' }: { section?: Admi
               <div><label className="block text-sm font-medium text-foreground mb-1">Progress Status</label>
                 <select className="input-field w-full" value={editForm.onboarding_status} onChange={e => setEditForm(f => ({ ...f, onboarding_status: e.target.value }))}>
                   <option value="pending">Prospect Added</option>
-                  <option value="contract_signed">Contract Signed</option>
+                  <option value="contract_signed">Paperwork signed</option>
                   <option value="info_added">Info Added</option>
                   <option value="onboarded">Onboarded</option>
                   <option value="summer_ready">Summer Ready</option>

@@ -100,7 +100,7 @@ const REP_YEARS = ['1st', '2nd', '3rd+'] as const;
 
 const PIPELINE_STATUSES = [
   { key: 'pending', label: 'Prospect Added' },
-  { key: 'contract_signed', label: 'Contract Signed' },
+  { key: 'contract_signed', label: 'Paperwork signed' },
   { key: 'info_added', label: 'Info Added' },
   { key: 'onboarded', label: 'Onboarded' },
   { key: 'summer_ready', label: 'Summer Ready' },
