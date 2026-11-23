@@ -1,0 +1,45 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&display=swap");
+
+/* Orange brand accent (#FF6A00, @trntyhq), every route except the cover.
+   The ThemeOrangeScope component in App.tsx adds .theme-orange to body. */
+html body.theme-orange,
+html body.theme-orange .gold-world,
+html body.theme-orange.gold-world,
+html[data-appearance='light'] body.theme-orange .gold-world {
+  --primary: 25 100% 50%;
+  --primary-foreground: 0 0% 4%;
+  --primary-soft: 25 100% 50% / 0.12;
+  --primary-glow: 25 100% 50%;
+  --primary-muted: 25 100% 50% / 0.18;
+  --ring: 25 100% 50%;
+  --accent: 25 100% 50%;
+  --success: 25 100% 50%;
+  --ice: 25 100% 50%;
+  --violet: 25 100% 50%;
+  --bubble-blue: 25 100% 50%;
+  --fiber-mint: 25 100% 50%;
+  --workspace-accent: 25 100% 50%;
+  --rookie-accent: 25 100% 50%;
+  --rookie-glow: 25 100% 50%;
+  --manager-accent: 25 100% 50%;
+  --manager-glow: 25 100% 50%;
+  --glass-glow: 25 100% 50% / 0;
+  --sidebar-primary: 25 100% 50%;
+  --sidebar-ring: 25 100% 50%;
+  --gradient-brand: linear-gradient(135deg, #FF6A00, #FF9A4D);
+}
+
+/* Off-white body text on dark backgrounds only (#F5F2EE). */
+html:not([data-appearance='light']) body.theme-orange,
+html:not([data-appearance='light']) body.theme-orange .gold-world {
+  --foreground: 34 30% 95%;
+}
+
+html body.theme-orange h1,
+html body.theme-orange h2,
+html body.theme-orange h3 {
+  font-family: "Archivo Narrow", "Archivo", system-ui, sans-serif;
+}
+
+html body.theme-orange .wordmark-mountain { fill: #FF6A00; }
+html body.theme-orange .ask-dot-on { background: #FF6A00; }

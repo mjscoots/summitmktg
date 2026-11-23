@@ -58,7 +58,7 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
         style={{ display: "block" }}
       >
         <title>Trinity Sales</title>
-        <path d={MOUNTAIN_PATH} fill={LOGO_BLUE} fillRule="evenodd" />
+        <path d={MOUNTAIN_PATH} fill={LOGO_BLUE} fillRule="evenodd" className="wordmark-mountain" />
       </svg>
     );
   }
@@ -89,7 +89,7 @@ const WordmarkBase = forwardRef<SVGSVGElement, WordmarkProps>(function WordmarkB
           d={MOUNTAIN_PATH}
           fill={LOGO_BLUE}
           fillRule="evenodd"
-          className={animate ? "wordmark-lockup-line" : undefined}
+          className={animate ? "wordmark-mountain wordmark-lockup-line" : "wordmark-mountain"}
         />
       </g>
     </svg>

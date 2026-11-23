@@ -3,6 +3,7 @@ import App from "./App.tsx";
 // Pass 181: one family, Archivo, loads from Google Fonts in index.html with
 // display swap and a system fallback. No self-hosted faces remain.
 import "./index.css";
+import "./styles/theme-orange.css";
 import { registerServiceWorker } from "./lib/registerSW";
 import { rememberCodeFromUrl } from "./lib/source";
 

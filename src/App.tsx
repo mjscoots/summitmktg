@@ -1,5 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useParams, useSearchParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { sectionForTab } from "@/lib/adminSections";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -14,6 +14,15 @@ import { lazyRoute, isChunkLoadError, recoverFromStaleBuild, clearChunkRetryLatc
 import RootOverlays from "@/components/layout/RootOverlays";
 import { PublicHeader } from "@/components/recruiting/PublicHeader";
 import Index from "./pages/Index";
+
+/** Adds the orange accent on every path except the cover ("/"). */
+function ThemeOrangeScope() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    document.body.classList.toggle("theme-orange", pathname !== "/");
+  }, [pathname]);
+  return null;
+}
 
 // Every route-level page is loaded on demand so the first paint ships only the
 // shell. Pass 159: the login page and the not found page load on demand too, so
@@ -191,6 +200,7 @@ function LazyFallback() {
 
         <BrowserRouter>
           <ScrollToTop />
+          <ThemeOrangeScope />
            <PublicHeader />
           <Suspense fallback={<LazyFallback />}>
            <WorkspaceProvider>

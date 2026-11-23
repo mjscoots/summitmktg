@@ -115,7 +115,7 @@ const choiceBase =
 const primaryBase =
   'flex min-h-[64px] w-full items-center justify-center gap-2 rounded-xl bg-[#0A0A0F] px-4 text-[18px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-[420px]';
 const inputBase =
-  'min-h-[56px] w-full rounded-xl border border-[#E4E4EC] bg-white px-4 text-base text-[#0A0A0F] outline-none placeholder:text-[#8A8A99] focus:border-[#004EFD] sm:w-[420px]';
+  'min-h-[56px] w-full rounded-xl border border-[#E4E4EC] bg-white px-4 text-base text-[#0A0A0F] outline-none placeholder:text-[#8A8A99] focus:border-[#FF6A00] sm:w-[420px]';
 
 export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
   const navigate = useNavigate();
@@ -431,7 +431,7 @@ export default function ApplyFlow({ kind }: { kind: 'rookie' | 'vet' }) {
           </button>
           <div className="h-[4px] flex-1 rounded-full bg-[#E4E4EC]">
             <div
-              className="apply-progress h-[4px] rounded-full bg-[#004EFD]"
+              className="apply-progress h-[4px] rounded-full bg-[#FF6A00]"
               style={{ width: `${Math.round(progress * 100)}%` }}
             />
           </div>
