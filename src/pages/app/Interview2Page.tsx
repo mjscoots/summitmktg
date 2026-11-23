@@ -202,7 +202,7 @@ export default function Interview2Page() {
 
           <QuestionCard>
             <FieldLabel>How much revenue do you think you would close by summer's end?</FieldLabel>
-            <FieldHint>Average Sales rep does 75k-150k.</FieldHint>
+            <FieldHint>Ask what they did last season. Do not quote averages.</FieldHint>
             <textarea value={formData.revenueGoal} onChange={(e) => handleChange('revenueGoal', e.target.value)} placeholder="Your answer" rows={3} className={textareaClass} />
           </QuestionCard>
 

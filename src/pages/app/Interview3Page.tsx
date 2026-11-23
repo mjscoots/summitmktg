@@ -270,7 +270,7 @@ export default function Interview3Page() {
           </QuestionCard>
 
           <QuestionCard>
-            <FieldLabel>If 75k revenue is low and 350k revenue is high, where do you see yourself?</FieldLabel>
+            <FieldLabel>Where do you see your revenue landing this season, and why?</FieldLabel>
             <textarea value={formData.revenueRange} onChange={(e) => handleChange('revenueRange', e.target.value)} placeholder="Your answer" rows={3} className={textareaClass} />
           </QuestionCard>
 
