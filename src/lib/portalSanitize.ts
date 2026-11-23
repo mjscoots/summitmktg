@@ -2,7 +2,7 @@ const INTERNAL_START = /^(?:Source:|Gap:|Flag:|Facilitator notes\b|Handout:)/i;
 const INTERNAL_SENTENCE = /\b(?:Chief|Counsel)\b|\bfor Voice\b|\bVoice (?:pass|writes)\b/;
 
 export function portalDisplayName(text: string): string {
-  return text.replace(/Scoots's/g, "Mathew's").replace(/Scoots/g, 'Mathew');
+  return text.replace(/Scoots's/gi, "Mathew's").replace(/Scoots/gi, 'Mathew');
 }
 
 function cleanText(text: string): string {
@@ -18,7 +18,6 @@ function cleanText(text: string): string {
     .replace(/((?:(?:Google\s+)?Drive(?:\s+(?:file|doc|deck|id))?|file id)\s*)?`([^`\n]+)`/gi,
       (span, _label: string | undefined, value: string) => fileReference.test(value) ? '' : span)
     .replace(/\b[A-Za-z0-9_-]{25,}\b/g, '')
-    .replace(/\bcontracts?\b/gi, (word) => word[0] === word[0].toUpperCase() ? 'Paperwork' : 'paperwork')
     .replace(/\u2014/g, ',');
   return portalDisplayName(cleaned).replace(/\]\(\u0000(\d+)\u0000\)/g, (_, index: string) => `](${destinations[Number(index)]})`);
 }
