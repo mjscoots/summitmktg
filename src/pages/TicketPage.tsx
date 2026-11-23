@@ -39,7 +39,7 @@ export default function TicketPage() {
   const [done, setDone] = useState(false);
   // Pass 231 - the booking path exists even when the ticket setting is empty,
   // so a hot lead always has a way to book. A returned calendly_url still wins.
-  const [calendly, setCalendly] = useState(SCHEDULING_FALLBACK);
+  const [, setCalendly] = useState(SCHEDULING_FALLBACK);
   const [claimed, setClaimed] = useState<number | null>(null);
   const [seriesTotal, setSeriesTotal] = useState(100);
   const [source, setSource] = useState<SourceAttribution>(ORGANIC);
@@ -205,8 +205,7 @@ export default function TicketPage() {
             </h1>
             <p className="text-[14px] text-white/55 mb-9">Expect a call within 24 hours.</p>
 
-            {calendly && (
-              <a
+            <a
                 href="https://instagram.com/trntyhq"
                 onClick={() => { void trackPublicMeta('SchedulingClick'); }}
                 target="_blank"
@@ -217,7 +216,6 @@ export default function TicketPage() {
                 DM SUMMIT on @trntyhq
                 <ArrowRight className="w-4 h-4" />
               </a>
-            )}
 
             <Link
               to="/recruiting"

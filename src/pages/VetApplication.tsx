@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Target, TrendingUp, Settings } from "lucide-react";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import ApplyFlow from "@/components/apply/ApplyFlow";
@@ -54,13 +54,6 @@ const VetApplication = () => {
 
       <main className="mx-auto max-w-4xl px-0 pb-16 sm:px-6">
         <h1 className="sr-only">Veteran application</h1>
-        <p className="px-5 pt-6 text-center text-sm text-text-secondary sm:px-0">
-          No experience required.{" "}
-          <Link to="/apply/rookie" className="font-semibold text-primary underline-offset-4 hover:underline">
-            Apply here
-          </Link>
-        </p>
-
         <ApplyFlow kind="vet" />
 
         <div className="px-6 sm:px-0">

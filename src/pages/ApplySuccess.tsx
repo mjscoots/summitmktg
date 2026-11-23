@@ -55,7 +55,7 @@ const ApplySuccess = () => {
             Loading
           </p>
         )}
-        {wantsCall && !loadingCall && schedulingUrl && (
+        {wantsCall && !loadingCall && (
           <a
             href="https://instagram.com/trntyhq"
             className="mt-6 flex min-h-14 w-full items-center justify-center rounded-xl bg-primary px-6 text-base font-bold text-primary-foreground transition-opacity hover:opacity-90"

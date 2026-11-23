@@ -1,5 +1,8 @@
 import { ExternalLink } from 'lucide-react';
 
+// Hidden until the forms are published; copy kept in source.
+const SHOW_UNPUBLISHED_BANNER = false;
+
 const FORMS: { title: string; url?: string }[] = [
   { title: 'Weekly 1:1 Checklist', url: 'https://docs.google.com/forms/d/1Pjr1HcVSK7rWCVGBVUHOmUcDKO6R9sPgDlgsPGQf9JM/viewform' },
   { title: 'Rookie Interview 1', url: 'https://docs.google.com/forms/d/12tpqBBHu-23M9I1FvQX0OuOK16AY2fHzqbzQZ2kiaMQ/viewform' },
@@ -11,9 +14,9 @@ export default function PortalForms() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Forms</h1>
-      <p className="text-sm text-muted-foreground">These Google Forms are not published yet, so they may not accept responses. The links are the standard /viewform respondent URLs.</p>
+      {SHOW_UNPUBLISHED_BANNER && <p className="text-sm text-muted-foreground">These Google Forms are not published yet, so they may not accept responses. The links are the standard /viewform respondent URLs.</p>}
       <ul className="space-y-3">
-        {FORMS.map((f) => (
+        {FORMS.filter((f) => f.url).map((f) => (
           <li key={f.title}>
             {f.url ? (
               <a href={f.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 hover:border-primary transition-colors">

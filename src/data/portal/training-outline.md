@@ -310,6 +310,8 @@ Rules for the workshop:
 
 ---
 
+PORTAL_HIDE_START
+
 ## Gaps (all in one place)
 
 - Trinity's own referral-versus-cold close rate: **UNSOURCED - needs Mathew's number.** Section 1 uses the ERIN 2024 industry figure only, with the URL.
@@ -346,3 +348,5 @@ Rules for the workshop:
 - Recruiting-and-resigns skill (language, 3-call flow, no comp in writing)
 - https://erinapp.com/employee-referrals (referral vs cold conversion, 2024)
 - https://www.ashbyhq.com/talent-trends-report/reports/referrals (supporting interview-rate data only)
+
+PORTAL_HIDE_END

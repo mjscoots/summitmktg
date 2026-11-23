@@ -22,8 +22,13 @@ function cleanText(text: string): string {
   return portalDisplayName(cleaned).replace(/\]\(\u0000(\d+)\u0000\)/g, (_, index: string) => `](${destinations[Number(index)]})`);
 }
 
+/** Drops everything between PORTAL_HIDE_START and PORTAL_HIDE_END marker lines, inclusive. */
+function dropHiddenBlocks(source: string): string {
+  return source.replace(/^[ \t]*PORTAL_HIDE_START[ \t]*$[\s\S]*?^[ \t]*PORTAL_HIDE_END[ \t]*$\n?/gm, '');
+}
+
 export function sanitizePortalDoc(source: string): string {
-  const lines = source.replace(/\r/g, '').split('\n');
+  const lines = dropHiddenBlocks(source.replace(/\r/g, '')).split('\n');
   const output: string[] = [];
   let firstParagraph = true;
   let inFence = false;
